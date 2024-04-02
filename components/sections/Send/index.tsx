@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import {SmolAddressInput} from 'components/designSystem/SmolAddressInput';
 import {SmolTokenAmountInput} from 'components/designSystem/SmolTokenAmountInput';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -68,7 +68,7 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 export function Send(): ReactElement {
 	const {configuration, dispatchConfiguration} = useSendFlow();
 	const {hasInitialInputs} = useSendQueryManagement();
-
+	const inputRef = useRef<HTMLInputElement>(null);
 	const {currentNetworkTokenList} = useTokenList();
 
 	const isReceiverERC20 = Boolean(
@@ -99,6 +99,7 @@ export function Send(): ReactElement {
 			<div className={'mb-6'}>
 				<p className={'font-medium'}>{'Receiver'}</p>
 				<SmolAddressInput
+					inputRef={inputRef}
 					onSetValue={onSetRecipient}
 					value={configuration.receiver}
 				/>

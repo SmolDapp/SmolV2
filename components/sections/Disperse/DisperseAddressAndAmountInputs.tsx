@@ -1,10 +1,10 @@
+import {type ReactElement, useRef} from 'react';
 import {IconCross} from '@icons/IconCross';
 
 import {SmolAddressInput} from '../../designSystem/SmolAddressInput';
 import {SmolAmountInput} from '../../designSystem/SmolAmountInput';
 import {useDisperse} from './useDisperse';
 
-import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TInputAddressLike} from '@utils/tools.address';
 import type {TAmountInputElement} from '../../designSystem/SmolAmountInput';
@@ -17,6 +17,7 @@ type TDisperseAddressAndAmountInputs = {
 
 export function DisperseAddressAndAmountInputs({input, price}: TDisperseAddressAndAmountInputs): ReactElement {
 	const {configuration, dispatchConfiguration} = useDisperse();
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const onSetReceiver = (value: Partial<TInputAddressLike>): void => {
 		dispatchConfiguration({type: 'SET_RECEIVER', payload: {...value, UUID: input.UUID}});
@@ -35,6 +36,7 @@ export function DisperseAddressAndAmountInputs({input, price}: TDisperseAddressA
 			<div className={'flex w-full flex-col gap-4 md:flex-row'}>
 				<div className={'flex w-full max-w-full md:max-w-[424px]'}>
 					<SmolAddressInput
+						inputRef={inputRef}
 						onSetValue={onSetReceiver}
 						value={input.receiver}
 					/>
