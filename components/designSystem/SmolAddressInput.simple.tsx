@@ -1,4 +1,6 @@
 import React, {useCallback, useRef, useState} from 'react';
+import {mainnet} from 'viem/chains';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {IconCircleCheck} from '@icons/IconCircleCheck';
@@ -20,6 +22,7 @@ export function SmolAddressInputSimple(
 		onChange: (value: TInputAddressLike) => void;
 	} & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>
 ): ReactElement {
+	const {safeChainID} = useChainID();
 	const {value, onChange, inputRef, ...rest} = props;
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const [isCheckingValidity, set_isCheckingValidity] = useState<boolean>(false);
@@ -97,7 +100,11 @@ export function SmolAddressInputSimple(
 						}
 						set_isCheckingValidity(true);
 						onChange({address: toAddress(input), label: input, isValid: true, source: 'typed'});
-						const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input)});
+						const ensName =
+							safeChainID === mainnet.id
+								? await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: safeChainID})
+								: null;
+
 						if (signal.aborted) {
 							reject(new Error('Aborted!'));
 						}
