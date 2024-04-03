@@ -435,7 +435,7 @@ export function AddressBookCurtain(props: {
 								type={'submit'}
 								isDisabled={!(formRef.current?.checkValidity() ?? true)}
 								className={'!h-10 w-1/2 font-medium'}>
-								{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}
+								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>
 							{isEditMode ? (
 								<Button
