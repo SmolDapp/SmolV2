@@ -12,6 +12,7 @@ import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {IconFile} from '@icons/IconFile';
 import IconImport from '@icons/IconImport';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
@@ -143,7 +144,7 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 	return (
 		<Button
 			onClick={() => document.querySelector<HTMLInputElement>('#file-upload')?.click()}
-			className={'!h-[unset] py-1.5 !text-sm'}>
+			className={'!h-8 py-1.5 !text-xs'}>
 			<input
 				id={'file-upload'}
 				tabIndex={-1}
@@ -249,17 +250,19 @@ const Disperse = memo(function Disperse(): ReactElement {
 
 	return (
 		<div className={'w-full'}>
-			<button
-				className={'mb-2 hover:underline'}
-				onClick={() => {
-					plausible('download template');
-					downloadTemplate();
-				}}>
-				{'Download Template'}
-			</button>
-			<div className={'mb-4 flex gap-2'}>
+			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
 				<ImportConfigurationButton onSelectToken={onSelectToken} />
-				<ExportConfigurationButton className={'!text-sm'} />
+				<ExportConfigurationButton className={'!h-8 !text-xs'} />
+				<Button
+					className={'!h-8 !text-xs'}
+					variant={'light'}
+					onClick={() => {
+						plausible('download template');
+						downloadTemplate();
+					}}>
+					<IconFile className={'mr-2 size-3'} />
+					{'Download Template'}
+				</Button>
 			</div>
 			<div className={'mb-6 w-full max-w-full md:max-w-108'}>
 				<p className={'mb-2 font-medium'}>{'Token'}</p>
