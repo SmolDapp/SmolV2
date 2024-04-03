@@ -293,7 +293,7 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
-	console.log(addressLike);
+
 	const plausible = usePlausible();
 
 	const onFormSubmit = useCallback(
@@ -345,7 +345,6 @@ export function AddressBookCurtain(props: {
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => set_currentEntry({...currentEntry, label: props.initialLabel ?? ''}), [props.initialLabel]);
-	console.log(formRef.current?.checkValidity(), addressLike.isValid);
 	return (
 		<Dialog.Root
 			key={`${props.selectedEntry.id}`}

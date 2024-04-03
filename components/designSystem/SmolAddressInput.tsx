@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
 import {mainnet} from 'viem/chains';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {IconAppAddressBook} from '@icons/IconApps';
@@ -31,7 +30,6 @@ export function useValidateAddressInput(): {
 	validate: (signal: AbortSignal | undefined, input: string) => Promise<TInputAddressLike>;
 	isCheckingValidity: boolean;
 } {
-	const {safeChainID} = useChainID();
 	const {getEntry} = useAddressBook();
 	const [isCheckingValidity, set_isCheckingValidity] = useState<boolean>(false);
 
@@ -106,10 +104,7 @@ export function useValidateAddressInput(): {
 			}
 			set_isCheckingValidity(true);
 
-			const ensName =
-				safeChainID === mainnet.id
-					? await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: safeChainID})
-					: null;
+			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id});
 
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
