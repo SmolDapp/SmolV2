@@ -303,7 +303,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 	return (
 		<>
 			<Button
-				className={'!h-10 w-full max-w-[240px]'}
+				className={'!h-8 w-full max-w-[240px] !text-xs'}
 				isBusy={migrateStatus.pending}
 				isDisabled={isSendButtonDisabled}
 				onClick={onHandleMigration}>
