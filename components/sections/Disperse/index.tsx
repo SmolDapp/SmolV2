@@ -191,7 +191,7 @@ export function ExportConfigurationButton(buttonProps: ComponentPropsWithoutRef<
 	return (
 		<Button
 			onClick={downloadConfiguration}
-			className={cl('!h-[unset]', buttonProps.className)}>
+			className={cl(buttonProps.className)}>
 			<IconImport className={'mr-2 size-3 rotate-180 text-neutral-900'} />
 			{'Export Configuration'}
 		</Button>
