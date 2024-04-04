@@ -17,23 +17,25 @@ type TAppProp = {
 	title: string;
 	description: string;
 	children: ReactNode;
+	info: string;
 	action?: ReactNode;
 };
 function App(props: TAppProp): ReactElement {
 	return (
 		<div>
-			<div className={'absolute right-4 top-4 flex w-full justify-end'}>
+			<div className={'flex w-full justify-end'}>
 				<InfoCurtain
 					trigger={
 						<div
 							className={cl(
-								'h-8 w-8 rounded-full',
+								'h-8 w-8 rounded-full absolute right-4 top-4',
 								'bg-neutral-200 transition-colors hover:bg-neutral-300',
 								'flex justify-center items-center'
 							)}>
 							<IconQuestionMark className={'size-6 text-neutral-600'} />
 						</div>
 					}
+					info={props.info}
 				/>
 			</div>
 			<section className={'-mt-2 w-full p-8'}>
@@ -53,6 +55,7 @@ function App(props: TAppProp): ReactElement {
 type TComponent = NextComponentType & {
 	AppName: string;
 	AppDescription: string;
+	AppInfo: string;
 	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
@@ -62,6 +65,7 @@ export default function Layout(props: AppProps): ReactElement {
 	const appName = (Component as TComponent).AppName || 'App';
 	const appDescription = (Component as TComponent).AppDescription || '';
 	const appAction = (Component as TComponent).getAction || (() => null);
+	const appInfo = (Component as TComponent).AppInfo || '';
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
@@ -86,7 +90,8 @@ export default function Layout(props: AppProps): ReactElement {
 									key={appName}
 									title={appName}
 									description={appDescription}
-									action={appAction()}>
+									action={appAction()}
+									info={appInfo}>
 									<AnimatePresence>
 										<motion.div
 											initial={{scale: 0.9, opacity: 0}}
