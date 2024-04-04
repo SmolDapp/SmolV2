@@ -423,8 +423,8 @@ export function AddressBookCurtain(props: {
 								tabIndex={0}
 								type={'submit'}
 								isDisabled={!(formRef.current?.checkValidity() && addressLike.isValid)}
-								className={'!h-10 w-1/2 font-medium'}>
-								{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}
+								className={'!h-8 w-1/2 !text-xs font-medium'}>
+								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>
 							{isEditMode ? (
 								<Button
@@ -437,7 +437,7 @@ export function AddressBookCurtain(props: {
 									}}
 									type={'button'}
 									variant={'light'}
-									className={'!h-10 w-1/2'}>
+									className={'!h-8 w-1/2 !text-xs'}>
 									{'Cancel'}
 								</Button>
 							) : null}
