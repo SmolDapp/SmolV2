@@ -264,7 +264,7 @@ function AddressBookPage(): ReactElement {
 	const hasNoFilteredEntry = entries.length === 0;
 
 	return (
-		<div className={'w-108'}>
+		<div className={'max-w-108'}>
 			{hasNoEntries ? (
 				<div className={'w-444 md:h-content md:min-h-content'}>
 					<EmptyAddressBook onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})} />

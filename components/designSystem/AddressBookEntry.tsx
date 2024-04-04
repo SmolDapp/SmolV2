@@ -70,10 +70,17 @@ export function AddressBookEntryAddress(props: {
 			</b>
 			<Tooltip.Provider delayDuration={250}>
 				<Tooltip.Root>
-					<Tooltip.Trigger className={'flex w-fit items-center'}>
-						<small className={'cursor-pointer hover:underline'}>
-							{props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-						</small>
+					<Tooltip.Trigger className={'flex w-full items-center'}>
+						<input
+							disabled
+							type={'text'}
+							className={cl(
+								'text-xxs w-full  border-none p-0 transition-all line-clamp-1 max-w-full truncate disabled cursor-pointer hover:underline bg-transparent text-neutral-600'
+							)}
+							value={
+								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
+							}
+						/>
 					</Tooltip.Trigger>
 					<TooltipContent
 						side={'left'}
