@@ -1,5 +1,6 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
+import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {IconAppAddressBook} from '@icons/IconApps';
@@ -14,13 +15,15 @@ import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
 import {AvatarWrapper} from './Avatar';
 
-import type {ReactElement} from 'react';
+import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 import type {TInputAddressLike} from '@utils/tools.address';
 
 type TAddressInput = {
 	onSetValue: (value: Partial<TInputAddressLike>) => void;
 	value: TInputAddressLike;
-};
+	inputRef: RefObject<HTMLInputElement>;
+	isSimple?: boolean;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
 // TODO: add debounce
 export function useValidateAddressInput(): {
@@ -100,7 +103,9 @@ export function useValidateAddressInput(): {
 				throw new Error('Aborted!');
 			}
 			set_isCheckingValidity(true);
-			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input)});
+
+			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id});
+
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
 			}
@@ -118,7 +123,7 @@ export function useValidateAddressInput(): {
 		return {
 			address: undefined,
 			label: input,
-			isValid: input.startsWith('0x') && input.length === 42 ? false : 'undetermined',
+			isValid: false,
 			error: 'This address looks invalid',
 			source: 'typed'
 		};
@@ -127,12 +132,16 @@ export function useValidateAddressInput(): {
 	return {isCheckingValidity, validate};
 }
 
-export function SmolAddressInput({onSetValue, value}: TAddressInput): ReactElement {
+export function SmolAddressInput({
+	onSetValue,
+	value,
+	isSimple = false,
+	inputRef,
+	...rest
+}: TAddressInput): ReactElement {
 	const {onOpenCurtain} = useAddressBook();
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
-
-	const inputRef = useRef<HTMLInputElement>(null);
 
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
@@ -256,6 +265,7 @@ export function SmolAddressInput({onSetValue, value}: TAddressInput): ReactEleme
 						onBlur={() => {
 							set_isFocused(false);
 						}}
+						{...rest}
 					/>
 					<input
 						disabled
@@ -270,27 +280,30 @@ export function SmolAddressInput({onSetValue, value}: TAddressInput): ReactEleme
 						value={(isAddress(value?.address) && toAddress(value.address)) || value.error || ''}
 					/>
 				</div>
-				<div className={'w-fit flex-1'}>
-					<button
-						onClick={() => onOpenCurtain(selectedEntry => onChange(selectedEntry.label))}
-						className={cl(
-							'flex items-center gap-4 rounded-[4px] p-4 w-22',
-							'bg-neutral-200 hover:bg-neutral-300 transition-colors'
-						)}>
-						<div className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
-							{!isAddress(value.address) ? (
-								<IconAppAddressBook className={'size-4 text-neutral-600'} />
-							) : (
-								<AvatarWrapper
-									address={toAddress(value.address)}
-									sizeClassname={'h-8 w-8 min-w-8'}
-								/>
-							)}
-						</div>
+				{!isSimple && (
+					<div className={'w-fit flex-1'}>
+						<button
+							onClick={() => onOpenCurtain(selectedEntry => onChange(selectedEntry.label))}
+							className={cl(
+								'flex items-center gap-4 rounded-[4px] p-4 w-22',
+								'bg-neutral-200 hover:bg-neutral-300 transition-colors'
+							)}>
+							<div
+								className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+								{!isAddress(value.address) ? (
+									<IconAppAddressBook className={'size-4 text-neutral-600'} />
+								) : (
+									<AvatarWrapper
+										address={toAddress(value.address)}
+										sizeClassname={'h-8 w-8 min-w-8'}
+									/>
+								)}
+							</div>
 
-						<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
-					</button>
-				</div>
+							<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
+						</button>
+					</div>
+				)}
 			</label>
 		</div>
 	);

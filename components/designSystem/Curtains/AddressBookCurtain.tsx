@@ -18,7 +18,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
-import {SmolAddressInputSimple} from '../SmolAddressInput.simple';
+import {SmolAddressInput} from '../SmolAddressInput';
 
 import type {TAddressBookEntryReducer} from 'contexts/useAddressBookCurtain';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
@@ -196,9 +196,9 @@ function AddressInput(props: {
 	selectedEntry: TAddressBookEntry;
 	isEditMode: boolean;
 	onEdit: (shouldEdit: boolean) => void;
-	onChangeAddressLike: (addressLike: TInputAddressLike) => void;
+	onChangeAddressLike: (addressLike: Partial<TInputAddressLike>) => void;
 	addressLike: TInputAddressLike;
-	onChange: VoidFunction;
+	onChange?: VoidFunction;
 }): ReactElement {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const addressRef = useRef<HTMLDivElement>(null);
@@ -215,7 +215,8 @@ function AddressInput(props: {
 			isValid: isAddress(selectedEntry.address) ? true : 'undetermined',
 			source: 'defaultValue'
 		});
-	}, [onChangeAddressLike, selectedEntry.address, selectedEntry.ens]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedEntry.address, selectedEntry.ens]);
 
 	useEffect(() => {
 		const entry = getCachedEntry({address: props.addressLike.address});
@@ -223,25 +224,16 @@ function AddressInput(props: {
 
 		if (entry !== undefined && entry.id !== props.selectedEntry.id && !entry.isHidden) {
 			inputRef.current?.setCustomValidity('This address is already in your address book');
-			onChange();
+			onChange?.();
 		} else if (currentCustomValidity !== '') {
 			inputRef.current?.setCustomValidity('');
-			onChange();
+			onChange?.();
 		}
 	}, [getCachedEntry, onChange, props.addressLike.address, props.selectedEntry.id]);
 
 	const getErrorMessage = useCallback((): string | undefined => {
 		if (props.addressLike.isValid === 'undetermined') {
 			return undefined;
-		}
-		if (inputRef.current?.validity.patternMismatch) {
-			return 'The string must not start with `0x` and must not contain `.`';
-		}
-		if (inputRef.current?.validity.tooShort) {
-			return 'The name must be at least 1 character long';
-		}
-		if (inputRef.current?.validity.tooLong) {
-			return 'The name cannot be longer than 22 characters';
 		}
 		if (inputRef.current?.validationMessage) {
 			return inputRef.current?.validationMessage;
@@ -263,15 +255,15 @@ function AddressInput(props: {
 				<small className={'pr-1 text-red'}>{getErrorMessage()}</small>
 			</div>
 
-			<SmolAddressInputSimple
+			<SmolAddressInput
 				id={'address'}
 				inputRef={inputRef}
 				disabled={!props.isEditMode}
 				required
+				isSimple
 				value={props.addressLike}
-				onChange={v => {
-					onChange();
-					onChangeAddressLike(v);
+				onSetValue={(input: Partial<TInputAddressLike>) => {
+					onChangeAddressLike(input);
 				}}
 			/>
 		</div>
@@ -290,7 +282,6 @@ export function AddressBookCurtain(props: {
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
-	const [, set_nonce] = useState<number>(0);
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
 		address: props.selectedEntry.address,
@@ -304,8 +295,6 @@ export function AddressBookCurtain(props: {
 	});
 
 	const plausible = usePlausible();
-
-	const onIncrementNonce = useCallback(() => set_nonce(n => n + 1), []);
 
 	const onFormSubmit = useCallback(
 		async (event: React.FormEvent<HTMLFormElement>) => {
@@ -347,12 +336,15 @@ export function AddressBookCurtain(props: {
 		});
 	}, [props.selectedEntry.address, props.selectedEntry.ens]);
 
+	const onChangeValue = (value: Partial<TInputAddressLike>): void => {
+		set_addressLike(prev => ({...prev, ...value}));
+	};
+
 	useEffect(() => set_currentEntry(props.selectedEntry), [props.selectedEntry]);
 	useEffect(() => set_isEditMode(props.isEditing), [props.isEditing]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => set_currentEntry({...currentEntry, label: props.initialLabel ?? ''}), [props.initialLabel]);
-
 	return (
 		<Dialog.Root
 			key={`${props.selectedEntry.id}`}
@@ -395,11 +387,9 @@ export function AddressBookCurtain(props: {
 									{...props}
 									selectedEntry={currentEntry}
 									isEditMode={isEditMode}
-									onRefresh={() => set_nonce(n => n + 1)}
 									onEdit={set_isEditMode}
 									onChange={(label: string) => {
 										set_currentEntry({...currentEntry, label});
-										set_nonce(n => n + 1);
 									}}
 								/>
 							</div>
@@ -425,15 +415,14 @@ export function AddressBookCurtain(props: {
 							addressLike={addressLike}
 							isEditMode={isEditMode}
 							onEdit={set_isEditMode}
-							onChange={onIncrementNonce}
-							onChangeAddressLike={set_addressLike}
+							onChangeAddressLike={onChangeValue}
 						/>
 
 						<div className={'flex flex-row items-center gap-2'}>
 							<Button
 								tabIndex={0}
 								type={'submit'}
-								isDisabled={!(formRef.current?.checkValidity() ?? true)}
+								isDisabled={!(formRef.current?.checkValidity() && addressLike.isValid)}
 								className={'!h-8 w-1/2 !text-xs font-medium'}>
 								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>
@@ -443,7 +432,6 @@ export function AddressBookCurtain(props: {
 										if (props.selectedEntry) {
 											set_currentEntry(props.selectedEntry);
 											onResetAddressLike();
-											set_nonce(n => n + 1);
 											set_isEditMode(false);
 										}
 									}}

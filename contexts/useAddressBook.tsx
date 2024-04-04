@@ -6,7 +6,7 @@ import {AddressSelectorCurtain} from 'components/designSystem/Curtains/AddressSe
 import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isAddress, toAddress} from '@builtbymom/web3/utils';
+import {isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useMountEffect} from '@react-hookz/web';
 import {slugify} from '@utils/helpers';
 import {supportedNetworks} from '@utils/tools.chains';
@@ -181,13 +181,24 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		async (entry: TAddressBookEntry): Promise<void> => {
 			try {
 				const existingEntry = await getEntry({address: entry.address});
+				const label =
+					entry.label ||
+					toSafeAddress({address: entry.address, addrOverride: entry.address?.substring(2, 8)});
 				if (existingEntry) {
 					const mergedChains = [...(entry.chains || [])];
 					if (mergedChains.length === 0) {
 						mergedChains.push(safeChainID);
 					}
 					const mergedTags = [...(existingEntry.tags || []), ...(entry.tags || [])];
-					const mergedFields = {...existingEntry, ...entry, chains: mergedChains, tags: mergedTags};
+
+					const mergedFields = {
+						...existingEntry,
+						...entry,
+						label,
+
+						chains: mergedChains,
+						tags: mergedTags
+					};
 					mergedFields.chains = [...new Set(mergedFields.chains)].filter(chain => chain !== 0);
 					update({...mergedFields, slugifiedLabel: slugify(mergedFields.label)});
 					set_entryNonce(nonce => nonce + 1);
@@ -199,8 +210,9 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 					}
 					add({
 						...entry,
+						label,
 						chains,
-						slugifiedLabel: slugify(entry.label),
+						slugifiedLabel: slugify(label),
 						isFavorite: entry.isFavorite || false,
 						numberOfInteractions: entry.numberOfInteractions || 0,
 						isHidden: false
@@ -223,15 +235,23 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		async (entry: TAddressBookEntry): Promise<void> => {
 			try {
 				const existingEntry = await getEntry({address: entry.address});
+				const label =
+					entry.label ||
+					toSafeAddress({
+						address: entry.address,
+						addrOverride: entry.address?.substring(2, 8)
+					});
 				if (existingEntry) {
 					const mergedChains = [...(entry.chains || []), ...(existingEntry.chains || [])];
 					if (mergedChains.length === 0) {
 						mergedChains.push(safeChainID);
 					}
 					const mergedTags = [...(entry.tags || []), ...(existingEntry.tags || [])];
+
 					const mergedFields = {
 						...entry,
 						...existingEntry,
+						label,
 						chains: mergedChains,
 						tags: mergedTags,
 						isHidden: false
@@ -245,9 +265,11 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 					if (chains.length === 0) {
 						chains.push(safeChainID);
 					}
+
 					add({
 						...entry,
-						slugifiedLabel: slugify(entry.label),
+						label,
+						slugifiedLabel: slugify(label),
 						isFavorite: entry.isFavorite || false,
 						numberOfInteractions: entry.numberOfInteractions || 0,
 						isHidden: false
