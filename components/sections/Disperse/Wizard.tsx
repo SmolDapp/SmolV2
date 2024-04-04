@@ -409,8 +409,8 @@ export function DisperseWizard(): ReactElement {
 					}
 					return onApproveToken();
 				}}
-				className={'mt-2 !h-10 w-full max-w-[240px]'}>
-				{getButtonTitle()}
+				className={'mt-2 !h-8 w-full max-w-[240px] !text-xs'}>
+				<b>{getButtonTitle()}</b>
 			</Button>
 
 			<SuccessModal

@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement} from 'react';
+import {Fragment, type ReactElement, type ReactNode} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {CurtainContent} from 'components/Primitives/Curtain';
@@ -25,6 +25,7 @@ export function CloseCurtainButton(): ReactElement {
 
 type TCurtainElement = {
 	trigger: ReactElement;
+	info: ReactNode;
 };
 export function InfoCurtain(props: TCurtainElement): ReactElement {
 	const isMounted = useIsMounted();
@@ -43,13 +44,7 @@ export function InfoCurtain(props: TCurtainElement): ReactElement {
 						<h3 className={'font-bold'}>{'Info'}</h3>
 						<CloseCurtainButton />
 					</div>
-					<div className={'scrollable'}>
-						<p className={'whitespace-break-spaces text-neutral-600'}>
-							{
-								'Sending tokens to another address is a straightforward process on our platform. Please follow these step-by-step instructions to ensure a secure and successful transaction:\n\n Step 1: Log In to Your Account'
-							}
-						</p>
-					</div>
+					<div className={'scrollable text-neutral-600'}>{props.info}</div>
 				</aside>
 			</CurtainContent>
 		</Dialog.Root>

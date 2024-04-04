@@ -4,7 +4,6 @@ import {WithAddressBookCurtain} from 'contexts/useAddressBookCurtain';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 import {IconQuestionMark} from '@icons/IconQuestionMark';
-import {appWrapperVariants} from '@utils/animations';
 
 import {SideMenu} from './SideMenu';
 import {InfoCurtain} from './Curtains/InfoCurtain';
@@ -18,23 +17,25 @@ type TAppProp = {
 	title: string;
 	description: string;
 	children: ReactNode;
+	info: string;
 	action?: ReactNode;
 };
 function App(props: TAppProp): ReactElement {
 	return (
 		<div>
-			<div className={'absolute right-4 top-4 flex w-full justify-end'}>
+			<div className={'flex w-full justify-end'}>
 				<InfoCurtain
 					trigger={
 						<div
 							className={cl(
-								'h-8 w-8 rounded-full',
+								'h-8 w-8 rounded-full absolute right-4 top-4',
 								'bg-neutral-200 transition-colors hover:bg-neutral-300',
 								'flex justify-center items-center'
 							)}>
 							<IconQuestionMark className={'size-6 text-neutral-600'} />
 						</div>
 					}
+					info={props.info}
 				/>
 			</div>
 			<section className={'-mt-2 w-full p-8'}>
@@ -54,6 +55,7 @@ function App(props: TAppProp): ReactElement {
 type TComponent = NextComponentType & {
 	AppName: string;
 	AppDescription: string;
+	AppInfo: string;
 	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
@@ -63,6 +65,7 @@ export default function Layout(props: AppProps): ReactElement {
 	const appName = (Component as TComponent).AppName || 'App';
 	const appDescription = (Component as TComponent).AppDescription || '';
 	const appAction = (Component as TComponent).getAction || (() => null);
+	const appInfo = (Component as TComponent).AppInfo || '';
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
@@ -80,21 +83,16 @@ export default function Layout(props: AppProps): ReactElement {
 				</div>
 
 				<div className={'col-span-full px-4 md:col-main '}>
-					<AnimatePresence mode={'wait'}>
-						<motion.main
-							key={appName}
-							variants={appWrapperVariants}
-							custom={router.isReady}
-							animate={'animate'}
-							exit={'exit'}
-							initial={'initial'}
-							className={'relative mb-10 min-h-app w-full overflow-x-hidden rounded-lg bg-neutral-0'}>
-							<WithAddressBook>
-								<WithAddressBookCurtain>
-									<App
-										title={appName}
-										description={appDescription}
-										action={appAction()}>
+					<div className={'relative mb-10 min-h-app w-full overflow-x-hidden rounded-lg bg-neutral-0'}>
+						<WithAddressBook>
+							<WithAddressBookCurtain>
+								<App
+									key={appName}
+									title={appName}
+									description={appDescription}
+									action={appAction()}
+									info={appInfo}>
+									<AnimatePresence>
 										<motion.div
 											initial={{scale: 0.9, opacity: 0}}
 											animate={{scale: 1, opacity: 1}}
@@ -105,11 +103,11 @@ export default function Layout(props: AppProps): ReactElement {
 											}}>
 											{getLayout(<Component {...props} />, router)}
 										</motion.div>
-									</App>
-								</WithAddressBookCurtain>
-							</WithAddressBook>
-						</motion.main>
-					</AnimatePresence>
+									</AnimatePresence>
+								</App>
+							</WithAddressBookCurtain>
+						</WithAddressBook>
+					</div>
 				</div>
 			</div>
 		</div>
