@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
 import {Button} from 'components/Primitives/Button';
 import {useAddressBook} from 'contexts/useAddressBook';
-import {approveERC20, disperseERC20, disperseETH} from 'utils/actions';
+import {disperseERC20, disperseETH} from 'utils/actions';
 import {notifyDisperse} from 'utils/notifier';
 import {getTransferTransaction} from 'utils/tools.gnosis';
 import {type BaseError, erc20Abi, type Hex} from 'viem';
@@ -19,12 +19,13 @@ import {
 	toNormalizedValue,
 	truncateHex
 } from '@builtbymom/web3/utils';
+import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {toast} from '@yearn-finance/web-lib/components/yToast';
 import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
-import {SuccessModal} from '@common/ConfirmationModal';
 import {ErrorModal} from '@common/ErrorModal';
+import {SuccessModal} from '@common/SuccessModal';
 
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';

@@ -19,35 +19,6 @@ const ERC20ABI_TRANSFER: AbiItem = {
 	],
 	outputs: [{name: '', type: 'bool'}]
 };
-const ERC1155_TRANSFERBATCH: AbiItem = {
-	constant: false,
-	payable: false,
-	name: 'safeBatchTransferFrom',
-	type: 'function',
-	stateMutability: 'nonpayable',
-	inputs: [
-		{internalType: 'address', name: 'from', type: 'address'},
-		{internalType: 'address', name: 'to', type: 'address'},
-		{internalType: 'uint256[]', name: 'ids', type: 'uint256[]'},
-		{internalType: 'uint256[]', name: 'amounts', type: 'uint256[]'},
-		{internalType: 'bytes', name: 'data', type: 'bytes'}
-	],
-	outputs: []
-};
-const ERC721_TRANSFER: AbiItem = {
-	constant: false,
-	payable: false,
-	name: 'safeTransferFrom',
-	type: 'function',
-	stateMutability: 'nonpayable',
-	inputs: [
-		{internalType: 'address', name: 'from', type: 'address'},
-		{internalType: 'address', name: 'to', type: 'address'},
-		{internalType: 'uint256', name: 'tokenId', type: 'uint256'},
-		{internalType: 'bytes', name: 'data', type: 'bytes'}
-	],
-	outputs: []
-};
 
 export function getTransferTransaction(amount: string, token: TAddress, recipient: string): BaseTransaction {
 	if (token === toAddress(ETH_TOKEN_ADDRESS)) {
@@ -60,34 +31,5 @@ export function getTransferTransaction(amount: string, token: TAddress, recipien
 		to: token,
 		value: '0',
 		data: coder.encodeFunctionCall(ERC20ABI_TRANSFER, [recipient, amount])
-	};
-}
-
-export function getSafeBatchTransferFrom1155(
-	collection: TAddress,
-	from: TAddress,
-	to: TAddress,
-	tokenIDs: bigint[],
-	amounts: bigint[]
-): BaseTransaction {
-	const coder = abiCoder as unknown as AbiCoder;
-	return {
-		to: collection,
-		value: '0',
-		data: coder.encodeFunctionCall(ERC1155_TRANSFERBATCH, [from, to, tokenIDs as never, amounts as never, '0x'])
-	};
-}
-
-export function getSafeTransferFrom721(
-	collection: TAddress,
-	from: TAddress,
-	to: TAddress,
-	tokenID: bigint
-): BaseTransaction {
-	const coder = abiCoder as unknown as AbiCoder;
-	return {
-		to: collection,
-		value: '0',
-		data: coder.encodeFunctionCall(ERC721_TRANSFER, [from, to, tokenID.toString(), '0x'])
 	};
 }

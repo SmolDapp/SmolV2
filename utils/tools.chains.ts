@@ -14,7 +14,7 @@ import {
 } from 'wagmi/chains';
 import {indexedWagmiChains} from '@builtbymom/web3/utils/wagmi';
 
-import {COINGECKO_GAS_COIN_IDS, NFTMIGRATOOOR_CONTRACT_PER_CHAIN, SAFE_API_URI} from './constants';
+import {COINGECKO_GAS_COIN_IDS, SAFE_API_URI} from './constants';
 
 import type {Chain} from 'wagmi/chains';
 import type {TChainContract, TExtendedChain} from '@builtbymom/web3/utils/wagmi';
@@ -46,11 +46,7 @@ for (const chain of Object.values(indexedWagmiChains)) {
 	}
 	const extendedChain = chain as TAppExtendedChain;
 	extendedChain.contracts = {
-		...chain.contracts,
-		nftMigratooorContract: {
-			address: NFTMIGRATOOOR_CONTRACT_PER_CHAIN[chain.id],
-			blockCreated: 0 //not important
-		}
+		...chain.contracts
 	};
 	extendedChain.safeApiUri = SAFE_API_URI?.[chain.id] || '';
 	extendedChain.coingeckoGasCoinID = COINGECKO_GAS_COIN_IDS?.[chain.id] || 'ethereum';
