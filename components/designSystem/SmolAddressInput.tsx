@@ -25,7 +25,6 @@ type TAddressInput = {
 	isSimple?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-// TODO: add debounce
 export function useValidateAddressInput(): {
 	validate: (signal: AbortSignal | undefined, input: string) => Promise<TInputAddressLike>;
 	isCheckingValidity: boolean;

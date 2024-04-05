@@ -2,20 +2,19 @@
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
+import {FetchedTokenButton} from 'components/designSystem/FetchedTokenButton';
 import {SmolTokenButton} from 'components/designSystem/SmolTokenButton';
 import {CurtainContent} from 'components/Primitives/Curtain';
 import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
-import {Warning} from '@common/Primitives/Warning';
 
 import type {ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
@@ -35,48 +34,6 @@ const defaultProps: TBalancesCurtainProps = {
 	onOpenCurtain: (): void => undefined,
 	onCloseCurtain: (): void => undefined
 };
-
-// TODO: move to common
-export function FetchedToken({
-	tokenAddress,
-	displayInfo = false,
-	onSelect
-}: {
-	tokenAddress: TAddress;
-	displayInfo?: boolean;
-	onSelect?: (token: TToken) => void;
-}): ReactElement {
-	const {safeChainID} = useChainID();
-	const {data} = useBalances({tokens: [{address: tokenAddress, chainID: safeChainID}]});
-	const token = data[safeChainID]?.[tokenAddress];
-
-	const {data: price} = usePrices({tokens: [token], chainId: safeChainID});
-
-	console.warn(data);
-
-	if (!token) {
-		return <IconLoader className={'mt-7 size-4 animate-spin text-neutral-900'} />;
-	}
-
-	return (
-		<>
-			{displayInfo && (
-				<div className={'w-full'}>
-					<Warning
-						message={'Found 1 token that is not present in token list, click it to add'}
-						type={'info'}
-					/>
-				</div>
-			)}
-			<SmolTokenButton
-				token={token}
-				isDisabled={false}
-				price={price ? price[token.address] : undefined}
-				onClick={() => onSelect?.(token)}
-			/>
-		</>
-	);
-}
 
 function BalancesCurtain(props: {
 	isOpen: boolean;
@@ -187,7 +144,7 @@ function BalancesCurtain(props: {
 						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 							{balancesTextLayout}
 							{searchTokenAddress && (
-								<FetchedToken
+								<FetchedTokenButton
 									tokenAddress={searchTokenAddress}
 									onSelect={selected => {
 										props.onSelect?.(selected);

@@ -20,7 +20,6 @@ import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 import type {ReactElement} from 'react';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 
-// TODO: move to lib
 export type TTokenAmountInputElement = {
 	amount: string;
 	normalizedBigAmount: TNormalizedBN;
