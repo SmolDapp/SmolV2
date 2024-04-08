@@ -51,10 +51,8 @@ function MyApp(props: AppProps): ReactElement {
 				<WalletContextApp>
 					<SafeProvider>
 						<PlausibleProvider
-							// TODO: update all
-							domain={'test-localhost'}
-							enabled={true}
-							trackLocalhost={true}>
+							domain={'smol-v2.yearn.farm'}
+							enabled={true}>
 							<main className={`flex h-app flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 								<Meta />
 								<Layout {...props} />

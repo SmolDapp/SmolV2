@@ -1,6 +1,6 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import {FetchedTokenButton} from 'components/designSystem/FetchedTokenButton';
 import {SmolTokenButton} from 'components/designSystem/SmolTokenButton';
-import {FetchedToken} from 'contexts/useBalancesCurtain';
 import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -93,7 +93,7 @@ export function Wallet(): ReactElement {
 			<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 				{balancesTextLayout}
 				{searchTokenAddress && (
-					<FetchedToken
+					<FetchedTokenButton
 						tokenAddress={searchTokenAddress}
 						displayInfo
 						onSelect={selected => {

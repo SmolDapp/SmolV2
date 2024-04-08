@@ -1,6 +1,5 @@
 import type {ReactElement} from 'react';
 
-// TODO: dedupe with IconCircleCheck
 export function IconCheck(props: React.SVGProps<SVGSVGElement>): ReactElement {
 	return (
 		<svg
