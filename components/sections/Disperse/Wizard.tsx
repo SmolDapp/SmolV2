@@ -22,6 +22,7 @@ import {
 import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {DISPERSE_CONTRACT_PER_CHAIN} from '@utils/constants';
 import {toast} from '@yearn-finance/web-lib/components/yToast';
 import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 import {ErrorModal} from '@common/ErrorModal';
@@ -64,7 +65,7 @@ const useApproveDisperse = ({
 	const {data: allowance = 0n, refetch} = useReadContract({
 		abi: erc20Abi,
 		functionName: 'allowance',
-		args: [toAddress(address), toAddress(process.env.DISPERSE_ADDRESS)],
+		args: [toAddress(address), DISPERSE_CONTRACT_PER_CHAIN[safeChainID]],
 		address: toAddress(configuration.tokenToSend?.address),
 		query: {
 			enabled:
@@ -83,7 +84,7 @@ const useApproveDisperse = ({
 			connector: provider,
 			chainID: safeChainID,
 			contractAddress: toAddress(configuration.tokenToSend?.address),
-			spenderAddress: toAddress(process.env.DISPERSE_ADDRESS),
+			spenderAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 			amount: totalToDisperse,
 			statusHandler: set_approvalStatus
 		}).then(result => {
@@ -259,7 +260,7 @@ const useConfirmDisperse = ({
 			disperseETH({
 				connector: provider,
 				chainID: safeChainID,
-				contractAddress: toAddress(process.env.DISPERSE_ADDRESS),
+				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 				receivers: disperseAddresses,
 				amounts: disperseAmount
 			}).then(result => {
@@ -272,7 +273,7 @@ const useConfirmDisperse = ({
 			disperseERC20({
 				connector: provider,
 				chainID: safeChainID,
-				contractAddress: toAddress(process.env.DISPERSE_ADDRESS),
+				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 				tokenToDisperse: toAddress(configuration.tokenToSend?.address),
 				receivers: disperseAddresses,
 				amounts: disperseAmount
