@@ -1,5 +1,6 @@
 import {type ReactElement, useMemo} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
+import {isAddress} from '@builtbymom/web3/utils';
 import {Warning} from '@common/Primitives/Warning';
 
 import {useDisperse} from './useDisperse';
@@ -20,8 +21,26 @@ export function DisperseStatus(): ReactElement | null {
 				type: 'warning'
 			};
 		}
+		if (
+			configuration.inputs.some(currentRow =>
+				configuration.inputs.find(
+					iteratedRow =>
+						isAddress(currentRow.receiver.address) &&
+						isAddress(iteratedRow.receiver.address) &&
+						currentRow.UUID !== iteratedRow.UUID &&
+						currentRow.receiver.address === iteratedRow.receiver.address
+				)
+			)
+		) {
+			return {
+				message:
+					'Some duplicates were found in the configuration, please check that all the receivers are different',
+				type: 'error'
+			};
+		}
 		return null;
-	}, [addresses, getCachedEntry]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [addresses, configuration.inputs.length, getCachedEntry]);
 
 	if (!status) {
 		return null;
