@@ -72,9 +72,6 @@ export function Wallet(): ReactElement {
 	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID});
 
 	const walletLayout = useMemo(() => {
-		if (isLoading) {
-			return null;
-		}
 		if (!address) {
 			return (
 				<div className={'w-full'}>
@@ -92,6 +89,9 @@ export function Wallet(): ReactElement {
 					</div>
 				</div>
 			);
+		}
+		if (isLoading) {
+			return null;
 		}
 		if (searchTokenAddress) {
 			return (

@@ -100,9 +100,6 @@ function BalancesCurtain({
 	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID});
 
 	const walletLayout = useMemo(() => {
-		if (isLoading) {
-			return null;
-		}
 		if (!address) {
 			return (
 				<div className={'w-full'}>
@@ -121,6 +118,9 @@ function BalancesCurtain({
 					</div>
 				</div>
 			);
+		}
+		if (isLoading) {
+			return null;
 		}
 		if (searchTokenAddress) {
 			return (
