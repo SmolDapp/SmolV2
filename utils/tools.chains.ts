@@ -3,6 +3,7 @@ import {
 	base,
 	baseGoerli,
 	bsc,
+	confluxESpace,
 	fantom,
 	gnosis,
 	goerli,
@@ -29,7 +30,8 @@ export const supportedNetworks: Chain[] = [
 	fantom,
 	zkSync,
 	base,
-	arbitrum
+	arbitrum,
+	confluxESpace
 ];
 export const supportedTestNetworks: Chain[] = [goerli, baseGoerli];
 

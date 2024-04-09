@@ -7,6 +7,7 @@ import {
 	base,
 	bsc,
 	celo,
+	confluxESpace,
 	fantom,
 	gnosis,
 	linea,
@@ -38,7 +39,8 @@ export const SUPPORTED_CHAIN_IDS: TNDict<string> = {
 	1101: 'Polygon ZKEVM',
 	8453: 'Base',
 	42161: 'Arbitrum',
-	43114: 'Avalanche'
+	43114: 'Avalanche',
+	1030: 'Conflux'
 };
 
 export const SAFE_API_URI: {[chainId: number]: string} = {
@@ -82,5 +84,6 @@ export const DISPERSE_CONTRACT_PER_CHAIN: TNDict<TAddress> = {
 	[avalanche.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
 	[linea.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
 	[scroll.id]: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F'),
-	[aurora.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD')
+	[aurora.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
+	[confluxESpace.id]: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8')
 };
