@@ -106,6 +106,14 @@ module.exports = phase =>
 					42161: process.env.RPC_URL_ARBITRUM,
 					11155111: process.env.RPC_URL_SEPOLIA
 				},
+				// Wallet Connect modal configuration
+				WALLETCONNECT_PROJECT_ID: process.env.WALLETCONNECT_PROJECT_ID,
+				WALLETCONNECT_PROJECT_NAME: 'Smol',
+				WALLETCONNECT_PROJECT_DESCRIPTION:
+					'Simple, smart and elegant dapps, designed to make your crypto journey a little bit easier.',
+				WALLETCONNECT_PROJECT_URL: 'https://smold.app',
+				WALLETCONNECT_PROJECT_ICON: 'https://smold.app/favicons/ms-icon-310x310.png',
+
 				SMOL_ASSETS_URL: 'https://assets.smold.app/api',
 				SMOL_ADDRESS: '0x10001192576E8079f12d6695b0948C2F41320040',
 				PLAUSIBLE_DOMAIN: 'v2.smold.app'
