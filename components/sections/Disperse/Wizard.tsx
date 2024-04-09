@@ -419,7 +419,12 @@ export function DisperseWizard(): ReactElement {
 				title={'It looks like a success!'}
 				content={`Successfully dispersed ${configuration.tokenToSend?.name} to ${configuration.inputs.length} receivers!`}
 				ctaLabel={'Close'}
-				downloadConfigButton={<ExportConfigurationButton className={'w-full'} />}
+				downloadConfigButton={
+					<ExportConfigurationButton
+						className={'w-full'}
+						title={'Export Config'}
+					/>
+				}
 				isOpen={disperseStatus.success}
 				onClose={(): void => {
 					onResetDisperse();
