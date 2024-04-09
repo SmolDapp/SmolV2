@@ -198,11 +198,11 @@ function AddressInput(props: {
 	onEdit: (shouldEdit: boolean) => void;
 	onChangeAddressLike: (addressLike: Partial<TInputAddressLike>) => void;
 	addressLike: TInputAddressLike;
-	onChange?: VoidFunction;
+	onRefresh?: VoidFunction;
 }): ReactElement {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const addressRef = useRef<HTMLDivElement>(null);
-	const {onChangeAddressLike, onChange, selectedEntry} = props;
+	const {onChangeAddressLike, onRefresh, selectedEntry} = props;
 	const {getCachedEntry} = useAddressBook();
 
 	useEffect(() => {
@@ -224,12 +224,12 @@ function AddressInput(props: {
 
 		if (entry !== undefined && entry.id !== props.selectedEntry.id && !entry.isHidden) {
 			inputRef.current?.setCustomValidity('This address is already in your address book');
-			onChange?.();
+			onRefresh?.();
 		} else if (currentCustomValidity !== '') {
 			inputRef.current?.setCustomValidity('');
-			onChange?.();
+			onRefresh?.();
 		}
-	}, [getCachedEntry, onChange, props.addressLike.address, props.selectedEntry.id]);
+	}, [getCachedEntry, onRefresh, props.addressLike.address, props.selectedEntry.id]);
 
 	const getErrorMessage = useCallback((): string | undefined => {
 		if (props.addressLike.isValid === 'undetermined') {
@@ -282,6 +282,8 @@ export function AddressBookCurtain(props: {
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
+	const [, set_nonce] = useState<number>(0);
+
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
 		address: props.selectedEntry.address,
@@ -388,6 +390,7 @@ export function AddressBookCurtain(props: {
 									selectedEntry={currentEntry}
 									isEditMode={isEditMode}
 									onEdit={set_isEditMode}
+									onRefresh={() => set_nonce(n => n + 1)}
 									onChange={(label: string) => {
 										set_currentEntry({...currentEntry, label});
 									}}
@@ -415,6 +418,7 @@ export function AddressBookCurtain(props: {
 							addressLike={addressLike}
 							isEditMode={isEditMode}
 							onEdit={set_isEditMode}
+							onRefresh={() => set_nonce(n => n + 1)}
 							onChangeAddressLike={onChangeValue}
 						/>
 
