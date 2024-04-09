@@ -82,7 +82,7 @@ export function SideMenuNav(): ReactElement {
 	const pathname = usePathname();
 
 	return (
-		<div className={'scrollable scrollbar-show h-full py-4'}>
+		<div className={'scrollable scrollbar-show h-full pt-4'}>
 			<section className={'flex h-full flex-col justify-between'}>
 				<ul className={'grid gap-2 pb-8'}>
 					<NavItem
@@ -124,7 +124,7 @@ export function SideMenuNav(): ReactElement {
 						icon={<IconWallet />}
 					/>
 				</ul>
-				<div className={'mt-auto flex justify-between px-6 pb-2 text-xxs text-neutral-600'}>
+				<div className={'mt-auto flex justify-between px-6 pb-6 text-xxs text-neutral-600'}>
 					<div className={'flex gap-4'}>
 						<Link
 							className={'transition-colors hover:text-neutral-900'}
