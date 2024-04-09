@@ -20,7 +20,7 @@ AddressBookPage.AppInfo = (
 		<br />
 		<p>{'“Wow, privacy and functionality, you Smol guys rock!” '}</p>
 		<br />
-		<p>{'Thanks anon, now go forth and and send thy digital tokens.'}</p>
+		<p>{'Thanks anon, now go forth and send thy digital tokens.'}</p>
 	</>
 );
 AddressBookPage.getLayout = function getLayout(page: ReactElement): ReactElement {

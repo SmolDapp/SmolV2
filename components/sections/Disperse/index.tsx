@@ -160,7 +160,10 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 	);
 }
 
-export function ExportConfigurationButton(buttonProps: ComponentPropsWithoutRef<'button'>): ReactElement {
+export function ExportConfigurationButton({
+	className,
+	title = 'Export Configuration'
+}: ComponentPropsWithoutRef<'button'>): ReactElement {
 	const {configuration} = useDisperse();
 	const plausible = usePlausible();
 
@@ -191,9 +194,9 @@ export function ExportConfigurationButton(buttonProps: ComponentPropsWithoutRef<
 	return (
 		<Button
 			onClick={downloadConfiguration}
-			className={cl(buttonProps.className)}>
+			className={cl(className)}>
 			<IconImport className={'mr-2 size-3 rotate-180 text-neutral-900'} />
-			{'Export Configuration'}
+			{title}
 		</Button>
 	);
 }

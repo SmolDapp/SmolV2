@@ -95,7 +95,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		const entriesFromDB = await getAll();
 		if (entriesFromDB.length === 0) {
 			add({
-				address: '0x10001192576E8079f12d6695b0948C2F41320040',
+				address: toAddress(process.env.SMOL_ADDRESS),
 				label: 'smol',
 				isFavorite: false,
 				chains: supportedNetworks.map(chain => chain.id),

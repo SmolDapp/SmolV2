@@ -51,7 +51,7 @@ function MyApp(props: AppProps): ReactElement {
 				<WalletContextApp>
 					<SafeProvider>
 						<PlausibleProvider
-							domain={'smol-v2.yearn.farm'}
+							domain={process.env.PLAUSIBLE_DOMAIN || 'v2.smold.app'}
 							enabled={true}>
 							<main className={`flex h-app flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 								<Meta />

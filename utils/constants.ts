@@ -1,8 +1,26 @@
 'use client';
 
+import {
+	arbitrum,
+	aurora,
+	avalanche,
+	base,
+	bsc,
+	celo,
+	fantom,
+	gnosis,
+	linea,
+	mainnet,
+	mantle,
+	optimism,
+	polygon,
+	polygonZkEvm,
+	scroll,
+	zkSync
+} from 'viem/chains';
 import {toAddress} from '@builtbymom/web3/utils';
 
-import type {TNDict} from '@builtbymom/web3/types';
+import type {TAddress, TNDict} from '@builtbymom/web3/types';
 
 export const MATIC_TOKEN_ADDRESS = toAddress('0x0000000000000000000000000000000000001010');
 export const POLYGON_LENS_ADDRESS = toAddress('0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d');
@@ -46,4 +64,23 @@ export const COINGECKO_GAS_COIN_IDS: TNDict<string> = {
 	324: 'ethereum',
 	8453: 'ethereum',
 	42161: 'ethereum'
+};
+
+export const DISPERSE_CONTRACT_PER_CHAIN: TNDict<TAddress> = {
+	[mainnet.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[optimism.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[bsc.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[gnosis.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[polygon.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[fantom.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[zkSync.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[polygonZkEvm.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[mantle.id]: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+	[base.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[arbitrum.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[celo.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[avalanche.id]: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+	[linea.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
+	[scroll.id]: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F'),
+	[aurora.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD')
 };
