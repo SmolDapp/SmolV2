@@ -35,7 +35,14 @@ const defaultProps: TBalancesCurtainProps = {
 	onCloseCurtain: (): void => undefined
 };
 
-function BalancesCurtain(props: {
+function BalancesCurtain({
+	isOpen,
+	tokensWithBalance,
+	isLoading,
+	onOpenChange,
+	onSelect,
+	selectedTokenAddresses
+}: {
 	isOpen: boolean;
 	tokensWithBalance: TToken[];
 	isLoading: boolean;
@@ -54,10 +61,10 @@ function BalancesCurtain(props: {
 	 * This is to avoid preserving the state accross multiple openings.
 	 *************************************************************************/
 	useEffect((): void => {
-		if (props.isOpen) {
+		if (isOpen) {
 			set_searchValue('');
 		}
-	}, [props.isOpen]);
+	}, [isOpen]);
 
 	/**************************************************************************
 	 * When user searches for a specific address, not present in the token list,
@@ -68,12 +75,12 @@ function BalancesCurtain(props: {
 	const searchTokenAddress = useMemo(() => {
 		if (
 			isAddress(searchValue) &&
-			!props.tokensWithBalance.some(token => isAddressEqual(token.address, toAddress(searchValue)))
+			!tokensWithBalance.some(token => isAddressEqual(token.address, toAddress(searchValue)))
 		) {
 			return toAddress(searchValue);
 		}
 		return undefined;
-	}, [props.tokensWithBalance, searchValue]);
+	}, [tokensWithBalance, searchValue]);
 
 	/**************************************************************************
 	 * Memo function that filters the tokens user have on
@@ -82,40 +89,85 @@ function BalancesCurtain(props: {
 	 * will be returned.
 	 *************************************************************************/
 	const filteredTokens = useDeepCompareMemo(() => {
-		return props.tokensWithBalance.filter(
+		return tokensWithBalance.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				token.name.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				toAddress(token.address).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
 		);
-	}, [searchValue, props.tokensWithBalance]);
+	}, [searchValue, tokensWithBalance]);
 
 	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID});
 
-	const balancesTextLayout = useMemo(() => {
-		let balancesText = undefined;
-
-		if (filteredTokens.length === 0 && !searchTokenAddress) {
-			balancesText = 'No tokens found';
+	const walletLayout = useMemo(() => {
+		if (isLoading) {
+			return null;
 		}
 		if (!address) {
-			balancesText = 'No wallet connected';
-		}
-		if (balancesText) {
 			return (
-				<div>
-					<p className={'text-center text-xs text-neutral-600'}>{balancesText}</p>
+				<div className={'w-full'}>
+					<p className={'text-center text-xs text-neutral-600'}>{'No wallet connected'}</p>
+					<div className={'max-w-23 mt-6 w-full'}>
+						<button
+							onClick={() => {
+								onConnect();
+								onOpenChange(false);
+							}}
+							className={
+								'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'
+							}>
+							{'Connect Wallet'}
+						</button>
+					</div>
 				</div>
 			);
 		}
+		if (searchTokenAddress) {
+			return (
+				<FetchedTokenButton
+					tokenAddress={searchTokenAddress}
+					onSelect={selected => {
+						onSelect?.(selected);
+						onOpenChange(false);
+						addCustomToken(selected);
+					}}
+				/>
+			);
+		}
 
-		return null;
-	}, [address, filteredTokens.length, searchTokenAddress]);
+		if (filteredTokens.length > 0) {
+			return filteredTokens.map(token => (
+				<SmolTokenButton
+					key={`${token.address}_${token.chainID}`}
+					token={token}
+					price={prices ? prices[token.address] : undefined}
+					isDisabled={selectedTokenAddresses?.includes(token.address) || false}
+					onClick={() => {
+						onSelect?.(token);
+						onOpenChange(false);
+					}}
+				/>
+			));
+		}
+
+		return <p className={'text-center text-xs text-neutral-600'}>{'No tokens found'}</p>;
+	}, [
+		addCustomToken,
+		address,
+		filteredTokens,
+		isLoading,
+		onConnect,
+		onOpenChange,
+		onSelect,
+		prices,
+		searchTokenAddress,
+		selectedTokenAddresses
+	]);
 
 	return (
 		<Dialog.Root
-			open={props.isOpen}
-			onOpenChange={props.onOpenChange}>
+			open={isOpen}
+			onOpenChange={onOpenChange}>
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
@@ -142,45 +194,10 @@ function BalancesCurtain(props: {
 							onChange={e => set_searchValue(e.target.value)}
 						/>
 						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-							{balancesTextLayout}
-							{searchTokenAddress && (
-								<FetchedTokenButton
-									tokenAddress={searchTokenAddress}
-									onSelect={selected => {
-										props.onSelect?.(selected);
-										props.onOpenChange(false);
-										addCustomToken(selected);
-									}}
-								/>
+							{walletLayout}
+							{isLoading && !!address && (
+								<IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />
 							)}
-							{address ? (
-								filteredTokens.map(token => (
-									<SmolTokenButton
-										key={`${token.address}_${token.chainID}`}
-										token={token}
-										price={prices ? prices[token.address] : undefined}
-										isDisabled={props.selectedTokenAddresses?.includes(token.address) || false}
-										onClick={() => {
-											props.onSelect?.(token);
-											props.onOpenChange(false);
-										}}
-									/>
-								))
-							) : (
-								<div className={'max-w-23 mt-3 w-full'}>
-									<button
-										onClick={() => {
-											onConnect();
-											props.onOpenChange(false);
-										}}
-										className={
-											'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'
-										}>
-										{'Connect Wallet'}
-									</button>
-								</div>
-							)}
-							{props.isLoading && <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />}
 						</div>
 					</div>
 				</aside>
