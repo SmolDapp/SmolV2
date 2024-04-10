@@ -7,6 +7,7 @@ import {IconHamburger} from '@icons/IconHamburger';
 import {ConnectButton} from '@rainbow-me/rainbowkit';
 import {useIsMounted} from '@react-hookz/web';
 
+import {SideMenuFooter} from '../SideMenuFooter';
 import {SideMenuNav} from '../SideMenuNav';
 import {CoinBalance} from '../SideMenuProfile/CoinBalance';
 import {ProfileBox} from '../SideMenuProfile/ProfileBox';
@@ -87,6 +88,7 @@ export function SideMenuMobile(): ReactElement {
 										'relative overflow-hidden rounded-md !bg-neutral-0 transition-all w-full'
 									)}>
 									<SideMenuNav />
+									<SideMenuFooter />
 								</Dialog.Panel>
 							</Transition.Child>
 						</div>

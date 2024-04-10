@@ -295,7 +295,7 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
-
+	console.log(addressLike);
 	const plausible = usePlausible();
 
 	const onFormSubmit = useCallback(
@@ -426,7 +426,7 @@ export function AddressBookCurtain(props: {
 							<Button
 								tabIndex={0}
 								type={'submit'}
-								isDisabled={!(formRef.current?.checkValidity() && addressLike.isValid)}
+								isDisabled={!(formRef.current?.checkValidity() && addressLike.isValid === true)}
 								className={'!h-8 w-1/2 !text-xs font-medium'}>
 								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>

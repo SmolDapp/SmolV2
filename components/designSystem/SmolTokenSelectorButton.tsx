@@ -48,9 +48,11 @@ export function SmolTokenSelectorButton({
 				<p
 					className={cl(
 						'truncate',
-						isAddress(token?.address) ? 'font-bold' : 'text-neutral-600 text-sm font-normal'
+						isAddress(token?.address) && (token?.symbol || token?.name)
+							? 'font-bold'
+							: 'text-neutral-600 text-sm font-normal'
 					)}>
-					{token?.symbol || 'Select token'}
+					{token?.symbol || token?.name || 'Select token'}
 				</p>
 			</div>
 

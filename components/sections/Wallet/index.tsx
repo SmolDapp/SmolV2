@@ -8,6 +8,7 @@ import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {IconWallet} from '@icons/IconWallet';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
@@ -20,6 +21,25 @@ function WalletListHeader(): ReactElement {
 			</div>
 			<div className={'h-px bg-neutral-400'} />
 		</>
+	);
+}
+
+function EmptyWallet(): ReactElement {
+	return (
+		<div className={'mt-4 flex size-full flex-col items-center rounded-lg bg-neutral-200 px-11 py-[72px]'}>
+			<div className={'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'}>
+				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
+					<IconWallet className={'size-20'} />
+				</div>
+			</div>
+			<div className={'flex flex-col items-center justify-center'}>
+				<p className={'text-center text-base text-neutral-600'}>
+					{
+						"Oh no, we can't find your tokens. You can paste a token address above or... you know... buy some tokens."
+					}
+				</p>
+			</div>
+		</div>
 	);
 }
 
@@ -51,25 +71,57 @@ export function Wallet(): ReactElement {
 
 	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID});
 
-	const balancesTextLayout = useMemo(() => {
-		let balancesText = undefined;
-
-		if (filteredTokens.length === 0 && !searchTokenAddress) {
-			balancesText = 'No tokens found';
-		}
+	const walletLayout = useMemo(() => {
 		if (!address) {
-			balancesText = 'No wallet connected';
-		}
-		if (balancesText) {
 			return (
-				<div>
-					<p className={'text-center text-xs text-neutral-600'}>{balancesText}</p>
+				<div className={'w-full'}>
+					<p className={'text-center text-xs text-neutral-600'}>{'No wallet connected'}</p>
+					<div className={'max-w-23 mt-6 w-full'}>
+						<button
+							onClick={() => {
+								onConnect();
+							}}
+							className={
+								'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'
+							}>
+							{'Connect Wallet'}
+						</button>
+					</div>
 				</div>
 			);
 		}
+		if (isLoading) {
+			return null;
+		}
+		if (searchTokenAddress) {
+			return (
+				<FetchedTokenButton
+					tokenAddress={searchTokenAddress}
+					displayInfo
+					onSelect={selected => {
+						addCustomToken(selected);
+						set_searchValue('');
+					}}
+				/>
+			);
+		}
 
-		return null;
-	}, [address, filteredTokens.length, searchTokenAddress]);
+		if (filteredTokens.length > 0) {
+			return filteredTokens.map(token => (
+				<SmolTokenButton
+					key={`${token.address}_${token.chainID}`}
+					token={token}
+					price={prices ? prices[token.address] : undefined}
+				/>
+			));
+		}
+
+		if (searchValue !== '') {
+			return <p className={'text-center text-xs text-neutral-600'}>{'No tokens found'}</p>;
+		}
+
+		return <EmptyWallet />;
+	}, [addCustomToken, address, filteredTokens, isLoading, onConnect, prices, searchTokenAddress, searchValue]);
 
 	return (
 		<div className={'w-full max-w-108 gap-4'}>
@@ -89,42 +141,10 @@ export function Wallet(): ReactElement {
 				disabled={!address}
 				onChange={e => set_searchValue(e.target.value)}
 			/>
-			{!searchTokenAddress && address && !balancesTextLayout && <WalletListHeader />}
+			{!searchTokenAddress && address && !searchValue && !isLoading && <WalletListHeader />}
 			<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-				{balancesTextLayout}
-				{searchTokenAddress && (
-					<FetchedTokenButton
-						tokenAddress={searchTokenAddress}
-						displayInfo
-						onSelect={selected => {
-							addCustomToken(selected);
-							set_searchValue('');
-						}}
-					/>
-				)}
-				{address ? (
-					filteredTokens.map(token => (
-						<SmolTokenButton
-							key={`${token.address}_${token.chainID}`}
-							token={token}
-							price={prices ? prices[token.address] : undefined}
-						/>
-					))
-				) : (
-					<div className={'max-w-23 mt-3 w-full'}>
-						<button
-							onClick={() => {
-								onConnect();
-							}}
-							className={
-								'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'
-							}>
-							{'Connect Wallet'}
-						</button>
-					</div>
-				)}
-
-				{isLoading && <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />}
+				{walletLayout}
+				{isLoading && !!address && <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />}
 			</div>
 		</div>
 	);

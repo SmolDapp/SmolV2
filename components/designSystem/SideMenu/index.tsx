@@ -1,3 +1,4 @@
+import {SideMenuFooter} from './SideMenuFooter';
 import {SideMenuNav} from './SideMenuNav';
 import {SideMenuProfile} from './SideMenuProfile';
 
@@ -9,6 +10,7 @@ export function SideMenu(): ReactElement {
 			<SideMenuProfile />
 			<div className={'h-0.5 w-full bg-neutral-200'} />
 			<SideMenuNav />
+			<SideMenuFooter />
 		</>
 	);
 }

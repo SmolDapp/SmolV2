@@ -8,7 +8,7 @@ export default function WalletPage(): ReactElement {
 }
 
 WalletPage.AppName = 'Wallet';
-WalletPage.AppDescription = 'If you want to see tokens form another chains - switch chain in the side bar.';
+WalletPage.AppDescription = 'Check your wallet on any chain (it’s in the sidebar bruv)';
 WalletPage.AppInfo = (
 	<>
 		<p>{'Well, basically, it’s… your wallet. '}</p>
