@@ -125,7 +125,6 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 			.then(values => {
 				values.forEach((validatedReceiver, index) => {
 					const stringAmount = getInitialAmount(records[index].value, initialToken);
-					console.log(records[index].value, initialToken);
 					const value = {
 						receiver: validatedReceiver,
 						value: {...newVoidRow().value, ...validateAmount(stringAmount, initialToken)},

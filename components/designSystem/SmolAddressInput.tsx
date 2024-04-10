@@ -43,7 +43,6 @@ export function useValidateAddressInput(): {
 		const fromAddressBook = await getEntry({label: input, address: toAddress(input)});
 		if (fromAddressBook && !fromAddressBook.isHidden) {
 			if (signal?.aborted) {
-				console.log('aborted');
 				throw new Error('Aborted!');
 			}
 
@@ -64,7 +63,6 @@ export function useValidateAddressInput(): {
 			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
 			const [address, isValid] = await checkENSValidity(input);
 			if (signal?.aborted) {
-				console.log('aborted');
 				throw new Error('Aborted!');
 			}
 			if (isAddress(address)) {
@@ -98,7 +96,6 @@ export function useValidateAddressInput(): {
 		 **********************************************************/
 		if (isAddress(input)) {
 			if (signal?.aborted) {
-				console.log('aborted');
 				throw new Error('Aborted!');
 			}
 			set_isCheckingValidity(true);

@@ -67,13 +67,13 @@ export function SideMenuMobile(): ReactElement {
 						leave={'ease-out duration-300'}
 						leaveFrom={'translate-y-0 opacity-100'}
 						leaveTo={'translate-y-full opacity-0'}>
-						<div className={'bg-primary-900/40 fixed inset-0 backdrop-blur-sm transition-opacity'} />
+						<div className={'fixed inset-0 bg-neutral-900/40 backdrop-blur-sm transition-opacity'} />
 					</Transition.Child>
 
 					<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
 						<div
 							className={
-								'flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0'
+								'flex min-h-full items-end justify-center p-0 text-center sm:items-center sm:p-0'
 							}>
 							<Transition.Child
 								as={Fragment}
