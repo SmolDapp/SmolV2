@@ -9,14 +9,14 @@ export function ConnectButton(): ReactElement {
 	return (
 		<section
 			className={cl(
-				'h-[145px] rounded-t-lg bg-neutral-0',
+				'h-[145px] w-full rounded-t-lg bg-neutral-0',
 				'px-10 pb-6 pt-5',
 				'flex flex-col justify-center items-center'
 			)}>
 			<div className={'mb-5 flex size-12 items-center justify-center rounded-full bg-neutral-300'}>
 				<IconWallet className={'size-6 text-neutral-700'} />
 			</div>
-			<div className={'w-full'}>
+			<div className={'w-full max-w-72'}>
 				<button
 					onClick={onConnect}
 					className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
