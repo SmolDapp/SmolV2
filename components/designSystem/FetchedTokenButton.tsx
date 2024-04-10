@@ -1,3 +1,4 @@
+import {type ReactElement} from 'react';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
@@ -6,7 +7,6 @@ import {Warning} from '@common/Primitives/Warning';
 
 import {SmolTokenButton} from './SmolTokenButton';
 
-import type {ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
 
 export function FetchedTokenButton({
@@ -21,7 +21,6 @@ export function FetchedTokenButton({
 	const {safeChainID} = useChainID();
 	const {data} = useBalances({tokens: [{address: tokenAddress, chainID: safeChainID}]});
 	const token = data[safeChainID]?.[tokenAddress];
-
 	const {data: price} = usePrices({tokens: [token], chainId: safeChainID});
 
 	if (!token) {
