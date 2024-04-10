@@ -295,7 +295,6 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
-	console.log(addressLike);
 	const plausible = usePlausible();
 
 	const onFormSubmit = useCallback(
