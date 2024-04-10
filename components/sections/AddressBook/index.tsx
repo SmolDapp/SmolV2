@@ -194,7 +194,7 @@ function AddressBookActions(props: {onOpenCurtain: VoidFunction}): ReactElement 
 
 function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 	return (
-		<div className={'flex size-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
+		<div className={'flex w-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
 			<div className={'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'}>
 				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
 					<IconAppAddressBook className={'size-20'} />

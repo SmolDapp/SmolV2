@@ -1,11 +1,11 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {useIsMounted} from 'hooks/useIsMounted';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@icons/IconApps';
 import {IconWallet} from '@icons/IconWallet';
-import {useIsMounted} from '@react-hookz/web';
 import {LinkOrDiv} from '@common/LinkOrDiv';
 
 type TNavItemProps = {
@@ -65,7 +65,8 @@ function NavItem({label, href, icon, isSelected, isDisabled = false}: TNavItemPr
 function LogOutButton(): ReactElement {
 	const isMounted = useIsMounted();
 	const {address, onDesactivate} = useWeb3();
-	if (isZeroAddress(address) || !isMounted()) {
+
+	if (isZeroAddress(address) || !isMounted) {
 		return <Fragment />;
 	}
 
