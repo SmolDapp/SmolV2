@@ -41,7 +41,8 @@ export const SUPPORTED_CHAIN_IDS: TNDict<string> = {
 	8453: 'Base',
 	42161: 'Arbitrum',
 	43114: 'Avalanche',
-	1030: 'Conflux'
+	1030: 'Conflux',
+	1088: 'Metis'
 };
 
 export const SAFE_API_URI: {[chainId: number]: string} = {
