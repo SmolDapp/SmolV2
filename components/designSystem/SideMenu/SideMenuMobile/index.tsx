@@ -103,7 +103,7 @@ export function SideMenuMobile(): ReactElement {
 									className={cl(
 										'relative overflow-hidden rounded-md !bg-neutral-0 transition-all w-full'
 									)}>
-									<SideMenuNav />
+									<SideMenuNav onClose={() => set_isOpen(false)} />
 									<SideMenuFooter />
 								</Dialog.Panel>
 							</Transition.Child>
