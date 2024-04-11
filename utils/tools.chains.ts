@@ -8,6 +8,7 @@ import {
 	gnosis,
 	goerli,
 	mainnet,
+	metis,
 	optimism,
 	polygon,
 	polygonZkEvm,
@@ -31,6 +32,7 @@ export const supportedNetworks: Chain[] = [
 	zkSync,
 	base,
 	arbitrum,
+	metis,
 	confluxESpace
 ];
 export const supportedTestNetworks: Chain[] = [goerli, baseGoerli];

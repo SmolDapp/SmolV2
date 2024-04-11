@@ -13,6 +13,7 @@ import {
 	linea,
 	mainnet,
 	mantle,
+	metis,
 	optimism,
 	polygon,
 	polygonZkEvm,
@@ -85,5 +86,6 @@ export const DISPERSE_CONTRACT_PER_CHAIN: TNDict<TAddress> = {
 	[linea.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
 	[scroll.id]: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F'),
 	[aurora.id]: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
-	[confluxESpace.id]: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8')
+	[confluxESpace.id]: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8'),
+	[metis.id]: toAddress('0x8137aba86f91c8E592d6A791e06D0C868DBad3C8')
 };
