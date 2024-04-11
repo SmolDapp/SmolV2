@@ -53,7 +53,7 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 				<button
 					className={cl(
 						iconContainerStyle,
-						'-right-11 p-1 text-neutral-600 transition-colors hover:text-neutral-700'
+						'-right-7 md:-right-11 p-1 text-neutral-600 transition-colors hover:text-neutral-700'
 					)}
 					onClick={onRemoveInput}>
 					<IconCross className={'size-4'} />

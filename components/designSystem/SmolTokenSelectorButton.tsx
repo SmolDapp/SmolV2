@@ -18,7 +18,7 @@ export function SmolTokenSelectorButton({
 	return (
 		<button
 			className={cl(
-				'flex items-center justify-between gap-4 rounded-[4px] p-4 w-full',
+				'flex items-center justify-between gap-2 rounded-[4px] py-4 pl-4 pr-2 w-full',
 				'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 			)}
 			onClick={() =>
@@ -26,7 +26,7 @@ export function SmolTokenSelectorButton({
 					onSelectToken(token);
 				})
 			}>
-			<div className={'flex w-full max-w-44 items-center gap-2'}>
+			<div className={'flex w-full items-center gap-2'}>
 				<div className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
 					{token && isAddress(token.address) ? (
 						<ImageWithFallback
@@ -47,12 +47,12 @@ export function SmolTokenSelectorButton({
 				</div>
 				<p
 					className={cl(
-						'truncate',
+						'truncate max-w-[88px]',
 						isAddress(token?.address) && (token?.symbol || token?.name)
 							? 'font-bold'
 							: 'text-neutral-600 text-sm font-normal'
 					)}>
-					{token?.symbol || token?.name || 'Select token'}
+					{token?.symbol || token?.name || 'Select Token'}
 				</p>
 			</div>
 

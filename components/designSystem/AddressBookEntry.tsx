@@ -10,6 +10,7 @@ import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import {copyToClipboard} from '@yearn-finance/web-lib/utils/helpers';
+import {TextTruncate} from '@common/TextTruncate';
 
 import {Avatar} from './Avatar';
 
@@ -71,15 +72,11 @@ export function AddressBookEntryAddress(props: {
 			<Tooltip.Provider delayDuration={250}>
 				<Tooltip.Root>
 					<Tooltip.Trigger className={'flex w-full items-center'}>
-						<input
-							disabled
-							type={'text'}
-							className={cl(
-								'text-xxs w-full  border-none p-0 transition-all line-clamp-1 max-w-full truncate disabled cursor-pointer hover:underline bg-transparent text-neutral-600'
-							)}
+						<TextTruncate
 							value={
 								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
 							}
+							className={'text-xxs hover:underline'}
 						/>
 					</Tooltip.Trigger>
 					<TooltipContent
