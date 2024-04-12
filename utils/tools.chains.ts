@@ -12,7 +12,8 @@ import {
 	optimism,
 	polygon,
 	polygonZkEvm,
-	zkSync
+	zkSync,
+	zora
 } from 'wagmi/chains';
 import {indexedWagmiChains} from '@builtbymom/web3/utils/wagmi';
 
@@ -33,6 +34,7 @@ export const supportedNetworks: Chain[] = [
 	base,
 	arbitrum,
 	metis,
+	zora,
 	confluxESpace
 ];
 export const supportedTestNetworks: Chain[] = [goerli, baseGoerli];
