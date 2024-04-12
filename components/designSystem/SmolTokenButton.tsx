@@ -1,4 +1,4 @@
-import {cl, formatAmount, formatCounterValue, isAddress, truncateHex} from '@builtbymom/web3/utils';
+import {cl, formatAmount, formatCounterValue, isAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
 import {IconChevron} from '@icons/IconChevron';
 import {IconWallet} from '@icons/IconWallet';
 import {ImageWithFallback} from '@common/ImageWithFallback';
@@ -67,8 +67,9 @@ export function SmolTokenButton({
 						<b className={'text-left text-base'}>{formatAmount(token.balance.normalized, 0, 6)}</b>
 
 						<p className={'text-xs text-neutral-600'}>
-							{price?.normalized === 0
-								? 'N/A'
+							&nbsp;
+							{toBigInt(price?.raw) === 0n
+								? ''
 								: formatCounterValue(token.balance.normalized, price?.normalized ?? 0)}
 						</p>
 					</div>
