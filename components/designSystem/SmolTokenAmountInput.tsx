@@ -14,6 +14,7 @@ import {
 } from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {handleLowAmount} from '@utils/helpers';
+import {TextTruncate} from '@common/TextTruncate';
 
 import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 
@@ -161,7 +162,7 @@ export function SmolTokenAmountInput({showPercentButtons = false, onSetValue, va
 		}
 
 		if (!selectedTokenBalance.normalized) {
-			return <p>{'No token selected'}</p>;
+			return <TextTruncate value={'No token selected'} />;
 		}
 
 		if (!value.amount) {
@@ -176,7 +177,12 @@ export function SmolTokenAmountInput({showPercentButtons = false, onSetValue, va
 		}
 
 		if (value.error) {
-			return <p className={'text-red'}>{value.error}</p>;
+			return (
+				<TextTruncate
+					className={'text-red'}
+					value={value.error}
+				/>
+			);
 		}
 
 		return <p>{formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}</p>;
@@ -198,8 +204,8 @@ export function SmolTokenAmountInput({showPercentButtons = false, onSetValue, va
 		<div className={'relative size-full rounded-lg'}>
 			<label
 				className={cl(
-					'h-20 z-20 relative border transition-all',
-					'flex flex-row items-center cursor-text',
+					'z-20 relative border transition-all',
+					'flex flex-grow-0 items-center cursor-text',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
 					'p-2 pl-4 group bg-neutral-0 rounded-lg',
 					getBorderColor()

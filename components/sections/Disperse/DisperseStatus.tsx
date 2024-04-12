@@ -1,6 +1,7 @@
 import {type ReactElement, useMemo} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
-import {isAddress} from '@builtbymom/web3/utils';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {isAddress, toAddress} from '@builtbymom/web3/utils';
 import {Warning} from '@common/Primitives/Warning';
 
 import {useDisperse} from './useDisperse';
@@ -10,8 +11,20 @@ import type {TWarningType} from '@common/Primitives/Warning';
 export function DisperseStatus(): ReactElement | null {
 	const {configuration} = useDisperse();
 	const {getCachedEntry} = useAddressBook();
+	const {getBalance} = useWallet();
 
 	const addresses = configuration.inputs.map(input => input.receiver.address).filter(Boolean);
+
+	const totalToDisperse = useMemo((): bigint => {
+		return configuration.inputs.reduce((acc, row): bigint => acc + row.value.normalizedBigAmount.raw, 0n);
+	}, [configuration.inputs]);
+
+	const isAboveBalance =
+		totalToDisperse >
+		getBalance({
+			address: toAddress(configuration.tokenToSend?.address),
+			chainID: Number(configuration.tokenToSend?.chainID)
+		}).raw;
 
 	const status: {type: TWarningType; message: string | ReactElement} | null = useMemo(() => {
 		if (addresses.some(address => !getCachedEntry({address}))) {
@@ -38,6 +51,14 @@ export function DisperseStatus(): ReactElement | null {
 				type: 'error'
 			};
 		}
+
+		if (isAboveBalance) {
+			return {
+				message: 'Total amount to disperse exceeds the account balance',
+				type: 'error'
+			};
+		}
+
 		return null;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [addresses, configuration.inputs.length, getCachedEntry]);

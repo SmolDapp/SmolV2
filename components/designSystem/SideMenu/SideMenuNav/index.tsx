@@ -8,19 +8,56 @@ import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppSt
 import {IconWallet} from '@icons/IconWallet';
 import {LinkOrDiv} from '@common/LinkOrDiv';
 
+const SIDE_MENU = [
+	{
+		href: '/apps/send',
+		label: 'Send',
+		icon: <IconAppSend />
+	},
+	{
+		href: '/apps/disperse',
+		label: 'Disperse',
+		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
+	},
+	{
+		href: '/apps/address-book',
+		label: 'Address Book',
+		icon: <IconAppAddressBook />
+	},
+	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	}
+];
+
 type TNavItemProps = {
 	label: string;
 	href: string;
 	icon: ReactElement;
 	isSelected: boolean;
 	isDisabled?: boolean;
+	onClick?: () => void;
 };
-function NavItem({label, href, icon, isSelected, isDisabled = false}: TNavItemProps): ReactElement {
+function NavItem({label, href, icon, onClick, isSelected, isDisabled = false}: TNavItemProps): ReactElement {
 	return (
 		<li className={'relative z-10 px-4'}>
 			<LinkOrDiv
 				href={href}
-				isDisabled={isDisabled}>
+				isDisabled={isDisabled}
+				onClick={onClick}>
 				<div
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
@@ -79,51 +116,23 @@ function LogOutButton(): ReactElement {
 	);
 }
 
-export function SideMenuNav(): ReactElement {
+export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 	const pathname = usePathname();
 
 	return (
 		<div className={'scrollable scrollbar-show h-full pt-4'}>
 			<section className={'flex h-full flex-col justify-between'}>
 				<ul className={'grid gap-2 pb-8'}>
-					<NavItem
-						href={'/apps/send'}
-						isSelected={pathname.startsWith('/apps/send')}
-						label={'Send'}
-						icon={<IconAppSend />}
-					/>
-					<NavItem
-						href={'/apps/disperse'}
-						isSelected={pathname.startsWith('/apps/disperse')}
-						label={'Disperse'}
-						icon={<IconAppDisperse />}
-					/>
-					<NavItem
-						href={'/apps/earn'}
-						isSelected={pathname.startsWith('/apps/earn')}
-						label={'Earn'}
-						icon={<IconAppEarn />}
-						isDisabled
-					/>
-					<NavItem
-						href={'/apps/stream'}
-						isSelected={pathname.startsWith('/apps/stream')}
-						label={'Stream'}
-						icon={<IconAppStream />}
-						isDisabled
-					/>
-					<NavItem
-						href={'/apps/address-book'}
-						isSelected={pathname.startsWith('/apps/address-book')}
-						label={'Address Book'}
-						icon={<IconAppAddressBook />}
-					/>
-					<NavItem
-						href={'/apps/wallet'}
-						isSelected={pathname.startsWith('/apps/wallet')}
-						label={'Wallet'}
-						icon={<IconWallet />}
-					/>
+					{SIDE_MENU.map(({href, label, icon, isDisabled}) => (
+						<NavItem
+							href={href}
+							label={label}
+							icon={icon}
+							isDisabled={isDisabled}
+							isSelected={pathname.startsWith(href)}
+							onClick={onClose}
+						/>
+					))}
 				</ul>
 				<div className={'mt-auto px-4'}>
 					<Link href={'https://dump.services/'}>

@@ -12,6 +12,7 @@ import {defaultInputAddressLike} from '@utils/tools.address';
 import {checkENSValidity} from '@utils/tools.ens';
 import {getEnsName} from '@wagmi/core';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
+import {TextTruncate} from '@common/TextTruncate';
 
 import {AvatarWrapper} from './Avatar';
 
@@ -263,17 +264,14 @@ export function SmolAddressInput({
 						}}
 						{...rest}
 					/>
-					<input
-						disabled
-						type={'text'}
+					<TextTruncate
+						value={(isAddress(value?.address) && toAddress(value.address)) || value.error || ''}
 						className={cl(
-							'text-xs w-full border-none p-0 transition-all line-clamp-1 max-w-full truncate disabled',
 							isFocused ? 'opacity-0' : 'opacity-100',
 							isFocused ? 'translate-y-8' : 'translate-y-0',
 							isFocused ? 'pointer-events-none' : 'pointer-events-auto',
 							value.error ? 'text-red' : 'text-neutral-600'
 						)}
-						value={(isAddress(value?.address) && toAddress(value.address)) || value.error || ''}
 					/>
 				</div>
 				{!isSimple && (
