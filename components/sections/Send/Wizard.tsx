@@ -4,7 +4,7 @@ import {Button} from 'components/Primitives/Button';
 import {useAddressBook} from 'contexts/useAddressBook';
 import {getTransferTransaction} from 'utils/tools.gnosis';
 import {isAddressEqual} from 'viem';
-import {useWallet} from '@builtbymom/web3/contexts/useWallet';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress, slugify, toAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';

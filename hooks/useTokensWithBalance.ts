@@ -17,14 +17,14 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 
 	useDeepCompareEffect((): void => {
 		const possibleDestinationsTokens: TDict<TToken> = {};
-		const {wrappedToken} = getNetwork(safeChainID).contracts;
-		if (wrappedToken) {
+		const {nativeCurrency} = getNetwork(safeChainID);
+		if (nativeCurrency) {
 			possibleDestinationsTokens[ETH_TOKEN_ADDRESS] = {
 				address: ETH_TOKEN_ADDRESS,
 				chainID: safeChainID,
-				name: wrappedToken.coinName,
-				symbol: wrappedToken.coinSymbol,
-				decimals: wrappedToken.decimals,
+				name: nativeCurrency.name,
+				symbol: nativeCurrency.symbol,
+				decimals: nativeCurrency.decimals,
 				value: 0,
 				balance: zeroNormalizedBN,
 				logoURI: `${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${ETH_TOKEN_ADDRESS}/logo-32.png`
@@ -51,7 +51,7 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 			}
 		}
 		return withBalance;
-	}, [allTokens, getBalance]);
+	}, [allTokens, getBalance, isCustomToken]);
 
 	return {tokensWithBalance, isLoading};
 }
