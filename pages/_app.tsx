@@ -67,7 +67,7 @@ function MyApp(props: AppProps): ReactElement {
 						}
 					}
 				}}
-				position={'top-left'}
+				position={'top-right'}
 			/>
 			<WithMom
 				supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}

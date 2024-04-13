@@ -303,6 +303,6 @@
 
 :root {
 	.toast {
-		@apply border-2 rounded-xl bg-primary flex items-start justify-between p-2 text-sm max-w-min;
+		@apply rounded-lg border-0 bg-primary flex items-start justify-between p-2 text-xs max-w-min;
 	}
 }
