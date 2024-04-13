@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useEffect} from 'react';
+import {toast} from 'react-hot-toast';
 import {TooltipContent} from 'components/Primitives/Tooltip';
 import {useAddressBook} from 'contexts/useAddressBook';
 import {useIsMounted} from 'hooks/useIsMounted';
@@ -9,7 +10,6 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import {copyToClipboard} from '@yearn-finance/web-lib/utils/helpers';
 import {TextTruncate} from '@common/TextTruncate';
 
 import {Avatar} from './Avatar';
@@ -54,6 +54,7 @@ export function AddressBookEntryAddress(props: {
 	shouldTruncateAddress?: boolean;
 }): ReactElement {
 	const isMounted = useIsMounted();
+	const isTooltipEnabled = false;
 
 	if (!isMounted || props.isConnecting) {
 		return (
@@ -64,42 +65,79 @@ export function AddressBookEntryAddress(props: {
 		);
 	}
 
+	if (isTooltipEnabled) {
+		return (
+			<div className={'grid w-full'}>
+				<b className={'text-left text-base'}>
+					{toSafeAddress({
+						address: props.address,
+						ens: props.ens,
+						addrOverride: props.address?.substring(0, 6)
+					})}
+				</b>
+				<Tooltip.Provider delayDuration={250}>
+					<Tooltip.Root>
+						<Tooltip.Trigger className={'flex w-full items-center'}>
+							<button
+								className={'z-10 w-full'}
+								onClick={e => {
+									e.stopPropagation();
+									navigator.clipboard.writeText(toAddress(props.address));
+									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+								}}>
+								<TextTruncate
+									value={
+										props.shouldTruncateAddress
+											? toSafeAddress({address: props.address})
+											: props.address
+									}
+									className={'cursor-copy text-xxs hover:underline'}
+								/>
+							</button>
+						</Tooltip.Trigger>
+						<TooltipContent
+							side={'left'}
+							className={'TooltipContent bg-primary !p-0'}>
+							<button
+								onClick={e => {
+									e.stopPropagation();
+									navigator.clipboard.writeText(toAddress(props.address));
+									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+								}}
+								className={'flex cursor-copy px-2 py-1.5'}>
+								<small className={'font-number text-xxs text-neutral-900/70'}>
+									{toAddress(props.address)}
+								</small>
+							</button>
+							<Tooltip.Arrow
+								className={'fill-primary'}
+								width={11}
+								height={5}
+							/>
+						</TooltipContent>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			</div>
+		);
+	}
+
 	return (
 		<div className={'grid w-full'}>
 			<b className={'text-left text-base'}>
 				{toSafeAddress({address: props.address, ens: props.ens, addrOverride: props.address?.substring(0, 6)})}
 			</b>
-			<Tooltip.Provider delayDuration={250}>
-				<Tooltip.Root>
-					<Tooltip.Trigger className={'flex w-full items-center'}>
-						<TextTruncate
-							value={
-								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
-							}
-							className={'text-xxs hover:underline'}
-						/>
-					</Tooltip.Trigger>
-					<TooltipContent
-						side={'left'}
-						className={'TooltipContent bg-primary !p-0'}>
-						<button
-							onClick={e => {
-								e.stopPropagation();
-								copyToClipboard(toAddress(props.address));
-							}}
-							className={'flex cursor-copy px-2 py-1.5'}>
-							<small className={'font-number text-xxs text-neutral-900/70'}>
-								{toAddress(props.address)}
-							</small>
-						</button>
-						<Tooltip.Arrow
-							className={'fill-primary'}
-							width={11}
-							height={5}
-						/>
-					</TooltipContent>
-				</Tooltip.Root>
-			</Tooltip.Provider>
+			<button
+				className={'z-10 w-full'}
+				onClick={e => {
+					e.stopPropagation();
+					navigator.clipboard.writeText(toAddress(props.address));
+					toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+				}}>
+				<TextTruncate
+					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
+					className={'cursor-copy text-xxs hover:underline'}
+				/>
+			</button>
 		</div>
 	);
 }
