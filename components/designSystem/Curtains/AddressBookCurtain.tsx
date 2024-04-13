@@ -172,7 +172,7 @@ function NameInput(props: {
 				disabled={!props.isEditMode}
 				id={'name'}
 				placeholder={'Mom'}
-				pattern={'^(?!0x)*$'}
+				pattern={'^(?!0x).*'}
 				title={"The string must not start with '0x'"}
 				tabIndex={0}
 				minLength={1}
@@ -272,11 +272,11 @@ export function AddressBookCurtain(props: {
 	onOpenChange: (props: {isOpen: boolean; isEditing: boolean}) => void;
 }): ReactElement {
 	const router = useRouter();
+	const plausible = usePlausible();
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
 	const [, set_nonce] = useState<number>(0);
-
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
 		address: props.selectedEntry.address,
@@ -288,7 +288,14 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
-	const plausible = usePlausible();
+
+	/**********************************************************************************************
+	 ** We need to use this useEffect to prevent an UI issue where the address input is not updated
+	 ** directly in all places and because of this, an relicated error message is shown.
+	 **********************************************************************************************/
+	useEffect(() => {
+		setTimeout(() => set_nonce(n => n + 1), 100);
+	}, [props.selectedEntry.address, props.selectedEntry.ens]);
 
 	const onFormSubmit = useCallback(
 		async (event: React.FormEvent<HTMLFormElement>) => {
@@ -334,11 +341,14 @@ export function AddressBookCurtain(props: {
 		set_addressLike(prev => ({...prev, ...value}));
 	};
 
+	/**********************************************************************************************
+	 ** If some of the props change, we need to update the local state to reflect the changes. We
+	 ** don't want to do it for every prop, only for the ones that are important for the component.
+	 **********************************************************************************************/
 	useEffect(() => set_currentEntry(props.selectedEntry), [props.selectedEntry]);
 	useEffect(() => set_isEditMode(props.isEditing), [props.isEditing]);
+	useEffect(() => set_currentEntry(prev => ({...prev, label: props.initialLabel ?? ''})), [props.initialLabel]);
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect(() => set_currentEntry({...currentEntry, label: props.initialLabel ?? ''}), [props.initialLabel]);
 	return (
 		<Dialog.Root
 			key={`${props.selectedEntry.id}`}

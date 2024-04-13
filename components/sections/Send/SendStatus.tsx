@@ -3,7 +3,7 @@ import {useAddressBook} from 'contexts/useAddressBook';
 import {useAddressBookCurtain} from 'contexts/useAddressBookCurtain';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isEthAddress} from '@builtbymom/web3/utils';
+import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {getIsSmartContract} from '@utils/tools.address';
 import {supportedNetworks} from '@utils/tools.chains';
 import {Warning} from '@common/Primitives/Warning';
@@ -21,17 +21,18 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 		<button
 			className={'font-bold transition-all'}
 			onClick={() => {
-				set_curtainStatus({isOpen: true, isEditing: true});
+				const hasALabel = isZeroAddress(configuration.receiver.label);
 				dispatchConfiguration({
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
 						address: configuration.receiver.address,
-						label: configuration.receiver.label,
+						label: hasALabel ? configuration.receiver.label : '',
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
 					}
 				});
+				set_curtainStatus({isOpen: true, isEditing: true});
 			}}>
 			{children}
 		</button>

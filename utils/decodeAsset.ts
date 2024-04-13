@@ -70,7 +70,6 @@ export async function decodeAsset(asset: string): Promise<TAsset> {
 	}
 	if (asset.startsWith('ipfs://')) {
 		asset = asset.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/');
-		console.warn(asset);
 	}
 	const mime = asset.split('.').pop();
 	if (mime === 'svg') {
