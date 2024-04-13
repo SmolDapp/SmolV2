@@ -26,7 +26,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
 						address: configuration.receiver.address,
-						label: '',
+						label: configuration.receiver.label,
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
@@ -41,10 +41,8 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement | null {
 	const {configuration} = useSendFlow();
 	const {safeChainID} = useChainID();
-
-	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
-
 	const {getEntry} = useAddressBook();
+	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		const isSmartContract =

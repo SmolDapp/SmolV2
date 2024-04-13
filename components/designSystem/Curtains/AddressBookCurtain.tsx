@@ -136,9 +136,6 @@ function NameInput(props: {
 		if (selectedEntry.label.startsWith('0x')) {
 			return 'The name cannot starts with `0x`';
 		}
-		if (selectedEntry.label.includes('.')) {
-			return 'The name cannot contains `.`';
-		}
 		if (selectedEntry.label.length > 22) {
 			return 'The name cannot be longer than 22 characters';
 		}
@@ -175,16 +172,12 @@ function NameInput(props: {
 				disabled={!props.isEditMode}
 				id={'name'}
 				placeholder={'Mom'}
-				pattern={'^(?!0x)[^.]*$'}
-				title={"The string must not start with '0x' and must not contain '.'"}
+				pattern={'^(?!0x)*$'}
+				title={"The string must not start with '0x'"}
 				tabIndex={0}
 				minLength={1}
 				maxLength={22}
-				aria-invalid={
-					selectedEntry.label.startsWith('0x') ||
-					selectedEntry.label.includes('.') ||
-					selectedEntry.label.length > 22
-				}
+				aria-invalid={selectedEntry.label.startsWith('0x') || selectedEntry.label.length > 22}
 				value={selectedEntry.label}
 				onChange={onChange}
 			/>

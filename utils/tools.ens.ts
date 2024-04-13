@@ -22,7 +22,7 @@ export async function retrieveENSNameFromNode(tokenId: bigint): Promise<string> 
 
 export async function checkENSValidity(ens: string): Promise<[TAddress, boolean]> {
 	try {
-		const resolvedAddress = await getEnsAddress(retrieveConfig(), {name: ens, chainId: 1});
+		const resolvedAddress = await getEnsAddress(retrieveConfig(), {name: ens.toLocaleLowerCase(), chainId: 1});
 		if (resolvedAddress) {
 			if (isAddress(resolvedAddress)) {
 				return [toAddress(resolvedAddress), true];
