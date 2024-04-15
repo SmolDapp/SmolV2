@@ -72,7 +72,10 @@ function MyApp(props: AppProps): ReactElement {
 			<WithMom
 				supportedChains={[...supportedNetworks, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json']}>
-				<WalletContextApp shouldWorkOnTestnet>
+				<WalletContextApp
+					shouldWorkOnTestnet={
+						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+					}>
 					<SafeProvider>
 						<PlausibleProvider
 							domain={process.env.PLAUSIBLE_DOMAIN || 'v2.smold.app'}
