@@ -17,7 +17,7 @@ function createUniqueID(msg: string): string {
 }
 
 export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading: boolean} {
-	const {safeChainID} = useChainID();
+	const {chainID, safeChainID} = useChainID();
 	const {balances, getBalance, isLoading} = useWallet();
 	const [allTokens, set_allTokens] = useState<TDict<TToken>>({});
 	const {currentNetworkTokenList, isCustomToken} = useTokenList();
@@ -43,7 +43,7 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 		if (nativeCurrency) {
 			possibleDestinationsTokens[ETH_TOKEN_ADDRESS] = {
 				address: ETH_TOKEN_ADDRESS,
-				chainID: safeChainID,
+				chainID: chainID,
 				name: nativeCurrency.name,
 				symbol: nativeCurrency.symbol,
 				decimals: nativeCurrency.decimals,
@@ -56,12 +56,12 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 			if (eachToken.address === toAddress('0x0000000000000000000000000000000000001010')) {
 				continue; //ignore matic erc20
 			}
-			if (eachToken.chainID === safeChainID) {
+			if (eachToken.chainID === chainID) {
 				possibleDestinationsTokens[toAddress(eachToken.address)] = eachToken;
 			}
 		}
 		set_allTokens(possibleDestinationsTokens);
-	}, [currentNetworkTokenList, safeChainID]);
+	}, [currentNetworkTokenList, chainID]);
 
 	/**********************************************************************************************
 	 ** This function will be used to get the list of tokens with balance. It will be triggered

@@ -10,7 +10,7 @@ import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {IconCheck} from '@icons/IconCheck';
 import {IconCircleCross} from '@icons/IconCircleCross';
 import {useLocalStorageValue} from '@react-hookz/web';
-import {supportedNetworks, supportedTestNetworks} from '@utils/tools.chains';
+import {supportedNetworks} from '@utils/tools.chains';
 import {Analytics} from '@vercel/analytics/react';
 import {FeebackPopover} from '@common/FeebackPopover';
 import Meta from '@common/Meta';
@@ -70,9 +70,9 @@ function MyApp(props: AppProps): ReactElement {
 				position={'top-right'}
 			/>
 			<WithMom
-				supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+				supportedChains={[...supportedNetworks, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json']}>
-				<WalletContextApp>
+				<WalletContextApp shouldWorkOnTestnet>
 					<SafeProvider>
 						<PlausibleProvider
 							domain={process.env.PLAUSIBLE_DOMAIN || 'v2.smold.app'}

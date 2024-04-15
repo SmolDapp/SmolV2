@@ -67,7 +67,7 @@
     "xxhashjs": "^0.2.2"
   },
   "devDependencies": {
-    "@builtbymom/web3": "^0.0.73",
+    "@builtbymom/web3": "0.0.77",
     "@commitlint/cli": "^19.2.1",
     "@commitlint/config-conventional": "^19.1.0",
     "@total-typescript/ts-reset": "^0.5.1",
