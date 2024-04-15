@@ -125,6 +125,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 				<ul className={'grid gap-2 pb-8'}>
 					{SIDE_MENU.map(({href, label, icon, isDisabled}) => (
 						<NavItem
+							key={href}
 							href={href}
 							label={label}
 							icon={icon}

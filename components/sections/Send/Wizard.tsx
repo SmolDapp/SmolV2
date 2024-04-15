@@ -30,7 +30,7 @@ import type {TModify} from '@utils/types/types';
 type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;
 
 export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement {
-	const {safeChainID} = useChainID();
+	const {safeChainID, chainID} = useChainID();
 	const {address} = useWeb3();
 	const {configuration, dispatchConfiguration} = useSendFlow();
 	const {getToken, getBalance, onRefresh} = useWallet();
@@ -73,24 +73,24 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 					decimals: chainCoin?.decimals || 18,
 					symbol: chainCoin?.symbol || 'ETH',
 					name: chainCoin?.name || 'Ether',
-					chainID: safeChainID
+					chainID: chainID
 				}
 			];
-			const token = getToken({address: tokenAddress, chainID: safeChainID});
+			const token = getToken({address: tokenAddress, chainID: chainID});
 			if (!isZeroAddress(tokenAddress)) {
 				tokensToRefresh.push({
 					address: tokenAddress,
 					decimals: token.decimals,
 					symbol: token.symbol,
 					name: token.name,
-					chainID: safeChainID
+					chainID: chainID
 				});
 			}
 
 			const updatedBalances = await onRefresh(tokensToRefresh);
 			return updatedBalances;
 		},
-		[safeChainID, getToken, onRefresh]
+		[safeChainID, chainID, getToken, onRefresh]
 	);
 
 	/**********************************************************************************************
@@ -106,7 +106,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 
 			const result = await transferERC20({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: chainID,
 				contractAddress: tokenAddress,
 				receiverAddress: configuration.receiver?.address,
 				amount: input.normalizedBigAmount.raw
@@ -120,7 +120,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			await handleSuccessCallback(tokenAddress);
 			return result;
 		},
-		[configuration.receiver, handleSuccessCallback, onUpdateStatus, provider, safeChainID]
+		[configuration.receiver, handleSuccessCallback, onUpdateStatus, provider, chainID]
 	);
 
 	/**********************************************************************************************
@@ -134,10 +134,10 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			const ethAmountRaw = input.normalizedBigAmount.raw;
 
 			const isSendingBalance =
-				toBigInt(ethAmountRaw) >= toBigInt(getBalance({address: ETH_TOKEN_ADDRESS, chainID: safeChainID})?.raw);
+				toBigInt(ethAmountRaw) >= toBigInt(getBalance({address: ETH_TOKEN_ADDRESS, chainID: chainID})?.raw);
 			const result = await transferEther({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: chainID,
 				receiverAddress: configuration.receiver?.address,
 				amount: toBigInt(ethAmountRaw),
 				shouldAdjustForGas: isSendingBalance
@@ -151,7 +151,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			await handleSuccessCallback(ZERO_ADDRESS);
 			return result;
 		},
-		[configuration.receiver?.address, getBalance, handleSuccessCallback, onUpdateStatus, provider, safeChainID]
+		[configuration.receiver?.address, getBalance, handleSuccessCallback, onUpdateStatus, provider, chainID]
 	);
 
 	/**********************************************************************************************
@@ -182,7 +182,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				set_migrateStatus({...defaultTxStatus, success: true});
 
 				notifySend({
-					chainID: safeChainID,
+					chainID: chainID,
 					to: toAddress(configuration.receiver?.address),
 					tokensMigrated: migratedTokens,
 					hashes: migratedTokens.map((): Hex => safeTxHash as Hex),
@@ -193,7 +193,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				set_migrateStatus({...defaultTxStatus, error: true});
 			}
 		},
-		[address, configuration.receiver?.address, migratedTokens, onUpdateStatus, safeChainID, sdk.txs]
+		[address, configuration.receiver?.address, migratedTokens, onUpdateStatus, chainID, sdk.txs]
 	);
 
 	/**********************************************************************************************
@@ -250,12 +250,12 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 		bumpEntryInteractions({
 			address: configuration.receiver.address,
 			label: truncateHex(toAddress(configuration.receiver.address), 5),
-			chains: [safeChainID],
+			chains: [chainID],
 			slugifiedLabel: slugify(configuration.receiver.address || '')
 		});
 
 		notifySend({
-			chainID: safeChainID,
+			chainID: chainID,
 			to: toAddress(configuration.receiver?.address),
 			tokensMigrated: migratedTokens,
 			hashes: hashMessage,
@@ -265,7 +265,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 
 		plausible('send', {
 			props: {
-				sendChainID: safeChainID,
+				sendChainID: chainID,
 				sendTo: toAddress(configuration.receiver?.address),
 				sendFrom: toAddress(address)
 			}
@@ -276,7 +276,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 		configuration.receiver.address,
 		isWalletSafe,
 		bumpEntryInteractions,
-		safeChainID,
+		chainID,
 		migratedTokens,
 		address,
 		onMigrateSelectedForGnosis,
