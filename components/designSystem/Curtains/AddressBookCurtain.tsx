@@ -7,7 +7,7 @@ import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
 import {Button} from 'components/Primitives/Button';
 import {CurtainContent} from 'components/Primitives/Curtain';
 import {TextInput} from 'components/Primitives/TextInput';
-import {type TAddressBookEntry, useAddressBook} from 'contexts/useAddressBook';
+import {useAddressBook} from 'contexts/useAddressBook';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {IconEdit} from '@icons/IconEdit';
@@ -20,7 +20,7 @@ import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
 import {SmolAddressInput} from '../SmolAddressInput';
 
-import type {TAddressBookEntryReducer} from 'contexts/useAddressBookCurtain';
+import type {TAddressBookEntry, TAddressBookEntryReducer} from 'contexts/useAddressBook';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {TInputAddressLike} from '@utils/tools.address';
 

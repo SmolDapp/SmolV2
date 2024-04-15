@@ -1,6 +1,5 @@
 import {useState} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
-import {useAddressBookCurtain} from 'contexts/useAddressBookCurtain';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
@@ -14,7 +13,7 @@ import type {ReactElement, ReactNode} from 'react';
 import type {TWarningType} from '@common/Primitives/Warning';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {
-	const {set_curtainStatus, dispatchConfiguration} = useAddressBookCurtain();
+	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 	const {configuration} = useSendFlow();
 
 	return (

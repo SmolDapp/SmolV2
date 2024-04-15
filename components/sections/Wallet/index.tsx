@@ -12,6 +12,8 @@ import {IconWallet} from '@icons/IconWallet';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
+import type {TPrice} from '@utils/types/types';
+
 function WalletListHeader(): ReactElement {
 	return (
 		<>
@@ -85,8 +87,7 @@ export function Wallet(): ReactElement {
 				toAddress(token.address).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
 		);
 	}, [searchValue, tokensWithBalance]);
-
-	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID});
+	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID}) as TPrice;
 
 	const walletLayout = useMemo(() => {
 		if (!address) {

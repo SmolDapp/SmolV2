@@ -113,11 +113,11 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			});
 			if (result.isSuccessful) {
 				onUpdateStatus(inputUUID, 'success');
-				await handleSuccessCallback(tokenAddress);
 			}
 			if (result.error) {
 				onUpdateStatus(inputUUID, 'error');
 			}
+			await handleSuccessCallback(tokenAddress);
 			return result;
 		},
 		[configuration.receiver, handleSuccessCallback, onUpdateStatus, provider, safeChainID]
@@ -144,11 +144,11 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			});
 			if (result.isSuccessful) {
 				onUpdateStatus(inputUUID, 'success');
-				await handleSuccessCallback(ZERO_ADDRESS);
 			}
 			if (result.error) {
 				onUpdateStatus(inputUUID, 'error');
 			}
+			await handleSuccessCallback(ZERO_ADDRESS);
 			return result;
 		},
 		[configuration.receiver?.address, getBalance, handleSuccessCallback, onUpdateStatus, provider, safeChainID]
@@ -205,6 +205,8 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 		set_migrateStatus({...defaultTxStatus, pending: true});
 
 		let areAllSuccess = true;
+		let ethToken: TInputWithToken | undefined = undefined;
+		const hashMessage: Hex[] = [];
 		const allSelected = configuration.inputs.filter(
 			(input): input is TInputWithToken => !!input.token && input.status !== 'success'
 		);
@@ -213,14 +215,9 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			return onMigrateSelectedForGnosis(allSelected);
 		}
 
-		const hashMessage: Hex[] = [];
-
-		let ethToken: TInputWithToken | undefined = undefined;
-
 		for (const input of allSelected) {
 			if (isAddressEqual(input.token.address, ETH_TOKEN_ADDRESS)) {
-				//Migrate ETH at the end
-				ethToken = input;
+				ethToken = input; //Migrate ETH at the end
 				continue;
 			}
 

@@ -197,7 +197,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 							</span>
 						</div>
 					</Link>
-					<div className={'flex justify-between py-6 text-xxs text-neutral-600'}>
+					<div className={'flex justify-between pb-2 pt-6 text-xxs text-neutral-600'}>
 						<div className={'flex gap-4'}>
 							<Link
 								className={'transition-colors hover:text-neutral-900'}
