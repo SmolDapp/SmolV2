@@ -15,9 +15,14 @@ export function NetworkPopoverSelector(): ReactElement {
 	const {onSwitchChain, chainID} = useWeb3();
 	const safeChainID = toSafeChainID(chainID, Number(process.env.BASE_CHAINID));
 
+	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+
 	const currentNetwork = useMemo(
-		() => supportedNetworks.find((network): boolean => network.id === safeChainID),
-		[safeChainID]
+		() =>
+			supportedNetworks.find(
+				(network): boolean => network.id === safeChainID || (isDev && network.id === chainID)
+			),
+		[safeChainID, chainID, isDev]
 	);
 	const [isOpen, set_isOpen] = useState(false);
 	return (
