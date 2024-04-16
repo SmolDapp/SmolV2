@@ -30,6 +30,7 @@ export async function disperseETH(props: TDisperseETH): Promise<TTxResponse> {
 		address: toAddress(props.contractAddress),
 		abi: DISPERSE_ABI,
 		functionName: 'disperseEther',
+		confirmation: process.env.NODE_ENV === 'development' ? 1 : undefined,
 		args: [props.receivers, props.amounts],
 		value: props.amounts.reduce((a, b): bigint => a + b, 0n)
 	});
@@ -61,6 +62,7 @@ export async function disperseERC20(props: TDisperseERC20): Promise<TTxResponse>
 	return await handleTx(props, {
 		address: toAddress(props.contractAddress),
 		abi: DISPERSE_ABI,
+		confirmation: process.env.NODE_ENV === 'development' ? 1 : undefined,
 		functionName: 'disperseToken',
 		args: [props.tokenToDisperse, props.receivers, props.amounts]
 	});
