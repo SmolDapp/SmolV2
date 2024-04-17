@@ -78,7 +78,7 @@ function MyApp(props: AppProps): ReactElement {
 					}>
 					<SafeProvider>
 						<PlausibleProvider
-							domain={process.env.PLAUSIBLE_DOMAIN || 'v2.smold.app'}
+							domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
 							enabled={true}>
 							<main className={`flex h-app flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 								<Meta />
