@@ -2,13 +2,15 @@ import {SmolTokenSelector} from 'components/designSystem/SmolTokenSelector';
 import {Button} from 'components/Primitives/Button';
 import {useAccount} from 'wagmi';
 
-import {useRevoke} from './useRevoke';
+import {useAllowances} from './useAllowances';
+import {RevokeWizard} from './Wizard';
 
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 
 export function Revoke(): ReactElement {
-	const {refreshAllowances, configuration, dispatchConfiguration, allowances} = useRevoke();
+	const {configuration, dispatchConfiguration} = useAllowances();
+	const {refreshApproveEvents} = useAllowances();
 	const {address} = useAccount();
 
 	const onSubmit = (): void => {
@@ -20,7 +22,7 @@ export function Revoke(): ReactElement {
 			return;
 		}
 
-		refreshAllowances([
+		refreshApproveEvents([
 			configuration.tokenToCheck?.address,
 			'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 			'0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -49,7 +51,7 @@ export function Revoke(): ReactElement {
 					{'Look for allowances'}
 				</Button>
 			</div>
-			<div>{allowances?.map(item => <div key={item.blockNumber}>{item.args.value.toString()}</div>)}</div>
+			<RevokeWizard />
 		</div>
 	);
 }

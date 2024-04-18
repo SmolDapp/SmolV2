@@ -1,12 +1,12 @@
 import {Revoke} from 'components/sections/Revoke';
-import {RevokeContextApp} from 'components/sections/Revoke/useRevoke';
+import {AllowancesContextApp} from 'components/sections/Revoke/useAllowances';
 import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';
 
 export default function RevokePage(): ReactElement {
 	return (
-		<RevokeContextApp>
+		<AllowancesContextApp>
 			{({configuration}) => (
 				<BalancesCurtainContextApp
 					selectedTokenAddresses={
@@ -15,7 +15,7 @@ export default function RevokePage(): ReactElement {
 					<Revoke />
 				</BalancesCurtainContextApp>
 			)}
-		</RevokeContextApp>
+		</AllowancesContextApp>
 	);
 }
 
