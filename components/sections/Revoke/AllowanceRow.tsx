@@ -29,15 +29,15 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	return (
 		<tr
 			className={
-				'odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:bg-gray-800 dark:border-gray-700'
+				'odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:bg-gray-800 dark:border-gray-700 border-b odd:bg-white'
 			}
 			key={transactionHash}>
-			<td className={'px-6 py-3 max-w-56'}>
+			<td className={'max-w-56 px-6 py-3'}>
 				<p className={'truncate'}>{args.sender}</p>
 			</td>
 			<td className={'px-6 py-3'}>{tokenSymbol}</td>
-			<td className={'px-6 py-3 truncate max-w-md'}>{allowanceAmount}</td>
-			<td className={'py-3 px-3 max-w-8'}>
+			<td className={'max-w-md truncate px-6 py-3'}>{allowanceAmount}</td>
+			<td className={'max-w-8 p-3'}>
 				<Button
 					onClick={() => revoke({address: allowance.address, name: tokenSymbol ?? ''}, allowance.args.sender)}
 					className={'!h-8'}>

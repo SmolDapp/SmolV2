@@ -53,7 +53,7 @@ export const RevokeWizard = (): ReactElement => {
 				}
 			);
 		},
-		[onRevokeSuccess, writeContract]
+		[configuration.tokensToCheck, dispatchConfiguration, onRevokeSuccess, writeContract]
 	);
 
 	return (

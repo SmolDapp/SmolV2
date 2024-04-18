@@ -12,8 +12,8 @@ type TAllowancesTableProps = {
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
 	const {allowances} = useAllowances();
 	return (
-		<table className={'w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400'}>
-			<thead className={'text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'}>
+		<table className={'text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right'}>
+			<thead className={'text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase'}>
 				<tr>
 					<th className={'px-6 py-3'}>{'Address'}</th>
 					<th className={'px-6 py-3'}>{'Token'}</th>

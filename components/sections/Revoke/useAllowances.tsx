@@ -114,7 +114,7 @@ export const AllowancesContextApp = ({
 				};
 			})
 		);
-	}, [approveEvents, allowancesData, address, chainID]);
+	}, [approveEvents, allowancesData]);
 
 	const refreshApproveEvents = useCallback(
 		async (tokenAddresses?: TAddress[]) => {
@@ -152,7 +152,7 @@ export const AllowancesContextApp = ({
 			isLoading,
 			configuration
 		}),
-		[allowances, isLoading, configuration]
+		[allowances, refreshApproveEvents, isLoading, configuration]
 	);
 
 	return (
