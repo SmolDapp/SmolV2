@@ -32,6 +32,11 @@ const SIDE_MENU = [
 		icon: <IconAppStream />
 	},
 	{
+		href: '/apps/revoke',
+		label: 'Revoke',
+		icon: <IconAppStream />
+	},
+	{
 		href: '/apps/address-book',
 		label: 'Address Book',
 		icon: <IconAppAddressBook />
