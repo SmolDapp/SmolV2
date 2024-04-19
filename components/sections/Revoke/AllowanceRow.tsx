@@ -8,11 +8,11 @@ import {useGetTokenInfo} from './useGetTokenInfo';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAllowance} from '@utils/types/revokeType';
-import type {TTokenToRevoke} from './Wizard';
+import type {TTokenAllowance} from './useAllowances';
 
 type TAllowanceRowProps = {
 	allowance: TAllowance;
-	revoke: (tokenToRevoke: TTokenToRevoke, spender: TAddress) => void;
+	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 };
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {

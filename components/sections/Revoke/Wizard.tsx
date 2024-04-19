@@ -1,9 +1,7 @@
 import {useCallback, useState} from 'react';
-import {erc20Abi, isAddressEqual} from 'viem';
-import {useWriteContract} from 'wagmi';
-import {toAddress} from '@builtbymom/web3/utils';
-import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
-import {usdtAbi, usdtAddress} from '@utils/abi/usdtAbi';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {ErrorModal} from '@common/ErrorModal';
 import {SuccessModal} from '@common/SuccessModal';
 
@@ -11,49 +9,50 @@ import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
 
 import type {ReactElement} from 'react';
-import type {Abi} from 'viem';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
-
-export type TTokenToRevoke = Pick<TToken, 'address' | 'name'> & {spender?: TAddress};
+import type {TAddress} from '@builtbymom/web3/types';
+import type {TTokenAllowance} from './useAllowances';
 
 export const RevokeWizard = (): ReactElement => {
+	const {provider} = useWeb3();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
-
-	const {writeContract} = useWriteContract();
-
+	const {chainID, safeChainID} = useChainID();
 	const {refreshApproveEvents, dispatchConfiguration, configuration} = useAllowances();
+
+	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+
 	const onRevokeSuccess = useCallback(
-		(tokenAddress: TAddress[] | undefined): void => {
+		(tokenAddresses: TAddress[] | undefined): void => {
+			console.log(configuration.tokensToCheck);
 			set_revokeStatus({...defaultTxStatus, success: true});
-			if (!tokenAddress) {
+
+			if (!tokenAddresses) {
 				return;
 			}
-			refreshApproveEvents(tokenAddress);
+			refreshApproveEvents(tokenAddresses);
 		},
-		[refreshApproveEvents]
+		[configuration.tokensToCheck, refreshApproveEvents]
 	);
 
 	const revokeTokenAllowance = useCallback(
-		(tokenToRevoke: TTokenToRevoke, spender: TAddress): void => {
+		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
 			dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: {...tokenToRevoke, spender}});
-
-			writeContract(
-				{
-					address: toAddress(tokenToRevoke.address),
-					abi: isAddressEqual(tokenToRevoke.address, usdtAddress) ? (usdtAbi as Abi) : erc20Abi,
-					functionName: 'approve',
-					args: [spender, 0n]
-				},
-				{
-					onSuccess: () => onRevokeSuccess(configuration.tokensToCheck?.map(item => item.address)),
-					onError: error => {
-						set_revokeStatus({...defaultTxStatus, error: true});
-						console.log(error);
-					}
+			if (!tokenToRevoke) {
+				return;
+			}
+			approveERC20({
+				contractAddress: tokenToRevoke.address,
+				chainID: isDev ? chainID : safeChainID,
+				connector: provider,
+				spenderAddress: spender,
+				amount: 0n,
+				statusHandler: set_revokeStatus
+			}).then(result => {
+				if (result.isSuccessful) {
+					onRevokeSuccess(configuration.tokensToCheck?.map(item => item.address!));
 				}
-			);
+			});
 		},
-		[configuration.tokensToCheck, dispatchConfiguration, onRevokeSuccess, writeContract]
+		[chainID, configuration.tokensToCheck, dispatchConfiguration, isDev, onRevokeSuccess, provider, safeChainID]
 	);
 
 	return (
@@ -64,6 +63,7 @@ export const RevokeWizard = (): ReactElement => {
 				isOpen={revokeStatus.error}
 				onClose={(): void => {
 					set_revokeStatus(defaultTxStatus);
+					dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: undefined});
 				}}
 				title={'Error'}
 				content={'An error occured while revoking  your token, please try again.'}

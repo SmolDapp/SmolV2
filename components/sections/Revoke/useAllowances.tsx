@@ -1,8 +1,10 @@
 import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
-import {erc20Abi, parseAbiItem} from 'viem';
-import {useAccount, useReadContracts} from 'wagmi';
+import {parseAbiItem} from 'viem';
+import {useAccount} from 'wagmi';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {allowanceOf, getClient} from '@builtbymom/web3/utils/wagmi';
+import {useUpdateEffect} from '@react-hookz/web';
 import {optionalRenderProps} from '@utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents} from '@utils/tools.revoke';
 
@@ -11,17 +13,18 @@ import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TAllowances} from '@utils/types/revokeType';
-import type {TTokenToRevoke} from './Wizard';
 
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
-	tokensToCheck: TToken[] | undefined;
-	tokenToRevoke?: TTokenToRevoke | undefined;
+	tokensToCheck: TTokenAllowance[] | undefined;
+	tokenToRevoke?: TTokenAllowance | undefined;
 };
+
+// Edit when multiple select added
+export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
 
 export type TAllowancesContext = {
 	allowances: TAllowances | null | undefined;
-	isLoading: boolean;
 	refreshApproveEvents: (tokenAddresses: TAddress[]) => void;
 	configuration: TAllowancesConfiguration;
 	dispatchConfiguration: Dispatch<TAllowancesActions>;
@@ -30,11 +33,10 @@ export type TAllowancesContext = {
 export type TAllowancesActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
 	| {type: 'RESET'; payload: undefined}
-	| {type: 'SET_TOKENS_TO_CHECK'; payload: TToken[] | undefined}
-	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenToRevoke | undefined};
+	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
+	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined};
 
 const defaultProps: TAllowancesContext = {
-	isLoading: false,
 	allowances: null,
 	refreshApproveEvents: async () => {},
 	configuration: {
@@ -76,6 +78,8 @@ export const AllowancesContextApp = ({
 	const {address} = useAccount();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
+	const {provider} = useWeb3();
+	const [allowances, set_allowances] = useState<TAllowances | null>(null);
 
 	const {safeChainID} = useChainID();
 
@@ -83,38 +87,19 @@ export const AllowancesContextApp = ({
 
 	const publicClient = useMemo(() => getClient(isDev ? chainID : safeChainID), [isDev, chainID, safeChainID]);
 
-	// Getting all allowances for the events we get from logs
-	const {data: allowancesData, isLoading} = useReadContracts({
-		contracts: approveEvents?.map(item => {
-			return {
-				address: item.address,
-				abi: erc20Abi,
-				functionName: 'allowance',
-				args: [item.args.owner, item.args.sender]
-			};
-		})
-	});
-
-	// Update logs according to allowances' values
-	const allowances: TAllowances | null = useMemo(() => {
+	const allowancePromises = useMemo(() => {
 		if (!approveEvents) {
-			return null;
+			return [];
 		}
-		if (!allowancesData) {
-			return approveEvents;
-		}
-		return filterNotEmptyEvents(
-			approveEvents.map((item, index) => {
-				return {
-					...item,
-					args: {
-						...item.args,
-						value: allowancesData[index].result as bigint
-					}
-				};
+		return approveEvents.map(async item =>
+			allowanceOf({
+				connector: provider,
+				chainID: chainID,
+				tokenAddress: item.address,
+				spenderAddress: item.args.sender
 			})
 		);
-	}, [approveEvents, allowancesData]);
+	}, [approveEvents, chainID, provider]);
 
 	const refreshApproveEvents = useCallback(
 		async (tokenAddresses?: TAddress[]) => {
@@ -131,8 +116,6 @@ export const AllowancesContextApp = ({
 					fromBlock: 1n
 				});
 
-				// refetch?.();
-
 				const filteredEvents = getLatestNotEmptyEvents(approveEventLogs as TAllowances);
 				set_approveEvents(filteredEvents);
 			} catch (error) {
@@ -144,15 +127,34 @@ export const AllowancesContextApp = ({
 		[address, publicClient]
 	);
 
+	useUpdateEffect(() => {
+		Promise.all(allowancePromises).then(allowance => {
+			return set_allowances(
+				filterNotEmptyEvents(
+					approveEvents
+						? approveEvents.map((item, index) => {
+								return {
+									...item,
+									args: {
+										...item.args,
+										value: allowance[index]
+									}
+								};
+							})
+						: []
+				)
+			);
+		});
+	}, [approveEvents, refreshApproveEvents]);
+
 	const contextValue = useMemo(
 		(): TAllowancesContext => ({
 			allowances,
 			dispatchConfiguration: dispatch,
 			refreshApproveEvents,
-			isLoading,
 			configuration
 		}),
-		[allowances, refreshApproveEvents, isLoading, configuration]
+		[allowances, refreshApproveEvents, configuration]
 	);
 
 	return (
