@@ -1,7 +1,8 @@
 'use client';
 
-import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
+import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import assert from 'assert';
+import {AddressBookCurtain} from 'components/designSystem/Curtains/AddressBookCurtain';
 import {AddressSelectorCurtain} from 'components/designSystem/Curtains/AddressSelectorCurtain';
 import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -26,9 +27,19 @@ export type TAddressBookEntry = {
 	numberOfInteractions?: number; // Number of times the address has been used for a action via Smol.
 	tags?: string[]; // List of tags associated with the address.
 };
+type TCurtainStatus = {isOpen: boolean; isEditing: boolean; label?: string};
 export type TSelectCallback = (item: TAddressBookEntry) => void;
+export type TAddressBookEntryReducer =
+	| {type: 'SET_SELECTED_ENTRY'; payload: TAddressBookEntry}
+	| {type: 'SET_ADDRESS'; payload: TAddress | undefined}
+	| {type: 'SET_LABEL'; payload: string}
+	| {type: 'SET_CHAINS'; payload: number[]}
+	| {type: 'SET_IS_FAVORITE'; payload: boolean};
+
 export type TAddressBookProps = {
 	shouldOpenCurtain: boolean;
+	selectedEntry: TAddressBookEntry | undefined;
+	curtainStatus: TCurtainStatus;
 	listEntries: () => Promise<TAddressBookEntry[]>;
 	listCachedEntries: () => TAddressBookEntry[];
 	getEntry: (props: {address?: TAddress; label?: string}) => Promise<TAddressBookEntry | undefined>;
@@ -39,9 +50,17 @@ export type TAddressBookProps = {
 	deleteEntry: (address: TAddress) => Promise<void>;
 	onOpenCurtain: (callbackFn: TSelectCallback) => void;
 	onCloseCurtain: () => void;
+	dispatchConfiguration: React.Dispatch<TAddressBookEntryReducer>;
+	set_curtainStatus: React.Dispatch<React.SetStateAction<TCurtainStatus>>;
+};
+const defaultCurtainStatus = {
+	isOpen: false,
+	isEditing: false
 };
 const defaultProps: TAddressBookProps = {
 	shouldOpenCurtain: false,
+	selectedEntry: undefined,
+	curtainStatus: defaultCurtainStatus,
 	listEntries: async (): Promise<TAddressBookEntry[]> => [],
 	listCachedEntries: (): TAddressBookEntry[] => [],
 	getEntry: async (): Promise<TAddressBookEntry | undefined> => undefined,
@@ -51,7 +70,9 @@ const defaultProps: TAddressBookProps = {
 	bumpEntryInteractions: async (): Promise<void> => undefined,
 	deleteEntry: async (): Promise<void> => undefined,
 	onOpenCurtain: (): void => undefined,
-	onCloseCurtain: (): void => undefined
+	onCloseCurtain: (): void => undefined,
+	dispatchConfiguration: (): void => undefined,
+	set_curtainStatus: (): void => undefined
 };
 
 /******************************************************************************
@@ -84,6 +105,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [cachedEntries, set_cachedEntries] = useState<TAddressBookEntry[]>([]);
 	const [entryNonce, set_entryNonce] = useState<number>(0);
+	const [curtainStatus, set_curtainStatus] = useState<TCurtainStatus>(defaultCurtainStatus);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
 	const {add, getAll, getOneByKey, update} = useIndexedDBStore<TAddressBookEntry>('address-book');
 	const {safeChainID} = useChainID();
@@ -337,6 +359,30 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		[add, getEntry, update, safeChainID]
 	);
 
+	const entryReducer = (state: TAddressBookEntry, action: TAddressBookEntryReducer): TAddressBookEntry => {
+		switch (action.type) {
+			case 'SET_SELECTED_ENTRY':
+				return action.payload;
+			case 'SET_ADDRESS':
+				return {...state, address: toAddress(action.payload)};
+			case 'SET_LABEL':
+				return {...state, label: action.payload};
+			case 'SET_CHAINS':
+				return {...state, chains: action.payload};
+			case 'SET_IS_FAVORITE':
+				updateEntry({...state, isFavorite: action.payload});
+				return {...state, isFavorite: action.payload};
+		}
+	};
+
+	const [selectedEntry, dispatch] = useReducer(entryReducer, {
+		address: undefined,
+		label: '',
+		slugifiedLabel: '',
+		chains: [],
+		isFavorite: false
+	});
+
 	/**************************************************************************
 	 * Context value that is passed to all children of this component.
 	 *************************************************************************/
@@ -351,6 +397,10 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 			updateEntry,
 			deleteEntry,
 			bumpEntryInteractions,
+			selectedEntry,
+			dispatchConfiguration: dispatch,
+			curtainStatus,
+			set_curtainStatus,
 			onOpenCurtain: (callbackFn): void => {
 				set_currentCallbackFunction(() => callbackFn);
 				set_shouldOpenCurtain(true);
@@ -360,13 +410,15 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		[
 			shouldOpenCurtain,
 			listEntries,
-			addEntry,
 			listCachedEntries,
-			bumpEntryInteractions,
 			getEntry,
 			getCachedEntry,
+			addEntry,
 			updateEntry,
-			deleteEntry
+			deleteEntry,
+			bumpEntryInteractions,
+			selectedEntry,
+			curtainStatus
 		]
 	);
 
@@ -378,8 +430,36 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}
 			/>
+			<AddressBookCurtain
+				selectedEntry={selectedEntry}
+				dispatch={dispatch}
+				isOpen={curtainStatus.isOpen}
+				isEditing={curtainStatus.isEditing}
+				initialLabel={curtainStatus.label}
+				onOpenChange={status => {
+					set_curtainStatus(status);
+					if (!status.isOpen) {
+						dispatch({
+							type: 'SET_SELECTED_ENTRY',
+							payload: {
+								address: undefined,
+								label: '',
+								slugifiedLabel: '',
+								chains: [],
+								isFavorite: false
+							}
+						});
+					}
+				}}
+			/>
 		</AddressBookContext.Provider>
 	);
 };
 
-export const useAddressBook = (): TAddressBookProps => useContext(AddressBookContext);
+export const useAddressBook = (): TAddressBookProps => {
+	const ctx = useContext(AddressBookContext);
+	if (!ctx) {
+		throw new Error('AddressBookContext not found');
+	}
+	return ctx;
+};

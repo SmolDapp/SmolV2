@@ -2,7 +2,6 @@ import {useCallback, useMemo, useState} from 'react';
 import {AddressBookEntry} from 'components/designSystem/AddressBookEntry';
 import {TextInput} from 'components/Primitives/TextInput';
 import {useAddressBook} from 'contexts/useAddressBook';
-import {useAddressBookCurtain} from 'contexts/useAddressBookCurtain';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
@@ -222,8 +221,7 @@ function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 
 export function AddressBook(): ReactElement {
 	const {listCachedEntries} = useAddressBook();
-	const {set_curtainStatus, dispatchConfiguration} = useAddressBookCurtain();
-
+	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 	const [searchValue, set_searchValue] = useState('');
 
 	/**************************************************************************

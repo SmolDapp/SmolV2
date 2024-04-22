@@ -15,12 +15,14 @@ import {
 	zkSync,
 	zora
 } from 'wagmi/chains';
-import {indexedWagmiChains} from '@builtbymom/web3/utils/wagmi';
+import {indexedWagmiChains, localhost} from '@builtbymom/web3/utils/wagmi';
 
 import {COINGECKO_GAS_COIN_IDS, SAFE_API_URI} from './constants';
 
 import type {Chain} from 'wagmi/chains';
 import type {TChainContract, TExtendedChain} from '@builtbymom/web3/utils/wagmi';
+
+const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 export const supportedNetworks: Chain[] = [
 	mainnet,
@@ -35,8 +37,9 @@ export const supportedNetworks: Chain[] = [
 	arbitrum,
 	metis,
 	zora,
-	confluxESpace
-];
+	confluxESpace,
+	isDev && localhost
+].filter(Boolean);
 export const supportedTestNetworks: Chain[] = [goerli, baseGoerli];
 
 export type TAppExtendedChain = TExtendedChain & {

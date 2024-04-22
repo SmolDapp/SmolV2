@@ -24,6 +24,7 @@ import {DisperseWizard} from './Wizard';
 import type {AxiosResponse} from 'axios';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TPrice} from '@utils/types/types';
 import type {TDisperseInput} from './useDisperse';
 
 type TRecord = {
@@ -203,9 +204,7 @@ export function ExportConfigurationButton({
 const Disperse = memo(function Disperse(): ReactElement {
 	const {safeChainID} = useChainID();
 	const {configuration, dispatchConfiguration} = useDisperse();
-
 	const {hasInitialInputs} = useDisperseQueryManagement();
-
 	const plausible = usePlausible();
 
 	const downloadFile = async (): Promise<AxiosResponse<Blob>> => {
@@ -226,7 +225,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {data: prices} = usePrices({
 		tokens: configuration.tokenToSend ? [configuration.tokenToSend] : [],
 		chainId: safeChainID
-	});
+	}) as TPrice;
 	const price = prices && configuration.tokenToSend ? prices[configuration.tokenToSend.address] : undefined;
 
 	const onSelectToken = (token: TToken | undefined): void => {

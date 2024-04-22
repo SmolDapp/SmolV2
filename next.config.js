@@ -114,9 +114,11 @@ module.exports = phase =>
 				WALLETCONNECT_PROJECT_URL: 'https://smold.app',
 				WALLETCONNECT_PROJECT_ICON: 'https://smold.app/favicons/ms-icon-310x310.png',
 
+				SHOULD_USE_FORKNET: process.env.SHOULD_USE_FORKNET,
+
 				SMOL_ASSETS_URL: 'https://assets.smold.app/api',
 				SMOL_ADDRESS: '0x10001192576E8079f12d6695b0948C2F41320040',
-				PLAUSIBLE_DOMAIN: 'v2.smold.app'
+				PLAUSIBLE_DOMAIN: 'smold.app'
 			}
 		})
 	);

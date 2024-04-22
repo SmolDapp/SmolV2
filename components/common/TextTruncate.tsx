@@ -6,7 +6,7 @@ export function TextTruncate(props: InputHTMLAttributes<HTMLInputElement>): Reac
 	const {value, className} = props;
 	return (
 		<input
-			disabled
+			readOnly
 			type={'text'}
 			className={cl(
 				'text-xs w-full border-none p-0 transition-all line-clamp-1 max-w-full truncate disabled bg-transparent text-neutral-600',

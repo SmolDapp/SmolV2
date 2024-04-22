@@ -1,9 +1,8 @@
 import {useState} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
-import {useAddressBookCurtain} from 'contexts/useAddressBookCurtain';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isEthAddress} from '@builtbymom/web3/utils';
+import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {getIsSmartContract} from '@utils/tools.address';
 import {supportedNetworks} from '@utils/tools.chains';
 import {Warning} from '@common/Primitives/Warning';
@@ -14,24 +13,25 @@ import type {ReactElement, ReactNode} from 'react';
 import type {TWarningType} from '@common/Primitives/Warning';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {
-	const {set_curtainStatus, dispatchConfiguration} = useAddressBookCurtain();
+	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 	const {configuration} = useSendFlow();
 
 	return (
 		<button
 			className={'font-bold transition-all'}
 			onClick={() => {
-				set_curtainStatus({isOpen: true, isEditing: true});
+				const hasALabel = isZeroAddress(configuration.receiver.label);
 				dispatchConfiguration({
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
 						address: configuration.receiver.address,
-						label: '',
+						label: hasALabel ? configuration.receiver.label : '',
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
 					}
 				});
+				set_curtainStatus({isOpen: true, isEditing: true});
 			}}>
 			{children}
 		</button>
@@ -41,10 +41,8 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement | null {
 	const {configuration} = useSendFlow();
 	const {safeChainID} = useChainID();
-
-	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
-
 	const {getEntry} = useAddressBook();
+	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		const isSmartContract =

@@ -53,7 +53,7 @@ const useApproveDisperse = ({
 	onApproveToken: () => void;
 } => {
 	const {provider} = useWeb3();
-	const {safeChainID} = useChainID();
+	const {safeChainID, chainID} = useChainID();
 	const {configuration} = useDisperse();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const {address} = useWeb3();
@@ -75,14 +75,13 @@ const useApproveDisperse = ({
 	});
 
 	const isApproved = allowance >= totalToDisperse;
-
 	const onApproveToken = useCallback((): void => {
 		if (isApproved) {
 			return;
 		}
 		approveERC20({
 			connector: provider,
-			chainID: safeChainID,
+			chainID: chainID,
 			contractAddress: toAddress(configuration.tokenToSend?.address),
 			spenderAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 			amount: totalToDisperse,
@@ -93,7 +92,16 @@ const useApproveDisperse = ({
 				refetch();
 			}
 		});
-	}, [isApproved, provider, safeChainID, configuration.tokenToSend?.address, totalToDisperse, onSuccess, refetch]);
+	}, [
+		isApproved,
+		provider,
+		chainID,
+		safeChainID,
+		configuration.tokenToSend?.address,
+		totalToDisperse,
+		onSuccess,
+		refetch
+	]);
 
 	return {
 		approvalStatus,
@@ -117,7 +125,7 @@ const useConfirmDisperse = ({
 	totalToDisperse: bigint;
 }): {onDisperseTokens: () => void} => {
 	const {address, provider, isWalletSafe} = useWeb3();
-	const {safeChainID} = useChainID();
+	const {chainID, safeChainID} = useChainID();
 	const {configuration} = useDisperse();
 	const {bumpEntryInteractions} = useAddressBook();
 	const {onRefresh} = useWallet();
@@ -259,7 +267,7 @@ const useConfirmDisperse = ({
 		if (configuration.tokenToSend?.address === ETH_TOKEN_ADDRESS) {
 			disperseETH({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: chainID,
 				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 				receivers: disperseAddresses,
 				amounts: disperseAmount
@@ -272,7 +280,7 @@ const useConfirmDisperse = ({
 		} else {
 			disperseERC20({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: chainID,
 				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
 				tokenToDisperse: toAddress(configuration.tokenToSend?.address),
 				receivers: disperseAddresses,
@@ -292,6 +300,7 @@ const useConfirmDisperse = ({
 		onDisperseTokensForGnosis,
 		provider,
 		safeChainID,
+		chainID,
 		onError,
 		successDisperseCallback
 	]);
