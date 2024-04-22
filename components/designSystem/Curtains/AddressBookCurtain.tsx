@@ -395,6 +395,7 @@ export function AddressBookCurtain(props: {
 									onRefresh={() => set_nonce(n => n + 1)}
 									onChange={(label: string) => {
 										set_currentEntry({...currentEntry, label});
+										props.dispatch({type: 'SET_LABEL', payload: label});
 									}}
 								/>
 							</div>
