@@ -6,14 +6,9 @@ import {Fragment, type ReactElement} from 'react';
 export default function RevokePage(): ReactElement {
 	return (
 		<AllowancesContextApp>
-			{({configuration}) => (
-				<BalancesCurtainContextApp
-					selectedTokenAddresses={
-						configuration.tokenToCheck?.address ? [configuration.tokenToCheck?.address] : []
-					}>
-					<Revoke />
-				</BalancesCurtainContextApp>
-			)}
+			<BalancesCurtainContextApp selectedTokenAddresses={[]}>
+				<Revoke />
+			</BalancesCurtainContextApp>
 		</AllowancesContextApp>
 	);
 }

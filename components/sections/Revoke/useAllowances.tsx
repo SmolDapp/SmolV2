@@ -1,7 +1,6 @@
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {allowanceOf, getClient} from '@builtbymom/web3/utils/wagmi';
-import {optionalRenderProps} from '@utils/react/optionalRenderProps';
 import {getLatestNotEmptyEvents} from '@utils/tools.revoke';
 import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {parseAbiItem} from 'viem';
@@ -10,7 +9,6 @@ import {useAccount} from 'wagmi';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
-import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TAllowances} from '@utils/types/revokeType';
 import type {Dispatch, ReactElement} from 'react';
 
@@ -69,9 +67,7 @@ const parsedApprovalEvent = parseAbiItem(
 
 const AllowancesContext = createContext<TAllowancesContext>(defaultProps);
 
-export const AllowancesContextApp = (props: {
-	children: TOptionalRenderProps<TAllowancesContext, ReactElement>;
-}): ReactElement => {
+export const AllowancesContextApp = (props: {children: ReactElement}): ReactElement => {
 	const {chainID} = useChainID();
 	const {address} = useAccount();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
@@ -150,11 +146,7 @@ export const AllowancesContextApp = (props: {
 		[allowances, refreshApproveEvents, configuration]
 	);
 
-	return (
-		<AllowancesContext.Provider value={contextValue}>
-			{optionalRenderProps(props.children, contextValue)}
-		</AllowancesContext.Provider>
-	);
+	return <AllowancesContext.Provider value={contextValue}>{props.children}</AllowancesContext.Provider>;
 };
 
 export const useAllowances = (): TAllowancesContext => {
