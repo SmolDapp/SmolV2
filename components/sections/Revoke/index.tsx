@@ -9,8 +9,7 @@ import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 
 export function Revoke(): ReactElement {
-	const {configuration, dispatchConfiguration} = useAllowances();
-	const {refreshApproveEvents} = useAllowances();
+	const {configuration, dispatchConfiguration, refreshApproveEvents} = useAllowances();
 	const {address} = useAccount();
 
 	const onSubmit = (): void => {

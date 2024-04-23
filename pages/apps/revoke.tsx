@@ -1,8 +1,7 @@
+import {Fragment, type ReactElement} from 'react';
 import {Revoke} from 'components/sections/Revoke';
 import {AllowancesContextApp} from 'components/sections/Revoke/useAllowances';
 import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
-
-import type {ReactElement} from 'react';
 
 export default function RevokePage(): ReactElement {
 	return (
@@ -28,5 +27,5 @@ RevokePage.AppInfo = (
 );
 
 RevokePage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <>{page}</>;
+	return <Fragment>{page}</Fragment>;
 };

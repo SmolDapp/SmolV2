@@ -1,13 +1,12 @@
-import abiCoder from 'web3-eth-abi';
+import {encodeFunctionCall} from 'web3-eth-abi';
 import {toAddress} from '@builtbymom/web3/utils';
 import {ETH_TOKEN_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 
-import type {AbiCoder} from 'web3-eth-abi';
-import type {AbiItem} from 'web3-utils';
+import type {AbiFunctionFragment} from 'web3-types';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 
-const ERC20ABI_TRANSFER: AbiItem = {
+const ERC20ABI_TRANSFER: AbiFunctionFragment = {
 	constant: false,
 	payable: false,
 	name: 'transfer',
@@ -25,11 +24,10 @@ export function getTransferTransaction(amount: string, token: TAddress, recipien
 		return {to: recipient, value: amount, data: '0x'};
 	}
 
-	const coder = abiCoder as unknown as AbiCoder;
 	return {
 		// For other token types, generate a contract tx
 		to: token,
 		value: '0',
-		data: coder.encodeFunctionCall(ERC20ABI_TRANSFER, [recipient, amount])
+		data: encodeFunctionCall(ERC20ABI_TRANSFER, [recipient, amount])
 	};
 }
