@@ -1,16 +1,13 @@
-import {Fragment, type ReactElement} from 'react';
 import {Revoke} from 'components/sections/Revoke';
 import {AllowancesContextApp} from 'components/sections/Revoke/useAllowances';
 import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
+import {Fragment, type ReactElement} from 'react';
 
 export default function RevokePage(): ReactElement {
 	return (
 		<AllowancesContextApp>
-			{({configuration}) => (
-				<BalancesCurtainContextApp
-					selectedTokenAddresses={
-						configuration.tokenToCheck?.address ? [configuration.tokenToCheck?.address] : []
-					}>
+			{({}) => (
+				<BalancesCurtainContextApp selectedTokenAddresses={[]}>
 					<Revoke />
 				</BalancesCurtainContextApp>
 			)}
