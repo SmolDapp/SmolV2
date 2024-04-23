@@ -26,7 +26,7 @@ type TAddressInput = {
 	isSimple?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-export function useValidateAddressInput(): {
+export function useValidateAddressInput(isSimple?: boolean): {
 	validate: (signal: AbortSignal | undefined, input: string) => Promise<TInputAddressLike>;
 	isCheckingValidity: boolean;
 } {
@@ -42,7 +42,7 @@ export function useValidateAddressInput(): {
 		 ** Check if the input is an address from the address book
 		 **********************************************************/
 		const fromAddressBook = await getEntry({label: input, address: toAddress(input)});
-		if (fromAddressBook && !fromAddressBook.isHidden) {
+		if (fromAddressBook && !fromAddressBook.isHidden && !isSimple) {
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
 			}
@@ -59,7 +59,8 @@ export function useValidateAddressInput(): {
 		/**********************************************************
 		 ** Check if the input is an ENS name
 		 **********************************************************/
-		if (input.endsWith('.eth') && input.length > 4) {
+		if (input.endsWith('.eth') && input.length > 4 && isSimple) {
+			console.log('lol');
 			set_isCheckingValidity(true);
 			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
 			const [address, isValid] = await checkENSValidity(input);
@@ -140,7 +141,7 @@ export function SmolAddressInput({
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 
-	const {isCheckingValidity, validate} = useValidateAddressInput();
+	const {isCheckingValidity, validate} = useValidateAddressInput(isSimple);
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
 
 	const onChange = (input: string): void => {
@@ -245,6 +246,7 @@ export function SmolAddressInput({
 						autoCorrect={'off'}
 						spellCheck={'false'}
 						value={getInputValue()}
+						pattern={'^(?!0x).*'}
 						onChange={e => {
 							onChange(e.target.value);
 						}}
