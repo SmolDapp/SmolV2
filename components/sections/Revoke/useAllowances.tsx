@@ -4,15 +4,15 @@ import {useAccount} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {allowanceOf, getClient} from '@builtbymom/web3/utils/wagmi';
-import {useUpdateEffect} from '@react-hookz/web';
 import {optionalRenderProps} from '@utils/react/optionalRenderProps';
-import {filterNotEmptyEvents, getLatestNotEmptyEvents} from '@utils/tools.revoke';
+import {getLatestNotEmptyEvents} from '@utils/tools.revoke';
 
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TAllowances} from '@utils/types/revokeType';
+import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
@@ -69,9 +69,7 @@ const parsedApprovalEvent = parseAbiItem(
 
 const AllowancesContext = createContext<TAllowancesContext>(defaultProps);
 
-export const AllowancesContextApp = ({
-	children
-}: {
+export const AllowancesContextApp = (props: {
 	children: TOptionalRenderProps<TAllowancesContext, ReactElement>;
 }): ReactElement => {
 	const {chainID} = useChainID();
@@ -80,26 +78,39 @@ export const AllowancesContextApp = ({
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
 	const {provider} = useWeb3();
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
-
 	const {safeChainID} = useChainID();
-
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-
 	const publicClient = useMemo(() => getClient(isDev ? chainID : safeChainID), [isDev, chainID, safeChainID]);
 
-	const allowancePromises = useMemo(() => {
+	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents) {
-			return [];
+			set_allowances(null);
+			return;
 		}
-		return approveEvents.map(async item =>
-			allowanceOf({
+
+		const allAllowances = [];
+		for (const item of approveEvents) {
+			const allowance = await allowanceOf({
 				connector: provider,
 				chainID: chainID,
 				tokenAddress: item.address,
 				spenderAddress: item.args.sender
-			})
-		);
-	}, [approveEvents, chainID, provider]);
+			});
+			allAllowances.push(allowance);
+		}
+
+		const _allowances: TAllowances = [];
+		for (let i = 0; i < approveEvents.length; i++) {
+			_allowances.push({
+				...approveEvents[i],
+				args: {
+					...approveEvents[i].args,
+					value: allAllowances[i]
+				}
+			});
+		}
+		set_allowances(_allowances);
+	}, []);
 
 	const refreshApproveEvents = useCallback(
 		async (tokenAddresses?: TAddress[]) => {
@@ -127,26 +138,6 @@ export const AllowancesContextApp = ({
 		[address, publicClient]
 	);
 
-	useUpdateEffect(() => {
-		Promise.all(allowancePromises).then(allowance => {
-			return set_allowances(
-				filterNotEmptyEvents(
-					approveEvents
-						? approveEvents.map((item, index) => {
-								return {
-									...item,
-									args: {
-										...item.args,
-										value: allowance[index]
-									}
-								};
-							})
-						: []
-				)
-			);
-		});
-	}, [approveEvents, refreshApproveEvents]);
-
 	const contextValue = useMemo(
 		(): TAllowancesContext => ({
 			allowances,
@@ -159,7 +150,7 @@ export const AllowancesContextApp = ({
 
 	return (
 		<AllowancesContext.Provider value={contextValue}>
-			{optionalRenderProps(children, contextValue)}
+			{optionalRenderProps(props.children, contextValue)}
 		</AllowancesContext.Provider>
 	);
 };
