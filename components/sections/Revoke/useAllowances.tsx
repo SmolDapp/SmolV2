@@ -1,6 +1,7 @@
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {allowanceOf, getClient} from '@builtbymom/web3/utils/wagmi';
+import {optionalRenderProps} from '@utils/react/optionalRenderProps';
 import {getLatestNotEmptyEvents} from '@utils/tools.revoke';
 import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {parseAbiItem} from 'viem';
@@ -9,6 +10,7 @@ import {useAccount} from 'wagmi';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
+import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TAllowances} from '@utils/types/revokeType';
 import type {Dispatch, ReactElement} from 'react';
 
@@ -61,13 +63,10 @@ const configurationReducer = (
 	}
 };
 
-const parsedApprovalEvent = parseAbiItem(
-	'event Approval(address indexed owner, address indexed sender, uint256 value)'
-);
-
 const AllowancesContext = createContext<TAllowancesContext>(defaultProps);
-
-export const AllowancesContextApp = (props: {children: ReactElement}): ReactElement => {
+export const AllowancesContextApp = (props: {
+	children: TOptionalRenderProps<TAllowancesContext, ReactElement>;
+}): ReactElement => {
 	const {chainID} = useChainID();
 	const {address} = useAccount();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
@@ -75,10 +74,6 @@ export const AllowancesContextApp = (props: {children: ReactElement}): ReactElem
 	const {provider} = useWeb3();
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
 	const {safeChainID} = useChainID();
-	const publicClient = useMemo(() => {
-		const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-		return getClient(isDev ? chainID : safeChainID);
-	}, [chainID, safeChainID]);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents) {
@@ -112,11 +107,15 @@ export const AllowancesContextApp = (props: {children: ReactElement}): ReactElem
 
 	const refreshApproveEvents = useCallback(
 		async (tokenAddresses?: TAddress[]): Promise<void> => {
-			if (!tokenAddresses || !publicClient) {
+			if (!tokenAddresses) {
 				return;
 			}
 			try {
-				const approveEventLogs = await publicClient.getLogs({
+				const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+				const parsedApprovalEvent = parseAbiItem(
+					'event Approval(address indexed owner, address indexed sender, uint256 value)'
+				);
+				const approveEventLogs = await getClient(isDev ? chainID : safeChainID).getLogs({
 					address: tokenAddresses,
 					event: parsedApprovalEvent,
 					args: {
@@ -133,7 +132,7 @@ export const AllowancesContextApp = (props: {children: ReactElement}): ReactElem
 				}
 			}
 		},
-		[address, publicClient]
+		[address, chainID, safeChainID]
 	);
 
 	const contextValue = useMemo(
@@ -146,7 +145,11 @@ export const AllowancesContextApp = (props: {children: ReactElement}): ReactElem
 		[allowances, refreshApproveEvents, configuration]
 	);
 
-	return <AllowancesContext.Provider value={contextValue}>{props.children}</AllowancesContext.Provider>;
+	return (
+		<AllowancesContext.Provider value={contextValue}>
+			{optionalRenderProps(props.children, contextValue)}
+		</AllowancesContext.Provider>
+	);
 };
 
 export const useAllowances = (): TAllowancesContext => {

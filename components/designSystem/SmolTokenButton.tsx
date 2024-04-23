@@ -1,10 +1,11 @@
-import {type ReactElement, useMemo} from 'react';
 import {cl, formatAmount, isAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
+import {ImageWithFallback} from '@common/ImageWithFallback';
 import {IconChevron} from '@icons/IconChevron';
 import {IconWallet} from '@icons/IconWallet';
-import {ImageWithFallback} from '@common/ImageWithFallback';
+import {useMemo} from 'react';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {ReactElement} from 'react';
 
 export function SmolTokenButton(props: {
 	token: TToken | undefined;
