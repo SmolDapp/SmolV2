@@ -1,19 +1,21 @@
 import {Fragment, type ReactElement} from 'react';
+import {AllowancesContextApp} from 'components/sections/Revoke/useAllowances';
+import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
 
 export default function RevokePage(): ReactElement {
-	return <div>{'Hello'}</div>;
-	// return (
-	// 	<AllowancesContextApp>
-	// 		{({configuration}) => (
-	// 			<BalancesCurtainContextApp
-	// 				selectedTokenAddresses={
-	// 					configuration.tokenToCheck?.address ? [configuration.tokenToCheck?.address] : []
-	// 				}>
-	// 				<Revoke />
-	// 			</BalancesCurtainContextApp>
-	// 		)}
-	// 	</AllowancesContextApp>
-	// );
+	return (
+		<AllowancesContextApp>
+			{({configuration}) => (
+				<BalancesCurtainContextApp
+					selectedTokenAddresses={
+						configuration.tokenToCheck?.address ? [configuration.tokenToCheck?.address] : []
+					}>
+					<div>{'Hello'}</div>
+					{/* <Revoke /> */}
+				</BalancesCurtainContextApp>
+			)}
+		</AllowancesContextApp>
+	);
 }
 
 RevokePage.AppName = 'Revoke';
