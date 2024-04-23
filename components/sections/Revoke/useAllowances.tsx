@@ -79,8 +79,10 @@ export const AllowancesContextApp = (props: {
 	const {provider} = useWeb3();
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
 	const {safeChainID} = useChainID();
-	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-	const publicClient = useMemo(() => getClient(isDev ? chainID : safeChainID), [isDev, chainID, safeChainID]);
+	const publicClient = useMemo(() => {
+		const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+		return getClient(isDev ? chainID : safeChainID);
+	}, [chainID, safeChainID]);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents) {
@@ -113,8 +115,8 @@ export const AllowancesContextApp = (props: {
 	}, []);
 
 	const refreshApproveEvents = useCallback(
-		async (tokenAddresses?: TAddress[]) => {
-			if (!tokenAddresses) {
+		async (tokenAddresses?: TAddress[]): Promise<void> => {
+			if (!tokenAddresses || !publicClient) {
 				return;
 			}
 			try {
