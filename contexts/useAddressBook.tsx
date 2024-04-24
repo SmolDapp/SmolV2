@@ -364,7 +364,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 			case 'SET_SELECTED_ENTRY':
 				return action.payload;
 			case 'SET_ADDRESS':
-				return {...state, address: toAddress(action.payload)};
+				return {...state, address: action.payload ? toAddress(action.payload) : undefined};
 			case 'SET_LABEL':
 				return {...state, label: action.payload};
 			case 'SET_CHAINS':
