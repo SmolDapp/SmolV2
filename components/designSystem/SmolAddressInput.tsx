@@ -60,7 +60,6 @@ export function useValidateAddressInput(isSimple?: boolean): {
 		 ** Check if the input is an ENS name
 		 **********************************************************/
 		if (input.endsWith('.eth') && input.length > 4 && isSimple) {
-			console.log('lol');
 			set_isCheckingValidity(true);
 			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
 			const [address, isValid] = await checkENSValidity(input);
@@ -152,15 +151,15 @@ export function SmolAddressInput({
 
 	const getInputValue = useCallback((): string | undefined => {
 		if (isFocused) {
-			return value.label;
+			return result?.label;
 		}
 
-		if (isAddress(value.label)) {
-			return truncateHex(value.label, 5);
+		if (isAddress(result?.label)) {
+			return truncateHex(result?.label, 5);
 		}
 
-		return value.label;
-	}, [isFocused, value.label]);
+		return result?.label;
+	}, [isFocused, result?.label]);
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
@@ -246,15 +245,15 @@ export function SmolAddressInput({
 						autoCorrect={'off'}
 						spellCheck={'false'}
 						value={getInputValue()}
-						pattern={'^(?!0x).*'}
+						// pattern={'^(?!0x).*'}
 						onChange={e => {
 							onChange(e.target.value);
 						}}
 						onFocus={() => {
 							set_isFocused(true);
 							setTimeout(() => {
-								if (inputRef.current) {
-									const end = value.label.length;
+								if (inputRef.current && result) {
+									const end = result.label.length;
 									inputRef.current.setSelectionRange(0, end);
 									inputRef.current.scrollLeft = inputRef.current.scrollWidth;
 									inputRef.current.focus();

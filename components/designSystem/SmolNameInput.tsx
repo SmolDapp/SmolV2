@@ -10,8 +10,10 @@ type TSmolNameInputProps = {
 	disabled: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-function useValidateNameInput(): {validate: (input: string, set_isValid?: (value: boolean) => void) => string | null} {
-	const validate = (input: string, set_isValid?: (value: boolean) => void): string | null => {
+function useValidateNameInput(): {
+	validate: (input: string, isTouched?: boolean, set_isValid?: (value: boolean) => void) => string | null;
+} {
+	const validate = (input: string, isTouched?: boolean, set_isValid?: (value: boolean) => void): string | null => {
 		if (input.startsWith('0x')) {
 			set_isValid?.(false);
 			return 'The name cannot start with `0x`';
@@ -24,9 +26,9 @@ function useValidateNameInput(): {validate: (input: string, set_isValid?: (value
 			set_isValid?.(false);
 			return 'The name must not contain `.`';
 		}
-		if (input.length < 1) {
+		if (isTouched && input.length < 1) {
 			set_isValid?.(false);
-			return 'The name must be at least 1 character long';
+			return 'The name cannot be empty';
 		}
 		set_isValid?.(true);
 		return null;
@@ -37,13 +39,14 @@ function useValidateNameInput(): {validate: (input: string, set_isValid?: (value
 
 export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNameInputProps): ReactElement => {
 	const [isFocused, set_isFocused] = useState<boolean>(false);
+	const [isTouched, set_isTouched] = useState<boolean>(false);
 	const onChangeValue = (value: string): void => {
 		onSetValue(value);
 	};
 
 	const {validate} = useValidateNameInput();
 
-	const validation = validate(value, set_isValid);
+	const validation = validate(value, isTouched, set_isValid);
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
@@ -72,8 +75,13 @@ export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNa
 					minLength={1}
 					maxLength={22}
 					placeholder={'Mom'}
+					pattern={'^(?!0x).*'}
+					autoComplete={'off'}
+					autoCorrect={'off'}
+					spellCheck={'false'}
 					onFocus={() => {
 						set_isFocused(true);
+						set_isTouched(true);
 					}}
 					onBlur={() => set_isFocused(false)}
 					onChange={e => onChangeValue(e.target.value)}

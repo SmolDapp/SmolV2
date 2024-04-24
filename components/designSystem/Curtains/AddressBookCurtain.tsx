@@ -35,7 +35,7 @@ function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): Reac
 				e.preventDefault();
 				props.onClick();
 			}}
-			className={cl('rounded p-1', 'h-12 w-12 rounded-lg bg-neutral-300', 'flex justify-center items-center')}>
+			className={cl('rounded p-1', 'h-full w-12 rounded-lg bg-neutral-300', 'flex justify-center items-center')}>
 			<div className={'group relative flex size-4 items-center justify-center'}>
 				<IconHeart
 					className={cl(
@@ -126,11 +126,6 @@ function NameInput(props: {
 			onDoubleClick={() => {
 				props.onEdit(true);
 			}}>
-			<div className={'flex items-center justify-between'}>
-				<label htmlFor={'name'}>
-					<small className={'pl-1'}>{'Name'}</small>
-				</label>
-			</div>
 			<SmolNameInput
 				inputRef={inputRef}
 				id={'name'}
@@ -268,6 +263,7 @@ export function AddressBookCurtain(props: {
 
 	const onChangeValue = (value: Partial<TInputAddressLike>): void => {
 		set_addressLike(prev => ({...prev, ...value}));
+		props.dispatch({type: 'SET_ADDRESS', payload: value.address});
 	};
 
 	/**********************************************************************************************
@@ -314,8 +310,15 @@ export function AddressBookCurtain(props: {
 						ref={formRef}
 						onSubmit={onFormSubmit}
 						className={'flex flex-col gap-6'}>
-						<div className={'flex flex-row items-center space-x-0'}>
+						<div className={'flex flex-col items-center space-x-0'}>
 							<div className={'w-full'}>
+								<div className={'flex items-center justify-between'}>
+									<label htmlFor={'name'}>
+										<small className={'pl-1'}>{'Name'}</small>
+									</label>
+								</div>
+							</div>
+							<div className={'flex'}>
 								<NameInput
 									{...props}
 									selectedEntry={currentEntry}
@@ -327,8 +330,6 @@ export function AddressBookCurtain(props: {
 									}}
 									set_isValid={set_isValidName}
 								/>
-							</div>
-							<div className={'pl-2'}>
 								<small className={'pl-1'}>&nbsp;</small>
 								<div>
 									<FavoriteToggle
