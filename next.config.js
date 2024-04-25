@@ -40,6 +40,10 @@ module.exports = phase =>
 				},
 				redirects() {
 					return [
+						{source: '/disperse', destination: '/app/disperse', permanent: true},
+						{source: '/migratooor', destination: '/app/send', permanent: true},
+						{source: '/safe', destination: 'https://multisafe.app', permanent: true},
+						{source: '/stream', destination: 'https://v1.smold.app/stream', permanent: false},
 						{
 							source: '/',
 							has: [{type: 'host', value: 'multisafe.app'}],
@@ -55,7 +59,7 @@ module.exports = phase =>
 						{
 							source: '/',
 							has: [{type: 'host', value: 'disperse.smold.app'}],
-							destination: '/disperse',
+							destination: '/app/disperse',
 							permanent: true
 						},
 						{
@@ -65,13 +69,13 @@ module.exports = phase =>
 								{type: 'host', value: 'migrate.smold.app'},
 								{type: 'host', value: 'migratooor.smold.app'}
 							],
-							destination: '/migratooor',
+							destination: '/app/send',
 							permanent: true
 						},
 						{
 							source: '/',
 							has: [{type: 'host', value: 'nftmigratooor.smold.app'}],
-							destination: '/migratooor',
+							destination: '/app/send',
 							permanent: true
 						},
 						{
