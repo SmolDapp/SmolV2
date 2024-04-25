@@ -5,6 +5,7 @@ const withPWA = require('next-pwa')({
 });
 const withTM = require('next-transpile-modules')(['@yearn-finance/web-lib'], {resolveSymlinks: false});
 const {PHASE_EXPORT} = require('next/constants');
+const {withPlausibleProxy} = require('next-plausible');
 
 module.exports = phase =>
 	withPlausibleProxy({
