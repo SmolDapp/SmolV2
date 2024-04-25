@@ -7,7 +7,10 @@ const withTM = require('next-transpile-modules')(['@yearn-finance/web-lib'], {re
 const {PHASE_EXPORT} = require('next/constants');
 
 module.exports = phase =>
-	withPlausibleProxy()(
+	withPlausibleProxy({
+		scriptName: 'script',
+		customDomain: 'https://smold.app'
+	})(
 		withTM(
 			withPWA({
 				assetPrefix: process.env.IPFS_BUILD === 'true' || phase === PHASE_EXPORT ? './' : '/',
