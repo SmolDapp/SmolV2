@@ -71,7 +71,11 @@ function MyApp(props: AppProps): ReactElement {
 			/>
 			<WithMom
 				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json']}>
+				tokenLists={[
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+					'https://raw.githubusercontent.com/smoldapp/tokenLists/main/lists/blockscout.json',
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+				]}>
 				<WalletContextApp
 					shouldWorkOnTestnet={
 						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
