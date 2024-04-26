@@ -22,7 +22,6 @@ export const RevokeWizard = (): ReactElement => {
 
 	const onRevokeSuccess = useCallback(
 		(tokenAddresses: TAddress[] | undefined): void => {
-			console.log(configuration.tokensToCheck);
 			set_revokeStatus({...defaultTxStatus, success: true});
 
 			if (!tokenAddresses) {
@@ -30,7 +29,7 @@ export const RevokeWizard = (): ReactElement => {
 			}
 			refreshApproveEvents(tokenAddresses);
 		},
-		[configuration.tokensToCheck, refreshApproveEvents]
+		[refreshApproveEvents]
 	);
 
 	const revokeTokenAllowance = useCallback(

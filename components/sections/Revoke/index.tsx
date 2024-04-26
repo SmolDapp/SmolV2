@@ -1,16 +1,31 @@
+import {type ReactElement, useMemo} from 'react';
 import {SmolTokenSelector} from 'components/designSystem/SmolTokenSelector';
 import {Button} from 'components/Primitives/Button';
+import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {useAccount} from 'wagmi';
 
 import {useAllowances} from './useAllowances';
 import {RevokeWizard} from './Wizard';
 
-import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
+import type {TTokenAllowance} from './useAllowances';
 
 export function Revoke(): ReactElement {
 	const {configuration, dispatchConfiguration, refreshApproveEvents} = useAllowances();
+	// eslint-disable-next-line unused-imports/no-unused-vars
+	const {tokensWithBalance} = useTokensWithBalance();
+
 	const {address} = useAccount();
+
+	const tokens: TTokenAllowance[] = useMemo(
+		() =>
+			tokensWithBalance.map(item => {
+				return {
+					address: item.address
+				};
+			}),
+		[tokensWithBalance]
+	);
 
 	const onSubmit = (): void => {
 		if (!address) {
@@ -22,13 +37,7 @@ export function Revoke(): ReactElement {
 		}
 
 		//provide with token adsresses from multple select
-		refreshApproveEvents([
-			'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-			'0xdAC17F958D2ee523a2206206994597C13D831ec7',
-			'0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919',
-			'0x35A9b440Da4410dD63dF8c54672b728970560328',
-			'0x111111111117dc0aa78b770fa6a738034120c302'
-		]);
+		refreshApproveEvents(tokensWithBalance.map(item => item.address));
 	};
 
 	const onSelectToken = (token: TToken | undefined): void => {
@@ -36,13 +45,7 @@ export function Revoke(): ReactElement {
 
 		dispatchConfiguration({
 			type: 'SET_TOKENS_TO_CHECK',
-			payload: [
-				{address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'},
-				{address: '0xdAC17F958D2ee523a2206206994597C13D831ec7'},
-				{address: '0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919'},
-				{address: '0x35A9b440Da4410dD63dF8c54672b728970560328'},
-				{address: '0x111111111117dc0aa78b770fa6a738034120c302'}
-			]
+			payload: [...tokens]
 		});
 		dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: token});
 	};
