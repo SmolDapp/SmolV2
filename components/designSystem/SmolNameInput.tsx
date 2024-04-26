@@ -5,15 +5,23 @@ import {TextTruncate} from '@common/TextTruncate';
 type TSmolNameInputProps = {
 	onSetValue: (value: string) => void;
 	value: string;
-	set_isValid?: (value: boolean) => void;
+	set_isValid?: (value: boolean | 'undetermined') => void;
 	inputRef: RefObject<HTMLInputElement>;
 	disabled: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
 function useValidateNameInput(): {
-	validate: (input: string, isTouched?: boolean, set_isValid?: (value: boolean) => void) => string | null;
+	validate: (
+		input: string,
+		isTouched?: boolean,
+		set_isValid?: (value: boolean | 'undetermined') => void
+	) => string | null;
 } {
-	const validate = (input: string, isTouched?: boolean, set_isValid?: (value: boolean) => void): string | null => {
+	const validate = (
+		input: string,
+		isTouched?: boolean,
+		set_isValid?: (value: boolean | 'undetermined') => void
+	): string | null => {
 		if (input.startsWith('0x')) {
 			set_isValid?.(false);
 			return 'The name cannot start with `0x`';
@@ -29,6 +37,11 @@ function useValidateNameInput(): {
 		if (isTouched && input.length < 1) {
 			set_isValid?.(false);
 			return 'The name cannot be empty';
+		}
+
+		if (input.length < 1) {
+			set_isValid?.('undetermined');
+			return null;
 		}
 		set_isValid?.(true);
 		return null;

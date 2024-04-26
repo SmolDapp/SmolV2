@@ -115,7 +115,7 @@ function NameInput(props: {
 	onEdit: (shouldEdit: boolean) => void;
 	onChange: (value: string) => void;
 	onRefresh?: VoidFunction;
-	set_isValid?: (valud: boolean) => void;
+	set_isValid?: (valud: boolean | 'undetermined') => void;
 }): ReactElement {
 	const labelRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -214,7 +214,8 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
-	const [isValidName, set_isValidName] = useState<boolean>(false);
+	const [isFormValid, set_isFormValid] = useState<boolean>(false);
+	const [isValidName, set_isValidName] = useState<boolean | 'undetermined'>(false);
 
 	/**********************************************************************************************
 	 ** We need to use this useEffect to prevent an UI issue where the address input is not updated
@@ -253,8 +254,7 @@ export function AddressBookCurtain(props: {
 			address: props.selectedEntry.address,
 			label: toSafeAddress({
 				address: props.selectedEntry.address,
-				ens: props.selectedEntry.ens,
-				addrOverride: props.selectedEntry.address?.substring(0, 6)
+				ens: props.selectedEntry.ens
 			}),
 			isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 			source: 'defaultValue'
@@ -263,7 +263,6 @@ export function AddressBookCurtain(props: {
 
 	const onChangeValue = (value: Partial<TInputAddressLike>): void => {
 		set_addressLike(prev => ({...prev, ...value}));
-		props.dispatch({type: 'SET_ADDRESS', payload: value.address});
 	};
 
 	/**********************************************************************************************
@@ -353,14 +352,23 @@ export function AddressBookCurtain(props: {
 							onEdit={set_isEditMode}
 							onChangeAddressLike={onChangeValue}
 						/>
-						<AddressBookStatus />
+						<AddressBookStatus
+							set_isFormValid={set_isFormValid}
+							addressLike={addressLike}
+						/>
 
 						<div className={'flex flex-row items-center gap-2'}>
 							<Button
 								tabIndex={0}
 								type={'submit'}
 								isDisabled={
-									!(formRef.current?.checkValidity() && addressLike.isValid === true && isValidName)
+									!(
+										formRef.current?.checkValidity() &&
+										addressLike.isValid === true &&
+										isFormValid &&
+										isValidName &&
+										isValidName !== 'undetermined'
+									)
 								}
 								className={'!h-8 w-1/2 !text-xs font-medium'}>
 								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>

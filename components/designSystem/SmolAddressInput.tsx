@@ -26,7 +26,7 @@ type TAddressInput = {
 	isSimple?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-export function useValidateAddressInput(isSimple?: boolean): {
+export function useValidateAddressInput(): {
 	validate: (signal: AbortSignal | undefined, input: string) => Promise<TInputAddressLike>;
 	isCheckingValidity: boolean;
 } {
@@ -42,7 +42,7 @@ export function useValidateAddressInput(isSimple?: boolean): {
 		 ** Check if the input is an address from the address book
 		 **********************************************************/
 		const fromAddressBook = await getEntry({label: input, address: toAddress(input)});
-		if (fromAddressBook && !fromAddressBook.isHidden && !isSimple) {
+		if (fromAddressBook && !fromAddressBook.isHidden) {
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
 			}
@@ -59,7 +59,7 @@ export function useValidateAddressInput(isSimple?: boolean): {
 		/**********************************************************
 		 ** Check if the input is an ENS name
 		 **********************************************************/
-		if (input.endsWith('.eth') && input.length > 4 && isSimple) {
+		if (input.endsWith('.eth') && input.length > 4) {
 			set_isCheckingValidity(true);
 			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
 			const [address, isValid] = await checkENSValidity(input);
@@ -140,7 +140,7 @@ export function SmolAddressInput({
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 
-	const {isCheckingValidity, validate} = useValidateAddressInput(isSimple);
+	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
 
 	const onChange = (input: string): void => {
@@ -151,15 +151,15 @@ export function SmolAddressInput({
 
 	const getInputValue = useCallback((): string | undefined => {
 		if (isFocused) {
-			return result?.label;
+			return value.label;
 		}
 
-		if (isAddress(result?.label)) {
-			return truncateHex(result?.label, 5);
+		if (isAddress(value.label)) {
+			return truncateHex(value.label, 5);
 		}
 
-		return result?.label;
-	}, [isFocused, result?.label]);
+		return value.label;
+	}, [isFocused, value.label]);
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
@@ -245,15 +245,14 @@ export function SmolAddressInput({
 						autoCorrect={'off'}
 						spellCheck={'false'}
 						value={getInputValue()}
-						// pattern={'^(?!0x).*'}
 						onChange={e => {
 							onChange(e.target.value);
 						}}
 						onFocus={() => {
 							set_isFocused(true);
 							setTimeout(() => {
-								if (inputRef.current && result) {
-									const end = result.label.length;
+								if (inputRef.current) {
+									const end = value.label.length;
 									inputRef.current.setSelectionRange(0, end);
 									inputRef.current.scrollLeft = inputRef.current.scrollWidth;
 									inputRef.current.focus();
