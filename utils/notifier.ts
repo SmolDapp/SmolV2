@@ -1,3 +1,4 @@
+import {zora} from 'wagmi/chains';
 import axios from 'axios';
 import {formatAmount, toNormalizedBN, truncateHex, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
@@ -8,7 +9,13 @@ import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAm
 import type {Hex} from 'viem';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
 
-const safeBaseURI = 'https://app.safe.global/transactions/tx?safe=';
+const safeBaseURIForNetwork = (network: number): string => {
+	if (network === zora.id) {
+		return 'https://safe.optimism.io/transactions/tx?safe=';
+	}
+	return 'https://app.safe.global/transactions/tx?safe=';
+};
+
 export function notifyGib({
 	from,
 	fromName,
@@ -77,7 +84,7 @@ export function notifyDisperse(props: {
 			),
 			props.type === 'EOA'
 				? `\t\t\t\t\t\t[View on Explorer](${explorerBaseURI}/tx/${props.hash})`
-				: `\t\t\t\t\t\t[View on Safe](${safeBaseURI}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hash})`
+				: `\t\t\t\t\t\t[View on Safe](${safeBaseURIForNetwork(currentChain.id)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hash})`
 		]
 	});
 }
@@ -106,7 +113,7 @@ export function notifySend(props: {
 				const txHashLink =
 					props.type === 'EOA'
 						? `${explorerBaseURI}/tx/${props.hashes[index]}`
-						: `${safeBaseURI}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hashes[index]}`;
+						: `${safeBaseURIForNetwork(currentChain.id)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hashes[index]}`;
 				return `\t\t\t\t\t\t\t- ${formatAmount(
 					(normalizedBigAmount || zeroNormalizedBN).normalized,
 					6,
