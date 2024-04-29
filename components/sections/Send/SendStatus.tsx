@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useAddressBook} from 'contexts/useAddressBook';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -16,6 +16,14 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 	const {configuration} = useSendFlow();
 
+	const validLabel = useMemo(() => {
+		if (configuration.receiver.label.endsWith('.eth')) {
+			const parts = configuration.receiver.label.split('.');
+			return parts.slice(parts.length - 2, parts.length - 1).join(' ');
+		}
+		return configuration.receiver.label;
+	}, [configuration.receiver.label]);
+
 	return (
 		<button
 			className={'font-bold transition-all'}
@@ -25,7 +33,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
 						address: configuration.receiver.address,
-						label: hasALabel ? configuration.receiver.label : '',
+						label: hasALabel ? validLabel : '',
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
