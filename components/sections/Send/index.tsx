@@ -97,7 +97,7 @@ export function Send(): ReactElement {
 	return (
 		<div className={'w-full max-w-108'}>
 			<div className={'mb-6'}>
-				<p className={'font-medium'}>{'Receiver'}</p>
+				<p className={'mb-2 font-medium'}>{'Receiver'}</p>
 				<SmolAddressInput
 					inputRef={inputRef}
 					onSetValue={onSetRecipient}
@@ -105,7 +105,7 @@ export function Send(): ReactElement {
 				/>
 			</div>
 			<div>
-				<p className={'font-medium'}>{'Token'}</p>
+				<p className={'mb-2 font-medium'}>{'Token'}</p>
 				{configuration.inputs.map(input => (
 					<div
 						className={'mb-4'}
