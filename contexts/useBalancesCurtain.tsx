@@ -4,6 +4,7 @@ import React, {createContext, useContext, useEffect, useMemo, useState} from 're
 import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
 import {FetchedTokenButton} from 'components/designSystem/FetchedTokenButton';
 import {SmolTokenButton} from 'components/designSystem/SmolTokenButton';
+import {Button} from 'components/Primitives/Button';
 import {CurtainContent} from 'components/Primitives/Curtain';
 import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {isAddressEqual} from 'viem';
@@ -189,6 +190,7 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 							disabled={!address}
 							onChange={e => set_searchValue(e.target.value)}
 						/>
+						<Button onClick={props.onRefresh}>{'refresh'}</Button>
 						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 							<WalletLayout
 								filteredTokens={filteredTokens}
@@ -210,7 +212,7 @@ const BalancesCurtainContext = createContext<TBalancesCurtainContextProps>(defau
 export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps): React.ReactElement => {
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {tokensWithBalance, isLoading} = useTokensWithBalance();
+	const {tokensWithBalance, isLoading, onRefresh} = useTokensWithBalance();
 
 	/**********************************************************************************************
 	 ** Context value that is passed to all children of this component.
@@ -234,6 +236,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 			{props.children}
 			<BalancesCurtain
 				isOpen={shouldOpenCurtain}
+				onRefresh={onRefresh}
 				tokensWithBalance={tokensWithBalance}
 				isLoading={isLoading}
 				selectedTokenAddresses={props.selectedTokenAddresses}

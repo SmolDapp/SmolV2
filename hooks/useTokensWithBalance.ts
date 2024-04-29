@@ -9,16 +9,20 @@ import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {ETH_TOKEN_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 
-import type {TDict, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TDict, TToken} from '@builtbymom/web3/types';
 
 function createUniqueID(msg: string): string {
 	const hash = XXH.h32(0x536d6f6c).update(msg).digest().toString(16);
 	return hash;
 }
 
-export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading: boolean} {
+export function useTokensWithBalance(): {
+	tokensWithBalance: TToken[];
+	isLoading: boolean;
+	onRefresh: () => Promise<TChainTokens>;
+} {
 	const {chainID, safeChainID} = useChainID();
-	const {balances, getBalance, isLoading} = useWallet();
+	const {balances, getBalance, isLoading, onRefresh} = useWallet();
 	const [allTokens, set_allTokens] = useState<TDict<TToken>>({});
 	const {currentNetworkTokenList, isCustomToken} = useTokenList();
 
@@ -82,5 +86,5 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 		return withBalance;
 	}, [allTokens, getBalance, isCustomToken, currentIdentifier]);
 
-	return {tokensWithBalance, isLoading};
+	return {tokensWithBalance, isLoading, onRefresh};
 }
