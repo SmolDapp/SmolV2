@@ -73,7 +73,6 @@ function MyApp(props: AppProps): ReactElement {
 				supportedChains={[...supportedNetworks, localhost]}
 				tokenLists={[
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-					'https://raw.githubusercontent.com/smoldapp/tokenLists/main/lists/blockscout.json',
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
 				]}>
 				<WalletContextApp
