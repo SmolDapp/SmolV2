@@ -18,8 +18,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 
 	const validLabel = useMemo(() => {
 		if (configuration.receiver.label.endsWith('.eth')) {
-			const parts = configuration.receiver.label.split('.');
-			return parts.slice(parts.length - 2, parts.length - 1).join(' ');
+			return configuration.receiver.label.split('.').slice(0, -1).join(' ');
 		}
 		return configuration.receiver.label;
 	}, [configuration.receiver.label]);
@@ -67,7 +66,14 @@ export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				message: (
 					<>
 						{
-							'Hello. Looks like you’re sending to a smart contract address. If it’s intentional, go right ahead, otherwise you might want to double check.'
+							<>
+								{
+									"'Hello. Looks like you’re sending to a smart contract address. If it’s intentional, go right ahead, otherwise you might want to double check.'"
+								}
+								<TriggerAddressBookButton>
+									{'By the way, this contact is not in your address book. Wanna add it?'}
+								</TriggerAddressBookButton>
+							</>
 						}
 					</>
 				),
