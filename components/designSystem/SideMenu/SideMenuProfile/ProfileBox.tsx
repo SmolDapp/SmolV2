@@ -4,6 +4,8 @@ import {Avatar} from 'components/designSystem/Avatar';
 import {useAccount, useEnsAvatar} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 
+import {QRCodeElement} from './QRCode';
+
 export function ProfileBox(): ReactElement {
 	const {address, ens} = useWeb3();
 	const {isConnecting} = useAccount();
@@ -24,6 +26,7 @@ export function ProfileBox(): ReactElement {
 				address={address}
 				ens={ens}
 			/>
+			<QRCodeElement />
 		</div>
 	);
 }
