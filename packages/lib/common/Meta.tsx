@@ -176,4 +176,4 @@ function Meta(): ReactElement {
 	);
 }
 
-export default Meta;
+export {Meta};

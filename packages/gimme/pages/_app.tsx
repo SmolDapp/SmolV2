@@ -2,14 +2,12 @@ import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {Inter} from 'next/font/google';
 import Head from 'next/head';
-import Meta from 'lib/common/Meta';
+import {Header, Meta} from 'lib/common';
+import {IconCheck, IconCircleCross} from 'packages/lib/icons';
 import {mainnet} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
-import {Header} from '@gimmecommon/Header';
-import {IconCheck} from '@gimmeicons/IconCheck';
-import {IconCircleCross} from '@gimmeicons/IconCircleCross';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
