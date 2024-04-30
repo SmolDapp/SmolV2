@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {Inter} from 'next/font/google';
 import Head from 'next/head';
@@ -42,12 +42,12 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 				supportedChains={[mainnet, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
-					<Fragment>
+					<div className={`${inter.variable}`}>
 						<Header />
-						<main className={`relative mx-auto mb-0 flex min-h-screen w-full flex-col ${inter.variable}`}>
+						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
 							<Component {...props} />
 						</main>
-					</Fragment>
+					</div>
 				</WalletContextApp>
 			</WithMom>
 			<Toaster
