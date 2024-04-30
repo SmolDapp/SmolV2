@@ -5,7 +5,7 @@ import {useAccount} from 'wagmi';
 import {IconQRCode} from '@icons/IconQRCode';
 import {QRModal} from '@common/QRModal';
 
-export const QRCodeElement = (): ReactElement => {
+export const QRCodeElement = (): ReactElement | null => {
 	const [qrcode, set_qrcode] = useState<string>('');
 	const [isOpen, set_isOpen] = useState(false);
 
@@ -15,6 +15,9 @@ export const QRCodeElement = (): ReactElement => {
 		QRCode.toDataURL(address?.toString() || '').then(set_qrcode);
 	};
 
+	if (!address) {
+		return null;
+	}
 	return (
 		<Fragment>
 			<div
@@ -28,7 +31,8 @@ export const QRCodeElement = (): ReactElement => {
 				title={'Scan QR-code'}
 				content={'Just scan this QR-code to get your account address'}
 				isOpen={isOpen}
-				onClose={(): void => set_isOpen(false)}>
+				onClose={(): void => set_isOpen(false)}
+				address={address}>
 				<Image
 					src={qrcode}
 					alt={'qr-code'}
