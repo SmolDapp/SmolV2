@@ -52,7 +52,7 @@ export function DisperseStatus(): ReactElement | null {
 			};
 		}
 
-		if (isAboveBalance) {
+		if (isAboveBalance && configuration.tokenToSend) {
 			return {
 				message: 'Total amount to disperse exceeds the account balance',
 				type: 'error'
