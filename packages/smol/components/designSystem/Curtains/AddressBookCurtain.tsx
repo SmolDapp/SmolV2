@@ -4,16 +4,18 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {IconEdit, IconGears, IconHeart, IconHeartFilled, IconTrash} from 'lib/icons';
-import {Button, CurtainContent, TextInput} from 'lib/primitives';
+import {Button, CurtainContent} from 'lib/primitives';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
+import {AddressBookStatus} from '@sections/AddressBook/AddressBookStatus';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
 import {SmolAddressInput} from '../SmolAddressInput';
+import {SmolNameInput} from '../SmolNameInput';
 
 import type {TInputAddressLike} from 'lib/utils';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
@@ -29,7 +31,7 @@ function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): Reac
 				e.preventDefault();
 				props.onClick();
 			}}
-			className={cl('rounded p-1', 'h-12 w-12 rounded-lg bg-neutral-300', 'flex justify-center items-center')}>
+			className={cl('rounded p-1', 'h-full w-12 rounded-lg bg-neutral-300', 'flex justify-center items-center')}>
 			<div className={'group relative flex size-4 items-center justify-center'}>
 				<IconHeart
 					className={cl(
@@ -109,72 +111,24 @@ function NameInput(props: {
 	onEdit: (shouldEdit: boolean) => void;
 	onChange: (value: string) => void;
 	onRefresh?: VoidFunction;
+	set_isValid?: (valud: boolean | 'undetermined') => void;
 }): ReactElement {
-	const {getCachedEntry} = useAddressBook();
 	const labelRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const {onChange, selectedEntry} = props;
-
-	useEffect(() => {
-		const entry = getCachedEntry({label: selectedEntry.label});
-		const currentCustomValidity = inputRef.current?.validationMessage;
-		if (entry !== undefined && entry.id !== selectedEntry.id && !entry.isHidden) {
-			inputRef.current?.setCustomValidity('This name is already used in your address book');
-			props.onRefresh?.();
-		} else if (currentCustomValidity !== '') {
-			inputRef.current?.setCustomValidity('');
-			props.onRefresh?.();
-		}
-	}, [selectedEntry.label, getCachedEntry, selectedEntry.id, onChange, props]);
-
-	const getErrorMessage = useCallback((): string | undefined => {
-		if (selectedEntry.label.startsWith('0x')) {
-			return 'The name cannot starts with `0x`';
-		}
-		if (selectedEntry.label.length > 22) {
-			return 'The name cannot be longer than 22 characters';
-		}
-		if (inputRef.current?.validity.patternMismatch) {
-			return 'The string must not start with `0x` and must not contain `.`';
-		}
-		if (inputRef.current?.validity.tooShort) {
-			return 'The name must be at least 1 character long';
-		}
-		if (inputRef.current?.validity.tooLong) {
-			return 'The name cannot be longer than 22 characters';
-		}
-		if (inputRef.current?.validationMessage) {
-			return inputRef.current?.validationMessage;
-		}
-		return undefined;
-	}, [selectedEntry.label, inputRef]);
 
 	return (
 		<div
 			ref={labelRef}
 			onDoubleClick={() => {
 				props.onEdit(true);
-				setTimeout(() => labelRef.current?.focus(), 0);
 			}}>
-			<div className={'flex items-center justify-between'}>
-				<label htmlFor={'name'}>
-					<small className={'pl-1'}>{'Name'}</small>
-				</label>
-				<small className={'text-red pr-1'}>{getErrorMessage()}</small>
-			</div>
-			<TextInput
+			<SmolNameInput
 				inputRef={inputRef}
-				disabled={!props.isEditMode}
 				id={'name'}
-				placeholder={'Mom'}
-				pattern={'^(?!0x).*'}
-				title={"The string must not start with '0x'"}
-				tabIndex={0}
-				minLength={1}
-				maxLength={22}
-				aria-invalid={selectedEntry.label.startsWith('0x') || selectedEntry.label.length > 22}
-				value={selectedEntry.label}
-				onChange={onChange}
+				onSetValue={props.onChange}
+				value={props.selectedEntry.label}
+				disabled={!props.isEditMode}
+				set_isValid={props.set_isValid}
 			/>
 		</div>
 	);
@@ -190,8 +144,7 @@ function AddressInput(props: {
 }): ReactElement {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const addressRef = useRef<HTMLDivElement>(null);
-	const {onChangeAddressLike, onRefresh, selectedEntry} = props;
-	const {getCachedEntry} = useAddressBook();
+	const {onChangeAddressLike, selectedEntry} = props;
 
 	useEffect(() => {
 		onChangeAddressLike({
@@ -206,29 +159,6 @@ function AddressInput(props: {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedEntry.address, selectedEntry.ens]);
 
-	useEffect(() => {
-		const entry = getCachedEntry({address: props.addressLike.address});
-		const currentCustomValidity = inputRef.current?.validationMessage;
-
-		if (entry !== undefined && entry.id !== props.selectedEntry.id && !entry.isHidden) {
-			inputRef.current?.setCustomValidity('This address is already in your address book');
-			onRefresh?.();
-		} else if (currentCustomValidity !== '') {
-			inputRef.current?.setCustomValidity('');
-			onRefresh?.();
-		}
-	}, [getCachedEntry, onRefresh, props.addressLike.address, props.selectedEntry.id]);
-
-	const getErrorMessage = useCallback((): string | undefined => {
-		if (props.addressLike.isValid === 'undetermined') {
-			return undefined;
-		}
-		if (inputRef.current?.validationMessage) {
-			return inputRef.current?.validationMessage;
-		}
-		return undefined;
-	}, [props.addressLike.isValid, inputRef]);
-
 	return (
 		<div
 			ref={addressRef}
@@ -240,7 +170,6 @@ function AddressInput(props: {
 				<label htmlFor={'address'}>
 					<small className={'pl-1'}>{'Address'}</small>
 				</label>
-				<small className={'text-red pr-1'}>{getErrorMessage()}</small>
 			</div>
 
 			<SmolAddressInput
@@ -271,7 +200,6 @@ export function AddressBookCurtain(props: {
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
-	const [, set_nonce] = useState<number>(0);
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
 		address: props.selectedEntry.address,
@@ -283,14 +211,13 @@ export function AddressBookCurtain(props: {
 		isValid: isAddress(props.selectedEntry.address) ? true : 'undetermined',
 		source: 'defaultValue'
 	});
+	const [isFormValid, set_isFormValid] = useState<boolean>(false);
+	const [isValidName, set_isValidName] = useState<boolean | 'undetermined'>(false);
 
 	/**********************************************************************************************
 	 ** We need to use this useEffect to prevent an UI issue where the address input is not updated
 	 ** directly in all places and because of this, an relicated error message is shown.
 	 **********************************************************************************************/
-	useEffect(() => {
-		setTimeout(() => set_nonce(n => n + 1), 100);
-	}, [props.selectedEntry.address, props.selectedEntry.ens]);
 
 	const onFormSubmit = useCallback(
 		async (event: React.FormEvent<HTMLFormElement>) => {
@@ -379,22 +306,27 @@ export function AddressBookCurtain(props: {
 					<form
 						ref={formRef}
 						onSubmit={onFormSubmit}
-						className={'flex h-full flex-col gap-6'}>
-						<div className={'flex flex-row items-center space-x-0'}>
+						className={'flex flex-col gap-6'}>
+						<div className={'flex flex-col items-center space-x-0'}>
 							<div className={'w-full'}>
+								<div className={'flex items-center justify-between'}>
+									<label htmlFor={'name'}>
+										<small className={'pl-1'}>{'Name'}</small>
+									</label>
+								</div>
+							</div>
+							<div className={'flex'}>
 								<NameInput
 									{...props}
 									selectedEntry={currentEntry}
 									isEditMode={isEditMode}
 									onEdit={set_isEditMode}
-									onRefresh={() => set_nonce(n => n + 1)}
 									onChange={(label: string) => {
 										set_currentEntry({...currentEntry, label});
 										props.dispatch({type: 'SET_LABEL', payload: label});
 									}}
+									set_isValid={set_isValidName}
 								/>
-							</div>
-							<div className={'pl-2'}>
 								<small className={'pl-1'}>&nbsp;</small>
 								<div>
 									<FavoriteToggle
@@ -416,15 +348,26 @@ export function AddressBookCurtain(props: {
 							addressLike={addressLike}
 							isEditMode={isEditMode}
 							onEdit={set_isEditMode}
-							onRefresh={() => set_nonce(n => n + 1)}
 							onChangeAddressLike={onChangeValue}
+						/>
+						<AddressBookStatus
+							set_isFormValid={set_isFormValid}
+							addressLike={addressLike}
 						/>
 
 						<div className={'flex flex-row items-center gap-2'}>
 							<Button
 								tabIndex={0}
 								type={'submit'}
-								isDisabled={!(formRef.current?.checkValidity() && addressLike.isValid === true)}
+								isDisabled={
+									!(
+										formRef.current?.checkValidity() &&
+										addressLike.isValid === true &&
+										isFormValid &&
+										isValidName &&
+										isValidName !== 'undetermined'
+									)
+								}
 								className={'!h-8 w-1/2 !text-xs font-medium'}>
 								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>

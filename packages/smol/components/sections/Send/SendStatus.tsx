@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {Warning} from 'lib/common';
 import {getIsSmartContract, supportedNetworks} from 'lib/utils';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -15,6 +15,13 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 	const {configuration} = useSendFlow();
 
+	const validLabel = useMemo(() => {
+		if (configuration.receiver.label.endsWith('.eth')) {
+			return configuration.receiver.label.split('.').slice(0, -1).join(' ');
+		}
+		return configuration.receiver.label;
+	}, [configuration.receiver.label]);
+
 	return (
 		<button
 			className={'font-bold transition-all'}
@@ -24,7 +31,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
 						address: configuration.receiver.address,
-						label: hasALabel ? configuration.receiver.label : '',
+						label: hasALabel ? validLabel : '',
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
@@ -58,7 +65,14 @@ export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				message: (
 					<>
 						{
-							'Hello. Looks like you’re sending to a smart contract address. If it’s intentional, go right ahead, otherwise you might want to double check.'
+							<>
+								{
+									"'Hello. Looks like you’re sending to a smart contract address. If it’s intentional, go right ahead, otherwise you might want to double check.'"
+								}
+								<TriggerAddressBookButton>
+									{'By the way, this contact is not in your address book. Wanna add it?'}
+								</TriggerAddressBookButton>
+							</>
 						}
 					</>
 				),
