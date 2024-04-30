@@ -11,8 +11,8 @@
 		"start": "tsc && next build && next start",
 		"build": "tsc && next build",
 		"prepare": "husky install",
-		"prettier": "prettier --check ./packages/**/**/**/*.{json,js,ts,tsx,css}",
-		"prettier-format": "prettier --config .prettierrc ./packages/**/**/**/*.{json,js,ts,tsx,css,md} --write",
+		"prettier": "prettier --check ./packages/**/**/*.{json,js,ts,tsx,css}",
+		"prettier-format": "prettier --config .prettierrc ./packages/**/**/*.{json,js,ts,tsx,css,md} --write",
 		"export": "tsc && next build && next export -o ipfs",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
