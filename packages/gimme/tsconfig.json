@@ -1,7 +1,13 @@
 {
 	"compilerOptions": {
-		"rootDirs": ["."],
+		"rootDir": ".",
 		"baseUrl": ".",
+		"paths": {
+			"@common/*": ["components/common/*"],
+			"@icons/*": ["components/icons/*"],
+			"@utils/*": ["utils/*"],
+			"@types": ["utils/types"]
+		},
 		"types": ["bun-types"],
 		"target": "esnext",
 		"module": "esnext",
@@ -35,9 +41,13 @@
 		"isolatedModules": true,
 		"composite": true,
 		"downlevelIteration": true,
-		"plugins": [{"name": "next"}]
+		"plugins": [
+			{
+				"name": "next"
+			}
+		]
 	},
-	"exclude": ["node_modules", "_app"],
+	"exclude": ["node_modules"],
 	"include": [
 		"**/*.css",
 		"**/*.ts",
@@ -45,18 +55,13 @@
 		"**/*.d.tsx",
 		"public",
 		"public/manifest.json",
-		"stylelint.config",
-		"commitlint.config",
 		"postcss.config.js",
 		"tailwind.config.js",
 		"next.config.js",
 		"theme.config.js",
 		".eslintrc.js",
 		".next/types/**/*.ts",
-		"jest.config.js",
-		"vitest.config.ts",
-		"worker/index.js",
-		"stylelint.config.js",
-		"utils/*/*.json"
+		"stylelint.config",
+		"commitlint.config"
 	]
 }
