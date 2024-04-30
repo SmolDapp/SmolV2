@@ -4,9 +4,8 @@ import {usePathname} from 'next/navigation';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, truncateHex} from '@builtbymom/web3/utils';
 import {Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTrigger} from '@gimmecommon/Drawer';
+import {IconMenu} from '@gimmeicons/IconMenu';
 import {useAccountModal} from '@rainbow-me/rainbowkit';
-
-import {IconMenu} from '../icons/IconMenu';
 
 import type {ReactElement} from 'react';
 
