@@ -7,9 +7,9 @@ import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Header} from '@gimmecommon/Header';
-import {IconCheck} from '@icons/IconCheck';
-import {IconCircleCross} from '@icons/IconCircleCross';
-import Meta from '@common/Meta';
+import Meta from '@gimmecommon/Meta';
+import {IconCheck} from '@gimmeicons/IconCheck';
+import {IconCircleCross} from '@gimmeicons/IconCircleCross';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
