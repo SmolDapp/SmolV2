@@ -1,8 +1,8 @@
 import {useCallback, useState} from 'react';
+import {handleLowAmount} from 'lib/utils';
 import InputNumber from 'rc-input-number';
 import {cl, formatCounterValue, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
-import {handleLowAmount} from '@utils/helpers';
 
 import {useValidateAmountInput} from './SmolTokenAmountInput';
 

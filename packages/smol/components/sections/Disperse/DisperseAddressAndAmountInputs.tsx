@@ -5,8 +5,8 @@ import {SmolAddressInput} from '../../designSystem/SmolAddressInput';
 import {SmolAmountInput} from '../../designSystem/SmolAmountInput';
 import {useDisperse} from './useDisperse';
 
+import type {TInputAddressLike} from 'lib/utils';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TInputAddressLike} from '@utils/tools.address';
 import type {TAmountInputElement} from '../../designSystem/SmolAmountInput';
 import type {TDisperseInput} from './useDisperse';
 

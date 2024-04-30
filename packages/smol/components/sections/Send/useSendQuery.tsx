@@ -1,5 +1,6 @@
 import {createContext, useCallback, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
+import {getStateFromUrlQuery, isString, optionalRenderProps} from 'lib/utils';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
@@ -8,16 +9,12 @@ import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
 import {useSyncUrlParams} from '@hooks/useSyncUrlParams';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {getNewInput, useSendFlow} from '@sections/Send/useSendFlow';
-import {optionalRenderProps} from '@utils/react/optionalRenderProps';
-import {isString} from '@utils/types/typeGuards';
-import {getStateFromUrlQuery} from '@utils/url/getStateFromUrlQuery';
 
+import type {TInputAddressLike, TOptionalRenderProps} from 'lib/utils';
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {TSendQuery} from '@sections/Send/useSendFlow';
-import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
-import type {TInputAddressLike} from '@utils/tools.address';
 
 type TSendQueryManagement = {
 	stateFromUrl: TSendQuery;

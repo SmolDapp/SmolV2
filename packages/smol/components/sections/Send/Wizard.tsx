@@ -2,6 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {usePlausible} from 'next-plausible';
 import {ErrorModal, SuccessModal} from 'lib/common';
 import {Button} from 'lib/primitives';
+import {getTransferTransaction, notifySend} from 'lib/utils';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -12,19 +13,17 @@ import {defaultTxStatus, type TTxResponse} from '@builtbymom/web3/utils/wagmi';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {notifySend} from '@utils/notifier';
-import {getTransferTransaction} from '@utils/tools.gnosis';
 import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 
 import {useSendFlow} from './useSendFlow';
 
+import type {TModify} from 'lib/utils';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
 import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
-import type {TModify} from '@utils/types/types';
 
 type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;
 

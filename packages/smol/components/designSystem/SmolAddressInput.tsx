@@ -1,20 +1,19 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {TextTruncate} from 'lib/common';
 import {IconAppAddressBook, IconChevron, IconCircleCheck, IconCircleCross} from 'lib/icons';
+import {checkENSValidity, defaultInputAddressLike} from 'lib/utils';
 import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useAsyncAbortable} from '@react-hookz/web';
-import {defaultInputAddressLike} from '@utils/tools.address';
-import {checkENSValidity} from '@utils/tools.ens';
 import {getEnsName} from '@wagmi/core';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
 import {AvatarWrapper} from './Avatar';
 
+import type {TInputAddressLike} from 'lib/utils';
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
-import type {TInputAddressLike} from '@utils/tools.address';
 
 type TAddressInput = {
 	onSetValue: (value: Partial<TInputAddressLike>) => void;

@@ -1,4 +1,4 @@
-const LEGACY_TOKEN_LISTS = [
+export const LEGACY_TOKEN_LISTS = [
 	{
 		name: 'Aave',
 		URI: 'https://tokenlist.aave.eth.link',
@@ -121,5 +121,3 @@ const LEGACY_TOKEN_LISTS = [
 		timestamp: '2021-04-05T14:41:25.499000+00:00'
 	}
 ];
-
-export default LEGACY_TOKEN_LISTS;

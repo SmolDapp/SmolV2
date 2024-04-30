@@ -3,12 +3,12 @@ import {CommandList} from 'cmdk';
 import {ImageWithFallback} from 'lib/common';
 import {IconChevron} from 'lib/icons';
 import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives';
+import {supportedNetworks} from 'lib/utils';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
-import {supportedNetworks} from '@utils/tools.chains';
 
 export function NetworkPopoverSelector(): ReactElement {
 	const isMounted = useIsMounted();

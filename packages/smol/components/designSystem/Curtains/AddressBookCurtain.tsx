@@ -15,9 +15,9 @@ import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
 import {SmolAddressInput} from '../SmolAddressInput';
 
+import type {TInputAddressLike} from 'lib/utils';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {TAddressBookEntry, TAddressBookEntryReducer} from '@contexts/useAddressBook';
-import type {TInputAddressLike} from '@utils/tools.address';
 
 function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): ReactElement {
 	return (

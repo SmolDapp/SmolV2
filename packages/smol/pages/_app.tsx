@@ -4,13 +4,13 @@ import {Rubik, Source_Code_Pro} from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
 import {FeebackPopover, Meta} from 'lib/common';
 import {IconCheck, IconCircleCross} from 'lib/icons';
+import {supportedNetworks} from 'lib/utils';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {useLocalStorageValue} from '@react-hookz/web';
-import {supportedNetworks} from '@utils/tools.chains';
 import {Analytics} from '@vercel/analytics/react';
 
 import type {AppProps} from 'next/app';

@@ -12,7 +12,7 @@ import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
-import type {TPrice} from '@utils/types/types';
+import type {TPrice} from 'lib/utils';
 
 function WalletListHeader(): ReactElement {
 	return (

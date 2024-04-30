@@ -16,8 +16,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
+import type {TPrice} from 'lib/utils';
 import type {ReactElement, ReactNode} from 'react';
-import type {TPrice} from '@utils/types/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,

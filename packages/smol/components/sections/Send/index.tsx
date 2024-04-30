@@ -10,9 +10,9 @@ import {useSendFlow} from './useSendFlow';
 import {useSendQueryManagement} from './useSendQuery';
 import {SendWizard} from './Wizard';
 
+import type {TInputAddressLike} from 'lib/utils';
 import type {ReactElement} from 'react';
 import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
-import type {TInputAddressLike} from '@utils/tools.address';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
 	const {configuration, dispatchConfiguration} = useSendFlow();

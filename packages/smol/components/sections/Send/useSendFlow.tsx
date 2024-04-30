@@ -1,13 +1,10 @@
 import React, {createContext, useContext, useMemo, useReducer} from 'react';
+import {defaultInputAddressLike, optionalRenderProps} from 'lib/utils';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {optionalRenderProps} from '@utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from '@utils/tools.address';
 
+import type {TInputAddressLike, TOptionalRenderProps, TPartialExhaustive} from 'lib/utils';
 import type {Dispatch, ReactElement} from 'react';
 import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
-import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
-import type {TInputAddressLike} from '@utils/tools.address';
-import type {TPartialExhaustive} from '@utils/types/types';
 
 export type TSendConfiguration = {
 	receiver: TInputAddressLike;

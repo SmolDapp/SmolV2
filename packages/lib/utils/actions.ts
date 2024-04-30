@@ -1,7 +1,8 @@
 import assert from 'assert';
 import {assertAddress, toAddress} from '@builtbymom/web3/utils';
 import {handleTx} from '@builtbymom/web3/utils/wagmi';
-import DISPERSE_ABI from '@utils/abi/disperse.abi';
+
+import DISPERSE_ABI from './abi/disperse.abi';
 
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TTxResponse, TWriteTransaction} from '@builtbymom/web3/utils/wagmi';

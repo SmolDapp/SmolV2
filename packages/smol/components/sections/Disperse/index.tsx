@@ -21,9 +21,9 @@ import {useDisperseQueryManagement} from './useDisperseQuery';
 import {DisperseWizard} from './Wizard';
 
 import type {AxiosResponse} from 'axios';
+import type {TPrice} from 'lib/utils';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TPrice} from '@utils/types/types';
 import type {TDisperseInput} from './useDisperse';
 
 type TRecord = {

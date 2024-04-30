@@ -1,11 +1,10 @@
 import {useState} from 'react';
 import {Warning} from 'lib/common';
+import {getIsSmartContract, supportedNetworks} from 'lib/utils';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
-import {getIsSmartContract} from '@utils/tools.address';
-import {supportedNetworks} from '@utils/tools.chains';
 
 import {useSendFlow} from './useSendFlow';
 

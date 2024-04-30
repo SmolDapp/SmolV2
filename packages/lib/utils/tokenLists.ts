@@ -1,4 +1,4 @@
-const TOKEN_LISTS = [
+export const TOKEN_LISTS = [
 	{
 		name: 'CoinGecko',
 		uri: 'https://tokens.coingecko.com/uniswap/all.json',
@@ -142,5 +142,3 @@ const TOKEN_LISTS = [
 		imageSrc: 'https://cloudflare-ipfs.com/ipfs/QmUJQF5rDNQn37ToqCynz6iecGqAmeKHDQCigJWpUwuVLN'
 	}
 ];
-
-export default TOKEN_LISTS;

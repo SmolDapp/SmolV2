@@ -1,4 +1,4 @@
-import {isString} from '@utils/types/typeGuards';
+import {isString} from 'lib/utils';
 
 import type {ParsedUrlQuery} from 'querystring';
 
