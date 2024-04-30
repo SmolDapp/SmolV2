@@ -1,15 +1,7 @@
 import axios from 'axios';
 import {toAddress} from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {getEthersSigner} from '@builtbymom/web3/utils/wagmi/ethersAdapter';
-import {LiFi} from '@lifi/sdk';
 
 import type {TAddress} from '@builtbymom/web3/types';
-import type {ExchangeRateUpdateParams, Route} from '@lifi/sdk';
-
-const lifi = new LiFi({
-	integrator: 'Smol'
-});
 
 type TLifiToken = {
 	address: string;
@@ -121,21 +113,4 @@ export async function getLifiStatus(params: {
 		}
 	});
 	return result.data;
-}
-
-export async function executeLifiRoute(route: Route): Promise<void> {
-	const updateCallback = (updatedRoute: Route): void => {
-		console.log('Ping! Everytime a status update is made!', updatedRoute);
-	};
-
-	const acceptExchangeRateUpdateHook = async (params: ExchangeRateUpdateParams): Promise<boolean> => {
-		console.log(params);
-		return true;
-	};
-
-	const signer = await getEthersSigner(retrieveConfig(), {chainId: route.fromChainId});
-	await lifi.executeRoute(signer, route, {
-		updateRouteHook: updateCallback,
-		acceptExchangeRateUpdateHook: acceptExchangeRateUpdateHook
-	});
 }

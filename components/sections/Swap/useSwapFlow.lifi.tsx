@@ -26,6 +26,7 @@ import {createUniqueID} from '@utils/tools.identifiers';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 
 import {getLifiRoutes, getLifiStatus} from './api.lifi';
+import {SwapCurtain} from './SettingsCurtain';
 
 import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
@@ -181,6 +182,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	const [isFetchingQuote, set_isFetchingQuote] = useState<boolean>(false);
 	const [currentTxRequest, set_currentTxRequest] = useState<TLifiQuoteResponse | undefined>(undefined);
 	const [currentError, set_currentError] = useState<string | undefined>(undefined);
+	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 
 	/**********************************************************************************************
 	 ** onRefreshSolverBalances will refresh the balances of the input and output tokens. It will
@@ -495,7 +497,18 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 
 	return (
 		<SwapContext.Provider value={contextValue}>
+			<div
+				onClick={() => {
+					set_shouldOpenCurtain(!shouldOpenCurtain);
+				}}
+				className={'bg-yellow'}>
+				{'SwapContextApp'}
+			</div>
 			{optionalRenderProps(props.children, contextValue)}
+			<SwapCurtain
+				isOpen={shouldOpenCurtain}
+				onOpenChange={set_shouldOpenCurtain}
+			/>
 		</SwapContext.Provider>
 	);
 };
