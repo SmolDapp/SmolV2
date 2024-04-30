@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {Button} from 'components/Primitives/Button';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, Transition} from '@headlessui/react';
 import {IconErrorTriangle} from '@icons/IconErrorTriangle';
+import {Button} from '@primitives/Button';
 
 import type {ReactElement} from 'react';
 

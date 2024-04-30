@@ -1,5 +1,4 @@
 import React, {useCallback, useState} from 'react';
-import {getNewInput} from 'components/sections/Send/useSendFlow';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
@@ -13,6 +12,7 @@ import {
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
+import {getNewInput} from '@sections/Send/useSendFlow';
 import {handleLowAmount} from '@utils/helpers';
 import {TextTruncate} from '@common/TextTruncate';
 

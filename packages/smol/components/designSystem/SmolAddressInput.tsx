@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {useAddressBook} from 'contexts/useAddressBook';
 import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {useAddressBook} from '@contexts/useAddressBook';
 import {IconAppAddressBook} from '@icons/IconApps';
 import {IconChevron} from '@icons/IconChevron';
 import {IconCircleCheck} from '@icons/IconCircleCheck';
@@ -211,12 +211,12 @@ export function SmolAddressInput({
 						{getHasStatusIcon() ? (
 							<div className={'pointer-events-none relative size-4 min-w-[16px]'}>
 								<IconCircleCheck
-									className={`absolute size-4 text-green transition-opacity ${
+									className={`text-green absolute size-4 transition-opacity ${
 										!isCheckingValidity && value.isValid === true ? 'opacity-100' : 'opacity-0'
 									}`}
 								/>
 								<IconCircleCross
-									className={`absolute size-4 text-red transition-opacity ${
+									className={`text-red absolute size-4 transition-opacity ${
 										!isCheckingValidity && value.isValid === false ? 'opacity-100' : 'opacity-0'
 									}`}
 								/>
@@ -283,7 +283,7 @@ export function SmolAddressInput({
 								'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 							)}>
 							<div
-								className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+								className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 								{!isAddress(value.address) ? (
 									<IconAppAddressBook className={'size-4 text-neutral-600'} />
 								) : (

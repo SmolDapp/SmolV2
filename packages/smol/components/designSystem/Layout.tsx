@@ -1,7 +1,7 @@
 import {type ReactElement, type ReactNode} from 'react';
-import {WithAddressBook} from 'contexts/useAddressBook';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
+import {WithAddressBook} from '@contexts/useAddressBook';
 import {IconQuestionMark} from '@icons/IconQuestionMark';
 
 import {SideMenu} from './SideMenu';
@@ -38,7 +38,7 @@ function App(props: TAppProp): ReactElement {
 				/>
 			</div>
 			<section className={'-mt-2 w-full p-8'}>
-				<div className={'mb-6 flex w-full flex-row justify-between md:max-w-108'}>
+				<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
 					<div>
 						<h1 className={'text-3xl font-bold text-neutral-900'}>{props.title}</h1>
 						<p className={'text-base text-neutral-600'}>{props.description}</p>
@@ -68,12 +68,12 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
-			<div className={'grid w-full grid-cols-root'}>
+			<div className={'grid-cols-root grid w-full'}>
 				<motion.nav
 					initial={{scale: 0.9, opacity: 0}}
 					animate={{scale: 1, opacity: 1}}
 					transition={{duration: 0.6, ease: 'easeInOut'}}
-					className={'sticky top-10 z-20 col-sidebar hidden h-app flex-col rounded-lg bg-neutral-0 md:flex'}>
+					className={'col-sidebar h-app bg-neutral-0 sticky top-10 z-20 hidden flex-col rounded-lg md:flex'}>
 					<SideMenu />
 				</motion.nav>
 
@@ -81,8 +81,8 @@ export default function Layout(props: AppProps): ReactElement {
 					<SideMenuMobile />
 				</div>
 
-				<div className={'col-span-full px-4 md:col-main '}>
-					<div className={'relative mb-10 min-h-app w-full overflow-x-hidden rounded-lg bg-neutral-0'}>
+				<div className={'md:col-main col-span-full px-4 '}>
+					<div className={'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'}>
 						<WithAddressBook>
 							<App
 								key={appName}

@@ -1,7 +1,7 @@
 import {Fragment, useState} from 'react';
-import {NetworkPopoverSelector} from 'components/designSystem/NetworkSelector/Popover';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isAddress} from '@builtbymom/web3/utils';
+import {NetworkPopoverSelector} from '@designSystem/NetworkSelector/Popover';
 import {Dialog, Transition} from '@headlessui/react';
 import {IconHamburger} from '@icons/IconHamburger';
 import {useIsMounted} from '@react-hookz/web';

@@ -1,67 +1,7 @@
 {
+	"extends": ["../../tsconfig.json"],
 	"compilerOptions": {
-		"rootDir": ".",
-		"baseUrl": ".",
-		"paths": {
-			"@common/*": ["components/common/*"],
-			"@icons/*": ["components/icons/*"],
-			"@utils/*": ["utils/*"],
-			"@types": ["utils/types"]
-		},
-		"types": ["bun-types"],
-		"target": "esnext",
-		"module": "esnext",
-		"lib": ["es6", "es7", "esnext", "dom"],
-		"allowImportingTsExtensions": true,
-		"moduleDetection": "force",
-		"allowJs": true,
-		"jsx": "preserve",
-		"removeComments": false,
-		"strict": true,
-		"noImplicitAny": true,
-		"strictNullChecks": true,
-		"strictFunctionTypes": true,
-		"strictPropertyInitialization": true,
-		"noImplicitThis": true,
-		"alwaysStrict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"inlineSourceMap": true,
-		"inlineSources": true,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"noEmit": true,
-		"incremental": true,
-		"isolatedModules": true,
-		"composite": true,
-		"downlevelIteration": true,
-		"plugins": [
-			{
-				"name": "next"
-			}
-		]
-	},
-	"exclude": ["node_modules"],
-	"include": [
-		"**/*.css",
-		"**/*.ts",
-		"**/*.tsx",
-		"**/*.d.tsx",
-		"public",
-		"public/manifest.json",
-		"postcss.config.js",
-		"tailwind.config.js",
-		"next.config.js",
-		"theme.config.js",
-		".eslintrc.js",
-		".next/types/**/*.ts",
-		"stylelint.config",
-		"commitlint.config"
-	]
+		"rootDir": "../..",
+		"baseUrl": "../.."
+	}
 }

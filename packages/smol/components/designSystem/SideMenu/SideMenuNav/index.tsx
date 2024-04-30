@@ -1,9 +1,9 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {useIsMounted} from 'hooks/useIsMounted';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
+import {useIsMounted} from '@hooks/useIsMounted';
 import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@icons/IconApps';
 import {IconWallet} from '@icons/IconWallet';
 import {LinkOrDiv} from '@common/LinkOrDiv';
@@ -89,7 +89,7 @@ function NavItem({label, href, icon, onClick, isSelected, isDisabled = false}: T
 						</p>
 					</div>
 					{isDisabled && (
-						<span className={'rounded-full bg-[#FFF3D3] px-2.5 py-0.5 text-center text-xxs text-[#FF9900]'}>
+						<span className={'text-xxs rounded-full bg-[#FFF3D3] px-2.5 py-0.5 text-center text-[#FF9900]'}>
 							{'Soon'}
 						</span>
 					)}
@@ -139,7 +139,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 					<Link href={'https://dump.services/'}>
 						<div
 							className={
-								'group relative mb-2 flex w-full flex-col rounded-lg border border-neutral-400 bg-neutral-0 p-2 opacity-60 transition-opacity hover:opacity-100'
+								'bg-neutral-0 group relative mb-2 flex w-full flex-col rounded-lg border border-neutral-400 p-2 opacity-60 transition-opacity hover:opacity-100'
 							}>
 							<p className={'pb-1 text-xs font-semibold text-neutral-700'}>{'Dump Services'}</p>
 							<svg
@@ -169,7 +169,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 					<Link href={'https://multisafe.app/'}>
 						<div
 							className={
-								'group relative flex w-full flex-col rounded-lg border border-neutral-400 bg-neutral-0 p-2 opacity-60 transition-opacity hover:opacity-100'
+								'bg-neutral-0 group relative flex w-full flex-col rounded-lg border border-neutral-400 p-2 opacity-60 transition-opacity hover:opacity-100'
 							}>
 							<p className={'pb-1 text-xs font-semibold text-neutral-700'}>{'Multisafe'}</p>
 							<svg
@@ -198,7 +198,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 							</span>
 						</div>
 					</Link>
-					<div className={'flex justify-between pb-2 pt-6 text-xxs text-neutral-600'}>
+					<div className={'text-xxs flex justify-between pb-2 pt-6 text-neutral-600'}>
 						<div className={'flex gap-4'}>
 							<Link
 								className={'transition-colors hover:text-neutral-900'}

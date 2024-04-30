@@ -1,17 +1,17 @@
 'use client';
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
-import {FetchedTokenButton} from 'components/designSystem/FetchedTokenButton';
-import {SmolTokenButton} from 'components/designSystem/SmolTokenButton';
-import {CurtainContent} from 'components/Primitives/Curtain';
-import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
+import {FetchedTokenButton} from '@designSystem/FetchedTokenButton';
+import {SmolTokenButton} from '@designSystem/SmolTokenButton';
+import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
+import {CurtainContent} from '@primitives/Curtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
@@ -58,7 +58,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 							onConnect();
 							props.onOpenChange(false);
 						}}
-						className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
+						className={'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'}>
 						{'Connect Wallet'}
 					</button>
 				</div>
@@ -167,7 +167,7 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<h3 className={'font-bold'}>{'Your Wallet'}</h3>
 						<CloseCurtainButton />

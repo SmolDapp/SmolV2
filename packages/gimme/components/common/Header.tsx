@@ -3,8 +3,8 @@ import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, truncateHex} from '@builtbymom/web3/utils';
+import {Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTrigger} from '@gimmecommon/Drawer';
 import {useAccountModal} from '@rainbow-me/rainbowkit';
-import {Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTrigger} from '@common/Drawer';
 
 import {IconMenu} from '../icons/IconMenu';
 

@@ -5,9 +5,9 @@ import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 
 import {EIP3770_PREFIX} from './eip-3770';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
 import type {Hex} from 'viem';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 
 const safeBaseURIForNetwork = (network: number): string => {
 	if (network === zora.id) {

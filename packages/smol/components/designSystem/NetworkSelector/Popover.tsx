@@ -1,10 +1,10 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
-import {Command, CommandEmpty, CommandInput, CommandItem} from 'components/Primitives/Commands';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import {IconChevron} from '@icons/IconChevron';
+import {Command, CommandEmpty, CommandInput, CommandItem} from '@primitives/Commands';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {supportedNetworks} from '@utils/tools.chains';

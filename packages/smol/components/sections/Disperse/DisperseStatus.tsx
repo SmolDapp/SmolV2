@@ -1,7 +1,7 @@
 import {type ReactElement, useMemo} from 'react';
-import {useAddressBook} from 'contexts/useAddressBook';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
+import {useAddressBook} from '@contexts/useAddressBook';
 import {Warning} from '@common/Primitives/Warning';
 
 import {useDisperse} from './useDisperse';

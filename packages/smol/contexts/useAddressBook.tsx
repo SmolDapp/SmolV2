@@ -2,12 +2,12 @@
 
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import assert from 'assert';
-import {AddressBookCurtain} from 'components/designSystem/Curtains/AddressBookCurtain';
-import {AddressSelectorCurtain} from 'components/designSystem/Curtains/AddressSelectorCurtain';
 import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
+import {AddressBookCurtain} from '@designSystem/Curtains/AddressBookCurtain';
+import {AddressSelectorCurtain} from '@designSystem/Curtains/AddressSelectorCurtain';
 import {useMountEffect} from '@react-hookz/web';
 import {slugify} from '@utils/helpers';
 import {supportedNetworks} from '@utils/tools.chains';

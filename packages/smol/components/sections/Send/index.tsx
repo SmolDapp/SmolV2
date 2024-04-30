@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {SmolAddressInput} from 'components/designSystem/SmolAddressInput';
-import {SmolTokenAmountInput} from 'components/designSystem/SmolTokenAmountInput';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
+import {SmolAddressInput} from '@designSystem/SmolAddressInput';
+import {SmolTokenAmountInput} from '@designSystem/SmolTokenAmountInput';
 import {IconCircleCheck} from '@icons/IconCircleCheck';
 import {IconCircleCross} from '@icons/IconCircleCross';
 import {IconCross} from '@icons/IconCross';
@@ -13,8 +13,8 @@ import {useSendFlow} from './useSendFlow';
 import {useSendQueryManagement} from './useSendQuery';
 import {SendWizard} from './Wizard';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
 import type {ReactElement} from 'react';
+import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {TInputAddressLike} from '@utils/tools.address';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
@@ -33,10 +33,10 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 			return <IconSpinner className={'size-4'} />;
 		}
 		if (input.status === 'success') {
-			return <IconCircleCheck className={'size-4 text-green'} />;
+			return <IconCircleCheck className={'text-green size-4'} />;
 		}
 		if (input.status === 'error') {
-			return <IconCircleCross className={'size-4 text-red'} />;
+			return <IconCircleCross className={'text-red size-4'} />;
 		}
 		return null;
 	};
@@ -95,7 +95,7 @@ export function Send(): ReactElement {
 	}, [hasInitialInputs]);
 
 	return (
-		<div className={'w-full max-w-108'}>
+		<div className={'max-w-108 w-full'}>
 			<div className={'mb-6'}>
 				<p className={'font-medium'}>{'Receiver'}</p>
 				<SmolAddressInput

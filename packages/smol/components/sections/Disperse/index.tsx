@@ -1,10 +1,5 @@
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {useValidateAddressInput} from 'components/designSystem/SmolAddressInput';
-import {useValidateAmountInput} from 'components/designSystem/SmolTokenAmountInput';
-import {SmolTokenSelector} from 'components/designSystem/SmolTokenSelector';
-import {Button} from 'components/Primitives/Button';
-import {useDownloadFile} from 'hooks/useDownloadFile';
 import Papa from 'papaparse';
 import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -12,8 +7,13 @@ import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {useValidateAddressInput} from '@designSystem/SmolAddressInput';
+import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
+import {SmolTokenSelector} from '@designSystem/SmolTokenSelector';
+import {useDownloadFile} from '@hooks/useDownloadFile';
 import {IconFile} from '@icons/IconFile';
 import IconImport from '@icons/IconImport';
+import {Button} from '@primitives/Button';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -265,7 +265,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 					{'Download Template'}
 				</Button>
 			</div>
-			<div className={'mb-6 w-full max-w-full md:max-w-108'}>
+			<div className={'md:max-w-108 mb-6 w-full max-w-full'}>
 				<p className={'mb-2 font-medium'}>{'Token'}</p>
 				<SmolTokenSelector
 					token={configuration.tokenToSend}

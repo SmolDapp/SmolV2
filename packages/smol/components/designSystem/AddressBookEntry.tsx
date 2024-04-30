@@ -2,21 +2,21 @@
 
 import React, {useEffect} from 'react';
 import {toast} from 'react-hot-toast';
-import {TooltipContent} from 'components/Primitives/Tooltip';
-import {useAddressBook} from 'contexts/useAddressBook';
-import {useIsMounted} from 'hooks/useIsMounted';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
+import {useAddressBook} from '@contexts/useAddressBook';
+import {useIsMounted} from '@hooks/useIsMounted';
 import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
+import {TooltipContent} from '@primitives/Tooltip';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import {TextTruncate} from '@common/TextTruncate';
 
 import {Avatar} from './Avatar';
 
-import type {TAddressBookEntry} from 'contexts/useAddressBook';
 import type {MouseEventHandler, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TAddressBookEntry} from '@contexts/useAddressBook';
 
 function EntryBookEntryFavorite(props: {
 	isFavorite: boolean;
@@ -91,7 +91,7 @@ export function AddressBookEntryAddress(props: {
 											? toSafeAddress({address: props.address})
 											: props.address
 									}
-									className={'cursor-copy text-xxs hover:underline'}
+									className={'text-xxs cursor-copy hover:underline'}
 								/>
 							</button>
 						</Tooltip.Trigger>
@@ -135,7 +135,7 @@ export function AddressBookEntryAddress(props: {
 				}}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'cursor-copy text-xxs hover:underline'}
+					className={'text-xxs cursor-copy hover:underline'}
 				/>
 			</button>
 		</div>

@@ -1,9 +1,9 @@
 import {Fragment, useState} from 'react';
 import Confetti from 'react-dom-confetti';
-import {Button} from 'components/Primitives/Button';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, Transition} from '@headlessui/react';
 import {IconCheck} from '@icons/IconCheck';
+import {Button} from '@primitives/Button';
 import {useUpdateEffect} from '@react-hookz/web';
 
 import type {ReactElement} from 'react';
@@ -67,7 +67,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 									'relative overflow-hidden flex flex-col items-center justify-center rounded-md !bg-neutral-200 !p-10 transition-all',
 									'sm:my-8 sm:w-full sm:max-w-lg sm:p-6'
 								)}>
-								<div className={'mb-10 rounded-full bg-green p-7'}>
+								<div className={'bg-green mb-10 rounded-full p-7'}>
 									<IconCheck className={'size-6 text-white'} />
 								</div>
 								<div>

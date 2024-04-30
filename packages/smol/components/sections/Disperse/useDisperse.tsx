@@ -3,9 +3,9 @@ import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {optionalRenderProps} from '@utils/react/optionalRenderProps';
 import {defaultInputAddressLike} from '@utils/tools.address';
 
-import type {TAmountInputElement} from 'components/designSystem/SmolAmountInput';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
+import type {TAmountInputElement} from '@designSystem/SmolAmountInput';
 import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TInputAddressLike} from '@utils/tools.address';
 import type {TPartialExhaustive} from '@utils/types/types';

@@ -1,8 +1,5 @@
 import React, {useCallback, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {Button} from 'components/Primitives/Button';
-import {useAddressBook} from 'contexts/useAddressBook';
-import {getTransferTransaction} from 'utils/tools.gnosis';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -10,20 +7,23 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress, slugify, toAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
 import {getNetwork, transferERC20, transferEther} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus, type TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {Button} from '@primitives/Button';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {notifySend} from '@utils/notifier';
+import {getTransferTransaction} from '@utils/tools.gnosis';
 import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 import {ErrorModal} from '@common/ErrorModal';
 import {SuccessModal} from '@common/SuccessModal';
 
 import {useSendFlow} from './useSendFlow';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
 import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 import type {TModify} from '@utils/types/types';
 

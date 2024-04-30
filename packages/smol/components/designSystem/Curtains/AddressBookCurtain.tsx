@@ -3,25 +3,25 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
-import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
-import {Button} from 'components/Primitives/Button';
-import {CurtainContent} from 'components/Primitives/Curtain';
-import {TextInput} from 'components/Primitives/TextInput';
-import {useAddressBook} from 'contexts/useAddressBook';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
+import {useAddressBook} from '@contexts/useAddressBook';
+import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import {IconEdit} from '@icons/IconEdit';
 import {IconGears} from '@icons/IconGears';
 import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
 import {IconTrash} from '@icons/IconTrash';
+import {Button} from '@primitives/Button';
+import {CurtainContent} from '@primitives/Curtain';
+import {TextInput} from '@primitives/TextInput';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
 import {SmolAddressInput} from '../SmolAddressInput';
 
-import type {TAddressBookEntry, TAddressBookEntryReducer} from 'contexts/useAddressBook';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
+import type {TAddressBookEntry, TAddressBookEntryReducer} from '@contexts/useAddressBook';
 import type {TInputAddressLike} from '@utils/tools.address';
 
 function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): ReactElement {
@@ -165,7 +165,7 @@ function NameInput(props: {
 				<label htmlFor={'name'}>
 					<small className={'pl-1'}>{'Name'}</small>
 				</label>
-				<small className={'pr-1 text-red'}>{getErrorMessage()}</small>
+				<small className={'text-red pr-1'}>{getErrorMessage()}</small>
 			</div>
 			<TextInput
 				inputRef={inputRef}
@@ -245,7 +245,7 @@ function AddressInput(props: {
 				<label htmlFor={'address'}>
 					<small className={'pl-1'}>{'Address'}</small>
 				</label>
-				<small className={'pr-1 text-red'}>{getErrorMessage()}</small>
+				<small className={'text-red pr-1'}>{getErrorMessage()}</small>
 			</div>
 
 			<SmolAddressInput
@@ -362,7 +362,7 @@ export function AddressBookCurtain(props: {
 			<CurtainContent className={'focus:!border-green'}>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<button
 						aria-label={'Hack to prevent focus on fav on mount'}
 						className={'pointer-events-none size-0 opacity-0'}

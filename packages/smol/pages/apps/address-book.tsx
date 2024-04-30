@@ -1,5 +1,5 @@
 import {Fragment, type ReactElement} from 'react';
-import {AddressBook} from 'components/sections/AddressBook';
+import {AddressBook} from '@sections/AddressBook';
 
 function AddressBookPage(): ReactElement {
 	return <AddressBook />;

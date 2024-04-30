@@ -2,10 +2,10 @@ import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {Rubik, Source_Code_Pro} from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
-import Layout from 'components/designSystem/Layout';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
+import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {IconCheck} from '@icons/IconCheck';
 import {IconCircleCross} from '@icons/IconCircleCross';
@@ -83,7 +83,7 @@ function MyApp(props: AppProps): ReactElement {
 						<PlausibleProvider
 							domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
 							enabled={true}>
-							<main className={`flex h-app flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
+							<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 								<Meta />
 								<Layout {...props} />
 							</main>

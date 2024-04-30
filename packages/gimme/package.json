@@ -5,8 +5,8 @@
 	"scripts": {
 		"dev": "next",
 		"dev:ts": "tsc --watch",
-		"start": "tsc  && next build && next start",
-		"build": "tsc  && next build",
+		"start": "tsc && next build && next start",
+		"build": "tsc && next build",
 		"prepare": "husky install",
 		"prettier": "prettier --check \"./**/**/*.{json,js,ts,tsx,scss}\"",
 		"prettier-format": "prettier --config .prettierrc \"./**/**/*.{json,js,ts,tsx,scss,md}\" --write",
@@ -34,5 +34,6 @@
 		"vaul": "^0.9.0",
 		"viem": "^2.9.16",
 		"wagmi": "^2.5.19"
-	}
+	},
+	"packageManager": "yarn@4.1.1"
 }

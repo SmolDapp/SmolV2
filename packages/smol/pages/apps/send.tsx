@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {Send} from 'components/sections/Send';
-import {SendContextApp} from 'components/sections/Send/useSendFlow';
-import {SendQueryManagement} from 'components/sections/Send/useSendQuery';
-import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
+import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
+import {Send} from '@sections/Send';
+import {SendContextApp} from '@sections/Send/useSendFlow';
+import {SendQueryManagement} from '@sections/Send/useSendQuery';
 
 import type {ReactElement} from 'react';
 

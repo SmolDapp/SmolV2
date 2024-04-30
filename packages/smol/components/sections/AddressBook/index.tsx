@@ -1,18 +1,18 @@
 import {useCallback, useMemo, useState} from 'react';
-import {AddressBookEntry} from 'components/designSystem/AddressBookEntry';
-import {TextInput} from 'components/Primitives/TextInput';
-import {useAddressBook} from 'contexts/useAddressBook';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
+import {useAddressBook} from '@contexts/useAddressBook';
+import {AddressBookEntry} from '@designSystem/AddressBookEntry';
 import {IconAppAddressBook} from '@icons/IconApps';
 import {IconEmptyAddressBook} from '@icons/IconEmptyAddressBook';
 import IconImport from '@icons/IconImport';
 import {IconPlus} from '@icons/IconPlus';
+import {TextInput} from '@primitives/TextInput';
 
-import type {TAddressBookEntry} from 'contexts/useAddressBook';
 import type {ChangeEvent, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TAddressBookEntry} from '@contexts/useAddressBook';
 
 function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}): ReactElement {
 	return (
@@ -194,13 +194,13 @@ function AddressBookActions(props: {onOpenCurtain: VoidFunction}): ReactElement 
 function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 	return (
 		<div className={'flex w-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
-			<div className={'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'}>
+			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
 				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
 					<IconAppAddressBook className={'size-20'} />
 					<button
 						onClick={props.onOpenCurtain}
 						className={
-							'absolute bottom-0 right-0 flex size-12 cursor-pointer items-center justify-center rounded-full bg-primary hover:bg-primaryHover'
+							'bg-primary hover:bg-primaryHover absolute bottom-0 right-0 flex size-12 cursor-pointer items-center justify-center rounded-full'
 						}>
 						<IconPlus className={'size-4'} />
 					</button>
@@ -302,7 +302,7 @@ export function AddressBook(): ReactElement {
 									}>
 									<div
 										className={
-											'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'
+											'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'
 										}>
 										<IconEmptyAddressBook />
 									</div>

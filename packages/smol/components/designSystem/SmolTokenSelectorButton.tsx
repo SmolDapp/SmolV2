@@ -1,5 +1,5 @@
-import {useBalancesCurtain} from 'contexts/useBalancesCurtain';
 import {cl, isAddress} from '@builtbymom/web3/utils';
+import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
 import {IconChevron} from '@icons/IconChevron';
 import {IconWallet} from '@icons/IconWallet';
 import {ImageWithFallback} from '@common/ImageWithFallback';
@@ -27,7 +27,7 @@ export function SmolTokenSelectorButton({
 				})
 			}>
 			<div className={'flex w-full items-center gap-2'}>
-				<div className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+				<div className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 					{token && isAddress(token.address) ? (
 						<ImageWithFallback
 							alt={token.symbol}

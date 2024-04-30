@@ -1,21 +1,21 @@
 'use client';
 
 import React, {Fragment, useEffect, useMemo, useState} from 'react';
-import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
-import {Button} from 'components/Primitives/Button';
-import {CurtainContent} from 'components/Primitives/Curtain';
-import {TextInput} from 'components/Primitives/TextInput';
-import {useAddressBook} from 'contexts/useAddressBook';
-import {useIsMounted} from 'hooks/useIsMounted';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
+import {useAddressBook} from '@contexts/useAddressBook';
+import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
+import {useIsMounted} from '@hooks/useIsMounted';
+import {Button} from '@primitives/Button';
+import {CurtainContent} from '@primitives/Curtain';
+import {TextInput} from '@primitives/TextInput';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {AddressBookEntry} from '../AddressBookEntry';
 
-import type {TAddressBookEntry, TSelectCallback} from 'contexts/useAddressBook';
 import type {ReactElement, ReactNode} from 'react';
+import type {TAddressBookEntry, TSelectCallback} from '@contexts/useAddressBook';
 
 function FavoriteList(props: {
 	favorite: TAddressBookEntry[];
@@ -99,7 +99,7 @@ function ContactList(props: {
 			{props.searchValue !== '' && props.favorite.length === 0 && props.availableEntries.length === 0 && (
 				<div
 					className={
-						'flex min-h-[72px] w-full flex-col items-center justify-center rounded-lg bg-primary px-10 pb-2 pt-4'
+						'bg-primary flex min-h-[72px] w-full flex-col items-center justify-center rounded-lg px-10 pb-2 pt-4'
 					}>
 					<p className={'text-center text-xs text-neutral-900'}>
 						{`We couldn't find any contact matching "${props.searchValue}".`}
@@ -214,7 +214,7 @@ export function AddressSelectorCurtain(props: {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<h3 className={'font-bold'}>{'Address Book'}</h3>
 						<CloseCurtainButton />

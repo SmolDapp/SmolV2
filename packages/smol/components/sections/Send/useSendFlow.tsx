@@ -3,8 +3,8 @@ import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {optionalRenderProps} from '@utils/react/optionalRenderProps';
 import {defaultInputAddressLike} from '@utils/tools.address';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
 import type {Dispatch, ReactElement} from 'react';
+import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
 import type {TInputAddressLike} from '@utils/tools.address';
 import type {TPartialExhaustive} from '@utils/types/types';
