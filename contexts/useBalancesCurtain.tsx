@@ -4,7 +4,6 @@ import React, {createContext, useContext, useEffect, useMemo, useState} from 're
 import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
 import {FetchedTokenButton} from 'components/designSystem/FetchedTokenButton';
 import {SmolTokenButton} from 'components/designSystem/SmolTokenButton';
-import {Button} from 'components/Primitives/Button';
 import {CurtainContent} from 'components/Primitives/Curtain';
 import {useTokensWithBalance} from 'hooks/useTokensWithBalance';
 import {isAddressEqual} from 'viem';
@@ -13,6 +12,7 @@ import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {IconAppSwap} from '@icons/IconApps';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
@@ -170,7 +170,14 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+						<div className={'flex items-center gap-x-3'}>
+							<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+							<button
+								onClick={props.onRefresh}
+								className={'text-neutral-600 hover:text-neutral-900'}>
+								<IconAppSwap className={'size-4'} />
+							</button>
+						</div>
 						<CloseCurtainButton />
 					</div>
 					<div className={'flex h-full flex-col gap-4'}>
@@ -190,7 +197,6 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 							disabled={!address}
 							onChange={e => set_searchValue(e.target.value)}
 						/>
-						<Button onClick={props.onRefresh}>{'refresh'}</Button>
 						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 							<WalletLayout
 								filteredTokens={filteredTokens}
