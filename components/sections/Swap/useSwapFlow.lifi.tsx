@@ -42,7 +42,8 @@ type TLastSolverFetchData = {
 	inputToken: string;
 	outputToken: string;
 	inputAmount: string;
-	slippageTolerancePercentage: string;
+	slippageTolerancePercentage: number;
+	order: TSwapConfiguration['order'];
 	time: number;
 };
 
@@ -63,7 +64,8 @@ const defaultProps: TSwapContext = {
 		receiver: defaultInputAddressLike,
 		input: getNewInputToken(),
 		output: getNewInputToken(),
-		slippageTolerance: 2.5
+		slippageTolerance: 0.01,
+		order: 'SAFEST'
 	},
 	isFetchingQuote: false,
 	isValid: false,
@@ -72,7 +74,8 @@ const defaultProps: TSwapContext = {
 	dispatchConfiguration: (): void => undefined,
 	hasSolverAllowance: async (): Promise<boolean> => false,
 	approveSolverSpender: async (): Promise<boolean> => false,
-	performSolverSwap: async (): Promise<boolean> => false
+	performSolverSwap: async (): Promise<boolean> => false,
+	openSettingsCurtain: (): void => undefined
 };
 
 const swapReducer = (state: TSwapConfiguration, action: TSwapActions): TSwapConfiguration => {
@@ -103,6 +106,8 @@ const swapReducer = (state: TSwapConfiguration, action: TSwapActions): TSwapConf
 			return {...state, output: {...state.output, ...action.payload}};
 		case 'SET_SLIPPAGE':
 			return {...state, slippageTolerance: action.payload};
+		case 'SET_ORDER':
+			return {...state, order: action.payload};
 		case 'INVERSE_TOKENS':
 			return {
 				...state,
@@ -145,7 +150,8 @@ let lastFetch: TLastSolverFetchData = {
 	inputToken: '',
 	outputToken: '',
 	inputAmount: '',
-	slippageTolerancePercentage: '',
+	slippageTolerancePercentage: 0,
+	order: 'SAFEST',
 	time: 0
 };
 function assertLastSolverFetch(configuration: TSwapConfiguration): boolean {
@@ -158,7 +164,8 @@ function assertLastSolverFetch(configuration: TSwapConfiguration): boolean {
 		lastFetch.inputToken === configuration.input.token.address &&
 		lastFetch.outputToken === configuration.output.token.address &&
 		lastFetch.inputAmount === configuration.input.normalizedBigAmount.display &&
-		lastFetch.slippageTolerancePercentage === '2.5' &&
+		lastFetch.slippageTolerancePercentage === configuration.slippageTolerance &&
+		lastFetch.order === configuration.order &&
 		Date.now() - lastFetch.time < 60000
 	) {
 		return false;
@@ -168,7 +175,8 @@ function assertLastSolverFetch(configuration: TSwapConfiguration): boolean {
 		inputToken: configuration.input.token.address,
 		outputToken: configuration.output.token.address,
 		inputAmount: configuration.input.normalizedBigAmount.display,
-		slippageTolerancePercentage: '2.5',
+		slippageTolerancePercentage: configuration.slippageTolerance,
+		order: configuration.order,
 		time: Date.now()
 	};
 	return true;
@@ -265,6 +273,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			const identifier = createUniqueID(serialize(configuration));
 			currentIdentifier = identifier;
 
+			set_currentError(undefined);
 			set_isFetchingQuote(true);
 			dispatch({
 				type: 'SET_OUTPUT_VALUE',
@@ -287,12 +296,12 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				fromTokenAddress: toAddress(configuration.input.token?.address),
 				toChainID: configuration.output.token?.chainID || -1,
 				toTokenAddress: toAddress(configuration.output.token?.address),
-				slippage: 0.05
+				slippage: configuration.slippageTolerance,
+				order: configuration.order
 			});
 
 			if (result) {
 				handleQuoteResponse(result, identifier);
-				set_currentError(undefined);
 			} else {
 				set_currentError(error);
 				set_isFetchingQuote(false);
@@ -480,7 +489,8 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			retrieveExpectedOut,
 			hasSolverAllowance,
 			approveSolverSpender,
-			performSolverSwap
+			performSolverSwap,
+			openSettingsCurtain: (): void => set_shouldOpenCurtain(true)
 		}),
 		[
 			configuration,
@@ -497,13 +507,6 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 
 	return (
 		<SwapContext.Provider value={contextValue}>
-			<div
-				onClick={() => {
-					set_shouldOpenCurtain(!shouldOpenCurtain);
-				}}
-				className={'bg-yellow'}>
-				{'SwapContextApp'}
-			</div>
 			{optionalRenderProps(props.children, contextValue)}
 			<SwapCurtain
 				isOpen={shouldOpenCurtain}

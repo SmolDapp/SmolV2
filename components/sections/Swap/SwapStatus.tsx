@@ -1,8 +1,10 @@
 import {useState} from 'react';
+import Link from 'next/link';
 import {useAddressBook} from 'contexts/useAddressBook';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
+import {isEthAddress, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
+import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {supportedNetworks} from '@utils/tools.chains';
 import {Warning} from '@common/Primitives/Warning';
 
@@ -37,24 +39,26 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 	);
 }
 
-export function SwapStatus(): ReactElement | null {
+export function SwapStatus(props: {destinationChainID: number}): ReactElement | null {
+	const {address} = useWeb3();
 	const {configuration, currentError} = useSwapFlow();
-	const {safeChainID} = useChainID();
 	const {getEntry} = useAddressBook();
-	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
+	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement}[]>([]);
 
 	useAsyncTrigger(async (): Promise<void> => {
+		if (!configuration.receiver.address) {
+			return set_status([]);
+		}
+
 		const fromAddressBook = await getEntry({address: configuration.receiver.address});
+		const allStatus: {type: TWarningType; message: string | ReactElement}[] = [];
 
 		if (currentError) {
-			return set_status({
-				message: currentError,
-				type: 'error'
-			});
+			allStatus.push({message: currentError, type: 'error'});
 		}
 
 		if (isEthAddress(configuration.receiver.address)) {
-			return set_status({
+			allStatus.push({
 				message: 'Yo… uh… hmm… this is an invalid address. Tokens sent here may be lost forever. Oh no!',
 				type: 'error'
 			});
@@ -64,10 +68,10 @@ export function SwapStatus(): ReactElement | null {
 			configuration.receiver.address &&
 			(!fromAddressBook || (fromAddressBook?.numberOfInteractions === 0 && fromAddressBook.isHidden))
 		) {
-			return set_status({
+			allStatus.push({
 				message: (
 					<>
-						{'This is the first time you interact with this address, please be careful.'}
+						{'This is the first time you interact with this address, please be careful.'}&nbsp;
 						<TriggerAddressBookButton>{'Wanna add it to Address Book?'}</TriggerAddressBookButton>
 					</>
 				),
@@ -76,10 +80,10 @@ export function SwapStatus(): ReactElement | null {
 		}
 
 		if (configuration.receiver.address && fromAddressBook?.isHidden) {
-			return set_status({
+			allStatus.push({
 				message: (
 					<>
-						{'This address isn’t in your address book.'}{' '}
+						{'This address isn’t in your address book.'}&nbsp;
 						<TriggerAddressBookButton>{'Wanna add it?'}</TriggerAddressBookButton>
 					</>
 				),
@@ -87,31 +91,56 @@ export function SwapStatus(): ReactElement | null {
 			});
 		}
 
-		if (configuration.receiver.address && !fromAddressBook?.chains.includes(safeChainID)) {
-			const currentNetworkName = supportedNetworks.find(network => network.id === safeChainID)?.name;
+		if (configuration.receiver.address && !fromAddressBook?.chains.includes(props.destinationChainID)) {
+			const currentNetworkName = supportedNetworks.find(network => network.id === props.destinationChainID)?.name;
 			const fromAddressBookNetworkNames = fromAddressBook?.chains
 				.map(chain => supportedNetworks.find(network => network.id === chain)?.name)
 				.join(', ');
+			if (fromAddressBookNetworkNames) {
+				allStatus.push({
+					message: `You added this address on ${fromAddressBookNetworkNames}, please check it can receive funds on ${currentNetworkName}.`,
+					type: 'warning'
+				});
+			}
+		}
 
-			return set_status({
-				message: `You added this address on ${fromAddressBookNetworkNames}, please check it can receive funds on ${currentNetworkName}.`,
+		if (toAddress(configuration.receiver.address) !== toAddress(address)) {
+			const network = getNetwork(props.destinationChainID);
+			allStatus.push({
+				message: (
+					<>
+						{
+							'You are about to swap and send your tokens to another address.\nPlease double-check the receiver: '
+						}
+						<Link
+							target={'_blank'}
+							href={`${network.blockExplorers?.default?.url || 'https://etherscan.io'}/address/${configuration.receiver.address}`}
+							className={'cursor-alias font-bold underline transition-all'}>
+							{configuration.receiver.address}
+						</Link>
+						{'.'}
+					</>
+				),
 				type: 'warning'
 			});
 		}
 
-		return set_status(null);
-	}, [configuration.receiver.address, getEntry, currentError, safeChainID]);
+		set_status(allStatus);
+	}, [getEntry, configuration.receiver.address, currentError, props.destinationChainID, address]);
 
 	if (!status) {
 		return null;
 	}
 
 	return (
-		<div className={'mb-4'}>
-			<Warning
-				message={status.message}
-				type={status.type}
-			/>
+		<div className={'mb-4 grid gap-2'}>
+			{status.map((status, index) => (
+				<Warning
+					key={index}
+					message={status.message}
+					type={status.type}
+				/>
+			))}
 		</div>
 	);
 }

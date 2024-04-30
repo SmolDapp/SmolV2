@@ -9,7 +9,7 @@ import {useSwapFlow} from './useSwapFlow.lifi';
 
 import type {ReactElement} from 'react';
 
-export function SendWizard({children}: {children: ReactElement}): ReactElement {
+export function SendWizard(): ReactElement {
 	const {configuration, dispatchConfiguration, hasSolverAllowance, approveSolverSpender, performSolverSwap, isValid} =
 		useSwapFlow();
 	const [approveStatus, set_approveStatus] = useState(defaultTxStatus);
@@ -64,7 +64,6 @@ export function SendWizard({children}: {children: ReactElement}): ReactElement {
 						<b>{'Approve'}</b>
 					</Button>
 				)}
-				{children}
 			</div>
 			<SuccessModal
 				title={'It looks like a success!'}

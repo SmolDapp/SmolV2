@@ -1,8 +1,7 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
-import {SmolAddressInput} from 'components/designSystem/SmolAddressInput';
 import {CurtainContent} from 'components/Primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -10,7 +9,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {useSwapFlow} from './useSwapFlow.lifi';
 
 import type {ReactElement} from 'react';
-import type {TInputAddressLike} from '@utils/tools.address';
+import type {TSwapConfiguration} from '@utils/types/app.swap';
 
 /**************************************************************************************************
  ** The TSwapCurtain type is used to type the props of the SwapCurtain component.
@@ -20,6 +19,34 @@ export type TSwapCurtain = {
 	onOpenChange: (isOpen: boolean) => void;
 };
 
+function RatioOption(props: {label: string; details: string; value: TSwapConfiguration['order']}): ReactElement {
+	const {configuration, dispatchConfiguration} = useSwapFlow();
+
+	return (
+		<label
+			className={'cursor-pointer'}
+			htmlFor={props.label}>
+			<div className={'group flex items-start gap-2 p-4 transition-colors hover:bg-neutral-400'}>
+				<input
+					onChange={() => dispatchConfiguration({type: 'SET_ORDER', payload: props.value})}
+					id={props.label}
+					defaultChecked={configuration.order === props.value}
+					value={props.label}
+					type={'radio'}
+					className={
+						'mt-0.5 size-4 !border border-neutral-400 text-primary !outline-none !ring-0 !ring-transparent !ring-offset-0'
+					}
+					name={'swapPreference'}
+				/>
+				<div>
+					<p className={'text-sm text-neutral-900'}>{props.label}</p>
+					<p className={'whitespace-pre text-xs text-neutral-600'}>{props.details}</p>
+				</div>
+			</div>
+		</label>
+	);
+}
+
 /**********************************************************************************************
  ** The SwapCurtain component is responsible for displaying the curtain with the list of
  ** tokens the user has in their wallet and a search bar to filter them.
@@ -27,10 +54,6 @@ export type TSwapCurtain = {
 export function SwapCurtain(props: TSwapCurtain): ReactElement {
 	const [, set_searchValue] = useState('');
 	const {configuration, dispatchConfiguration} = useSwapFlow();
-	const inputRef = useRef<HTMLInputElement>(null);
-	const onSetRecipient = (value: Partial<TInputAddressLike>): void => {
-		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
-	};
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -58,41 +81,101 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 						<div className={'scrollable text-neutral-600'}>
 							<p>{'You can customize a few elements of your swap to better suit your needs.'}</p>
 						</div>
-						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-							<div className={''}>
-								<p className={'font-medium'}>{'Recipient'}</p>
-								<div className={'mb-4 mt-1'}>
-									<SmolAddressInput
-										inputRef={inputRef}
-										onSetValue={onSetRecipient}
-										value={configuration.receiver}
+						<div className={'my-1 h-px w-full bg-neutral-300'} />
+						<div className={'scrollable mb-8 mt-0 flex flex-col items-center gap-2 pb-2'}>
+							<div className={'w-full'}>
+								<div className={'pb-2 pl-1'}>
+									<p className={'text-sm text-neutral-900'}>{'Route preference'}</p>
+									<p className={'text-xs text-neutral-600'}>
+										{
+											'This setting allows you to prioritize different aspects of your swap to better suit your needs. By default, Smol will always prioritize the safest route for you, but you might want to go yolo!'
+										}
+									</p>
+								</div>
+								<div
+									className={
+										'grid divide-y divide-neutral-400 overflow-hidden rounded-lg bg-neutral-200'
+									}>
+									<RatioOption
+										label={'Recommended'}
+										details={'Prioritize affordable and less complex routes.'}
+										value={'RECOMMENDED'}
+									/>
+
+									<RatioOption
+										label={'Fastest'}
+										details={'Prioritizes routes with the shortest estimated time.'}
+										value={'FASTEST'}
+									/>
+
+									<RatioOption
+										label={'Cheapest'}
+										details={'Try to minimize the cost of the transaction.'}
+										value={'CHEAPEST'}
+									/>
+
+									<RatioOption
+										label={'Safest'}
+										details={'Prioritizes routes with the least amount of risk of failure.'}
+										value={'SAFEST'}
 									/>
 								</div>
 							</div>
 
-							<div className={'w-full rounded-lg bg-neutral-200 p-4'}>
-								<p className={'font-medium'}>{'Settings'}</p>
-								<div className={'my-4'}>
-									<p className={'text-sm text-neutral-600'}>{'Slippage'}</p>
-									<input
-										type={'number'}
-										className={cl(
-											'w-full rounded-lg border border-neutral-400 bg-neutral-200 bg-white p-2',
-											'focus:border-neutral-400'
-										)}
-										placeholder={'0.5%'}
-									/>
+							<div className={'mt-4 w-full'}>
+								<div className={'pb-2 pl-1'}>
+									<p className={'text-sm text-neutral-900'}>{'Slippage tolerance'}</p>
+									<p className={'text-xs text-neutral-600'}>
+										{
+											'This setting allows you to set a tolerance for the price impact of your swap. If the price of the token changes by more than the set percentage, the transaction will fail.'
+										}
+									</p>
 								</div>
-								<div className={'my-4'}>
-									<p className={'text-sm text-neutral-600'}>{'Slippage'}</p>
-									<input
-										type={'number'}
+
+								<div
+									className={
+										'grid grid-cols-4 divide-x divide-neutral-400 overflow-hidden rounded-lg bg-neutral-200'
+									}>
+									<button
+										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.001})}
 										className={cl(
-											'w-full rounded-lg border border-neutral-400 bg-neutral-200 bg-white p-2',
-											'focus:border-neutral-400'
-										)}
-										placeholder={'0.5%'}
-									/>
+											'p-2 text-center transition-colors hover:bg-neutral-400',
+											configuration.slippageTolerance === 0.001
+												? 'bg-neutral-400 text-neutral-900'
+												: 'text-neutral-600'
+										)}>
+										<p className={'text-sm'}>{'0.1%'}</p>
+									</button>
+									<button
+										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.005})}
+										className={cl(
+											'p-2 text-center transition-colors hover:bg-neutral-400',
+											configuration.slippageTolerance === 0.005
+												? 'bg-neutral-400 text-neutral-900'
+												: 'text-neutral-600'
+										)}>
+										<p className={'text-sm'}>{'0.5%'}</p>
+									</button>
+									<button
+										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.01})}
+										className={cl(
+											'p-2 text-center transition-colors hover:bg-neutral-400',
+											configuration.slippageTolerance === 0.01
+												? 'bg-neutral-400 text-neutral-900'
+												: 'text-neutral-600'
+										)}>
+										<p className={'text-sm'}>{'1%'}</p>
+									</button>
+									<button
+										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.015})}
+										className={cl(
+											'p-2 text-center transition-colors hover:bg-neutral-400',
+											configuration.slippageTolerance === 0.015
+												? 'bg-neutral-400 text-neutral-900'
+												: 'text-neutral-600'
+										)}>
+										<p className={'text-sm'}>{'1.5%'}</p>
+									</button>
 								</div>
 							</div>
 						</div>

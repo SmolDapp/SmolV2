@@ -2,6 +2,7 @@ import axios from 'axios';
 import {toAddress} from '@builtbymom/web3/utils';
 
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TSwapConfiguration} from '@utils/types/app.swap';
 
 type TLifiToken = {
 	address: string;
@@ -64,6 +65,7 @@ export async function getLifiRoutes(params: {
 	fromAddress: TAddress;
 	toAddress: TAddress;
 	slippage: number; // default 0.05 -> 5%
+	order: TSwapConfiguration['order'];
 }): Promise<{result: TLifiQuoteResponse | undefined; error?: string}> {
 	try {
 		const result = await axios.get('https://li.quest/v1/quote', {
@@ -76,14 +78,13 @@ export async function getLifiRoutes(params: {
 				fromAddress: params.fromAddress,
 				toAddress: params.toAddress,
 				slippage: params.slippage,
-				order: 'SAFEST',
+				order: params.order,
 				//Smol configuration
 				// integrator: 'Smol',
 				// fee: 0.02, //default
 				referrer: toAddress(process.env.SMOL_ADDRESS)
 			}
 		});
-		console.log(result.data);
 		return {result: result.data};
 	} catch (error) {
 		const err = error as any;

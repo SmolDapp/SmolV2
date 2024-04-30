@@ -26,7 +26,7 @@ export function NetworkInputSelector(props: {value: number; onChange: (value: nu
 			open={isOpen}
 			onOpenChange={set_isOpen}>
 			<Popover.Trigger asChild>
-				<div className={'relative size-full h-[82px] rounded-lg'}>
+				<div className={'relative size-full h-20 rounded-lg'}>
 					<button
 						role={'combobox'}
 						aria-expanded={isOpen}

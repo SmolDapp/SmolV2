@@ -14,6 +14,7 @@ import {IconCircleCross} from '@icons/IconCircleCross';
 import {IconGears} from '@icons/IconGears';
 import {IconSpinner} from '@icons/IconSpinner';
 import {useDeepCompareEffect} from '@react-hookz/web';
+import {IconChevronBottom} from '@yearn-finance/web-lib/icons/IconChevronBottom';
 import {TextTruncate} from '@common/TextTruncate';
 
 import {SwapStatus} from './SwapStatus';
@@ -50,7 +51,7 @@ function FakeOutputTokenRow(props: {
 			<div className={'relative size-full rounded-lg'}>
 				<label
 					className={cl(
-						'z-20 relative border transition-all',
+						'z-20 relative border transition-all h-20',
 						'flex flex-grow-0 items-center cursor-text',
 						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
 						'p-2 pl-4 group bg-neutral-0 rounded-lg border-neutral-400'
@@ -132,7 +133,7 @@ function SwapTokenRow(props: {
 
 export function Swap(): ReactElement {
 	const {chainID} = useWeb3();
-	const {isFetchingQuote, configuration, dispatchConfiguration} = useSwapFlow();
+	const {isFetchingQuote, configuration, dispatchConfiguration, openSettingsCurtain} = useSwapFlow();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [shouldUseCustomRecipient, set_shouldUseCustomRecipient] = useState(false);
 	const [fromNetwork, set_fromNetwork] = useState(-1);
@@ -164,8 +165,18 @@ export function Swap(): ReactElement {
 	return (
 		<div className={'w-full max-w-screen-sm'}>
 			<div>
-				<p className={'font-medium'}>{'Your swap'}</p>
-				<div className={'mb-4 mt-1 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
+				<div className={'flex items-end justify-between'}>
+					<p className={'font-medium'}>{'Your swap'}</p>
+					<button
+						className={
+							'group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
+						}
+						onClick={openSettingsCurtain}>
+						<IconGears className={'size-4 transition-colors group-hover:text-white'} />
+					</button>
+				</div>
+
+				<div className={'mb-1 mt-2 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
 					<div className={cl('flex flex-row gap-2')}>
 						<div>
 							<NetworkInputSelector
@@ -226,34 +237,42 @@ export function Swap(): ReactElement {
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<SwapStatus />
-
-			<SendWizard>
-				<button
-					className={
-						'group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
-					}
-					onClick={() => set_shouldUseCustomRecipient(prev => !prev)}>
-					<IconGears className={'size-4 transition-colors group-hover:text-white'} />
-				</button>
-			</SendWizard>
-
-			{shouldUseCustomRecipient ? (
-				<div className={'mt-6 w-full items-center rounded-xl bg-neutral-200 p-4 md:w-auto'}>
-					<div className={''}>
-						<p className={'font-medium'}>{'Send to'}</p>
-						<div className={'mb-4 mt-1'}>
-							<SmolAddressInput
-								inputRef={inputRef}
-								onSetValue={onSetRecipient}
-								value={configuration.receiver}
-							/>
+				<div
+					onClick={() => set_shouldUseCustomRecipient(prev => !prev)}
+					className={'w-fill pl-1 pt-2'}>
+					<button className={'flex cursor-pointer items-center justify-center text-sm text-neutral-600'}>
+						<p className={'pr-1'}>{'Send to someone else'}</p>
+						<IconChevronBottom
+							className={cl(
+								'size-3.5 transition-all duration-100',
+								shouldUseCustomRecipient ? '-rotate-0' : '-rotate-90'
+							)}
+						/>
+					</button>
+				</div>
+				{shouldUseCustomRecipient ? (
+					<div className={'my-1 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
+						<div className={cl('flex flex-row gap-2 mt-1')}>
+							<div className={'w-full'}>
+								<SmolAddressInput
+									inputRef={inputRef}
+									isSimple
+									isSplitted
+									onSetValue={onSetRecipient}
+									value={configuration.receiver}
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
-			) : null}
+				) : null}
+			</div>
+
+			<div className={'mt-4'}>
+				<SwapStatus destinationChainID={toNetwork} />
+
+				<SendWizard />
+			</div>
 		</div>
 	);
 }

@@ -11,6 +11,7 @@ export type TSwapConfiguration = {
 	input: TTokenAmountInputElement;
 	output: TTokenAmountInputElement;
 	slippageTolerance: number; //float number
+	order: 'RECOMMENDED' | 'FASTEST' | 'CHEAPEST' | 'SAFEST';
 };
 
 /**********************************************************************************************
@@ -20,6 +21,7 @@ export type TSwapConfiguration = {
  ** SET_INPUT_VALUE: Set the value of the input token.
  ** SET_OUTPUT_VALUE: Set the value of the output token.
  ** SET_SLIPPAGE: Set the slippage tolerance of the swap operation.
+ ** SET_ORDER: Set the order of the swap operation.
  ** INVERSE_TOKENS: Inverse the input and output tokens.
  ** RESET_INPUT: Reset the input token configuration.
  ** RESET_OUTPUT: Reset the output token configuration.
@@ -31,6 +33,7 @@ export type TSwapActions =
 	| {type: 'SET_INPUT_VALUE'; payload: Partial<TTokenAmountInputElement>}
 	| {type: 'SET_OUTPUT_VALUE'; payload: Partial<TTokenAmountInputElement>}
 	| {type: 'SET_SLIPPAGE'; payload: number}
+	| {type: 'SET_ORDER'; payload: TSwapConfiguration['order']}
 	| {type: 'INVERSE_TOKENS'; payload: undefined}
 	| {type: 'RESET_INPUT'; payload: undefined}
 	| {type: 'RESET_OUTPUT'; payload: undefined}
@@ -58,4 +61,5 @@ export type TSwapContext = {
 	retrieveExpectedOut: () => Promise<void>;
 	approveSolverSpender: (statusHandler: Dispatch<SetStateAction<TTxStatus>>) => Promise<boolean>;
 	performSolverSwap: (statusHandler: Dispatch<SetStateAction<TTxStatus>>) => Promise<boolean>;
+	openSettingsCurtain: () => void;
 };
