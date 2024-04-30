@@ -1,5 +1,5 @@
 import {type ReactElement, useRef} from 'react';
-import {IconCross} from '@icons/IconCross';
+import {IconCross} from 'lib/icons';
 
 import {SmolAddressInput} from '../../designSystem/SmolAddressInput';
 import {SmolAmountInput} from '../../designSystem/SmolAmountInput';

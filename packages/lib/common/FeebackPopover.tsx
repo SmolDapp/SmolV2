@@ -7,8 +7,9 @@ import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {Popover as PopoverHeadlessUI, Portal, Transition} from '@headlessui/react';
-import IconBug from '@icons/IconBug';
 import {useLocalStorageValue} from '@react-hookz/web';
+
+import {IconBug} from '../icons';
 
 import type {ReactElement} from 'react';
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React, {useState} from 'react';
+import {DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator} from 'lib/primitives';
 import {cl} from '@builtbymom/web3/utils';
-import {DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator} from '@primitives/DropdownMenu';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {supportedNetworks} from '@utils/tools.chains';
 import {IconChevronBottom} from '@yearn-finance/web-lib/icons/IconChevronBottom';

@@ -27,6 +27,7 @@ module.exports = phase =>
 				}
 			]
 		},
+		transpilePackages: ['lib'],
 		redirects() {
 			return [
 				{

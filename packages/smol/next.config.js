@@ -38,6 +38,7 @@ module.exports = phase =>
 						'assets.smold.app'
 					]
 				},
+				transpilePackages: ['lib'],
 				redirects() {
 					return [
 						{source: '/disperse', destination: '/app/disperse', permanent: true},

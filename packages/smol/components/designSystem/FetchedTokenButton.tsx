@@ -1,9 +1,9 @@
 import {type ReactElement} from 'react';
+import {Warning} from 'lib/common';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
-import {Warning} from '@common/Primitives/Warning';
 
 import {SmolTokenButton} from './SmolTokenButton';
 

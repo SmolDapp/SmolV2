@@ -1,5 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {ErrorModal, SuccessModal} from 'lib/common';
+import {Button} from 'lib/primitives';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -9,13 +11,10 @@ import {getNetwork, transferERC20, transferEther} from '@builtbymom/web3/utils/w
 import {defaultTxStatus, type TTxResponse} from '@builtbymom/web3/utils/wagmi';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {Button} from '@primitives/Button';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {notifySend} from '@utils/notifier';
 import {getTransferTransaction} from '@utils/tools.gnosis';
 import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
-import {ErrorModal} from '@common/ErrorModal';
-import {SuccessModal} from '@common/SuccessModal';
 
 import {useSendFlow} from './useSendFlow';
 

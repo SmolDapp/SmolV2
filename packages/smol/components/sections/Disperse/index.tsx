@@ -1,5 +1,7 @@
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {IconFile, IconImport} from 'lib/icons';
+import {Button} from 'lib/primitives';
 import Papa from 'papaparse';
 import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -11,9 +13,6 @@ import {useValidateAddressInput} from '@designSystem/SmolAddressInput';
 import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
 import {SmolTokenSelector} from '@designSystem/SmolTokenSelector';
 import {useDownloadFile} from '@hooks/useDownloadFile';
-import {IconFile} from '@icons/IconFile';
-import IconImport from '@icons/IconImport';
-import {Button} from '@primitives/Button';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';

@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react';
+import {TextTruncate} from 'lib/common';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
@@ -14,7 +15,6 @@ import {
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {getNewInput} from '@sections/Send/useSendFlow';
 import {handleLowAmount} from '@utils/helpers';
-import {TextTruncate} from '@common/TextTruncate';
 
 import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 

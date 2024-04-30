@@ -1,8 +1,8 @@
 import {type ReactElement, type ReactNode} from 'react';
+import {IconQuestionMark} from 'lib/icons';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 import {WithAddressBook} from '@contexts/useAddressBook';
-import {IconQuestionMark} from '@icons/IconQuestionMark';
 
 import {SideMenu} from './SideMenu';
 import {InfoCurtain} from './Curtains/InfoCurtain';

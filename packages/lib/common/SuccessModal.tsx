@@ -1,9 +1,9 @@
 import {Fragment, useState} from 'react';
 import Confetti from 'react-dom-confetti';
+import {IconCheck} from 'lib/icons';
+import {Button} from 'lib/primitives';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, Transition} from '@headlessui/react';
-import {IconCheck} from '@icons/IconCheck';
-import {Button} from '@primitives/Button';
 import {useUpdateEffect} from '@react-hookz/web';
 
 import type {ReactElement} from 'react';

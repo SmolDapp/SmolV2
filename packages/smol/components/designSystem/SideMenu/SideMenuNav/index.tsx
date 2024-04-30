@@ -1,12 +1,11 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {LinkOrDiv} from 'lib/common';
+import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream, IconWallet} from 'lib/icons';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@hooks/useIsMounted';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@icons/IconApps';
-import {IconWallet} from '@icons/IconWallet';
-import {LinkOrDiv} from '@common/LinkOrDiv';
 
 const SIDE_MENU = [
 	{

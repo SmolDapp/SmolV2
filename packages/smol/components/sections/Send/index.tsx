@@ -1,12 +1,9 @@
 import {useCallback, useEffect, useRef} from 'react';
+import {IconCircleCheck, IconCircleCross, IconCross, IconSpinner} from 'lib/icons';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
 import {SmolAddressInput} from '@designSystem/SmolAddressInput';
 import {SmolTokenAmountInput} from '@designSystem/SmolTokenAmountInput';
-import {IconCircleCheck} from '@icons/IconCircleCheck';
-import {IconCircleCross} from '@icons/IconCircleCross';
-import {IconCross} from '@icons/IconCross';
-import {IconSpinner} from '@icons/IconSpinner';
 
 import {SendStatus} from './SendStatus';
 import {useSendFlow} from './useSendFlow';

@@ -1,8 +1,7 @@
 import {type ReactElement, useMemo} from 'react';
+import {ImageWithFallback} from 'lib/common';
+import {IconChevron, IconWallet} from 'lib/icons';
 import {cl, formatAmount, isAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
-import {IconChevron} from '@icons/IconChevron';
-import {IconWallet} from '@icons/IconWallet';
-import {ImageWithFallback} from '@common/ImageWithFallback';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 
@@ -70,7 +69,7 @@ export function SmolTokenButton(props: {
 							height={32}
 						/>
 					) : (
-						<div className={'flex size-8 items-center justify-center rounded-full bg-neutral-0'}>
+						<div className={'bg-neutral-0 flex size-8 items-center justify-center rounded-full'}>
 							<IconWallet className={'size-4 text-neutral-600'} />
 						</div>
 					)}

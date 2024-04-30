@@ -3,17 +3,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
+import {IconEdit, IconGears, IconHeart, IconHeartFilled, IconTrash} from 'lib/icons';
+import {Button, CurtainContent, TextInput} from 'lib/primitives';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
-import {IconEdit} from '@icons/IconEdit';
-import {IconGears} from '@icons/IconGears';
-import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
-import {IconTrash} from '@icons/IconTrash';
-import {Button} from '@primitives/Button';
-import {CurtainContent} from '@primitives/Curtain';
-import {TextInput} from '@primitives/TextInput';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {AvatarWrapper} from '../Avatar';

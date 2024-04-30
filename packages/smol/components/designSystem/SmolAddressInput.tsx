@@ -1,18 +1,15 @@
 import React, {useCallback, useEffect, useState} from 'react';
+import {TextTruncate} from 'lib/common';
+import {IconAppAddressBook, IconChevron, IconCircleCheck, IconCircleCross} from 'lib/icons';
 import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useAddressBook} from '@contexts/useAddressBook';
-import {IconAppAddressBook} from '@icons/IconApps';
-import {IconChevron} from '@icons/IconChevron';
-import {IconCircleCheck} from '@icons/IconCircleCheck';
-import {IconCircleCross} from '@icons/IconCircleCross';
 import {useAsyncAbortable} from '@react-hookz/web';
 import {defaultInputAddressLike} from '@utils/tools.address';
 import {checkENSValidity} from '@utils/tools.ens';
 import {getEnsName} from '@wagmi/core';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
-import {TextTruncate} from '@common/TextTruncate';
 
 import {AvatarWrapper} from './Avatar';
 

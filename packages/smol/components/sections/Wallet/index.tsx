@@ -1,4 +1,5 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import {IconWallet} from 'lib/icons';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -8,7 +9,6 @@ import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {FetchedTokenButton} from '@designSystem/FetchedTokenButton';
 import {SmolTokenButton} from '@designSystem/SmolTokenButton';
 import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
-import {IconWallet} from '@icons/IconWallet';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 

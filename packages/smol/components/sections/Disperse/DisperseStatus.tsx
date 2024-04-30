@@ -1,12 +1,12 @@
 import {type ReactElement, useMemo} from 'react';
+import {Warning} from 'lib/common';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
-import {Warning} from '@common/Primitives/Warning';
 
 import {useDisperse} from './useDisperse';
 
-import type {TWarningType} from '@common/Primitives/Warning';
+import type {TWarningType} from 'lib/common';
 
 export function DisperseStatus(): ReactElement | null {
 	const {configuration} = useDisperse();

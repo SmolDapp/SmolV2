@@ -2,15 +2,15 @@
 
 import React, {useEffect} from 'react';
 import {toast} from 'react-hot-toast';
+import {TextTruncate} from 'lib/common';
+import {IconHeart, IconHeartFilled} from 'lib/icons';
+import {TooltipContent} from 'lib/primitives';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useIsMounted} from '@hooks/useIsMounted';
-import {IconHeart, IconHeartFilled} from '@icons/IconHeart';
-import {TooltipContent} from '@primitives/Tooltip';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import {TextTruncate} from '@common/TextTruncate';
 
 import {Avatar} from './Avatar';
 

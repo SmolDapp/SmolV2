@@ -1,7 +1,7 @@
 import {type ReactElement} from 'react';
+import {IconWallet} from 'lib/icons';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl} from '@builtbymom/web3/utils';
-import {IconWallet} from '@icons/IconWallet';
 
 export function ConnectButton(): ReactElement {
 	const {onConnect} = useWeb3();
@@ -19,7 +19,7 @@ export function ConnectButton(): ReactElement {
 			<div className={'w-full max-w-72'}>
 				<button
 					onClick={onConnect}
-					className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
+					className={'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'}>
 					{'Connect Wallet'}
 				</button>
 			</div>

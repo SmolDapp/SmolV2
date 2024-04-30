@@ -1,6 +1,7 @@
 'use client';
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import {CurtainContent} from 'lib/primitives';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -11,7 +12,6 @@ import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@designSystem/FetchedTokenButton';
 import {SmolTokenButton} from '@designSystem/SmolTokenButton';
 import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
-import {CurtainContent} from '@primitives/Curtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';

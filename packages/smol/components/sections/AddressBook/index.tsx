@@ -1,14 +1,11 @@
 import {useCallback, useMemo, useState} from 'react';
+import {IconAppAddressBook, IconEmptyAddressBook, IconImport, IconPlus} from 'lib/icons';
+import {TextInput} from 'lib/primitives';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {AddressBookEntry} from '@designSystem/AddressBookEntry';
-import {IconAppAddressBook} from '@icons/IconApps';
-import {IconEmptyAddressBook} from '@icons/IconEmptyAddressBook';
-import IconImport from '@icons/IconImport';
-import {IconPlus} from '@icons/IconPlus';
-import {TextInput} from '@primitives/TextInput';
 
 import type {ChangeEvent, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';

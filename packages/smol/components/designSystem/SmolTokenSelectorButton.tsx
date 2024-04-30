@@ -1,8 +1,7 @@
+import {ImageWithFallback} from 'lib/common';
+import {IconChevron, IconWallet} from 'lib/icons';
 import {cl, isAddress} from '@builtbymom/web3/utils';
 import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
-import {IconChevron} from '@icons/IconChevron';
-import {IconWallet} from '@icons/IconWallet';
-import {ImageWithFallback} from '@common/ImageWithFallback';
 
 import type {TToken} from '@builtbymom/web3/types';
 
