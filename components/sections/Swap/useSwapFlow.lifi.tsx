@@ -239,6 +239,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			}
 			set_isFetchingQuote(false);
 			set_currentTxRequest(result);
+			set_currentError(undefined);
 			dispatch({
 				type: 'SET_OUTPUT_VALUE',
 				payload: {
@@ -276,6 +277,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			set_currentError(undefined);
 			set_isFetchingQuote(true);
 			dispatch({
+				type: 'SET_INPUT_VALUE',
+				payload: {...configuration.input, value: undefined}
+			});
+			dispatch({
 				type: 'SET_OUTPUT_VALUE',
 				payload: {
 					...configuration.output,
@@ -302,7 +307,8 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 
 			if (result) {
 				handleQuoteResponse(result, identifier);
-			} else {
+			}
+			if (error) {
 				set_currentError(error);
 				set_isFetchingQuote(false);
 			}
@@ -338,7 +344,6 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			spenderAddress: toAddress(spender)
 		});
 
-		console.log({allowance});
 		return allowance >= toBigInt(amount);
 	}, [configuration.input.token, configuration.output.token, currentTxRequest, provider]);
 
@@ -419,10 +424,9 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				gas: toBigInt(currentTxRequest.transactionRequest.gasLimit ?? 0),
 				account: toAddress(currentTxRequest.transactionRequest.from)
 			};
-
+			2;
 			try {
-				const gas = await estimateGas(retrieveConfig(), txParams);
-				console.log(gas);
+				await estimateGas(retrieveConfig(), txParams);
 			} catch (error) {
 				console.warn(error);
 				statusHandler({...defaultTxStatus, error: true});

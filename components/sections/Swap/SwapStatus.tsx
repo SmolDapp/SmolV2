@@ -46,15 +46,15 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement}[]>([]);
 
 	useAsyncTrigger(async (): Promise<void> => {
-		if (!configuration.receiver.address) {
-			return set_status([]);
-		}
-
-		const fromAddressBook = await getEntry({address: configuration.receiver.address});
 		const allStatus: {type: TWarningType; message: string | ReactElement}[] = [];
 
 		if (currentError) {
 			allStatus.push({message: currentError, type: 'error'});
+		}
+
+		const fromAddressBook = await getEntry({address: configuration.receiver.address});
+		if (!configuration.receiver.address) {
+			return set_status(allStatus);
 		}
 
 		if (isEthAddress(configuration.receiver.address)) {

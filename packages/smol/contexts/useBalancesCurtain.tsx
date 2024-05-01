@@ -25,7 +25,6 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {usePopularTokens} from './usePopularTokens';
 
-import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {
@@ -36,6 +35,7 @@ import type {
 	TSelectCallback,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
+import type {TPrice} from '@lib/utils/types/types';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,

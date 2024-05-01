@@ -90,6 +90,7 @@ function FakeOutputTokenRow(props: {
 							onSelectToken={token => validate(props.value.amount, token)}
 							token={props.value.token}
 							chainID={props.chainIDToUse}
+							shouldUseCurtainWithTabs
 						/>
 					</div>
 				</label>

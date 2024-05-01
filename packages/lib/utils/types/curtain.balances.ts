@@ -25,13 +25,21 @@ export type TWalletLayoutProps = {
 export type TBalancesCurtain = {
 	isOpen: boolean;
 	tokensWithBalance: TToken[];
+	allTokens: TToken[];
 	isLoading: boolean;
 	onSelect: TSelectCallback | undefined;
 	selectedTokenAddresses?: TAddress[];
-	chainID: number;
 	onOpenChange: (isOpen: boolean) => void;
+	options: TBalancesCurtainOptions;
 };
 
+/**************************************************************************************************
+ ** The TBalancesCurtainOptions type is used to type the options of the BalancesCurtain component.
+ *************************************************************************************************/
+export type TBalancesCurtainOptions = {
+	chainID?: number;
+	withTabs?: boolean;
+};
 /**************************************************************************************************
  ** The TBalancesCurtainContextProps type is used to type the props of the BalancesCurtainContext
  ** component.
@@ -40,7 +48,7 @@ export type TBalancesCurtainContextProps = {
 	shouldOpenCurtain: boolean;
 	tokensWithBalance: TToken[];
 	isLoading: boolean;
-	onOpenCurtain: (callbackFn: TSelectCallback, _chainID?: number) => void;
+	onOpenCurtain: (callbackFn: TSelectCallback, options?: TBalancesCurtainOptions) => void;
 	onCloseCurtain: () => void;
 };
 
