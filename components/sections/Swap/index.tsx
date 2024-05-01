@@ -9,12 +9,12 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue} from '@builtbymom/web3/utils';
 import {IconChevronBoth} from '@icons/IconChevronBoth';
+import {IconChevronBottom} from '@icons/IconChevronBottom';
 import {IconCircleCheck} from '@icons/IconCircleCheck';
 import {IconCircleCross} from '@icons/IconCircleCross';
 import {IconGears} from '@icons/IconGears';
 import {IconSpinner} from '@icons/IconSpinner';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {IconChevronBottom} from '@yearn-finance/web-lib/icons/IconChevronBottom';
 import {TextTruncate} from '@common/TextTruncate';
 
 import {SwapStatus} from './SwapStatus';
