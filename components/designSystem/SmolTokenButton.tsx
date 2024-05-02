@@ -88,7 +88,7 @@ export function SmolTokenButton(props: {
 						)}
 					</div>
 					{props.token && (
-						<div className={'h-full text-right'}>
+						<div className={'h-full whitespace-nowrap text-right'}>
 							<b className={'text-left text-base'}>{tokenBalance}</b>
 
 							<p className={'text-xs text-neutral-600'}>&nbsp;{balanceValue}</p>
