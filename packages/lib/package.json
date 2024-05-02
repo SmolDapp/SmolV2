@@ -2,10 +2,18 @@
 	"name": "lib",
 	"version": "1.0.0",
 	"homepage": "./",
+	"dependencies": {
+		"tailwindcss": "^3.4.3",
+		"@tailwindcss/forms": "^0.5.7",
+		"@tailwindcss/typography": "^0.5.12"
+	},
 	"devDependencies": {
 		"@types/bun": "latest",
 		"next": "14.0.4",
-		"react": "^18.2.0"
+		"react": "^18.2.0",
+		"postcss": "^8.4.38",
+		"postcss-import": "^16.1.0",
+		"postcss-nesting": "^12.1.1"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
