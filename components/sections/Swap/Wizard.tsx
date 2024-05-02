@@ -1,19 +1,115 @@
 import React, {useCallback, useState} from 'react';
+import Link from 'next/link';
 import {Button} from 'components/Primitives/Button';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {toBigInt} from '@builtbymom/web3/utils';
+import {formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
+import {truncateHexTx} from '@utils/helpers';
 import {SuccessModal} from '@common/SuccessModal';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
 import type {ReactElement} from 'react';
+import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TLifiStatusResponse} from './api.lifi';
+
+function SendSuccessModal(props: {
+	swapStatus: TTxStatus & {data?: TLifiStatusResponse};
+	onClose: VoidFunction;
+}): ReactElement {
+	if (!props.swapStatus.data) {
+		return (
+			<SuccessModal
+				title={'It looks like a success!'}
+				content={
+					<div className={'w-full p-4 text-left'}>
+						<p className={'text-center'}>
+							{
+								'We are really happy to inform you that your transaction has been successfully processed! This was an adventure, an unforgettable journey. We hope you enjoyed it as much as we did!'
+							}
+						</p>
+					</div>
+				}
+				ctaLabel={'Close'}
+				isOpen={props.swapStatus.success}
+				onClose={props.onClose}
+			/>
+		);
+	}
+
+	const {data} = props.swapStatus;
+	return (
+		<SuccessModal
+			title={'It looks like a success!'}
+			content={
+				<div className={'w-full rounded-md bg-neutral-400/40 p-4 text-left'}>
+					<p className={'text-center'}>
+						{
+							'We are really happy to inform you that your transaction has been successfully processed! This was an adventure, an unforgettable journey. We hope you enjoyed it as much as we did!'
+						}
+					</p>
+					<div className={'mt-4 flex flex-col gap-0 border-t border-dashed border-neutral-600/60 pt-4'}>
+						<div className={'flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-900/60'}>{'Sold'}</p>
+							<p className={'font-mono text-sm'}>
+								{`${formatAmount(toNormalizedBN(data.sending.amount, data.sending.token.decimals).normalized, 6)} `}
+								<Link
+									href={`${data.sending.txLink.split('/tx/')[0]}/address/${data.sending.token.address}`}
+									target={'_blank'}>
+									<span className={'cursor-alias font-mono text-sm hover:underline'}>
+										{data.sending.token.symbol}
+									</span>
+								</Link>
+							</p>
+						</div>
+						<div className={'flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-900/60'}>{'Received'}</p>
+							<p className={'font-mono text-sm'}>
+								{`${formatAmount(toNormalizedBN(data.receiving.amount, data.receiving.token.decimals).normalized, 6)} `}
+								<Link
+									href={`${data.receiving.txLink.split('/tx/')[0]}/address/${data.receiving.token.address}`}
+									target={'_blank'}>
+									<span className={'cursor-alias font-mono text-sm hover:underline'}>
+										{data.receiving.token.symbol}
+									</span>
+								</Link>
+							</p>
+						</div>
+						<div className={'flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-900/60'}>{'Receiver'}</p>
+							<Link
+								href={`${data.receiving.txLink.split('/tx/')[0]}/address/${data.toAddress}`}
+								target={'_blank'}>
+								<p className={'cursor-alias font-mono text-sm hover:underline'}>
+									{toAddress(data.toAddress)}
+								</p>
+							</Link>
+						</div>
+						<div className={'flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-900/60'}>{'Transaction'}</p>
+							<Link
+								href={data.lifiExplorerLink}
+								target={'_blank'}>
+								<p className={'cursor-alias font-mono text-sm hover:underline'}>
+									{truncateHexTx(data.sending.txHash, 8)}
+								</p>
+							</Link>
+						</div>
+					</div>
+				</div>
+			}
+			ctaLabel={'Close'}
+			isOpen={props.swapStatus.success}
+			onClose={props.onClose}
+		/>
+	);
+}
 
 export function SendWizard(): ReactElement {
 	const {configuration, dispatchConfiguration, hasSolverAllowance, approveSolverSpender, performSolverSwap, isValid} =
 		useSwapFlow();
 	const [approveStatus, set_approveStatus] = useState(defaultTxStatus);
-	const [swapStatus, set_swapStatus] = useState(defaultTxStatus);
+	const [swapStatus, set_swapStatus] = useState<TTxStatus & {data?: TLifiStatusResponse}>({...defaultTxStatus});
 	const [hasEnoughAllowance, set_hasEnoughAllowance] = useState(false);
 
 	const onHandleSwap = useCallback(async (): Promise<void> => {
@@ -65,13 +161,8 @@ export function SendWizard(): ReactElement {
 					</Button>
 				)}
 			</div>
-			<SuccessModal
-				title={'It looks like a success!'}
-				content={
-					'Like a fancy bird, your tokens have migrated! They are moving to their new home, with their new friends.'
-				}
-				ctaLabel={'Close'}
-				isOpen={swapStatus.success}
+			<SendSuccessModal
+				swapStatus={swapStatus}
 				onClose={(): void => {
 					dispatchConfiguration({type: 'RESET', payload: undefined});
 					set_swapStatus(defaultTxStatus);

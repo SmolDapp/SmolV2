@@ -99,6 +99,31 @@ export async function getLifiRoutes(params: {
 }
 
 export type TLifiStatusResponse = {
+	transactionId: string;
+	sending: {
+		txHash: string;
+		txLink: string;
+		amount: string;
+		token: TLifiToken;
+		chainId: number;
+		amountUSD: string;
+		value: string;
+		timestamp: number;
+	};
+	receiving: {
+		txHash: string;
+		txLink: string;
+		amount: string;
+		token: TLifiToken;
+		chainId: number;
+		amountUSD: string;
+		value: string;
+		timestamp: number;
+	};
+	fromAddress: string;
+	toAddress: string;
+	tool: string;
+	substatus: string;
 	status: 'NOT_FOUND' | 'INVALID' | 'PENDING' | 'DONE' | 'FAILED';
 	lifiExplorerLink: string;
 	substatusMessage: string;

@@ -49,88 +49,6 @@ type TLastSolverFetchData = {
 	time: number;
 };
 
-const FAKE_TX = {
-	transactionId: '0xb3cb211b4cbd61bd091a470f7fedd11f9fd395d2bb6c3aa130e18ba6bb1a54fa',
-	sending: {
-		txHash: '0xf4648a462354e7d6a673c89bc642bb1534300347594167649cf58f1629aff278',
-		txLink: 'https://optimistic.etherscan.io/tx/0xf4648a462354e7d6a673c89bc642bb1534300347594167649cf58f1629aff278',
-		amount: '5000000000000000',
-		token: {
-			address: '0x0000000000000000000000000000000000000000',
-			chainId: 10,
-			symbol: 'ETH',
-			decimals: 18,
-			name: 'ETH',
-			coinKey: 'ETH',
-			logoURI:
-				'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
-			priceUSD: '2900.65'
-		},
-		chainId: 10,
-		gasPrice: '60740053',
-		gasUsed: '325301',
-		gasToken: {
-			address: '0x0000000000000000000000000000000000000000',
-			chainId: 10,
-			symbol: 'ETH',
-			decimals: 18,
-			name: 'ETH',
-			coinKey: 'ETH',
-			logoURI:
-				'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
-			priceUSD: '2891.9'
-		},
-		gasAmount: '19758799980953',
-		gasAmountUSD: '0.06',
-		amountUSD: '14.50',
-		value: '5000000000000000',
-		timestamp: 1714575143
-	},
-	receiving: {
-		txHash: '0x51ea0cda2c45b41a15354b211507ec1f6f51a415d9e4c79d04fdc3fee0d63693',
-		txLink: 'https://polygonscan.com/tx/0x51ea0cda2c45b41a15354b211507ec1f6f51a415d9e4c79d04fdc3fee0d63693',
-		amount: '14361426',
-		token: {
-			address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
-			chainId: 137,
-			symbol: 'USDC',
-			decimals: 6,
-			name: 'USD Coin',
-			coinKey: 'USDC',
-			logoURI: 'https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png',
-			priceUSD: '1.0005643671358295'
-		},
-		chainId: 137,
-		gasPrice: '81693741516',
-		gasUsed: '144880',
-		gasToken: {
-			address: '0x0000000000000000000000000000000000000000',
-			chainId: 137,
-			symbol: 'MATIC',
-			decimals: 18,
-			name: 'MATIC',
-			coinKey: 'MATIC',
-			logoURI: 'https://static.debank.com/image/matic_token/logo_url/matic/6f5a6b6f0732a7a235131bd7804d357c.png',
-			priceUSD: '0.669547'
-		},
-		gasAmount: '11835789270838080',
-		gasAmountUSD: '0.01',
-		amountUSD: '14.37',
-		value: '0',
-		timestamp: 1714576208
-	},
-	lifiExplorerLink: 'https://explorer.li.fi/tx/0xf4648a462354e7d6a673c89bc642bb1534300347594167649cf58f1629aff278',
-	fromAddress: '0x9e63b020ae098e73cf201ee1357edc72dfeaa518',
-	toAddress: '0x9e63b020ae098e73cf201ee1357edc72dfeaa518',
-	tool: 'allbridge',
-	status: 'DONE',
-	substatus: 'COMPLETED',
-	substatusMessage: 'The transfer is complete.',
-	metadata: {
-		integrator: 'lifi-api'
-	}
-};
-
 export function getNewInputToken(): TTokenAmountInputElement {
 	return {
 		amount: '',
@@ -473,7 +391,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	 ** Once this is done, it will refresh the balances of the input and output tokens.
 	 *********************************************************************************************/
 	const performSolverSwap = useCallback(
-		async (statusHandler: Dispatch<SetStateAction<TTxStatus>>): Promise<boolean> => {
+		async (statusHandler: Dispatch<SetStateAction<TTxStatus & {data?: TLifiStatusResponse}>>): Promise<boolean> => {
 			if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
 				return false;
 			}
@@ -537,7 +455,6 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					const durationInSeconds = currentTxRequest?.estimate.executionDuration || 0;
 					const durationInMs = durationInSeconds * 1000;
 					const expectedEnd = new Date(Date.now() + durationInMs).toLocaleTimeString();
-					// const timeStart = Date.now();
 					const toastID = toast.custom(
 						t => (
 							<ProgressToasts
@@ -579,8 +496,8 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 							t => (
 								<ProgressToasts
 									t={t}
-									sendingTokenSymbol={FAKE_TX.sending.token.symbol}
-									receivingTokenSymbol={FAKE_TX.receiving.token.symbol}
+									sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
+									receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
 									expectedEnd={expectedEnd}
 									isCompleted={true}
 									animationDuration={1000}
@@ -589,7 +506,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 							),
 							{position: 'bottom-right', duration: Infinity, id: toastID}
 						);
-						statusHandler({...defaultTxStatus, success: true});
+						statusHandler({...defaultTxStatus, success: true, data: result});
 						await new Promise(resolve => setTimeout(resolve, 1000));
 						toast.dismiss(toastID);
 					} else {
@@ -600,6 +517,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				}
 				await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
 				statusHandler({...defaultTxStatus, success: true});
+
 				return true;
 			} catch (error) {
 				console.warn(error);
