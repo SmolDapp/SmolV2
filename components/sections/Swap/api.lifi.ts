@@ -100,6 +100,8 @@ export async function getLifiRoutes(params: {
 
 export type TLifiStatusResponse = {
 	status: 'NOT_FOUND' | 'INVALID' | 'PENDING' | 'DONE' | 'FAILED';
+	lifiExplorerLink: string;
+	substatusMessage: string;
 };
 export async function getLifiStatus(params: {
 	fromChainID: number;
