@@ -55,7 +55,7 @@ export function SmolTokenButton(props: {
 			)}
 			disabled={props.isDisabled}>
 			<div className={'flex w-full items-center justify-between'}>
-				<div className={'flex items-center gap-2'}>
+				<div className={'flex w-full items-start justify-between gap-2'}>
 					{props.token && isAddress(props.token.address) ? (
 						<ImageWithFallback
 							alt={props.token.symbol}
@@ -75,10 +75,10 @@ export function SmolTokenButton(props: {
 						</div>
 					)}
 
-					<div className={'text-left'}>
+					<div className={'w-full max-w-[400px] text-left'}>
 						<p
 							className={cl(
-								'truncate',
+								'whitespace-normal',
 								isAddress(props.token?.address) ? 'font-bold' : 'text-neutral-600 text-sm font-normal'
 							)}>
 							{props.token?.symbol || 'Select token'}
@@ -87,14 +87,14 @@ export function SmolTokenButton(props: {
 							<p className={'text-xs text-neutral-600'}>{truncateHex(props.token.address, 5)}</p>
 						)}
 					</div>
-				</div>
-				{props.token && (
-					<div className={'text-right'}>
-						<b className={'text-left text-base'}>{tokenBalance}</b>
+					{props.token && (
+						<div className={'h-full text-right'}>
+							<b className={'text-left text-base'}>{tokenBalance}</b>
 
-						<p className={'text-xs text-neutral-600'}>&nbsp;{balanceValue}</p>
-					</div>
-				)}
+							<p className={'text-xs text-neutral-600'}>&nbsp;{balanceValue}</p>
+						</div>
+					)}
+				</div>
 			</div>
 			{props.displayChevron && <IconChevron className={'size-4 min-w-4 text-neutral-600'} />}
 		</button>
