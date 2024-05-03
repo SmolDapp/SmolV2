@@ -1,10 +1,10 @@
 import React, {useCallback, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {ErrorModal} from 'packages/lib/common/ErrorModal';
-import {SuccessModal} from 'packages/lib/common/SuccessModal';
-import {Button} from 'packages/lib/primitives/Button';
-import {notifySend} from 'packages/lib/utils/notifier';
-import {getTransferTransaction} from 'packages/lib/utils/tools.gnosis';
+import {ErrorModal} from 'lib/common/ErrorModal';
+import {SuccessModal} from 'lib/common/SuccessModal';
+import {Button} from 'lib/primitives/Button';
+import {notifySend} from 'lib/utils/notifier';
+import {getTransferTransaction} from 'lib/utils/tools.gnosis';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -20,7 +20,7 @@ import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/cons
 import {useSendFlow} from './useSendFlow';
 
 import type {TTokenAmountInputElement} from 'lib/types/Inputs';
-import type {TModify} from 'packages/lib/utils/types/types';
+import type {TModify} from 'lib/utils/types/types';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';

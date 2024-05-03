@@ -1,5 +1,5 @@
 import {Fragment, useState} from 'react';
-import {IconHamburger} from 'packages/lib/icons/IconHamburger';
+import {IconHamburger} from 'lib/icons/IconHamburger';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isAddress} from '@builtbymom/web3/utils';
 import {NetworkPopoverSelector} from '@designSystem/NetworkSelector/Popover';

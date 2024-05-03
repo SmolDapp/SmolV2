@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {TextTruncate} from 'lib/common/TextTruncate';
-import {handleLowAmount} from 'packages/lib/utils/helpers';
+import {handleLowAmount} from 'lib/utils/helpers';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';

@@ -2,8 +2,8 @@
 
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import assert from 'assert';
-import {slugify} from 'packages/lib/utils/helpers';
-import {supportedNetworks} from 'packages/lib/utils/tools.chains';
+import {slugify} from 'lib/utils/helpers';
+import {supportedNetworks} from 'lib/utils/tools.chains';
 import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';

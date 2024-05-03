@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {TextTruncate} from 'lib/common/TextTruncate';
-import {IconAppAddressBook} from 'packages/lib/icons/IconApps';
-import {IconChevron} from 'packages/lib/icons/IconChevron';
-import {IconCircleCheck} from 'packages/lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'packages/lib/icons/IconCircleCross';
-import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
-import {checkENSValidity} from 'packages/lib/utils/tools.ens';
+import {IconAppAddressBook} from 'lib/icons/IconApps';
+import {IconChevron} from 'lib/icons/IconChevron';
+import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
+import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {defaultInputAddressLike} from 'lib/utils/tools.address';
+import {checkENSValidity} from 'lib/utils/tools.ens';
 import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
@@ -16,7 +16,7 @@ import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
 import {AvatarWrapper} from './Avatar';
 
-import type {TInputAddressLike} from 'packages/lib/utils/tools.address';
+import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 
 type TAddressInput = {

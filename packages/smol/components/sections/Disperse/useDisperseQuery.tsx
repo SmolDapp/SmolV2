@@ -1,8 +1,8 @@
 import {createContext, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {isString} from 'packages/lib/utils/types/typeGuards';
-import {getStateFromUrlQuery} from 'packages/lib/utils/url/getStateFromUrlQuery';
+import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
+import {isString} from 'lib/utils/types/typeGuards';
+import {getStateFromUrlQuery} from 'lib/utils/url/getStateFromUrlQuery';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
@@ -13,7 +13,7 @@ import {useUpdateEffect} from '@react-hookz/web';
 
 import {newVoidRow, useDisperse} from './useDisperse';
 
-import type {TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
+import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput, TDisperseQuery} from './useDisperse';

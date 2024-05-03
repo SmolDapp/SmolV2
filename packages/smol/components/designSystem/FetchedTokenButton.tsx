@@ -1,5 +1,5 @@
 import {type ReactElement} from 'react';
-import {Warning} from 'packages/lib/common/Warning';
+import {Warning} from 'lib/common/Warning';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';

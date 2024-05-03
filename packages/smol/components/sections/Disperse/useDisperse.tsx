@@ -1,11 +1,11 @@
 import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
-import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
+import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
+import {defaultInputAddressLike} from 'lib/utils/tools.address';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 
-import type {TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import type {TInputAddressLike} from 'packages/lib/utils/tools.address';
-import type {TPartialExhaustive} from 'packages/lib/utils/types/types';
+import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
+import type {TInputAddressLike} from 'lib/utils/tools.address';
+import type {TPartialExhaustive} from 'lib/utils/types/types';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAmountInputElement} from '@designSystem/SmolAmountInput';

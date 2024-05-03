@@ -2,8 +2,8 @@
 
 import React, {Fragment, useEffect, useMemo, useState} from 'react';
 import {Button} from 'lib/primitives/Button';
-import {CurtainContent} from 'packages/lib/primitives/Curtain';
-import {TextInput} from 'packages/lib/primitives/TextInput';
+import {CurtainContent} from 'lib/primitives/Curtain';
+import {TextInput} from 'lib/primitives/TextInput';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';

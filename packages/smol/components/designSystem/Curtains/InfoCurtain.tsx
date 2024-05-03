@@ -2,7 +2,7 @@ import {Fragment, type ReactElement, type ReactNode} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {IconCross} from 'lib/icons/IconCross';
-import {CurtainContent} from 'packages/lib/primitives/Curtain';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {useIsMounted} from '@hooks/useIsMounted';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useMountEffect} from '@react-hookz/web';

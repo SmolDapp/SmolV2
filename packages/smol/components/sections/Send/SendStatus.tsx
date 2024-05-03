@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
-import {Warning} from 'packages/lib/common/Warning';
-import {getIsSmartContract} from 'packages/lib/utils/tools.address';
-import {supportedNetworks} from 'packages/lib/utils/tools.chains';
+import {Warning} from 'lib/common/Warning';
+import {getIsSmartContract} from 'lib/utils/tools.address';
+import {supportedNetworks} from 'lib/utils/tools.chains';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
@@ -9,7 +9,7 @@ import {useAddressBook} from '@contexts/useAddressBook';
 
 import {useSendFlow} from './useSendFlow';
 
-import type {TWarningType} from 'packages/lib/common/Warning';
+import type {TWarningType} from 'lib/common/Warning';
 import type {ReactElement, ReactNode} from 'react';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {

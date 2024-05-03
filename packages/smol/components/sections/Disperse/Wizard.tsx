@@ -1,12 +1,12 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {ErrorModal} from 'lib/common/ErrorModal';
+import {SuccessModal} from 'lib/common/SuccessModal';
 import {Button} from 'lib/primitives/Button';
-import {ErrorModal} from 'packages/lib/common/ErrorModal';
-import {SuccessModal} from 'packages/lib/common/SuccessModal';
-import {disperseERC20, disperseETH} from 'packages/lib/utils/actions';
-import {DISPERSE_CONTRACT_PER_CHAIN} from 'packages/lib/utils/constants';
-import {notifyDisperse} from 'packages/lib/utils/notifier';
-import {getTransferTransaction} from 'packages/lib/utils/tools.gnosis';
+import {disperseERC20, disperseETH} from 'lib/utils/actions';
+import {DISPERSE_CONTRACT_PER_CHAIN} from 'lib/utils/constants';
+import {notifyDisperse} from 'lib/utils/notifier';
+import {getTransferTransaction} from 'lib/utils/tools.gnosis';
 import {type BaseError, erc20Abi, type Hex} from 'viem';
 import {useReadContract} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';

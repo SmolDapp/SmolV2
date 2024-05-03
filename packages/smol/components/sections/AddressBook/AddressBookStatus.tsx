@@ -1,9 +1,9 @@
 import {type ReactElement, useMemo} from 'react';
-import {Warning} from 'packages/lib/common/Warning';
+import {Warning} from 'lib/common/Warning';
 import {useAddressBook} from '@contexts/useAddressBook';
 
+import type {TWarningType} from 'lib/common/Warning';
 import type {TInputAddressLike} from 'lib/utils/tools.address';
-import type {TWarningType} from 'packages/lib/common/Warning';
 
 export const AddressBookStatus = ({
 	set_isFormValid,

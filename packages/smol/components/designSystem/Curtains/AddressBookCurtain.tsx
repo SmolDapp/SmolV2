@@ -3,12 +3,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
+import {IconEdit} from 'lib/icons/IconEdit';
+import {IconGears} from 'lib/icons/IconGears';
+import {IconHeart, IconHeartFilled} from 'lib/icons/IconHeart';
+import {IconTrash} from 'lib/icons/IconTrash';
 import {Button} from 'lib/primitives/Button';
 import {CurtainContent} from 'lib/primitives/Curtain';
-import {IconEdit} from 'packages/lib/icons/IconEdit';
-import {IconGears} from 'packages/lib/icons/IconGears';
-import {IconHeart, IconHeartFilled} from 'packages/lib/icons/IconHeart';
-import {IconTrash} from 'packages/lib/icons/IconTrash';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';

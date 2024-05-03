@@ -1,8 +1,8 @@
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {IconFile} from 'lib/icons/IconFile';
+import {IconImport} from 'lib/icons/IconImport';
 import {Button} from 'lib/primitives/Button';
-import {IconFile} from 'packages/lib/icons/IconFile';
-import {IconImport} from 'packages/lib/icons/IconImport';
 import Papa from 'papaparse';
 import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';

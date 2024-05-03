@@ -1,6 +1,6 @@
 import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {IconChevron} from 'packages/lib/icons/IconChevron';
-import {IconWallet} from 'packages/lib/icons/IconWallet';
+import {IconChevron} from 'lib/icons/IconChevron';
+import {IconWallet} from 'lib/icons/IconWallet';
 import {cl, isAddress} from '@builtbymom/web3/utils';
 import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
 
