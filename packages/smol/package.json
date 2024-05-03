@@ -1,0 +1,14 @@
+{
+	"name": "smol",
+	"version": "1.0.0",
+	"homepage": "./",
+	"scripts": {
+		"dev": "next",
+		"dev:ts": "tsc --watch",
+		"start": "tsc && next build && next start",
+		"build": "tsc && next build",
+		"prepare": "husky install",
+		"export": "tsc && next build && next export -o ipfs",
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+	}
+}
