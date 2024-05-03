@@ -1,28 +1,28 @@
 import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {NetworkInputSelector} from 'components/designSystem/NetworkSelector/Input';
-import {SmolAddressInput} from 'components/designSystem/SmolAddressInput';
-import {SmolTokenAmountInput, useValidateAmountInput} from 'components/designSystem/SmolTokenAmountInput';
-import {SmolTokenSelectorButton} from 'components/designSystem/SmolTokenSelectorButton';
+import {TextTruncate} from 'packages/lib/common/TextTruncate';
+import {IconChevronBoth} from 'packages/lib/icons/IconChevronBoth';
+import {IconChevronBottom} from 'packages/lib/icons/IconChevronBottom';
+import {IconCircleCheck} from 'packages/lib/icons/IconCircleCheck';
+import {IconCircleCross} from 'packages/lib/icons/IconCircleCross';
+import {IconGears} from 'packages/lib/icons/IconGears';
+import {IconSpinner} from 'packages/lib/icons/IconSpinner';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue} from '@builtbymom/web3/utils';
-import {IconChevronBoth} from '@icons/IconChevronBoth';
-import {IconChevronBottom} from '@icons/IconChevronBottom';
-import {IconCircleCheck} from '@icons/IconCircleCheck';
-import {IconCircleCross} from '@icons/IconCircleCross';
-import {IconGears} from '@icons/IconGears';
-import {IconSpinner} from '@icons/IconSpinner';
+import {NetworkInputSelector} from '@designSystem/NetworkSelector/Input';
+import {SmolAddressInput} from '@designSystem/SmolAddressInput';
+import {SmolTokenAmountInput, useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
+import {SmolTokenSelectorButton} from '@designSystem/SmolTokenSelectorButton';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {TextTruncate} from '@common/TextTruncate';
 
 import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
 import {SendWizard} from './Wizard';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
-import type {TInputAddressLike} from '@utils/tools.address';
+import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
+import type {TInputAddressLike} from 'packages/lib/utils/tools.address';
 
 function FakeOutputTokenRow(props: {
 	value: TTokenAmountInputElement;
@@ -112,10 +112,10 @@ function SwapTokenRow(props: {
 			return <IconSpinner className={'size-4'} />;
 		}
 		if (props.input.status === 'success') {
-			return <IconCircleCheck className={'size-4 text-green'} />;
+			return <IconCircleCheck className={'text-green size-4'} />;
 		}
 		if (props.input.status === 'error') {
-			return <IconCircleCross className={'size-4 text-red'} />;
+			return <IconCircleCross className={'text-red size-4'} />;
 		}
 		return null;
 	};
@@ -170,7 +170,7 @@ export function Swap(): ReactElement {
 					<p className={'font-medium'}>{'Your swap'}</p>
 					<button
 						className={
-							'group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
+							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
 						}
 						onClick={openSettingsCurtain}>
 						<IconGears className={'size-4 transition-colors group-hover:text-white'} />
@@ -207,7 +207,7 @@ export function Swap(): ReactElement {
 						<button
 							onClick={swapChains}
 							className={
-								'group rounded-lg border border-neutral-400 bg-neutral-0 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
+								'bg-neutral-0 hover:bg-primaryHover group rounded-lg border border-neutral-400 p-2 text-neutral-600 transition-all hover:scale-110'
 							}>
 							<IconChevronBoth className={'size-6 transition-colors group-hover:text-white'} />
 						</button>

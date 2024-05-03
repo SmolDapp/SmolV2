@@ -1,15 +1,15 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
-import {CloseCurtainButton} from 'components/designSystem/Curtains/InfoCurtain';
-import {CurtainContent} from 'components/Primitives/Curtain';
+import {CurtainContent} from 'packages/lib/primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
+import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
+import type {TSwapConfiguration} from 'packages/lib/utils/types/app.swap';
 import type {ReactElement} from 'react';
-import type {TSwapConfiguration} from '@utils/types/app.swap';
 
 /**************************************************************************************************
  ** The TSwapCurtain type is used to type the props of the SwapCurtain component.
@@ -34,7 +34,7 @@ function RatioOption(props: {label: string; details: string; value: TSwapConfigu
 					value={props.label}
 					type={'radio'}
 					className={
-						'mt-0.5 size-4 !border border-neutral-400 text-primary !outline-none !ring-0 !ring-transparent !ring-offset-0'
+						'text-primary mt-0.5 size-4 !border border-neutral-400 !outline-none !ring-0 !ring-transparent !ring-offset-0'
 					}
 					name={'swapPreference'}
 				/>
@@ -72,7 +72,7 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<h3 className={'font-bold'}>{'Swap settings'}</h3>
 						<CloseCurtainButton />

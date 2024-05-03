@@ -1,7 +1,7 @@
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
+import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
 import type {Dispatch, SetStateAction} from 'react';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
-import type {TInputAddressLike} from '@utils/tools.address';
+import type {TInputAddressLike} from '../tools.address';
 
 /**********************************************************************************************
  ** TSwapConfiguration contains all the necessary information to perform a swap operation.

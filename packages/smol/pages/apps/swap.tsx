@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {SendQueryManagement} from 'components/sections/Send/useSendQuery';
-import {Swap} from 'components/sections/Swap';
-import {SwapContextApp} from 'components/sections/Swap/useSwapFlow.lifi';
-import {BalancesCurtainContextApp} from 'contexts/useBalancesCurtain';
+import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
+import {SendQueryManagement} from '@sections/Send/useSendQuery';
+import {Swap} from '@sections/Swap';
+import {SwapContextApp} from '@sections/Swap/useSwapFlow.lifi';
 
 import type {ReactElement} from 'react';
 

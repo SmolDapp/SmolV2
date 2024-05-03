@@ -1,5 +1,8 @@
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import toast from 'react-hot-toast';
+import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
+import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
+import {createUniqueID} from 'packages/lib/utils/tools.identifiers';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -21,23 +24,19 @@ import {
 	retrieveConfig,
 	toWagmiProvider
 } from '@builtbymom/web3/utils/wagmi';
-import {optionalRenderProps} from '@utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from '@utils/tools.address';
-import {createUniqueID} from '@utils/tools.identifiers';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 
 import {getLifiRoutes, getLifiStatus} from './api.lifi';
 import {ProgressToasts} from './ProgressToast';
 import {SwapCurtain} from './SettingsCurtain';
 
-import type {TTokenAmountInputElement} from 'components/designSystem/SmolTokenAmountInput';
+import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
+import type {TSwapActions, TSwapConfiguration, TSwapContext} from 'packages/lib/utils/types/app.swap';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
 import type {TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
-import type {TOptionalRenderProps} from '@utils/react/optionalRenderProps';
-import type {TSwapActions, TSwapConfiguration, TSwapContext} from '@utils/types/app.swap';
 import type {TLifiQuoteResponse, TLifiStatusResponse} from './api.lifi';
 
 type TLastSolverFetchData = {
