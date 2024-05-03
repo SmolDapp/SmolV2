@@ -7,8 +7,6 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {SelectContent, SelectItem, SelectTrigger} from '@lib/primitives/Select';
 
-import {IconChevronBottom} from '../icons/IconChevronBottom';
-
 export type TCalendarProps = React.ComponentProps<typeof DayPicker>;
 
 export function Calendar({

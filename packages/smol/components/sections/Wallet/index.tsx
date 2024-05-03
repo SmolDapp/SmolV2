@@ -1,7 +1,6 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {IconWallet} from 'lib/icons/IconWallet';
-import {IconLoader} from 'packages/lib/icons/IconLoader';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
