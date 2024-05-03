@@ -40,13 +40,15 @@ export const DisperseQueryManagement = ({
 	const {initialStateFromUrl, stateFromUrl, hasInitialInputs} = useDisperseQuery();
 	const {configuration} = useDisperse();
 
+	const limitedInputs = configuration.inputs.slice(0, 9);
+
 	/**
 	 * Update the url query on every change in the UI
 	 */
 	useSyncUrlParams({
 		token: configuration.tokenToSend?.address,
-		addresses: configuration.inputs.map(input => input.receiver.address).filter(isString),
-		values: configuration.inputs
+		addresses: limitedInputs.map(input => input.receiver.address).filter(isString),
+		values: limitedInputs
 			.map(input => (input.value.amount === '' ? undefined : input.value.normalizedBigAmount?.raw.toString()))
 			.filter(isString)
 	});
