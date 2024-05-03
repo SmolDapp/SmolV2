@@ -1,6 +1,7 @@
 'use client';
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import {IconLoader} from 'lib/icons/IconLoader';
 import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -14,7 +15,6 @@ import {SmolTokenButton} from '@designSystem/SmolTokenButton';
 import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
 import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';

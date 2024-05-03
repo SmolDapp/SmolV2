@@ -1,9 +1,9 @@
 import {Fragment, type ReactElement, useState} from 'react';
 import Image from 'next/image';
+import {QRModal} from 'packages/lib/common/QRModal';
+import {IconQRCode} from 'packages/lib/icons/IconQRCode';
 import QRCode from 'qrcode';
 import {useAccount} from 'wagmi';
-import {IconQRCode} from 'packages/lib/icons/IconQRCode';
-import {QRModal} from 'packages/lib/common/QRModal';
 
 export const QRCodeElement = (): ReactElement | null => {
 	const [qrcode, set_qrcode] = useState<string>('');

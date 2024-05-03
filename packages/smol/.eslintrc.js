@@ -190,7 +190,6 @@ module.exports = {
 								'^framer-motion',
 								'^nprogress',
 								'^@?\\w',
-								'^(@yearn-finance/.*)?\\w',
 								'^(@common/.*)?\\w',
 								'^(@y.*)?\\w'
 							],
@@ -206,7 +205,6 @@ module.exports = {
 							//Types imports.
 							[
 								'^node:.*\\u0000$',
-								'^(@yearn-finance)?\\w.*\\u0000$',
 								'^(@common)?\\w.*\\u0000$',
 								'^(@y.*)?\\w.*\\u0000$',
 								'^@?\\w.*\\u0000$',

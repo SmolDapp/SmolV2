@@ -49,7 +49,6 @@ module.exports = phase =>
 			},
 			ALCHEMY_KEY: process.env.ALCHEMY_KEY,
 			INFURA_KEY: process.env.INFURA_KEY,
-			RPC_URL_OPTIMISM_YEARN: process.env.RPC_URL_OPTIMISM_YEARN,
 			WALLETCONNECT_PROJECT_ID: process.env.WALLETCONNECT_PROJECT_ID,
 			SMOL_ASSETS_URL: 'https://assets.smold.app/api'
 		}
