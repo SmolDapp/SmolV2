@@ -42,9 +42,9 @@ export const DisperseQueryManagement = ({
 
 	const limitedInputs = configuration.inputs.slice(0, 9);
 
-	/**
+	/**********************************************************************************************
 	 * Update the url query on every change in the UI
-	 */
+	 *********************************************************************************************/
 	useSyncUrlParams({
 		token: configuration.tokenToSend?.address,
 		addresses: limitedInputs.map(input => input.receiver.address).filter(isString),
