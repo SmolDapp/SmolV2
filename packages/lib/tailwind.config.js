@@ -3,9 +3,6 @@ const plugin = require('tailwindcss/plugin');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-<<<<<<< Updated upstream
-	content: ['./**/*.{js,ts,jsx,tsx}'],
-=======
 	content: [
 		'../smol/components/**/*.{js,ts,jsx,tsx}',
 		'../smol/contexts/**/*.{js,ts,jsx,tsx}',
@@ -20,7 +17,6 @@ module.exports = {
 		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'icons', '**', '*.{js,ts,jsx,tsx}'),
 		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'utils', '**', '*.{js,ts,jsx,tsx}')
 	],
->>>>>>> Stashed changes
 	theme: {
 		colors: {
 			black: 'hsl(0, 0%, 0%)',
