@@ -2,15 +2,13 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import dayjs, {extend} from 'dayjs';
 import dayjsDuration from 'dayjs/plugin/duration.js';
 
-import type {TMilliseconds, TSeconds} from '@yearn-finance/web-lib/utils/time';
-
 extend(dayjsDuration);
 
 type TProps = {
-	endTime?: TSeconds;
+	endTime?: number;
 };
 
-export function computeTimeLeft({endTime}: {endTime?: TSeconds}): number {
+export function computeTimeLeft({endTime}: {endTime?: number}): number {
 	if (!endTime) {
 		return 0;
 	}
@@ -24,7 +22,7 @@ export function computeTimeLeft({endTime}: {endTime?: TSeconds}): number {
 function useTimer({endTime}: TProps): string {
 	const interval = useRef<Timer | null>(null);
 	const timeLeft = computeTimeLeft({endTime});
-	const [time, set_time] = useState<TMilliseconds>(timeLeft);
+	const [time, set_time] = useState<number>(timeLeft);
 
 	useEffect((): VoidFunction => {
 		interval.current = setInterval((): void => {

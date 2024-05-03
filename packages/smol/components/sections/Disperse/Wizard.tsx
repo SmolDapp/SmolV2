@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
+import toast from 'react-hot-toast';
 import {usePlausible} from 'next-plausible';
 import {ErrorModal} from 'lib/common/ErrorModal';
 import {SuccessModal} from 'lib/common/SuccessModal';
@@ -13,20 +14,20 @@ import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {
+	ETH_TOKEN_ADDRESS,
 	formatAmount,
 	isZeroAddress,
 	slugify,
 	toAddress,
 	toBigInt,
 	toNormalizedValue,
-	truncateHex
+	truncateHex,
+	ZERO_ADDRESS
 } from '@builtbymom/web3/utils';
 import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {toast} from '@yearn-finance/web-lib/components/yToast';
-import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
@@ -216,10 +217,7 @@ const useConfirmDisperse = ({
 		}
 		try {
 			sdk.txs.send({txs: transactions}).then(({safeTxHash}) => {
-				toast({
-					type: 'success',
-					content: 'Your transaction has been created! You can now sign and execute it!'
-				});
+				toast.success('Your transaction has been created! You can now sign and execute it!');
 				notifyDisperse({
 					chainID: safeChainID,
 					tokenToDisperse: configuration.tokenToSend,
@@ -232,10 +230,7 @@ const useConfirmDisperse = ({
 				onSuccess();
 			});
 		} catch (error) {
-			toast({
-				type: 'error',
-				content: (error as BaseError)?.message || 'An error occured while creating your transaction!'
-			});
+			toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			onError();
 		}
 	}, [configuration.inputs, configuration.tokenToSend, sdk.txs, safeChainID, address, onSuccess, onError]);
