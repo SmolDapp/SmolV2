@@ -1,7 +1,6 @@
 import {createContext, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
 import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {isString} from 'lib/utils/types/typeGuards';
 import {getStateFromUrlQuery} from 'lib/utils/url/getStateFromUrlQuery';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -32,25 +31,17 @@ const defaultProps = {
 
 const DisperseQueryManagementContext = createContext<TDisperseQueryManagement>(defaultProps);
 
-export const DisperseQueryManagement = ({
-	children
-}: {
+export const DisperseQueryManagement = (props: {
 	children: TOptionalRenderProps<TDisperseQueryManagement, ReactElement>;
 }): ReactElement => {
 	const {initialStateFromUrl, stateFromUrl, hasInitialInputs} = useDisperseQuery();
 	const {configuration} = useDisperse();
 
-	const limitedInputs = configuration.inputs.slice(0, 9);
-
 	/**********************************************************************************************
 	 * Update the url query on every change in the UI
 	 *********************************************************************************************/
 	useSyncUrlParams({
-		token: configuration.tokenToSend?.address,
-		addresses: limitedInputs.map(input => input.receiver.address).filter(isString),
-		values: limitedInputs
-			.map(input => (input.value.amount === '' ? undefined : input.value.normalizedBigAmount?.raw.toString()))
-			.filter(isString)
+		token: configuration.tokenToSend?.address
 	});
 
 	const contextValue = useMemo(
@@ -64,7 +55,7 @@ export const DisperseQueryManagement = ({
 
 	return (
 		<DisperseQueryManagementContext.Provider value={contextValue}>
-			{optionalRenderProps(children, contextValue)}
+			{optionalRenderProps(props.children, contextValue)}
 		</DisperseQueryManagementContext.Provider>
 	);
 };

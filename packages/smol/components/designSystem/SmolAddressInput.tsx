@@ -59,7 +59,7 @@ export function useValidateAddressInput(): {
 		/**********************************************************
 		 ** Check if the input is an ENS name
 		 **********************************************************/
-		if (input.endsWith('.eth') && input.length > 4) {
+		if (input && input.endsWith('.eth') && input.length > 4) {
 			set_isCheckingValidity(true);
 			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
 			const [address, isValid] = await checkENSValidity(input);
