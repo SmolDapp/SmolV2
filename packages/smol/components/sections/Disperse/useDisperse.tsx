@@ -1,8 +1,11 @@
 import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
-import {defaultInputAddressLike, optionalRenderProps} from 'lib/utils';
+import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
+import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 
-import type {TInputAddressLike, TOptionalRenderProps, TPartialExhaustive} from 'lib/utils';
+import type {TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
+import type {TInputAddressLike} from 'packages/lib/utils/tools.address';
+import type {TPartialExhaustive} from 'packages/lib/utils/types/types';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAmountInputElement} from '@designSystem/SmolAmountInput';
@@ -121,9 +124,7 @@ const configurationReducer = (state: TDisperseConfiguration, action: TDisperseAc
 };
 
 const DisperseContext = createContext<TDisperse>(defaultProps);
-export const DisperseContextApp = ({
-	children
-}: {
+export const DisperseContextApp = (props: {
 	children: TOptionalRenderProps<TDisperse, ReactElement>;
 }): React.ReactElement => {
 	const [isDispersed, set_isDispersed] = useState<boolean>(false);
@@ -149,7 +150,7 @@ export const DisperseContextApp = ({
 
 	return (
 		<DisperseContext.Provider value={contextValue}>
-			{optionalRenderProps(children, contextValue)}
+			{optionalRenderProps(props.children, contextValue)}
 		</DisperseContext.Provider>
 	);
 };

@@ -1,5 +1,5 @@
 import {type InputHTMLAttributes, type ReactElement, type RefObject, useCallback, useState} from 'react';
-import {TextTruncate} from 'lib/common';
+import {TextTruncate} from 'lib/common/TextTruncate';
 import {cl} from '@builtbymom/web3/utils';
 
 type TSmolNameInputProps = {

@@ -1,9 +1,9 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
-import {ImageWithFallback} from 'lib/common';
-import {IconChevron} from 'lib/icons';
-import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives';
-import {supportedNetworks} from 'lib/utils';
+import {ImageWithFallback} from 'lib/common/ImageWithFallback';
+import {IconChevron} from 'lib/icons/IconChevron';
+import {Command, CommandEmpty, CommandInput, CommandItem} from 'packages/lib/primitives/Commands';
+import {supportedNetworks} from 'packages/lib/utils/tools.chains';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';

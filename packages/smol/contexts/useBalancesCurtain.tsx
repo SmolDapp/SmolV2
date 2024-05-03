@@ -1,7 +1,7 @@
 'use client';
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {CurtainContent} from 'lib/primitives';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -16,7 +16,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
-import type {TPrice} from 'lib/utils';
+import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
 import type {
 	TBalancesCurtain,

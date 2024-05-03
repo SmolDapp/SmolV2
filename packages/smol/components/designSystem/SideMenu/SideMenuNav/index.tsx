@@ -1,8 +1,15 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {LinkOrDiv} from 'lib/common';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream, IconWallet} from 'lib/icons';
+import {IconWallet} from 'lib/icons/IconWallet';
+import {LinkOrDiv} from 'packages/lib/common/LinkOrDiv';
+import {
+	IconAppAddressBook,
+	IconAppDisperse,
+	IconAppEarn,
+	IconAppSend,
+	IconAppStream
+} from 'packages/lib/icons/IconApps';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@hooks/useIsMounted';

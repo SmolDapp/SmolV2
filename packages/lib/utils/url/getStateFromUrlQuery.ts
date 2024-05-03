@@ -1,4 +1,4 @@
-import {getParamFromUrlQuery} from './getParamFromUrlQuery';
+import {getParamFromUrlQuery} from 'lib/utils/url/getParamFromUrlQuery';
 
 import type {ParsedUrlQuery} from 'querystring';
 

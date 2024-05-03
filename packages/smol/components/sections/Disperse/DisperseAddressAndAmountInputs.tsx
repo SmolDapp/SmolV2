@@ -1,13 +1,13 @@
 import {type ReactElement, useRef} from 'react';
-import {IconCross} from 'lib/icons';
+import {IconCross} from 'packages/lib/icons/IconCross';
+import {SmolAddressInput} from '@designSystem/SmolAddressInput';
+import {SmolAmountInput} from '@designSystem/SmolAmountInput';
 
-import {SmolAddressInput} from '../../designSystem/SmolAddressInput';
-import {SmolAmountInput} from '../../designSystem/SmolAmountInput';
 import {useDisperse} from './useDisperse';
 
-import type {TInputAddressLike} from 'lib/utils';
+import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TAmountInputElement} from '../../designSystem/SmolAmountInput';
+import type {TAmountInputElement} from '@designSystem/SmolAmountInput';
 import type {TDisperseInput} from './useDisperse';
 
 type TDisperseAddressAndAmountInputs = {

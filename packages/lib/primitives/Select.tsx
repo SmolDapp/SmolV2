@@ -1,9 +1,11 @@
 'use client';
 
 import {forwardRef} from 'react';
-import {IconChevronBoth, IconCircleCheck} from 'lib/icons';
 import {cl} from '@builtbymom/web3/utils';
 import * as SelectPrimitive from '@radix-ui/react-select';
+
+import {IconChevronBoth} from '../icons/IconChevronBoth';
+import {IconCircleCheck} from '../icons/IconCircleCheck';
 
 export const SelectTrigger = forwardRef<
 	React.ElementRef<typeof SelectPrimitive.Trigger>,

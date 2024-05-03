@@ -1,5 +1,5 @@
 import {type ReactElement} from 'react';
-import {Counter} from 'lib/common';
+import {Counter} from 'packages/lib/common/Counter';
 import {useBalance} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';

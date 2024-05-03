@@ -1,21 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-const {join} = require('path');
 const plugin = require('tailwindcss/plugin');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-	content: [
-		'../smol/components/**/*.{js,ts,jsx,tsx}',
-		'../smol/contexts/**/*.{js,ts,jsx,tsx}',
-		'../smol/hooks/**/*.{js,ts,jsx,tsx}',
-		'../smol/pages/**/*.{js,ts,jsx,tsx}',
-		'../lib/**/*.{js,ts,jsx,tsx}',
-		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'components', '**', '*.{js,ts,jsx,tsx}'),
-		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'contexts', '**', '*.{js,ts,jsx,tsx}'),
-		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'hooks', '**', '*.{js,ts,jsx,tsx}'),
-		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'icons', '**', '*.{js,ts,jsx,tsx}'),
-		join(__dirname, 'node_modules', '@yearn-finance', 'web-lib', 'utils', '**', '*.{js,ts,jsx,tsx}')
-	],
+	content: ['./**/*.{js,ts,jsx,tsx}'],
 	theme: {
 		colors: {
 			black: 'hsl(0, 0%, 0%)',

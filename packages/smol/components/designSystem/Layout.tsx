@@ -1,5 +1,5 @@
 import {type ReactElement, type ReactNode} from 'react';
-import {IconQuestionMark} from 'lib/icons';
+import {IconQuestionMark} from 'lib/icons/IconQuestionMark';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 import {WithAddressBook} from '@contexts/useAddressBook';

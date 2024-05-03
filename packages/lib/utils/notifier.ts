@@ -1,13 +1,12 @@
+import {EIP3770_PREFIX} from 'lib/utils/eip-3770';
 import {zora} from 'wagmi/chains';
 import axios from 'axios';
 import {formatAmount, toNormalizedBN, truncateHex, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 
-import {EIP3770_PREFIX} from './eip-3770';
-
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {Hex} from 'viem';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 
 const safeBaseURIForNetwork = (network: number): string => {
 	if (network === zora.id) {

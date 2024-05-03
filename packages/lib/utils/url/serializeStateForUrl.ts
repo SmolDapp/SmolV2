@@ -1,4 +1,4 @@
-import {isNonNullable} from 'lib/utils';
+import {isNonNullable} from 'lib/utils/types/typeGuards';
 
 /**
  * Converts a state object into a query params string that can be used in an URL.

@@ -1,5 +1,5 @@
 import {type ReactElement, useMemo, useState} from 'react';
-import {IconWallet} from 'lib/icons';
+import {IconWallet} from 'lib/icons/IconWallet';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -12,7 +12,7 @@ import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
-import type {TPrice} from 'lib/utils';
+import type {TPrice} from 'lib/utils/types/types';
 
 function WalletListHeader(): ReactElement {
 	return (

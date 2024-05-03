@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
-import {TextTruncate} from 'lib/common';
-import {handleLowAmount} from 'lib/utils';
+import {TextTruncate} from 'lib/common/TextTruncate';
+import {handleLowAmount} from 'packages/lib/utils/helpers';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
@@ -18,18 +18,9 @@ import {getNewInput} from '@sections/Send/useSendFlow';
 
 import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {ReactElement} from 'react';
-import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
-
-export type TTokenAmountInputElement = {
-	amount: string;
-	normalizedBigAmount: TNormalizedBN;
-	token: TToken | undefined;
-	status: 'pending' | 'success' | 'error' | 'none';
-	isValid: boolean | 'undetermined';
-	error?: string | undefined;
-	UUID: string;
-};
+import type {TToken} from '@builtbymom/web3/types';
 
 export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
 

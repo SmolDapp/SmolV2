@@ -1,6 +1,9 @@
 import {useCallback, useMemo, useState} from 'react';
-import {IconAppAddressBook, IconEmptyAddressBook, IconImport, IconPlus} from 'lib/icons';
-import {TextInput} from 'lib/primitives';
+import {IconAppAddressBook} from 'packages/lib/icons/IconApps';
+import {IconEmptyAddressBook} from 'packages/lib/icons/IconEmptyAddressBook';
+import {IconImport} from 'packages/lib/icons/IconImport';
+import {IconPlus} from 'packages/lib/icons/IconPlus';
+import {TextInput} from 'packages/lib/primitives/TextInput';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';

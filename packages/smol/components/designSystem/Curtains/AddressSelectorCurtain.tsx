@@ -1,7 +1,9 @@
 'use client';
 
 import React, {Fragment, useEffect, useMemo, useState} from 'react';
-import {Button, CurtainContent, TextInput} from 'lib/primitives';
+import {Button} from 'lib/primitives/Button';
+import {CurtainContent} from 'packages/lib/primitives/Curtain';
+import {TextInput} from 'packages/lib/primitives/TextInput';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';

@@ -1,12 +1,11 @@
+import {supportedNetworks} from 'lib/utils/tools.chains';
+import {assertFulfilled} from 'lib/utils/types/assertType';
 import axios from 'axios';
 import {getClient, getNetwork} from '@builtbymom/web3/utils/wagmi';
 
-import {supportedNetworks} from './tools.chains';
-import {assertFulfilled} from './types/assertType';
-
+import type {TAppExtendedChain} from 'lib/utils/tools.chains';
 import type {GetBytecodeReturnType} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAppExtendedChain} from './tools.chains';
 
 export type TInputAddressLike = {
 	address: TAddress | undefined;

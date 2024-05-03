@@ -42,7 +42,7 @@ module.exports = {
 		'react/jsx-curly-brace-presence': ['error', {props: 'always', children: 'always'}],
 		'react/jsx-first-prop-new-line': ['error', 'multiline'],
 		'react/jsx-closing-tag-location': 2,
-		'unused-imports/no-unused-imports': 'error',
+		'unused-imports/no-unused-imports-ts': 'error',
 		'unused-imports/no-unused-vars': [
 			'warn',
 			{

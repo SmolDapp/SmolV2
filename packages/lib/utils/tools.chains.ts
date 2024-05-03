@@ -1,3 +1,4 @@
+import {COINGECKO_GAS_COIN_IDS, SAFE_API_URI} from 'lib/utils/constants';
 import {
 	arbitrum,
 	base,
@@ -16,8 +17,6 @@ import {
 	zora
 } from 'wagmi/chains';
 import {indexedWagmiChains, localhost} from '@builtbymom/web3/utils/wagmi';
-
-import {COINGECKO_GAS_COIN_IDS, SAFE_API_URI} from './constants';
 
 import type {Chain} from 'wagmi/chains';
 import type {TChainContract, TExtendedChain} from '@builtbymom/web3/utils/wagmi';

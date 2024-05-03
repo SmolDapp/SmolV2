@@ -1,8 +1,10 @@
 import React, {useCallback, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {ErrorModal, SuccessModal} from 'lib/common';
-import {Button} from 'lib/primitives';
-import {getTransferTransaction, notifySend} from 'lib/utils';
+import {ErrorModal} from 'packages/lib/common/ErrorModal';
+import {SuccessModal} from 'packages/lib/common/SuccessModal';
+import {Button} from 'packages/lib/primitives/Button';
+import {notifySend} from 'packages/lib/utils/notifier';
+import {getTransferTransaction} from 'packages/lib/utils/tools.gnosis';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -17,12 +19,12 @@ import {ETH_TOKEN_ADDRESS, ZERO_ADDRESS} from '@yearn-finance/web-lib/utils/cons
 
 import {useSendFlow} from './useSendFlow';
 
-import type {TModify} from 'lib/utils';
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
+import type {TModify} from 'packages/lib/utils/types/types';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
 import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 
 type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;

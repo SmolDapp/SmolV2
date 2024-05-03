@@ -1,9 +1,11 @@
 'use client';
 
 import React, {forwardRef} from 'react';
-import {IconCheckbox, IconCheckboxChecked} from 'lib/icons';
 import {cl} from '@builtbymom/web3/utils';
 import {CheckboxItem, Content, Portal, Separator} from '@radix-ui/react-dropdown-menu';
+
+import {IconCheckbox} from '../icons/IconCheckbox';
+import {IconCheckboxChecked} from '../icons/IconCheckboxChecked';
 
 import type {ReactElement, Ref} from 'react';
 import type {

@@ -2,9 +2,9 @@
 
 import React, {useEffect} from 'react';
 import {toast} from 'react-hot-toast';
-import {TextTruncate} from 'lib/common';
-import {IconHeart, IconHeartFilled} from 'lib/icons';
-import {TooltipContent} from 'lib/primitives';
+import {TextTruncate} from 'lib/common/TextTruncate';
+import {IconHeart, IconHeartFilled} from 'lib/icons/IconHeart';
+import {TooltipContent} from 'lib/primitives/Tooltip';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';

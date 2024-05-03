@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react';
-import {handleLowAmount} from 'lib/utils';
+import {handleLowAmount} from 'packages/lib/utils/helpers';
 import InputNumber from 'rc-input-number';
 import {cl, formatCounterValue, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';

@@ -1,5 +1,8 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {IconCircleCheck, IconCircleCross, IconCross, IconSpinner} from 'lib/icons';
+import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
+import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {IconCross} from 'lib/icons/IconCross';
+import {IconSpinner} from 'lib/icons/IconSpinner';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
 import {SmolAddressInput} from '@designSystem/SmolAddressInput';
@@ -10,9 +13,9 @@ import {useSendFlow} from './useSendFlow';
 import {useSendQueryManagement} from './useSendQuery';
 import {SendWizard} from './Wizard';
 
-import type {TInputAddressLike} from 'lib/utils';
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
+import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {ReactElement} from 'react';
-import type {TTokenAmountInputElement} from '@designSystem/SmolTokenAmountInput';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
 	const {configuration, dispatchConfiguration} = useSendFlow();
