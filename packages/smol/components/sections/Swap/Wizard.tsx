@@ -1,8 +1,8 @@
 import React, {useCallback, useState} from 'react';
 import Link from 'next/link';
-import {SuccessModal} from 'packages/lib/common/SuccessModal';
-import {Button} from 'packages/lib/primitives/Button';
-import {truncateHexTx} from 'packages/lib/utils/helpers';
+import {SuccessModal} from 'lib/common/SuccessModal';
+import {Button} from 'lib/primitives/Button';
+import {truncateHexTx} from 'lib/utils/helpers';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';

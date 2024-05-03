@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {toAddress} from '@builtbymom/web3/utils';
 
-import type {TSwapConfiguration} from 'packages/lib/utils/types/app.swap';
+import type {TSwapConfiguration} from 'lib/utils/types/app.swap';
 import type {TAddress} from '@builtbymom/web3/types';
 
 type TLifiToken = {

@@ -1,11 +1,12 @@
-import {type ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {TextTruncate} from 'packages/lib/common/TextTruncate';
-import {IconChevronBoth} from 'packages/lib/icons/IconChevronBoth';
-import {IconChevronBottom} from 'packages/lib/icons/IconChevronBottom';
-import {IconCircleCheck} from 'packages/lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'packages/lib/icons/IconCircleCross';
-import {IconGears} from 'packages/lib/icons/IconGears';
-import {IconSpinner} from 'packages/lib/icons/IconSpinner';
+import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {TextTruncate} from 'lib/common/TextTruncate';
+import {IconChevronBoth} from 'lib/icons/IconChevronBoth';
+import {IconChevronBottom} from 'lib/icons/IconChevronBottom';
+import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
+import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {IconGears} from 'lib/icons/IconGears';
+import {IconSpinner} from 'lib/icons/IconSpinner';
+import {LIFI_SUPPORTED_NETWORKS} from 'packages/lib/utils/constants';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -21,8 +22,8 @@ import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
 import {SendWizard} from './Wizard';
 
-import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
-import type {TInputAddressLike} from 'packages/lib/utils/tools.address';
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
+import type {TInputAddressLike} from 'lib/utils/tools.address';
 
 function FakeOutputTokenRow(props: {
 	value: TTokenAmountInputElement;
@@ -166,6 +167,11 @@ export function Swap(): ReactElement {
 		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
 	};
 
+	const swapSupportedNetworks = useMemo(() => {
+		const allSupportedNetworks = Object.values(LIFI_SUPPORTED_NETWORKS).filter(network => network.isSupported);
+		return allSupportedNetworks;
+	}, []);
+
 	return (
 		<div className={'w-full max-w-screen-sm'}>
 			<div>
@@ -185,6 +191,7 @@ export function Swap(): ReactElement {
 						<div>
 							<NetworkInputSelector
 								value={fromNetwork}
+								networks={swapSupportedNetworks}
 								onChange={value => {
 									set_fromNetwork(value);
 									dispatchConfiguration({type: 'RESET_INPUT', payload: undefined});
@@ -220,6 +227,7 @@ export function Swap(): ReactElement {
 						<div>
 							<NetworkInputSelector
 								value={toNetwork}
+								networks={swapSupportedNetworks}
 								onChange={value => {
 									set_toNetwork(value);
 									dispatchConfiguration({type: 'RESET_OUTPUT', payload: undefined});

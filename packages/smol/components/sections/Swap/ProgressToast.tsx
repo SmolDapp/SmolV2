@@ -1,5 +1,5 @@
-import {IconCheck} from 'packages/lib/icons/IconCheck';
-import {IconLoader} from 'packages/lib/icons/IconLoader';
+import {IconCheck} from 'lib/icons/IconCheck';
+import {IconLoader} from 'lib/icons/IconLoader';
 import {cl} from '@builtbymom/web3/utils';
 import {NProgress} from '@tanem/react-nprogress';
 

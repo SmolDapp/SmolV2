@@ -1,8 +1,8 @@
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
-import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
-import {createUniqueID} from 'packages/lib/utils/tools.identifiers';
+import {optionalRenderProps, type TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
+import {defaultInputAddressLike} from 'lib/utils/tools.address';
+import {createUniqueID} from 'lib/utils/tools.identifiers';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -31,8 +31,8 @@ import {getLifiRoutes, getLifiStatus} from './api.lifi';
 import {ProgressToasts} from './ProgressToast';
 import {SwapCurtain} from './SettingsCurtain';
 
-import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
-import type {TSwapActions, TSwapConfiguration, TSwapContext} from 'packages/lib/utils/types/app.swap';
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
+import type {TSwapActions, TSwapConfiguration, TSwapContext} from 'lib/utils/types/app.swap';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';

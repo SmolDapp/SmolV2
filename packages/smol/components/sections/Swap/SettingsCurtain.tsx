@@ -1,14 +1,14 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
-import {CurtainContent} from 'packages/lib/primitives/Curtain';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
 import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
-import type {TSwapConfiguration} from 'packages/lib/utils/types/app.swap';
+import type {TSwapConfiguration} from 'lib/utils/types/app.swap';
 import type {ReactElement} from 'react';
 
 /**************************************************************************************************

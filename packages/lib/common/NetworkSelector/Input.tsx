@@ -1,25 +1,48 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
+import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
-import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
-import {supportedNetworks} from 'packages/lib/utils/tools.chains';
+import {supportedNetworks} from 'lib/utils/tools.chains';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 
-export function NetworkInputSelector(props: {value: number; onChange: (value: number) => void}): ReactElement {
+export function NetworkInputSelector(props: {
+	value: number;
+	onChange: (value: number) => void;
+	networks?: typeof supportedNetworks;
+}): ReactElement {
 	const isMounted = useIsMounted();
 	const safeChainID = toSafeChainID(props.value, Number(process.env.BASE_CHAINID));
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
+	/**********************************************************************************************
+	 ** networkToUse will be the list of networks to use. If the user has provided a list of
+	 ** networks, we will use it. Otherwise, we will use the default supportedNetworks list.
+	 ** It's important to note that the provided networks will be filtered by the supportedNetworks
+	 ** to only show the networks that are supported by the application, even if the user has
+	 ** provided a list of networks.
+	 *********************************************************************************************/
+	const networksToUse = useMemo(() => {
+		if (props.networks) {
+			return props.networks.filter(network => supportedNetworks.some(supported => supported.id === network.id));
+		}
+		return supportedNetworks;
+	}, [props.networks]);
+
+	/**********************************************************************************************
+	 ** currentNetwork returns the current network object from the list of networks to use. We will
+	 ** use the safeChainID or the value provided by the user if we are in development mode.
+	 *********************************************************************************************/
 	const currentNetwork = useMemo(
 		() =>
-			supportedNetworks.find(
+			networksToUse.find(
 				(network): boolean => network.id === safeChainID || (isDev && network.id === props.value)
 			),
-		[safeChainID, props.value, isDev]
+		[safeChainID, props.value, isDev, networksToUse]
 	);
+
 	const [isOpen, set_isOpen] = useState(false);
 	return (
 		<Popover.Root
@@ -67,7 +90,7 @@ export function NetworkInputSelector(props: {value: number; onChange: (value: nu
 					<CommandInput placeholder={'Search chain...'} />
 					<CommandEmpty>{'No chain found.'}</CommandEmpty>
 					<CommandList className={'max-h-48 overflow-y-auto'}>
-						{supportedNetworks.map(network => (
+						{networksToUse.map(network => (
 							<CommandItem
 								key={network.id}
 								value={network.name}
@@ -83,7 +106,7 @@ export function NetworkInputSelector(props: {value: number; onChange: (value: nu
 									if (selectedNetwork === currentNetwork?.name) {
 										return;
 									}
-									const chain = supportedNetworks.find(
+									const chain = networksToUse.find(
 										network => network.name.toLowerCase() === selectedNetwork.toLocaleLowerCase()
 									);
 									props.onChange(chain?.id || 1);
