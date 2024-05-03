@@ -40,9 +40,7 @@ export const DisperseQueryManagement = (props: {
 	/**********************************************************************************************
 	 * Update the url query on every change in the UI
 	 *********************************************************************************************/
-	useSyncUrlParams({
-		token: configuration.tokenToSend?.address
-	});
+	useSyncUrlParams({token: configuration.tokenToSend?.address});
 
 	const contextValue = useMemo(
 		(): TDisperseQueryManagement => ({

@@ -1,6 +1,7 @@
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useMemo, useState} from 'react';
 import {Warning} from 'lib/common/Warning';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
 import {useAddressBook} from '@contexts/useAddressBook';
 
@@ -12,8 +13,12 @@ export function DisperseStatus(): ReactElement | null {
 	const {configuration} = useDisperse();
 	const {getCachedEntry} = useAddressBook();
 	const {getBalance} = useWallet();
+	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement}[]>([]);
 
-	const addresses = configuration.inputs.map(input => input.receiver.address).filter(Boolean);
+	const addresses = useMemo(
+		() => configuration.inputs.map(input => input.receiver.address).filter(Boolean),
+		[configuration.inputs]
+	);
 
 	const totalToDisperse = useMemo((): bigint => {
 		return configuration.inputs.reduce((acc, row): bigint => acc + row.value.normalizedBigAmount.raw, 0n);
@@ -26,13 +31,14 @@ export function DisperseStatus(): ReactElement | null {
 			chainID: Number(configuration.tokenToSend?.chainID)
 		}).raw;
 
-	const status: {type: TWarningType; message: string | ReactElement} | null = useMemo(() => {
+	useAsyncTrigger(async (): Promise<void> => {
+		const allStatus: {type: TWarningType; message: string | ReactElement}[] = [];
 		if (addresses.some(address => !getCachedEntry({address}))) {
-			return {
+			allStatus.push({
 				message:
 					"It's the first time you are sending tokens to some addresses on this lists. Make sure that's what you want to do",
 				type: 'warning'
-			};
+			});
 		}
 		if (
 			configuration.inputs.some(currentRow =>
@@ -45,34 +51,36 @@ export function DisperseStatus(): ReactElement | null {
 				)
 			)
 		) {
-			return {
+			allStatus.push({
 				message:
 					'Some duplicates were found in the configuration, please check that all the receivers are different',
 				type: 'error'
-			};
+			});
 		}
 
 		if (isAboveBalance && configuration.tokenToSend) {
-			return {
+			allStatus.push({
 				message: 'Total amount to disperse exceeds the account balance',
 				type: 'error'
-			};
+			});
 		}
 
-		return null;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [addresses, configuration.inputs.length, getCachedEntry]);
+		set_status(allStatus);
+	}, [addresses, configuration.inputs, getCachedEntry, isAboveBalance]);
 
 	if (!status) {
 		return null;
 	}
 
 	return (
-		<div className={'mb-4'}>
-			<Warning
-				message={status.message}
-				type={status.type}
-			/>
+		<div className={'mb-4 grid gap-2'}>
+			{status.map((status, index) => (
+				<Warning
+					key={index}
+					message={status.message}
+					type={status.type}
+				/>
+			))}
 		</div>
 	);
 }

@@ -36,10 +36,7 @@ type TRecord = {
 
 function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TToken) => void}): ReactElement {
 	const {dispatchConfiguration} = useDisperse();
-
 	const {chainID: safeChainID} = useWeb3();
-	// const {safeChainID} = useChainID();
-
 	const {validate: validateAddress} = useValidateAddressInput();
 	const {validate: validateAmount} = useValidateAmountInput();
 
@@ -82,7 +79,7 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 			}
 			const {result} = event.target;
 			const parsedCSV = Papa.parse(result, {header: true});
-			let records: TRecord[] = [];
+			const records: TRecord[] = [];
 
 			// If we are working with a safe file, we should get 4 columns.
 			const isProbablySafeFile =
@@ -90,14 +87,18 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 
 			if (isProbablySafeFile) {
 				const [tokenAddress, chainId, receiverAddress, value] = parsedCSV.meta.fields;
-				records = parsedCSV.data.map((item: unknown[]) => {
-					return {
+				for (const item of parsedCSV.data) {
+					if (!item[receiverAddress]) {
+						continue;
+					}
+					records.push({
 						tokenAddress: item[tokenAddress] as TAddress,
 						receiverAddress: item[receiverAddress] as TAddress,
 						value: item[value] as string,
 						chainId: item[chainId] as string
-					};
-				});
+					});
+				}
+				// records = records.filter(record => record.receiverAddress);
 				set_importedTokenToSend(records[0].tokenAddress);
 				set_records(records);
 			} else {
