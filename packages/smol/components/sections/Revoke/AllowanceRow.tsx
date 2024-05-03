@@ -1,13 +1,13 @@
-import {parseUnits} from '@builtbymom/web3/utils';
 import {useMemo} from 'react';
+import {Button} from 'packages/lib/primitives/Button';
+import {getTokenAmount} from 'packages/lib/utils/tools.revoke';
+import {parseUnits} from '@builtbymom/web3/utils';
 
 import {useGetTokenInfo} from './useGetTokenInfo';
 
-import type {TAddress} from '@builtbymom/web3/types';
-import {Button} from 'packages/lib/primitives/Button';
-import {getTokenAmount} from 'packages/lib/utils/tools.revoke';
-import {TAllowance} from 'packages/lib/utils/types/revokeType';
+import type {TAllowance} from 'packages/lib/utils/types/revokeType';
 import type {ReactElement} from 'react';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAllowance} from './useAllowances';
 
 type TAllowanceRowProps = {
@@ -29,7 +29,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	return (
 		<tr
 			className={
-				'odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:bg-gray-800 dark:border-gray-700 border-b odd:bg-white'
+				'border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 odd:dark:bg-gray-900 even:dark:bg-gray-800'
 			}
 			key={transactionHash}>
 			<td className={'max-w-56 px-6 py-3'}>

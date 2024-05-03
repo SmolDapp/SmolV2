@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import {toast} from 'react-hot-toast';
 import {TextTruncate} from 'lib/common/TextTruncate';
 import {IconHeart, IconHeartFilled} from 'lib/icons/IconHeart';

@@ -1,13 +1,13 @@
-import {useMemo, type ReactElement} from 'react';
+import {type ReactElement, useMemo} from 'react';
+import {Button} from 'packages/lib/primitives/Button';
 import {useAccount} from 'wagmi';
+import {SmolTokenSelector} from '@designSystem/SmolTokenSelector';
+import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
 
 import {useAllowances} from './useAllowances';
 import {RevokeWizard} from './Wizard';
 
 import type {TToken} from '@builtbymom/web3/types';
-import {SmolTokenSelector} from '@designSystem/SmolTokenSelector';
-import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
-import {Button} from 'packages/lib/primitives/Button';
 import type {TTokenAllowance} from './useAllowances';
 
 export function Revoke(): ReactElement {
@@ -51,7 +51,7 @@ export function Revoke(): ReactElement {
 	};
 
 	return (
-		<div className={'w-full max-w-108'}>
+		<div className={'max-w-108 w-full'}>
 			<div className={'mb-6'}>
 				<p className={'font-medium'}>{'Contract address'}</p>
 				<SmolTokenSelector

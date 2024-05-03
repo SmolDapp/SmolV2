@@ -1,15 +1,15 @@
+import {useCallback, useState} from 'react';
+import {ErrorModal} from 'packages/lib/common/ErrorModal';
+import {SuccessModal} from 'packages/lib/common/SuccessModal';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
-import {useCallback, useState} from 'react';
 
 import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
 
-import type {TAddress} from '@builtbymom/web3/types';
-import {ErrorModal} from 'packages/lib/common/ErrorModal';
-import {SuccessModal} from 'packages/lib/common/SuccessModal';
 import type {ReactElement} from 'react';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAllowance} from './useAllowances';
 
 export const RevokeWizard = (): ReactElement => {

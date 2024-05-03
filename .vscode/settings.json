@@ -9,9 +9,7 @@
 	"editor.wordWrap": "off",
 	"editor.autoIndent": "keep",
 	"editor.codeActionsOnSave": {
-		"source.fixAll": "explicit",
-		"source.organizeImports": "explicit",
-		"source.sortMembers": "explicit"
+		"source.fixAll.eslint": "explicit"
 	},
 	"editor.quickSuggestions": {
 		"strings": true

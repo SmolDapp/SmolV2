@@ -1,4 +1,3 @@
-import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {Rubik, Source_Code_Pro} from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
