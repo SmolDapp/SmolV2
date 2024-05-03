@@ -1,0 +1,273 @@
+@import '@rainbow-me/rainbowkit/styles.css';
+
+@tailwind base;
+
+body {
+	@apply text-neutral-900;
+}
+h1 {
+	@apply text-xl font-bold text-neutral-900;
+}
+h4 {
+	@apply text-lg font-bold text-neutral-700;
+}
+h6 {
+	@apply text-base font-bold text-neutral-700;
+}
+small {
+	@apply text-xxs font-normal text-neutral-600 block;
+}
+#__next {
+	@apply w-full h-full;
+}
+
+/***************************************************************************
+** Overwritting the defaults to match our needs
+**************************************************************************/
+* {
+	@apply scroll-smooth font-sans;
+}
+input::placeholder {
+	@apply text-neutral-400 not-italic;
+}
+textarea::placeholder {
+	@apply text-neutral-400 not-italic;
+}
+input[type=file], /* FF, IE7+, chrome (except button) */
+input[type=file]::-webkit-file-upload-button {
+	/* chromes and blink button */
+	cursor: pointer;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+	-webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0) inset;
+	transition: background-color 5000s ease-in-out 0s;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+input[type='number'] {
+	-moz-appearance: textfield;
+}
+label[aria-invalid='true'] {
+	@apply text-neutral-600 transition-colors;
+	& > form > div {
+		@apply border-[#FE0000] focus-within:border-[#FE0000] text-[#FE0000] focus-within:text-[#FE0000];
+	}
+	& > p {
+		@apply text-[#FF0000];
+	}
+}
+
+:focus {
+	outline-width: 0px;
+	outline-offset: 0px;
+	outline: none;
+	outline-color: transparent;
+}
+
+/* -- Button.tsx ------------------------------------------------------- */
+.smol--input-wrapper {
+	@apply flex h-10 w-full items-center rounded-md border border-neutral-200 bg-neutral-0 transition-colors;
+
+	&:has(input:focus) {
+		@apply border-primary;
+	}
+}
+.smol--input {
+	@apply w-full overflow-x-scroll border-none bg-transparent text-sm outline-none scrollbar-none p-2;
+}
+
+select.smol--input {
+	@apply pr-7 truncate;
+}
+
+/***************************************************************************
+** Then, we import the tailwind class. They will be able to overwrite all
+** the previous classes, not the next ones directly.
+**************************************************************************/
+@tailwind components;
+@tailwind utilities;
+
+/***************************************************************************
+** NsProgress is used to display the loading indicator. All of theses
+** styles are required to make it visible
+**************************************************************************/
+.nprogress-custom-parent {
+	@apply overflow-hidden relative;
+}
+.nprogress-custom-parent #nprogress .spinner {
+	@apply absolute;
+}
+.nprogress-custom-parent #nprogress .bar {
+	@apply absolute;
+}
+#nprogress {
+	@apply pointer-events-none;
+}
+#nprogress .bar {
+	@apply bg-neutral-900 fixed top-0 left-0 w-full h-1 z-[1031];
+}
+#nprogress .spinner {
+	@apply block fixed z-[1031] top-4 right-4;
+}
+#nprogress .spinner-icon {
+	@apply hidden;
+}
+
+/***************************************************************************
+** Some accessibilities fixes
+**************************************************************************/
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+.scrollbar-none {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+/***************************************************************************
+** Some custom css for the components
+**************************************************************************/
+.img-gradient::after {
+	content: '';
+	background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+	@apply absolute inset-0 w-full h-full;
+}
+
+.mobile-nav-item {
+	@apply flex flex-col items-start justify-between rounded-md bg-neutral-200;
+	& > p {
+		@apply p-2 text-base font-bold text-neutral-900;
+	}
+}
+.mobile-nav-item {
+	@apply rounded-none border-b border-neutral-300 bg-neutral-200/60;
+}
+
+.tab {
+	@apply font-normal text-neutral-600 transition-colors hover:text-neutral-900 cursor-pointer border-b-2 border-transparent pb-4 z-20;
+	&[aria-selected='true'] {
+		@apply font-bold text-neutral-900 border-neutral-900;
+	}
+}
+.hover-fix::before {
+	display: block;
+	content: attr(title);
+	font-weight: bold;
+	height: 0;
+	overflow: hidden;
+	visibility: hidden;
+}
+
+.font-number {
+	@apply font-mono tabular-nums;
+}
+
+[type='text']:focus,
+[type='email']:focus,
+[type='url']:focus,
+[type='password']:focus,
+[type='number']:focus,
+[type='date']:focus,
+[type='datetime-local']:focus,
+[type='month']:focus,
+[type='search']:focus,
+[type='tel']:focus,
+[type='time']:focus,
+[type='week']:focus,
+[multiple]:focus,
+textarea:focus,
+select:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+.TooltipContent[data-state='delayed-open'],
+.PopoverContent[data-state='open'] {
+	animation: fadeIn 100ms ease-out;
+}
+.TooltipContent[data-state='closed'],
+.PopoverContent[data-state='closed'] {
+	animation: fadeOut 100ms ease-in;
+}
+
+.DropdownMenuContent {
+	width: var(--radix-dropdown-menu-trigger-width);
+	max-height: var(--radix-dropdown-menu-content-available-height);
+}
+
+.skeleton-lg {
+	@apply animate-pulse rounded-lg bg-neutral-400;
+}
+.skeleton-full {
+	@apply animate-pulse rounded-full bg-neutral-400;
+}
+
+.withRing:focus-visible {
+	@apply ring-2 ring-primary ring-offset-2;
+}
+.button {
+	@apply cursor-pointer px-5 flex justify-center items-center h-14 text-base transition-all relative rounded-lg;
+	@apply withRing;
+
+	&[data-variant='filled'] {
+		@apply text-neutral-900 bg-primary font-normal border border-transparent;
+		&:disabled {
+			@apply bg-neutral-600 opacity-40;
+		}
+		&:not(:disabled):not([aria-busy='true']):hover {
+			@apply bg-primaryHover;
+		}
+	}
+	&[data-variant='light'] {
+		@apply text-neutral-900 bg-neutral-300 font-normal border border-transparent;
+		&:disabled {
+			@apply opacity-40;
+		}
+		&:not(:disabled):not([aria-busy='true']):hover {
+			@apply bg-neutral-400;
+		}
+	}
+	&[aria-busy='true'] {
+		@apply cursor-wait;
+		color: transparent !important;
+	}
+	&:disabled {
+		@apply cursor-not-allowed;
+	}
+}
+
+.input {
+	@apply w-full rounded-lg bg-transparent py-3 px-4 text-base;
+	@apply text-neutral-900 placeholder:text-neutral-600 caret-neutral-700;
+	@apply focus:placeholder:text-neutral-300 placeholder:transition-colors;
+	@apply focus:border-neutral-600 disabled:bg-neutral-300 transition-colors;
+	@apply border-neutral-400 disabled:border-transparent;
+}
