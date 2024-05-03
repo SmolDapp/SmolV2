@@ -19,8 +19,8 @@
 	"dependencies": {
 		"gimme": "workspace:*",
 		"lib": "workspace:*",
-		"next-seo": "^6.5.0",
-		"smol": "workspace:*"
+		"smol": "workspace:*",
+		"next-seo": "^6.5.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^19.2.1",
