@@ -33,3 +33,6 @@ tsconfig.tsbuildinfo
 **/workbox-*.js
 **/workbox-*.js.map
 **/worker-*.js.map
+
+*/sw.js
+**/sw.js
