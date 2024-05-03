@@ -3,15 +3,26 @@
 		"rootDirs": ["."],
 		"baseUrl": ".",
 		"paths": {
-			"@common/*": ["components/common/*"],
-			"@icons/*": ["components/icons/*"],
-			"@disperse/*": ["components/apps/disperse/*"],
-			"@migratooor/*": ["components/apps/migratooor/*"],
-			"@nftmigratooor/*": ["components/apps/nftmigratooor/*"],
-			"@tokenlistooor/*": ["components/apps/tokenlistooor/*"],
-			"@safeCreatooor/*": ["components/apps/safeCreator/*"],
-			"@stream/*": ["components/apps/stream/*"],
-			"@utils/*": ["utils/*"]
+			"@gimmecommon/*": ["packages/gimme/components/common/*"],
+			"@gimmeicons/*": ["packages/gimme/components/icons/*"],
+			"@gimmeutils/*": ["packages/gimme/utils/*"],
+			"@gimmetypes": ["packages/gimme/utils/types"],
+
+			"@primitives/*": ["packages/smol/components/Primitives/*"],
+			"@designSystem/*": ["packages/smol/components/designSystem/*"],
+
+			"@sections/*": ["packages/smol/components/sections/*"],
+			"@contexts/*": ["packages/smol/contexts/*"],
+			"@hooks/*": ["packages/smol/hooks/*"],
+			"@common/*": ["packages/smol/components/common/*"],
+			"@icons/*": ["packages/smol/components/icons/*"],
+			"@disperse/*": ["packages/smol/components/apps/disperse/*"],
+			"@migratooor/*": ["packages/smol/components/apps/migratooor/*"],
+			"@nftmigratooor/*": ["packages/smol/components/apps/nftmigratooor/*"],
+			"@tokenlistooor/*": ["packages/smol/components/apps/tokenlistooor/*"],
+			"@safeCreatooor/*": ["packages/smol/components/apps/safeCreator/*"],
+			"@stream/*": ["packages/smol/components/apps/stream/*"],
+			"@utils/*": ["packages/smol/utils/*"]
 		},
 		"types": ["bun-types"],
 		"target": "esnext",
@@ -58,16 +69,23 @@
 		"public/manifest.json",
 		"stylelint.config",
 		"commitlint.config",
-		"postcss.config.js",
-		"tailwind.config.js",
-		"next.config.js",
+
+		"packages/gimme/postcss.config.js",
+		"packages/gimme/tailwind.config.js",
+		"packages/gimme/next.config.js",
+		"packages/smol/postcss.config.js",
+		"packages/smol/tailwind.config.js",
+		"packages/smol/next.config.js",
+		"packages/lib/postcss.config.js",
+		"packages/lib/tailwind.config.js",
+
 		"theme.config.js",
 		".eslintrc.js",
 		".next/types/**/*.ts",
 		"jest.config.js",
 		"vitest.config.ts",
 		"worker/index.js",
-		"stylelint.config.js",
+		"packages/gimme/stylelint.config.js",
 		"utils/*/*.json"
 	]
 }
