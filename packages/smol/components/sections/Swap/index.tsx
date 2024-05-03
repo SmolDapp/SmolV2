@@ -62,7 +62,10 @@ function FakeOutputTokenRow(props: {
 							prefixCls={cl(
 								'w-full border-none bg-transparent p-0 text-xl transition-all',
 								'text-neutral-900 placeholder:text-neutral-400 focus:placeholder:text-neutral-400/30',
-								'placeholder:transition-colors overflow-hidden'
+								'placeholder:transition-colors overflow-hidden',
+								props.isFetchingQuote
+									? 'animate-pulse placeholder:text-neutral-600 text-neutral-600'
+									: ''
 							)}
 							placeholder={'0.00'}
 							value={props.value.amount}

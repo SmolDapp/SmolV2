@@ -1,4 +1,4 @@
-import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
+import React, {createContext, useCallback, useContext, useMemo, useReducer, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {defaultInputAddressLike} from 'packages/lib/utils/tools.address';
@@ -14,6 +14,7 @@ import {
 	toAddress,
 	toBigInt,
 	toNormalizedBN,
+	ZERO_ADDRESS,
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {
@@ -35,7 +36,7 @@ import type {TSwapActions, TSwapConfiguration, TSwapContext} from 'packages/lib/
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
-import type {TChainTokens, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import type {TLifiQuoteResponse, TLifiStatusResponse} from './api.lifi';
 
@@ -43,6 +44,7 @@ type TLastSolverFetchData = {
 	inputToken: string;
 	outputToken: string;
 	inputAmount: string;
+	receiver: TAddress;
 	slippageTolerancePercentage: number;
 	order: TSwapConfiguration['order'];
 	time: number;
@@ -151,17 +153,23 @@ let lastFetch: TLastSolverFetchData = {
 	inputToken: '',
 	outputToken: '',
 	inputAmount: '',
+	receiver: ZERO_ADDRESS,
 	slippageTolerancePercentage: 0,
 	order: 'SAFEST',
 	time: 0
 };
-function assertLastSolverFetch(configuration: TSwapConfiguration): boolean {
-	if (!configuration.input.token || !configuration.output.token) {
+function assertLastSolverFetch(senderAddress: TAddress, configuration: TSwapConfiguration): boolean {
+	if (!configuration.input.token || !configuration.output.token || !senderAddress) {
 		return false;
 	}
 
+	const receiver = isZeroAddress(configuration.receiver.address)
+		? toAddress(senderAddress)
+		: toAddress(configuration.receiver.address);
+
 	if (
 		lastFetch &&
+		toAddress(lastFetch.receiver) === receiver &&
 		lastFetch.inputToken === configuration.input.token.address &&
 		lastFetch.outputToken === configuration.output.token.address &&
 		lastFetch.inputAmount === configuration.input.normalizedBigAmount.display &&
@@ -173,6 +181,7 @@ function assertLastSolverFetch(configuration: TSwapConfiguration): boolean {
 	}
 
 	lastFetch = {
+		receiver: receiver,
 		inputToken: configuration.input.token.address,
 		outputToken: configuration.output.token.address,
 		inputAmount: configuration.input.normalizedBigAmount.display,
@@ -192,6 +201,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	const [currentTxRequest, set_currentTxRequest] = useState<TLifiQuoteResponse | undefined>(undefined);
 	const [currentError, set_currentError] = useState<string | undefined>(undefined);
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
+	const quoteAbortController = useRef<AbortController>(new AbortController());
 
 	/**********************************************************************************************
 	 ** onRefreshSolverBalances will refresh the balances of the input and output tokens. It will
@@ -268,8 +278,14 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 		const hasValidOut = Boolean(configuration.output.token && !isZeroAddress(configuration.output.token.address));
 
 		if (hasValidIn && hasValidOut && hasValidInValue) {
-			if (!assertLastSolverFetch(configuration)) {
+			if (!assertLastSolverFetch(toAddress(address), configuration)) {
 				return;
+			}
+			if (quoteAbortController.current) {
+				quoteAbortController.current.abort();
+				if (quoteAbortController.current.signal.aborted) {
+					quoteAbortController.current = new AbortController();
+				}
 			}
 
 			const identifier = createUniqueID(serialize(configuration));
@@ -296,20 +312,33 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			set_currentTxRequest(undefined);
 			const {result, error} = await getLifiRoutes({
 				fromAddress: toAddress(address),
-				toAddress: toAddress(address),
+				toAddress: isZeroAddress(configuration.receiver.address)
+					? toAddress(address)
+					: toAddress(configuration.receiver.address),
 				fromAmount: toBigInt(configuration.input.normalizedBigAmount.raw).toString(),
 				fromChainID: configuration.input.token?.chainID || -1,
 				fromTokenAddress: toAddress(configuration.input.token?.address),
 				toChainID: configuration.output.token?.chainID || -1,
 				toTokenAddress: toAddress(configuration.output.token?.address),
 				slippage: configuration.slippageTolerance,
-				order: configuration.order
+				order: configuration.order,
+				abortController: quoteAbortController.current
 			});
 
 			if (result) {
 				handleQuoteResponse(result, identifier);
 			}
 			if (error) {
+				/**********************************************************************************
+				 ** If the error is 'canceled', this probably means that the user requested a new
+				 ** quote before the previous one was finished. In this case, we should ignore the
+				 ** error and the result as a new one will arrive soon.
+				 *********************************************************************************/
+				if (error === 'canceled') {
+					if (identifier !== currentIdentifier) {
+						return;
+					}
+				}
 				set_currentError(error);
 				set_isFetchingQuote(false);
 			}
@@ -450,11 +479,28 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				 ** output chain. If the status is not DONE or FAILED, keep checking until it is.
 				 ** This is done to ensure the transaction is mined on the output chain.
 				 *********************************************************************************/
-				if (fromChainID !== toChainID) {
-					const durationInSeconds = currentTxRequest?.estimate.executionDuration || 0;
-					const durationInMs = durationInSeconds * 1000;
-					const expectedEnd = new Date(Date.now() + durationInMs).toLocaleTimeString();
-					const toastID = toast.custom(
+				const durationInSeconds = currentTxRequest?.estimate.executionDuration || 0;
+				const durationInMs = durationInSeconds * 1000;
+				const expectedEnd = new Date(Date.now() + durationInMs).toLocaleTimeString();
+				const toastID = toast.custom(
+					t => (
+						<ProgressToasts
+							t={t}
+							sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
+							receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
+							expectedEnd={expectedEnd}
+							isCompleted={false}
+							animationDuration={1000}
+						/>
+					),
+					{position: 'bottom-right', duration: Infinity}
+				);
+
+				let result: TLifiStatusResponse;
+				do {
+					result = await getLifiStatus({fromChainID, toChainID, txHash});
+					await new Promise(resolve => setTimeout(resolve, 5000));
+					toast.custom(
 						t => (
 							<ProgressToasts
 								t={t}
@@ -463,61 +509,38 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 								expectedEnd={expectedEnd}
 								isCompleted={false}
 								animationDuration={1000}
+								message={result.substatusMessage}
 							/>
 						),
-						{position: 'bottom-right', duration: Infinity}
+						{position: 'bottom-right', duration: Infinity, id: toastID}
 					);
+				} while (result.status !== 'DONE' && result.status !== 'FAILED');
 
-					let result: TLifiStatusResponse;
-					do {
-						result = await getLifiStatus({fromChainID, toChainID, txHash});
-						await new Promise(resolve => setTimeout(resolve, 5000));
-						toast.custom(
-							t => (
-								<ProgressToasts
-									t={t}
-									sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
-									receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
-									expectedEnd={expectedEnd}
-									isCompleted={false}
-									animationDuration={1000}
-									message={result.substatusMessage}
-								/>
-							),
-							{position: 'bottom-right', duration: Infinity, id: toastID}
-						);
-					} while (result.status !== 'DONE' && result.status !== 'FAILED');
-
-					toast.dismiss(toastID);
-					await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
-					if (result.status === 'DONE') {
-						toast.custom(
-							t => (
-								<ProgressToasts
-									t={t}
-									sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
-									receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
-									expectedEnd={expectedEnd}
-									isCompleted={true}
-									animationDuration={1000}
-									message={'Fancy, your swap is complete!'}
-								/>
-							),
-							{position: 'bottom-right', duration: Infinity, id: toastID}
-						);
-						statusHandler({...defaultTxStatus, success: true, data: result});
-						await new Promise(resolve => setTimeout(resolve, 1000));
-						toast.dismiss(toastID);
-					} else {
-						statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
-						toast.dismiss(toastID);
-					}
-					return result.status === 'DONE';
-				}
+				toast.dismiss(toastID);
 				await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
-				statusHandler({...defaultTxStatus, success: true});
-
-				return true;
+				if (result.status === 'DONE') {
+					toast.custom(
+						t => (
+							<ProgressToasts
+								t={t}
+								sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
+								receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
+								expectedEnd={expectedEnd}
+								isCompleted={true}
+								animationDuration={1000}
+								message={'Fancy, your swap is complete!'}
+							/>
+						),
+						{position: 'bottom-right', duration: Infinity, id: toastID}
+					);
+					statusHandler({...defaultTxStatus, success: true, data: result});
+					await new Promise(resolve => setTimeout(resolve, 1000));
+					toast.dismiss(toastID);
+				} else {
+					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
+					toast.dismiss(toastID);
+				}
+				return result.status === 'DONE';
 			} catch (error) {
 				console.warn(error);
 				statusHandler({...defaultTxStatus, error: true});

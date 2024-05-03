@@ -66,9 +66,11 @@ export async function getLifiRoutes(params: {
 	toAddress: TAddress;
 	slippage: number; // default 0.05 -> 5%
 	order: TSwapConfiguration['order'];
+	abortController: AbortController;
 }): Promise<{result: TLifiQuoteResponse | undefined; error?: string}> {
 	try {
 		const result = await axios.get('https://li.quest/v1/quote', {
+			signal: params.abortController.signal,
 			params: {
 				fromChain: params.fromChainID,
 				toChain: params.toChainID,
