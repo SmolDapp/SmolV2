@@ -10,6 +10,5 @@
 		"prepare": "husky install",
 		"export": "tsc && next build && next export -o ipfs",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
-	},
-	"packageManager": "yarn@4.1.1"
+	}
 }
