@@ -11,6 +11,7 @@
 		"export": "tsc && next build && next export -o ipfs",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
+<<<<<<< Updated upstream
 	"dependencies": {
 		"@builtbymom/web3": "^0.0.70",
 		"@closeio/use-abortable-effect": "^1.0.0",
@@ -38,4 +39,7 @@
 	"peerDependencies": {
 		"lib": "workspace:lib"
 	}
+=======
+	"packageManager": "yarn@4.1.1"
+>>>>>>> Stashed changes
 }
