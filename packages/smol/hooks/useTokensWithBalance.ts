@@ -4,10 +4,9 @@ import XXH from 'xxhashjs';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {ETH_TOKEN_ADDRESS, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
-import {ETH_TOKEN_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
 
 import type {TDict, TToken} from '@builtbymom/web3/types';
 

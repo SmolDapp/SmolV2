@@ -4,6 +4,7 @@ import {IconAppAddressBook} from 'lib/icons/IconApps';
 import {IconChevron} from 'lib/icons/IconChevron';
 import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {IconLoader} from 'lib/icons/IconLoader';
 import {defaultInputAddressLike} from 'lib/utils/tools.address';
 import {checkENSValidity} from 'lib/utils/tools.ens';
 import {mainnet} from 'viem/chains';
@@ -12,7 +13,6 @@ import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useAddressBook} from '@contexts/useAddressBook';
 import {useAsyncAbortable} from '@react-hookz/web';
 import {getEnsName} from '@wagmi/core';
-import {IconLoader} from '@yearn-finance/web-lib/icons/IconLoader';
 
 import {AvatarWrapper} from './Avatar';
 

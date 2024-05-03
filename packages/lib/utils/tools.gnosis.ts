@@ -1,6 +1,5 @@
 import abiCoder from 'web3-eth-abi';
-import {toAddress} from '@builtbymom/web3/utils';
-import {ETH_TOKEN_ADDRESS} from '@yearn-finance/web-lib/utils/constants';
+import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 
 import type {AbiCoder} from 'web3-eth-abi';
 import type {AbiItem} from 'web3-utils';
