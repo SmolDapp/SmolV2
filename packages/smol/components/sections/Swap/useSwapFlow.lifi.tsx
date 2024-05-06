@@ -6,7 +6,7 @@ import {createUniqueID} from 'lib/utils/tools.identifiers';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
+import {useAsyncTriggerWithArgs} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {
 	ETH_TOKEN_ADDRESS,
 	isEthAddress,
@@ -273,78 +273,83 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 		},
 		[configuration.input, configuration.output]
 	);
-	const retrieveExpectedOut = useAsyncTrigger(async (): Promise<void> => {
-		const hasValidInValue = configuration.input.normalizedBigAmount.raw > 0n;
-		const hasValidIn = Boolean(configuration.input.token && !isZeroAddress(configuration.input.token.address));
-		const hasValidOut = Boolean(configuration.output.token && !isZeroAddress(configuration.output.token.address));
+	const retrieveExpectedOut = useAsyncTriggerWithArgs(
+		async (force = false): Promise<void> => {
+			const hasValidInValue = configuration.input.normalizedBigAmount.raw > 0n;
+			const hasValidIn = Boolean(configuration.input.token && !isZeroAddress(configuration.input.token.address));
+			const hasValidOut = Boolean(
+				configuration.output.token && !isZeroAddress(configuration.output.token.address)
+			);
 
-		if (hasValidIn && hasValidOut && hasValidInValue) {
-			if (!assertLastSolverFetch(toAddress(address), configuration)) {
-				return;
-			}
-			if (quoteAbortController.current) {
-				quoteAbortController.current.abort();
-				if (quoteAbortController.current.signal.aborted) {
-					quoteAbortController.current = new AbortController();
+			if (hasValidIn && hasValidOut && hasValidInValue) {
+				if (!assertLastSolverFetch(toAddress(address), configuration) && !force) {
+					return;
 				}
-			}
-
-			const identifier = createUniqueID(serialize(configuration));
-			currentIdentifier = identifier;
-
-			set_currentError(undefined);
-			set_isFetchingQuote(true);
-			dispatch({
-				type: 'SET_INPUT_VALUE',
-				payload: {...configuration.input, value: undefined}
-			});
-			dispatch({
-				type: 'SET_OUTPUT_VALUE',
-				payload: {
-					...configuration.output,
-					amount: undefined,
-					value: 0,
-					normalizedBigAmount: zeroNormalizedBN,
-					isValid: false,
-					error: undefined
-				}
-			});
-
-			set_currentTxRequest(undefined);
-			const {result, error} = await getLifiRoutes({
-				fromAddress: toAddress(address),
-				toAddress: isZeroAddress(configuration.receiver.address)
-					? toAddress(address)
-					: toAddress(configuration.receiver.address),
-				fromAmount: toBigInt(configuration.input.normalizedBigAmount.raw).toString(),
-				fromChainID: configuration.input.token?.chainID || -1,
-				fromTokenAddress: toAddress(configuration.input.token?.address),
-				toChainID: configuration.output.token?.chainID || -1,
-				toTokenAddress: toAddress(configuration.output.token?.address),
-				slippage: configuration.slippageTolerance,
-				order: configuration.order,
-				abortController: quoteAbortController.current
-			});
-
-			if (result) {
-				handleQuoteResponse(result, identifier);
-			}
-			if (error) {
-				/**********************************************************************************
-				 ** If the error is 'canceled', this probably means that the user requested a new
-				 ** quote before the previous one was finished. In this case, we should ignore the
-				 ** error and the result as a new one will arrive soon.
-				 *********************************************************************************/
-				if (error === 'canceled') {
-					if (identifier !== currentIdentifier) {
-						return;
+				if (quoteAbortController.current) {
+					quoteAbortController.current.abort();
+					if (quoteAbortController.current.signal.aborted) {
+						quoteAbortController.current = new AbortController();
 					}
 				}
-				set_currentError(error);
-				set_isFetchingQuote(false);
+
+				const identifier = createUniqueID(serialize(configuration));
+				currentIdentifier = identifier;
+
+				set_currentError(undefined);
+				set_isFetchingQuote(true);
+				dispatch({
+					type: 'SET_INPUT_VALUE',
+					payload: {...configuration.input, value: undefined}
+				});
+				dispatch({
+					type: 'SET_OUTPUT_VALUE',
+					payload: {
+						...configuration.output,
+						amount: undefined,
+						value: 0,
+						normalizedBigAmount: zeroNormalizedBN,
+						isValid: false,
+						error: undefined
+					}
+				});
+
+				set_currentTxRequest(undefined);
+				const {result, error} = await getLifiRoutes({
+					fromAddress: toAddress(address),
+					toAddress: isZeroAddress(configuration.receiver.address)
+						? toAddress(address)
+						: toAddress(configuration.receiver.address),
+					fromAmount: toBigInt(configuration.input.normalizedBigAmount.raw).toString(),
+					fromChainID: configuration.input.token?.chainID || -1,
+					fromTokenAddress: toAddress(configuration.input.token?.address),
+					toChainID: configuration.output.token?.chainID || -1,
+					toTokenAddress: toAddress(configuration.output.token?.address),
+					slippage: configuration.slippageTolerance,
+					order: configuration.order,
+					abortController: quoteAbortController.current
+				});
+
+				if (result) {
+					handleQuoteResponse(result, identifier);
+				}
+				if (error) {
+					/**********************************************************************************
+					 ** If the error is 'canceled', this probably means that the user requested a new
+					 ** quote before the previous one was finished. In this case, we should ignore the
+					 ** error and the result as a new one will arrive soon.
+					 *********************************************************************************/
+					if (error === 'canceled') {
+						if (identifier !== currentIdentifier) {
+							return;
+						}
+					}
+					set_currentError(error);
+					set_isFetchingQuote(false);
+				}
 			}
-		}
-	}, [address, configuration, handleQuoteResponse]);
+		},
+		[address, configuration, handleQuoteResponse]
+	);
 
 	/**********************************************************************************************
 	 ** hasSolverAllowance checks if the user has enough allowance to perform the swap. It will

@@ -60,7 +60,7 @@ export type TSwapContext = {
 	isFetchingQuote: boolean;
 	isValid: boolean;
 	hasSolverAllowance: () => Promise<boolean>;
-	retrieveExpectedOut: () => Promise<void>;
+	retrieveExpectedOut: (force?: boolean) => Promise<void>;
 	approveSolverSpender: (statusHandler: Dispatch<SetStateAction<TTxStatus>>) => Promise<boolean>;
 	performSolverSwap: (statusHandler: Dispatch<SetStateAction<TTxStatus>>) => Promise<boolean>;
 	openSettingsCurtain: () => void;

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {SuccessModal} from 'lib/common/SuccessModal';
 import {Button} from 'lib/primitives/Button';
 import {truncateHexTx} from 'lib/utils/helpers';
+import {IconAppSwap} from 'packages/lib/icons/IconApps';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
@@ -106,8 +107,15 @@ function SendSuccessModal(props: {
 }
 
 export function SendWizard(): ReactElement {
-	const {configuration, dispatchConfiguration, hasSolverAllowance, approveSolverSpender, performSolverSwap, isValid} =
-		useSwapFlow();
+	const {
+		configuration,
+		dispatchConfiguration,
+		hasSolverAllowance,
+		approveSolverSpender,
+		performSolverSwap,
+		isValid,
+		retrieveExpectedOut
+	} = useSwapFlow();
 	const [approveStatus, set_approveStatus] = useState(defaultTxStatus);
 	const [swapStatus, set_swapStatus] = useState<TTxStatus & {data?: TLifiStatusResponse}>({...defaultTxStatus});
 	const [hasEnoughAllowance, set_hasEnoughAllowance] = useState(false);
@@ -160,6 +168,15 @@ export function SendWizard(): ReactElement {
 						<b>{'Approve'}</b>
 					</Button>
 				)}
+				<div>
+					<button
+						onClick={async () => retrieveExpectedOut(true)}
+						className={
+							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
+						}>
+						<IconAppSwap className={'size-4 transition-colors group-hover:text-black'} />
+					</button>
+				</div>
 			</div>
 			<SendSuccessModal
 				swapStatus={swapStatus}
