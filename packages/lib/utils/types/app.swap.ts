@@ -44,6 +44,7 @@ export type TSwapActions =
  ** configuration: The configuration of the swap operation.
  ** dispatchConfiguration: The dispatcher of the swap configuration.
  ** currentError: A string that contains the current error of the swap.
+ ** estimatedTime: A number that contains the estimated time of the swap in seconds.
  ** isFetchingQuote: A boolean that indicates if the swap is fetching a quote.
  ** isValid: A boolean that indicates if the swap configuration is valid
  ** hasSolverAllowance: A function that checks if the user has enough allowance to perform the swap.
@@ -55,6 +56,7 @@ export type TSwapContext = {
 	configuration: TSwapConfiguration;
 	dispatchConfiguration: Dispatch<TSwapActions>;
 	currentError: string | undefined;
+	estimatedTime: number | undefined;
 	isFetchingQuote: boolean;
 	isValid: boolean;
 	hasSolverAllowance: () => Promise<boolean>;

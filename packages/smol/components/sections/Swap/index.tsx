@@ -16,6 +16,7 @@ import {NetworkInputSelector} from '@designSystem/NetworkSelector/Input';
 import {SmolAddressInput} from '@designSystem/SmolAddressInput';
 import {SmolTokenAmountInput, useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
 import {SmolTokenSelectorButton} from '@designSystem/SmolTokenSelectorButton';
+import {formatSeconds} from '@hooks/useTimer';
 import {useDeepCompareEffect} from '@react-hookz/web';
 
 import {SwapStatus} from './SwapStatus';
@@ -138,7 +139,7 @@ function SwapTokenRow(props: {
 
 export function Swap(): ReactElement {
 	const {chainID} = useWeb3();
-	const {isFetchingQuote, configuration, dispatchConfiguration, openSettingsCurtain} = useSwapFlow();
+	const {isFetchingQuote, configuration, dispatchConfiguration, openSettingsCurtain, estimatedTime} = useSwapFlow();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [shouldUseCustomRecipient, set_shouldUseCustomRecipient] = useState(false);
 	const [fromNetwork, set_fromNetwork] = useState(-1);
@@ -252,7 +253,7 @@ export function Swap(): ReactElement {
 
 				<div
 					onClick={() => set_shouldUseCustomRecipient(prev => !prev)}
-					className={'w-fill pl-1 pt-2'}>
+					className={'flex w-full justify-between pl-1 pt-2'}>
 					<button className={'flex cursor-pointer items-center justify-center text-sm text-neutral-600'}>
 						<p className={'pr-1'}>{'Send to someone else'}</p>
 						<IconChevronBottom
@@ -262,6 +263,12 @@ export function Swap(): ReactElement {
 							)}
 						/>
 					</button>
+					<p className={cl('text-center text-xs text-neutral-600', estimatedTime ? 'block' : 'hidden')}>
+						{'Swap estimated time: '}
+						<span className={'text-neutral-900/70'}>
+							{estimatedTime ? formatSeconds(estimatedTime) : ''}
+						</span>
+					</p>
 				</div>
 				{shouldUseCustomRecipient ? (
 					<div className={'my-1 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
@@ -280,7 +287,7 @@ export function Swap(): ReactElement {
 				) : null}
 			</div>
 
-			<div className={'mt-4'}>
+			<div className={'mt-2'}>
 				<SwapStatus destinationChainID={toNetwork} />
 
 				<SendWizard />

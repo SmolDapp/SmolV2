@@ -70,6 +70,7 @@ const defaultProps: TSwapContext = {
 		slippageTolerance: 0.01,
 		order: 'SAFEST'
 	},
+	estimatedTime: undefined,
 	isFetchingQuote: false,
 	isValid: false,
 	currentError: undefined,
@@ -564,6 +565,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			currentError,
 			isFetchingQuote,
 			isValid: Boolean(currentTxRequest !== undefined && address && !currentError),
+			estimatedTime: currentTxRequest?.estimate.executionDuration || undefined,
 			retrieveExpectedOut,
 			hasSolverAllowance,
 			approveSolverSpender,
