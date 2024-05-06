@@ -126,6 +126,7 @@ module.exports = phase =>
 
 				SMOL_ASSETS_URL: 'https://assets.smold.app/api',
 				SMOL_ADDRESS: '0x10001192576E8079f12d6695b0948C2F41320040',
+				SMOL_ADDRESS_V2: '0x200010672cDB08a33547fA9C0372f622dfDAEB40',
 				PLAUSIBLE_DOMAIN: 'smold.app'
 			}
 		})

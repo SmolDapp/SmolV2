@@ -82,9 +82,9 @@ export async function getLifiRoutes(params: {
 				slippage: params.slippage,
 				order: params.order,
 				//Smol configuration
-				// integrator: 'Smol',
-				// fee: 0.02, //default
-				referrer: toAddress(process.env.SMOL_ADDRESS)
+				integrator: 'Smol',
+				fee: 0.003,
+				referrer: toAddress(process.env.SMOL_ADDRESS_V2)
 			}
 		});
 		return {result: result.data};
