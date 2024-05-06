@@ -56,6 +56,12 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 	}, [initialTokenRaw]);
 
 	const getInitialAmount = (amount: string, token: TToken | undefined): string => {
+		amount = amount.toLocaleLowerCase();
+		if (amount.includes('1e+')) {
+			const scientificString = amount.replace('1e+', '1e');
+			const bigIntValue = BigInt(parseFloat(scientificString).toFixed(0));
+			amount = bigIntValue.toString();
+		}
 		return amount && token ? toNormalizedBN(amount, token.decimals).display : '0';
 	};
 
