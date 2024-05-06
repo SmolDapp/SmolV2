@@ -11,8 +11,7 @@ export default function SendPage(): ReactElement {
 		<SwapContextApp>
 			{({configuration: {input, output}}) => (
 				<SendQueryManagement>
-					<BalancesCurtainContextApp
-						selectedTokenAddresses={[input, output].map(input => input.token?.address).filter(Boolean)}>
+					<BalancesCurtainContextApp selectedTokens={[input, output].map(elem => elem.token).filter(Boolean)}>
 						<Swap />
 					</BalancesCurtainContextApp>
 				</SendQueryManagement>

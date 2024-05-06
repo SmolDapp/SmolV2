@@ -1,3 +1,4 @@
+import type {ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
 
 /**************************************************************************************************
@@ -11,7 +12,7 @@ export type TSelectCallback = (item: TToken) => void;
  *************************************************************************************************/
 export type TWalletLayoutProps = {
 	filteredTokens: TToken[];
-	selectedTokenAddresses?: TAddress[];
+	selectedTokens?: TToken[];
 	isLoading: boolean;
 	onSelect?: TSelectCallback;
 	searchTokenAddress?: TAddress;
@@ -28,7 +29,7 @@ export type TBalancesCurtain = {
 	allTokens: TToken[];
 	isLoading: boolean;
 	onSelect: TSelectCallback | undefined;
-	selectedTokenAddresses?: TAddress[];
+	selectedTokens?: TToken[];
 	onOpenChange: (isOpen: boolean) => void;
 	options: TBalancesCurtainOptions;
 };
@@ -57,6 +58,6 @@ export type TBalancesCurtainContextProps = {
  ** BalancesCurtainContextApp context component.
  *************************************************************************************************/
 export type TBalancesCurtainContextAppProps = {
-	children: React.ReactElement;
-	selectedTokenAddresses?: TAddress[];
+	children: ReactElement;
+	selectedTokens?: TToken[];
 };
