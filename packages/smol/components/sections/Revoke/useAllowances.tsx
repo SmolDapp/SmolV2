@@ -18,7 +18,7 @@ export type TAllowancesConfiguration = {
 	tokenToRevoke?: TTokenAllowance | undefined;
 };
 
-const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+// const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 const parsedApprovalEvent = parseAbiItem(
 	'event Approval(address indexed owner, address indexed sender, uint256 value)'
@@ -73,7 +73,6 @@ const AllowancesContext = createContext<TAllowancesContext>(defaultProps);
 export const AllowancesContextApp = (props: {
 	children: TOptionalRenderProps<TAllowancesContext, ReactElement>;
 }): ReactElement => {
-	const {chainID} = useChainID();
 	const {address} = useAccount();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
@@ -120,7 +119,7 @@ export const AllowancesContextApp = (props: {
 				return;
 			}
 			try {
-				const approveEventLogs = await getClient(isDev ? chainID : safeChainID).getLogs({
+				const approveEventLogs = await getClient(safeChainID).getLogs({
 					address: tokenAddresses,
 					event: parsedApprovalEvent,
 					args: {
@@ -137,7 +136,7 @@ export const AllowancesContextApp = (props: {
 				}
 			}
 		},
-		[address, chainID, safeChainID]
+		[address, safeChainID]
 	);
 
 	const contextValue = useMemo(
