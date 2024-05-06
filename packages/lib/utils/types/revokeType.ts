@@ -7,7 +7,7 @@ export type TAllowance = {
 	args: {
 		owner: TAddress;
 		sender: TAddress;
-		value: bigint;
+		value: string | number | bigint | undefined;
 	};
 	blockHash: TAddress;
 	blockNumber: bigint;

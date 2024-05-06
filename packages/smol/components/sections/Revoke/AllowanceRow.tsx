@@ -20,10 +20,10 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	const {tokenDecimals, tokenSymbol} = useGetTokenInfo(allowance.address);
 
 	const allowanceAmount = useMemo(() => {
-		if (allowance.args.value > parseUnits('115', 74)) {
+		if ((allowance.args.value as bigint) > parseUnits('115', 74)) {
 			return 'unlimited';
 		}
-		return getTokenAmount(tokenDecimals, allowance.args.value);
+		return getTokenAmount(tokenDecimals, allowance.args.value as bigint);
 	}, [tokenDecimals, allowance]);
 
 	return (

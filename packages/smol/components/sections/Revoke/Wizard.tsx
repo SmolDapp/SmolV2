@@ -2,6 +2,7 @@ import {useCallback, useState} from 'react';
 import {ErrorModal} from 'packages/lib/common/ErrorModal';
 import {SuccessModal} from 'packages/lib/common/SuccessModal';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 
@@ -15,6 +16,7 @@ import type {TTokenAllowance} from './useAllowances';
 export const RevokeWizard = (): ReactElement => {
 	const {provider} = useWeb3();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
+	const {currentNetworkTokenList} = useTokenList();
 	const {chainID, safeChainID} = useChainID();
 	const {refreshApproveEvents, dispatchConfiguration, configuration} = useAllowances();
 
@@ -47,11 +49,11 @@ export const RevokeWizard = (): ReactElement => {
 				statusHandler: set_revokeStatus
 			}).then(result => {
 				if (result.isSuccessful) {
-					onRevokeSuccess(configuration.tokensToCheck?.map(item => item.address!));
+					onRevokeSuccess(Object.values(currentNetworkTokenList).map(item => item.address));
 				}
 			});
 		},
-		[chainID, configuration.tokensToCheck, dispatchConfiguration, isDev, onRevokeSuccess, provider, safeChainID]
+		[chainID, currentNetworkTokenList, dispatchConfiguration, isDev, onRevokeSuccess, provider, safeChainID]
 	);
 
 	return (

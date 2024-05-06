@@ -1,3 +1,5 @@
+import {IconSpinner} from 'packages/lib/icons/IconSpinner';
+
 import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
@@ -10,17 +12,17 @@ type TAllowancesTableProps = {
 };
 
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
-	const {allowances} = useAllowances();
+	const {allowances, isLoading} = useAllowances();
 
 	const noAllowances = <div>{'No allowances'}</div>;
 
 	return (
 		<>
-			{allowances?.length === 0 || allowances === null ? (
+			{allowances?.length === 0 ? (
 				noAllowances
-			) : (
-				<table className={'text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right'}>
-					<thead className={'text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase'}>
+			) : allowances?.length ? (
+				<table className={'mt-10 w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'}>
+					<thead className={'bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
 						<tr>
 							<th className={'px-6 py-3'}>{'Address'}</th>
 							<th className={'px-6 py-3'}>{'Token'}</th>
@@ -38,7 +40,11 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 						))}
 					</tbody>
 				</table>
-			)}
+			) : isLoading ? (
+				<div className={'flex w-full justify-center'}>
+					<IconSpinner />
+				</div>
+			) : null}
 		</>
 	);
 };

@@ -1,24 +1,28 @@
 import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
-import {parseAbiItem} from 'viem';
-import {useAccount} from 'wagmi';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {erc20Abi, parseAbiItem} from 'viem';
+import {useAccount, useReadContracts} from 'wagmi';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {allowanceOf, getClient} from '@builtbymom/web3/utils/wagmi';
+import {getClient} from '@builtbymom/web3/utils/wagmi';
 
 import type {TAllowances} from 'packages/lib/utils/types/revokeType';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
-
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
 };
+
+const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
+
+const parsedApprovalEvent = parseAbiItem(
+	'event Approval(address indexed owner, address indexed sender, uint256 value)'
+);
 
 // Edit when multiple select added
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
@@ -28,6 +32,7 @@ export type TAllowancesContext = {
 	refreshApproveEvents: (tokenAddresses: TAddress[]) => void;
 	configuration: TAllowancesConfiguration;
 	dispatchConfiguration: Dispatch<TAllowancesActions>;
+	isLoading: boolean;
 };
 
 export type TAllowancesActions =
@@ -44,7 +49,8 @@ const defaultProps: TAllowancesContext = {
 		tokensToCheck: [],
 		tokenToRevoke: undefined
 	},
-	dispatchConfiguration: (): void => undefined
+	dispatchConfiguration: (): void => undefined,
+	isLoading: false
 };
 
 const configurationReducer = (
@@ -71,26 +77,27 @@ export const AllowancesContextApp = (props: {
 	const {address} = useAccount();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
-	const {provider} = useWeb3();
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
 	const {safeChainID} = useChainID();
 
+	const {data: allAllowances, isLoading} = useReadContracts({
+		contracts: approveEvents?.map(item => {
+			return {
+				address: item.address,
+				abi: erc20Abi,
+				functionName: 'allowance',
+				args: [item.args.owner, item.args.sender]
+			};
+		})
+	});
+
 	useAsyncTrigger(async (): Promise<void> => {
-		if (!approveEvents) {
+		if (!approveEvents || !allAllowances) {
 			set_allowances(null);
 			return;
 		}
 
-		const allAllowances = [];
-		for (const item of approveEvents) {
-			const allowance = await allowanceOf({
-				connector: provider,
-				chainID: chainID,
-				tokenAddress: item.address,
-				spenderAddress: item.args.sender
-			});
-			allAllowances.push(allowance);
-		}
+		const allAllowancesValues = allAllowances.map(item => item.result);
 
 		const _allowances: TAllowances = [];
 		for (let i = 0; i < approveEvents.length; i++) {
@@ -98,14 +105,14 @@ export const AllowancesContextApp = (props: {
 				...approveEvents[i],
 				args: {
 					...approveEvents[i].args,
-					value: allAllowances[i]
+					value: allAllowancesValues[i]
 				}
 			});
 		}
 
 		set_allowances(filterNotEmptyEvents(_allowances));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [`${approveEvents}`]);
+	}, [`${approveEvents}`, allAllowances]);
 
 	const refreshApproveEvents = useCallback(
 		async (tokenAddresses?: TAddress[]): Promise<void> => {
@@ -113,10 +120,6 @@ export const AllowancesContextApp = (props: {
 				return;
 			}
 			try {
-				const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-				const parsedApprovalEvent = parseAbiItem(
-					'event Approval(address indexed owner, address indexed sender, uint256 value)'
-				);
 				const approveEventLogs = await getClient(isDev ? chainID : safeChainID).getLogs({
 					address: tokenAddresses,
 					event: parsedApprovalEvent,
@@ -142,9 +145,10 @@ export const AllowancesContextApp = (props: {
 			allowances,
 			dispatchConfiguration: dispatch,
 			refreshApproveEvents,
-			configuration
+			configuration,
+			isLoading
 		}),
-		[allowances, refreshApproveEvents, configuration]
+		[allowances, refreshApproveEvents, configuration, isLoading]
 	);
 
 	return (
