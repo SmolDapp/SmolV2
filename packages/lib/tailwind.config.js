@@ -20,12 +20,11 @@ module.exports = {
 			primaryHover: '#FFE043',
 			neutral: {
 				0: '#FFFFFF',
-				// 50: '', unavailable
-				// 100: '', unavailable
+				100: '#F9F9F9',
 				200: '#F7F7F7',
 				300: '#F3F3F3',
 				400: '#DCDDDD',
-				// 500: '', unavailable
+				500: '#ADB1BD',
 				600: '#ADB1BD',
 				700: '#474F59',
 				800: '#272B30',
