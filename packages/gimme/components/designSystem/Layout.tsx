@@ -1,4 +1,5 @@
 import {type ReactElement, type ReactNode} from 'react';
+import {type NextRouter} from 'next/router';
 import {LinkOrDiv} from 'packages/lib/common/LinkOrDiv';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
@@ -7,7 +8,6 @@ import {ConnectButton} from './ConnectButton';
 
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
-import type {NextRouter} from 'next/router';
 
 const TOP_NAV = [
 	{
@@ -51,9 +51,11 @@ export default function Layout(props: AppProps): ReactElement {
 				<div className={'flex gap-6 font-bold'}>
 					{TOP_NAV.map(item => (
 						<LinkOrDiv
+							key={item.label}
 							className={cl(
 								'text-neutral-400 transition-colors',
-								!item.isDisabled ? 'hover:text-neutral-900' : ''
+								!item.isDisabled ? 'hover:text-neutral-900' : '',
+								router.pathname === item.href ? 'text-neutral-900' : ''
 							)}
 							href={item.href}
 							isDisabled={item.isDisabled}>
