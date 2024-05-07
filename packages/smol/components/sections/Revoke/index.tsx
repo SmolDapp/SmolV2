@@ -4,7 +4,7 @@ import {RevokeWizard} from './Wizard';
 
 export function Revoke(): ReactElement {
 	return (
-		<div className={'max-w-108 w-full'}>
+		<div className={'w-full'}>
 			<RevokeWizard />
 		</div>
 	);

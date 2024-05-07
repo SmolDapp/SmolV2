@@ -21,23 +21,26 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 				<div>{'No allowances'}</div>
 			) : (
 				<table className={'mt-10 w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'}>
-					<thead className={'bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
+					<thead className={'bg-gray-50  text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
 						<tr>
-							<th className={'px-6 py-3'}>{'Address'}</th>
-							<th className={'px-6 py-3'}>{'Token'}</th>
-							<th className={'px-6 py-3'}>{'Amount'}</th>
-							<th className={'px-6 py-3'}>{'Revoke'}</th>
+							<th className={'py-3  font-medium '}>{'Asset'}</th>
+							<th className={' py-3 text-right font-light text-neutral-500'}>{'Amount'}</th>
+							<th className={'px-6 py-3 text-right font-light text-neutral-500'}>{'Spender'}</th>
+							<th className={'px-6 py-3  font-medium '}></th>
 						</tr>
 					</thead>
 					<tbody
 						suppressHydrationWarning
 						className={'w-full'}>
 						{allowances?.map(item => (
-							<AllowanceRow
-								key={item.transactionHash}
-								allowance={item}
-								revoke={revoke}
-							/>
+							<>
+								<AllowanceRow
+									key={item.transactionHash}
+									allowance={item}
+									revoke={revoke}
+								/>
+								<tr className={'h-4 rounded border-gray-100 focus:outline-none'}></tr>
+							</>
 						))}
 					</tbody>
 				</table>

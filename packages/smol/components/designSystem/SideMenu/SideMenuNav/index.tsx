@@ -32,11 +32,7 @@ const SIDE_MENU = [
 		isDisabled: true,
 		icon: <IconAppStream />
 	},
-	{
-		href: '/apps/revoke',
-		label: 'Revoke',
-		icon: <IconCross />
-	},
+
 	{
 		href: '/apps/address-book',
 		label: 'Address Book',
@@ -46,6 +42,11 @@ const SIDE_MENU = [
 		href: '/apps/wallet',
 		label: 'Wallet',
 		icon: <IconWallet />
+	},
+	{
+		href: '/apps/revoke',
+		label: 'Revoke',
+		icon: <IconCross />
 	}
 ];
 
