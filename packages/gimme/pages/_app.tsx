@@ -1,14 +1,14 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
+import {Meta} from 'lib/common/Meta';
+import {IconCheck} from 'lib/icons/IconCheck';
+import {IconCircleCross} from 'lib/icons/IconCircleCross';
 import {mainnet} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Header} from '@lib/common/Header';
-import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
-import {IconCheck} from '@lib/icons/IconCheck';
-import {IconCircleCross} from '@lib/icons/IconCircleCross';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -40,7 +40,7 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 			</WithMom>
 			<Toaster
 				toastOptions={{
-					duration: 5000,
+					duration: 5_000,
 					className: 'toast',
 					success: {
 						icon: <IconCheck className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
@@ -62,4 +62,5 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 		</WithFonts>
 	);
 }
+
 export default MyApp;

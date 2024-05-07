@@ -1,7 +1,11 @@
 'use client';
 
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, Fragment, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {ImageWithFallback} from 'lib/common/ImageWithFallback';
+import {IconGears} from 'lib/icons/IconGears';
+import {IconLoader} from 'lib/icons/IconLoader';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import useSWR from 'swr';
 import {LayoutGroup, motion} from 'framer-motion';
@@ -11,19 +15,16 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {baseFetcher} from '@builtbymom/web3/utils/fetchers';
+import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
-import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
-import {IconGears} from '@lib/icons/IconGears';
-import {IconLoader} from '@lib/icons/IconLoader';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {usePopularTokens} from '@lib/contexts/usePopularTokens';
+import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-
-import {usePopularTokens} from './usePopularTokens';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
@@ -207,6 +208,92 @@ function TokenListSelectorLayout(): ReactNode {
 }
 
 /**********************************************************************************************
+ ** The BalancesCurtainWrapper component is responsible for displaying the BalancesCurtain either
+ ** as a modal or a curtain, depending on 'appearAs' prop
+ *************************************************************************************************/
+function BalancesCurtainWrapper(props: {
+	isOpen: boolean;
+	onOpenChange: (isOpen: boolean) => void;
+	appearAs: 'modal' | 'curtain';
+	children: ReactNode;
+}): ReactElement {
+	if (props.appearAs === 'curtain') {
+		return (
+			<Dialog.Root
+				open={props.isOpen}
+				onOpenChange={props.onOpenChange}>
+				<CurtainContent>
+					<aside
+						style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
+						className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
+						<div className={'mb-4 flex flex-row items-center justify-between'}>
+							<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+							<CloseCurtainButton />
+						</div>
+						{props.children}
+					</aside>
+				</CurtainContent>
+			</Dialog.Root>
+		);
+	}
+
+	return (
+		<Transition
+			show={props.isOpen}
+			as={Fragment}>
+			<HeadlessUiDialog
+				as={'div'}
+				className={'relative z-[1000]'}
+				onClose={() => props.onOpenChange(false)}>
+				<TransitionChild
+					as={Fragment}
+					enter={'ease-out duration-300'}
+					enterFrom={'opacity-0'}
+					enterTo={'opacity-100'}
+					leave={'ease-in duration-200'}
+					leaveFrom={'opacity-100'}
+					leaveTo={'opacity-0'}>
+					<div className={'fixed inset-0 backdrop-blur-sm transition-opacity'} />
+				</TransitionChild>
+
+				<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
+					<div className={'flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0'}>
+						<TransitionChild
+							as={Fragment}
+							enter={'ease-out duration-300'}
+							enterFrom={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}
+							enterTo={'opacity-100 translate-y-0 sm:scale-100'}
+							leave={'ease-in duration-200'}
+							leaveFrom={'opacity-100 translate-y-0 sm:scale-100'}
+							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
+							<DialogPanel
+								className={cl(
+									'relative overflow-hidden flex flex-col items-center justify-center rounded-md !bg-white !p-6 transition-all',
+									'sm:my-8 sm:w-full sm:max-w-lg sm:p-6 shadow-lg'
+								)}>
+								<div className={'mb-4 flex w-full justify-between'}>
+									<p className={'font-bold'}>{'Select Token'}</p>
+									<button
+										className={'group'}
+										onClick={() => props.onOpenChange(false)}>
+										<IconCross
+											className={
+												'size-4 text-neutral-900 transition-colors group-hover:text-neutral-600'
+											}
+										/>
+									</button>
+								</div>
+								<div className={'w-full'}>{props.children}</div>
+							</DialogPanel>
+						</TransitionChild>
+					</div>
+				</div>
+			</HeadlessUiDialog>
+		</Transition>
+	);
+}
+
+/**********************************************************************************************
  ** The BalancesCurtain component is responsible for displaying the curtain with the list of
  ** tokens the user has in their wallet and a search bar to filter them.
  *************************************************************************************************/
@@ -290,84 +377,75 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	}, [tab, props.tokensWithBalance, props.allTokens, searchValue]);
 
 	return (
-		<Dialog.Root
-			open={props.isOpen}
-			onOpenChange={props.onOpenChange}>
-			<CurtainContent>
-				<aside
-					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
-					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Your Wallet'}</h3>
-						<CloseCurtainButton />
-					</div>
-					<div className={'flex h-full flex-col gap-4'}>
-						<input
+		<BalancesCurtainWrapper
+			isOpen={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			appearAs={props.options.appearAs || 'curtain'}>
+			<div className={'flex h-full flex-col gap-4'}>
+				<input
+					className={cl(
+						'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 text-base',
+						'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
+						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
+						'focus:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40'
+					)}
+					type={'text'}
+					placeholder={'0x... or Name'}
+					autoComplete={'off'}
+					autoCorrect={'off'}
+					spellCheck={'false'}
+					value={searchValue}
+					disabled={!address}
+					onChange={e => set_searchValue(e.target.value)}
+				/>
+				{props.options.withTabs ? (
+					<div className={'flex items-center gap-2'}>
+						<button
+							onClick={() => set_tab(0)}
 							className={cl(
-								'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 text-base',
-								'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
-								'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-								'focus:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40'
-							)}
-							type={'text'}
-							placeholder={'0x... or Name'}
-							autoComplete={'off'}
-							autoCorrect={'off'}
-							spellCheck={'false'}
-							value={searchValue}
-							disabled={!address}
-							onChange={e => set_searchValue(e.target.value)}
-						/>
-						{props.options.withTabs ? (
-							<div className={'flex items-center gap-2'}>
-								<button
-									onClick={() => set_tab(0)}
-									className={cl(
-										'w-full',
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 0 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<p>{'Your tokens'}</p>
-								</button>
-								<button
-									onClick={() => set_tab(1)}
-									className={cl(
-										'w-full',
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 1 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<p>{'All tokens'}</p>
-								</button>
-								<button
-									onClick={() => set_tab(3)}
-									className={cl(
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 3 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<IconGears className={'size-4'} />
-								</button>
-							</div>
-						) : null}
-
-						{tab === 0 || tab === 1 ? (
-							<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-								<WalletLayout
-									filteredTokens={filteredTokens}
-									selectedTokens={props.selectedTokens}
-									isLoading={props.isLoading}
-									onSelect={props.onSelect}
-									searchTokenAddress={searchTokenAddress}
-									onOpenChange={props.onOpenChange}
-									chainID={Number(props.options.chainID)}
-								/>
-							</div>
-						) : (
-							<TokenListSelectorLayout />
-						)}
+								'w-full',
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 0 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<p>{'Your tokens'}</p>
+						</button>
+						<button
+							onClick={() => set_tab(1)}
+							className={cl(
+								'w-full',
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 1 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<p>{'All tokens'}</p>
+						</button>
+						<button
+							onClick={() => set_tab(3)}
+							className={cl(
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 3 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<IconGears className={'size-4'} />
+						</button>
 					</div>
-				</aside>
-			</CurtainContent>
-		</Dialog.Root>
+				) : null}
+
+				{tab === 0 || tab === 1 ? (
+					<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
+						<WalletLayout
+							filteredTokens={filteredTokens}
+							selectedTokens={props.selectedTokens}
+							isLoading={props.isLoading}
+							onSelect={props.onSelect}
+							searchTokenAddress={searchTokenAddress}
+							onOpenChange={props.onOpenChange}
+							chainID={Number(props.options.chainID)}
+						/>
+					</div>
+				) : (
+					<TokenListSelectorLayout />
+				)}
+			</div>
+		</BalancesCurtainWrapper>
 	);
 }
 
@@ -381,6 +459,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
+	const {appearAs = 'curtain'} = props;
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -450,7 +529,8 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 				onSelect={currentCallbackFunction}
 				options={{
 					chainID: options.chainID || chainID,
-					withTabs: options.withTabs || false
+					withTabs: options.withTabs || false,
+					appearAs
 				}}
 			/>
 		</BalancesCurtainContext.Provider>

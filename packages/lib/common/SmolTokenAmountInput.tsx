@@ -1,55 +1,113 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
+import {SmolTokenSelectorButton} from 'lib/common/SmolTokenSelectorButton';
+import {TextTruncate} from 'lib/common/TextTruncate';
+import {getNewInput, handleLowAmount} from 'lib/utils/helpers';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {
+	cl,
+	formatCounterValue,
+	fromNormalized,
+	percentOf,
+	toBigInt,
+	toNormalizedBN,
+	zeroNormalizedBN
+} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
-import {getNewInput} from '@smolSections/Send/useSendFlow';
-import {TextTruncate} from '@lib/common/TextTruncate';
-import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
-import {handleLowAmount} from '@lib/utils/helpers';
 
-import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
-
+import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {ReactElement} from 'react';
-import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TToken} from '@builtbymom/web3/types';
 
 export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
 
 type TTokenAmountInput = {
+	showPercentButtons?: boolean;
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
 	value: TTokenAmountInputElement;
-	chainIDToUse?: number;
-	showPercentButtons?: boolean;
 };
 
 const percentIntervals = [25, 50, 75];
 
-export function SmolTokenAmountInput({
-	onSetValue,
-	value,
-	showPercentButtons = false,
-	chainIDToUse
-}: TTokenAmountInput): ReactElement {
+export function useValidateAmountInput(): {
+	validate: (inputValue: string | undefined, token: TToken | undefined) => Partial<TTokenAmountInputElement>;
+	result: Partial<TTokenAmountInputElement> | undefined;
+} {
+	const [result, set_result] = useState<Partial<TTokenAmountInputElement> | undefined>(undefined);
+
+	const validate = (inputValue: string | undefined, token: TToken | undefined): Partial<TTokenAmountInputElement> => {
+		if (!inputValue) {
+			const result = {
+				amount: inputValue,
+				normalizedBigAmount: zeroNormalizedBN,
+				isValid: false,
+				token,
+				error: 'The amount is invalid'
+			};
+			set_result(result);
+			return result;
+		}
+
+		if (+inputValue > 0) {
+			const inputBigInt = inputValue ? fromNormalized(inputValue, token?.decimals || 18) : toBigInt(0);
+			const asNormalizedBN = toNormalizedBN(inputBigInt, token?.decimals || 18);
+
+			if (!token?.address) {
+				const result = {
+					amount: asNormalizedBN.display,
+					normalizedBigAmount: asNormalizedBN,
+					isValid: false,
+					token,
+					error: 'No token selected'
+				};
+				set_result(result);
+				return result;
+			}
+
+			if (inputBigInt > token.balance.raw) {
+				const result = {
+					amount: asNormalizedBN.display,
+					normalizedBigAmount: asNormalizedBN,
+					isValid: false,
+					token,
+					error: 'Insufficient Balance'
+				};
+				set_result(result);
+				return result;
+			}
+			const result = {
+				amount: asNormalizedBN.display,
+				normalizedBigAmount: asNormalizedBN,
+				isValid: true,
+				token,
+				error: undefined
+			};
+			set_result(result);
+			return result;
+		}
+		const result = {
+			amount: '0',
+			normalizedBigAmount: zeroNormalizedBN,
+			isValid: false,
+			token,
+			error: 'The amount is invalid'
+		};
+		set_result(result);
+		return result;
+	};
+	return {validate, result};
+}
+
+export function SmolTokenAmountInput({showPercentButtons = false, onSetValue, value}: TTokenAmountInput): ReactElement {
 	const {safeChainID} = useChainID();
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const {token: selectedToken} = value;
-	const [selectedTokenBalance, set_selectedTokenBalance] = useState<TNormalizedBN>(
-		selectedToken?.balance ?? zeroNormalizedBN
-	);
+	const selectedTokenBalance = selectedToken?.balance ?? zeroNormalizedBN;
 	const {result, validate} = useValidateAmountInput();
-	const {data: prices} = usePrices({
-		tokens: selectedToken ? [selectedToken] : [],
-		chainId: chainIDToUse || safeChainID
-	});
-	const price = prices && selectedToken ? prices[selectedToken.address] : undefined;
 
-	useEffect(() => {
-		if (selectedToken) {
-			set_selectedTokenBalance(selectedToken.balance);
-		}
-	}, [selectedToken]);
+	const {data: prices} = usePrices({tokens: selectedToken ? [selectedToken] : [], chainId: safeChainID});
+	const price = prices && selectedToken ? prices[selectedToken.address] : undefined;
 
 	const onSetMax = (): void => {
 		return onSetValue({
@@ -116,15 +174,7 @@ export function SmolTokenAmountInput({
 			);
 		}
 
-		return (
-			<p>
-				{value.value
-					? `$${formatAmount(value.value, 2)}`
-					: formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}
-			</p>
-		);
-
-		// return <p>{formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}</p>;
+		return <p>{formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}</p>;
 	};
 
 	useDeepCompareEffect(() => {
@@ -134,21 +184,16 @@ export function SmolTokenAmountInput({
 		onSetValue(result);
 	}, [result]);
 
-	/**********************************************************************************************
-	 ** Remove selected token on network change, unless we are specifically setting the chainID via
-	 ** the chainIDToUse prop.
-	 *********************************************************************************************/
+	/* Remove selected token on network change */
 	useUpdateEffect(() => {
-		if (chainIDToUse === undefined) {
-			validate(value.amount, undefined);
-		}
-	}, [safeChainID, chainIDToUse]);
+		validate(value.amount, undefined);
+	}, [safeChainID]);
 
 	return (
 		<div className={'relative size-full rounded-lg'}>
 			<label
 				className={cl(
-					'z-20 relative border transition-all h-20',
+					'z-20 relative border transition-all',
 					'flex flex-grow-0 items-center cursor-text',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
 					'p-2 pl-4 group bg-neutral-0 rounded-lg',
@@ -163,7 +208,9 @@ export function SmolTokenAmountInput({
 						)}
 						placeholder={'0.00'}
 						value={value.amount}
-						onChange={value => validate(value || '', selectedToken)}
+						onChange={value => {
+							validate(value || '', selectedToken);
+						}}
 						decimalSeparator={'.'}
 						onFocus={() => set_isFocused(true)}
 						onBlur={() => set_isFocused(false)}
@@ -185,9 +232,10 @@ export function SmolTokenAmountInput({
 				</div>
 				<div className={'w-full max-w-[176px]'}>
 					<SmolTokenSelectorButton
-						onSelectToken={token => validate(value.amount, token, token.balance)}
+						onSelectToken={token => {
+							validate(value.amount, token);
+						}}
 						token={selectedToken}
-						chainID={chainIDToUse}
 					/>
 				</div>
 			</label>

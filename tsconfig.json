@@ -14,6 +14,8 @@
 			"@gimmeicons/*": ["packages/gimme/components/icons/*"],
 			"@gimmeutils/*": ["packages/gimme/utils/*"],
 			"@gimmetypes": ["packages/gimme/utils/types"],
+			"@gimmeDesignSystem/*": ["packages/gimme/components/designSystem/*"],
+			"@gimmmeSections/*": ["packages/gimme/components/sections/*"],
 
 			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
 			"@smolSections/*": ["packages/smol/components/sections/*"],
