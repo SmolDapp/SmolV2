@@ -8,6 +8,7 @@ import {supportedNetworks} from 'lib/utils/tools.chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
+import {IndexedDB} from '@contexts/useIndexedDB';
 import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 
@@ -63,25 +64,27 @@ function MyApp(props: AppProps): ReactElement {
 				}}
 				position={'top-right'}
 			/>
-			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/popular.json']}>
-				<WalletContextApp
-					shouldWorkOnTestnet={
-						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-					}>
-					<SafeProvider>
-						<PlausibleProvider
-							domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
-							enabled={true}>
-							<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
-								<Meta />
-								<Layout {...props} />
-							</main>
-						</PlausibleProvider>
-					</SafeProvider>
-				</WalletContextApp>
-			</WithMom>
+			<IndexedDB>
+				<WithMom
+					supportedChains={[...supportedNetworks, localhost]}
+					tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/popular.json']}>
+					<WalletContextApp
+						shouldWorkOnTestnet={
+							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+						}>
+						<SafeProvider>
+							<PlausibleProvider
+								domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
+								enabled={true}>
+								<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
+									<Meta />
+									<Layout {...props} />
+								</main>
+							</PlausibleProvider>
+						</SafeProvider>
+					</WalletContextApp>
+				</WithMom>
+			</IndexedDB>
 		</>
 	);
 }
