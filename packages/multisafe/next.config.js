@@ -14,9 +14,8 @@ module.exports = withPWA({
 	redirects() {
 		return [
 			{
-				source: '/',
-				has: [{type: 'host', value: 'multisafe.app'}],
-				destination: '/safe',
+				source: '/safe',
+				destination: '/',
 				permanent: true
 			},
 			{
