@@ -65,6 +65,7 @@
 		"**/*.ts",
 		"**/*.tsx",
 		"**/*.d.tsx",
+		"packages",
 		"public",
 		"public/manifest.json",
 		"stylelint.config",

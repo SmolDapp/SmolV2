@@ -22,8 +22,11 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'react', 'tailwindcss', 'unused-imports', 'simple-import-sort', 'import'],
 	settings: {
+		'import/resolver': {typescript: {}},
 		react: {version: 'detect'},
-		'import/resolver': {typescript: {}}
+		next: {
+			rootDir: 'packages/smol/'
+		}
 	},
 	rules: {
 		'import/default': 0,
