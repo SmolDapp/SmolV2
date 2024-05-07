@@ -23,10 +23,10 @@ module.exports = {
 	plugins: ['@typescript-eslint', 'react', 'tailwindcss', 'unused-imports', 'simple-import-sort', 'import'],
 	settings: {
 		react: {version: 'detect'},
-		'import/resolver': {typescript: {}},
 		next: {
 			rootDir: 'packages/*/'
-		}
+		},
+		'import/resolver': {typescript: {}}
 	},
 	rules: {
 		'import/default': 0,
