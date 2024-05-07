@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {parseAbiItem} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {isZeroAddress} from '@builtbymom/web3/utils';
@@ -46,8 +46,9 @@ export function useInfiniteApprovalLogs({
 	owner,
 	startBlock,
 	pageSize
-}: TUseContractLogsProps): ReturnType<typeof useInfiniteQuery> {
-	const {data: endBlock} = useBlockNumber({watch: true});
+}: TUseContractLogsProps): ReturnType<typeof useInfiniteQuery> & {isDoneWithInitialFetch: boolean} {
+	const {data: endBlock} = useBlockNumber({watch: true, chainId: chainID});
+	const [isDoneWithInitialFetch, set_isDoneWithInitialFetch] = useState(false);
 
 	/**********************************************************************************************
 	 ** hasNextPage is a function that will return the next page to fetch if there are still logs
@@ -102,7 +103,7 @@ export function useInfiniteApprovalLogs({
 		getNextPageParam: (_lastPage, _allPages, lastPageParam) => hasNextPage(lastPageParam),
 		select: data => data.pages.flat(),
 		staleTime: Number.POSITIVE_INFINITY,
-		enabled: !isZeroAddress(owner)
+		enabled: !isZeroAddress(owner) && addresses.length > 0
 	});
 
 	/**********************************************************************************************
@@ -113,7 +114,10 @@ export function useInfiniteApprovalLogs({
 		if (!query.isFetching && query.hasNextPage) {
 			query.fetchNextPage();
 		}
-	}, [query.isFetching, query.hasNextPage, query]);
+		if (!query.hasNextPage && !isDoneWithInitialFetch && endBlock !== undefined && query.isFetched) {
+			set_isDoneWithInitialFetch(true);
+		}
+	}, [query.isFetching, query.hasNextPage, query, isDoneWithInitialFetch, endBlock]);
 
-	return query;
+	return {...query, isDoneWithInitialFetch};
 }
