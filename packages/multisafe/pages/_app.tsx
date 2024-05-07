@@ -1,6 +1,6 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
-import {Inter} from 'next/font/google';
+import {Rubik, Source_Code_Pro} from 'next/font/google';
 import Head from 'next/head';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
@@ -14,13 +14,19 @@ import type {ReactElement} from 'react';
 
 import '../style.css';
 
-const inter = Inter({
+const rubik = Rubik({
 	weight: ['400', '500', '600', '700'],
 	subsets: ['latin'],
 	display: 'swap',
-	variable: '--inter-font'
+	variable: '--rubik-font'
 });
 
+const sourceCodePro = Source_Code_Pro({
+	weight: ['400', '500', '600', '700'],
+	subsets: ['latin'],
+	display: 'swap',
+	variable: '--scp-font'
+});
 function MyApp({Component, ...props}: AppProps): ReactElement {
 	return (
 		<>
@@ -30,7 +36,7 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 					global>
 					{`
 						html {
-							font-family: ${inter.className};
+							font-family: ${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily};
 						}
 					`}
 				</style>
@@ -40,7 +46,7 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 				supportedChains={SUPPORTED_MULTICHAINS}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
-					<div className={`${inter.variable}`}>
+					<div className={`${rubik.variable} ${sourceCodePro.variable}`}>
 						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
 							<Component {...props} />
 						</main>
