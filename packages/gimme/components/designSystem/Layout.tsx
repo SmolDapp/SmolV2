@@ -1,6 +1,7 @@
 import {type ReactElement, type ReactNode} from 'react';
-import Link from 'next/link';
+import {LinkOrDiv} from 'packages/lib/common/LinkOrDiv';
 import {AnimatePresence, motion} from 'framer-motion';
+import {cl} from '@builtbymom/web3/utils';
 
 import {ConnectButton} from './ConnectButton';
 
@@ -15,11 +16,13 @@ const TOP_NAV = [
 	},
 	{
 		href: '/portfolio',
-		label: 'Portfolio'
+		label: 'Portfolio',
+		isDisabled: true
 	},
 	{
 		href: '/about',
-		label: 'About'
+		label: 'About',
+		isDisabled: true
 	}
 ];
 
@@ -47,11 +50,15 @@ export default function Layout(props: AppProps): ReactElement {
 				</div>
 				<div className={'flex gap-6 font-bold'}>
 					{TOP_NAV.map(item => (
-						<Link
-							className={'text-neutral-400 transition-colors hover:text-neutral-900'}
-							href={item.href}>
+						<LinkOrDiv
+							className={cl(
+								'text-neutral-400 transition-colors',
+								!item.isDisabled ? 'hover:text-neutral-900' : ''
+							)}
+							href={item.href}
+							isDisabled={item.isDisabled}>
 							{item.label}
-						</Link>
+						</LinkOrDiv>
 					))}
 				</div>
 				<ConnectButton />
