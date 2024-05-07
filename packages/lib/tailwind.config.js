@@ -4,13 +4,11 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
 	content: [
-		'../smol/components/**/*.{js,ts,jsx,tsx}',
-		'../smol/contexts/**/*.{js,ts,jsx,tsx}',
-		'../smol/hooks/**/*.{js,ts,jsx,tsx}',
-		'../smol/pages/**/*.{js,ts,jsx,tsx}',
-		'../gimme/pages/**/*.{js,ts,jsx,tsx}',
-		'../gimme/hooks/**/*.{js,ts,jsx,tsx}',
-		'../lib/**/*.{js,ts,jsx,tsx}'
+		'../lib/icons/**/*.{js,jsx,ts,tsx}',
+		'../lib/common/**/*.{js,jsx,ts,tsx}',
+		'../lib/primitives/**/*.{js,jsx,ts,tsx}',
+		'../lib/types/**/*.{js,jsx,ts,tsx}',
+		'../lib/utils/**/*.{js,jsx,ts,tsx}'
 	],
 	theme: {
 		colors: {
@@ -22,12 +20,11 @@ module.exports = {
 			primaryHover: '#FFE043',
 			neutral: {
 				0: '#FFFFFF',
-				// 50: '', unavailable
-				// 100: '', unavailable
+				100: '#F9F9F9',
 				200: '#F7F7F7',
 				300: '#F3F3F3',
 				400: '#DCDDDD',
-				// 500: '', unavailable
+				500: '#ADB1BD',
 				600: '#ADB1BD',
 				700: '#474F59',
 				800: '#272B30',

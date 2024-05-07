@@ -1,25 +1,6 @@
 {
 	"extends": ["../../tsconfig.json"],
 	"compilerOptions": {
-		"paths": {
-			"@multisafeCommons/*": ["packages/multisafe/components/common/*"],
-			"@multisafeIcons/*": ["packages/multisafe/components/icons/*"],
-			"@multisafeUtils/*": ["packages/multisafe/utils/*"],
-			"@multisafe/*": ["packages/multisafe/*"]
-		},
 		"rootDir": "../.."
-	},
-	"include": [
-		"../lib/**/*",
-		"utils/**/*",
-		"components/**/*",
-		"pages/**/*",
-		".eslintrc.js",
-		"next.config.js",
-		"postcss.config.js",
-		"tailwind.config.js",
-		"next-env.d.ts",
-		"reset.d.ts",
-		"declarations.d.ts"
-	]
+	}
 }

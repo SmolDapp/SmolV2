@@ -70,6 +70,7 @@
 		"**/*.ts",
 		"**/*.tsx",
 		"**/*.d.tsx",
+		"packages",
 		"public",
 		"public/manifest.json",
 		"stylelint.config",
@@ -79,8 +80,6 @@
 		"packages/*/tailwind.config.js",
 		"packages/*/next.config.js",
 		"packages/*/stylelint.config.js",
-
-		"theme.config.js",
 		".eslintrc.js",
 		".next/types/**/*.ts",
 		"jest.config.js",
