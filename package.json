@@ -16,7 +16,7 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
-		"@builtbymom/web3": "^0.0.83",
+		"@builtbymom/web3": "^0.0.87",
 		"@closeio/use-abortable-effect": "^1.0.0",
 		"@gnosis.pm/gp-v2-contracts": "^1.1.2",
 		"@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
