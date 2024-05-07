@@ -3,7 +3,6 @@ import {Toaster} from 'react-hot-toast';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {mainnet} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
@@ -15,7 +14,7 @@ import type {ReactElement} from 'react';
 
 import '../style.css';
 
-function MyApp({Component, ...props}: AppProps): ReactElement {
+function MyApp(props: AppProps): ReactElement {
 	return (
 		<WithFonts>
 			<Meta
@@ -27,13 +26,16 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[mainnet, localhost]}
+				supportedChains={[...supportedNetworks, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
-				<WalletContextApp>
+				<WalletContextApp
+					shouldWorkOnTestnet={
+						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+					}>
 					<div>
 						<Header />
 						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
-							<Component {...props} />
+							<Layout {...props} />
 						</main>
 					</div>
 				</WalletContextApp>

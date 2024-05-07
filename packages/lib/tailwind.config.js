@@ -6,6 +6,7 @@ module.exports = {
 	content: [
 		'../lib/icons/**/*.{js,jsx,ts,tsx}',
 		'../lib/common/**/*.{js,jsx,ts,tsx}',
+		'../lib/contexts/**/*.{js,jsx,ts,tsx}',
 		'../lib/primitives/**/*.{js,jsx,ts,tsx}',
 		'../lib/types/**/*.{js,jsx,ts,tsx}',
 		'../lib/utils/**/*.{js,jsx,ts,tsx}'
