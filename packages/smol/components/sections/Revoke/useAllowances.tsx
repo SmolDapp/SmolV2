@@ -26,9 +26,9 @@ export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spend
 
 export type TAllowancesContext = {
 	allowances: TAllowances | null | undefined;
-	refreshApproveEvents: (tokenAddresses: TAddress[]) => void;
 	configuration: TAllowancesConfiguration;
 	dispatchConfiguration: Dispatch<TAllowancesActions>;
+	isDoneWithInitialFetch: boolean;
 	isLoading: boolean;
 };
 
@@ -40,13 +40,13 @@ export type TAllowancesActions =
 
 const defaultProps: TAllowancesContext = {
 	allowances: null,
-	refreshApproveEvents: async () => {},
 	configuration: {
 		tokenToCheck: undefined,
 		tokensToCheck: [],
 		tokenToRevoke: undefined
 	},
 	dispatchConfiguration: (): void => undefined,
+	isDoneWithInitialFetch: false,
 	isLoading: false
 };
 
@@ -74,12 +74,16 @@ export const AllowancesContextApp = (props: {
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
-	const {safeChainID} = useChainID();
+	const {chainID} = useChainID();
 	const {currentNetworkTokenList} = useTokenList();
 
 	const tokenAddresses = useMemo(() => {
 		return Object.values(currentNetworkTokenList).map(item => item.address);
 	}, [currentNetworkTokenList]);
+
+	useEffect(() => {
+		set_allowances(null);
+	}, [chainID]);
 
 	const {data: allAllowances, isLoading} = useReadContracts({
 		contracts: approveEvents?.map(item => {
@@ -94,7 +98,6 @@ export const AllowancesContextApp = (props: {
 
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents || !allAllowances) {
-			set_allowances(null);
 			return;
 		}
 
@@ -115,8 +118,8 @@ export const AllowancesContextApp = (props: {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [`${approveEvents}`, allAllowances]);
 
-	const {data} = useInfiniteApprovalLogs({
-		chainID: safeChainID,
+	const {data, isDoneWithInitialFetch} = useInfiniteApprovalLogs({
+		chainID: chainID,
 		addresses: tokenAddresses,
 		startBlock: 8_928_158n,
 		owner: toAddress(address),
@@ -134,11 +137,11 @@ export const AllowancesContextApp = (props: {
 		(): TAllowancesContext => ({
 			allowances,
 			dispatchConfiguration: dispatch,
-			refreshApproveEvents: (): void => undefined,
 			configuration,
+			isDoneWithInitialFetch,
 			isLoading
 		}),
-		[allowances, configuration, isLoading]
+		[allowances, configuration, isLoading, isDoneWithInitialFetch]
 	);
 
 	return (

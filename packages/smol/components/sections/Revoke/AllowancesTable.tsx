@@ -12,15 +12,14 @@ type TAllowancesTableProps = {
 };
 
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
-	const {allowances, isLoading} = useAllowances();
-
-	const noAllowances = <div>{'No allowances'}</div>;
+	const {allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
+	const isFetchingData = !isDoneWithInitialFetch || isLoading;
 
 	return (
 		<>
-			{allowances?.length === 0 ? (
-				noAllowances
-			) : allowances?.length ? (
+			{(!allowances || allowances.length === 0) && !isFetchingData ? (
+				<div>{'No allowances'}</div>
+			) : (
 				<table className={'mt-10 w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'}>
 					<thead className={'bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
 						<tr>
@@ -30,7 +29,9 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 							<th className={'px-6 py-3'}>{'Revoke'}</th>
 						</tr>
 					</thead>
-					<tbody className={'w-full'}>
+					<tbody
+						suppressHydrationWarning
+						className={'w-full'}>
 						{allowances?.map(item => (
 							<AllowanceRow
 								key={item.transactionHash}
@@ -40,11 +41,12 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 						))}
 					</tbody>
 				</table>
-			) : isLoading ? (
-				<div className={'flex w-full justify-center'}>
-					<IconSpinner />
+			)}
+			{isFetchingData && (
+				<div className={'mt-10 flex items-center justify-center'}>
+					<IconSpinner className={'size-6'} />
 				</div>
-			) : null}
+			)}
 		</>
 	);
 };

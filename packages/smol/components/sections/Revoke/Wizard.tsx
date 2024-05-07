@@ -16,21 +16,9 @@ export const RevokeWizard = (): ReactElement => {
 	const {provider} = useWeb3();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
 	const {chainID, safeChainID} = useChainID();
-	const {refreshApproveEvents, dispatchConfiguration, configuration} = useAllowances();
+	const {dispatchConfiguration, configuration} = useAllowances();
 
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-
-	const onRevokeSuccess = useCallback(
-		(tokenAddresses: TAddress[] | undefined): void => {
-			set_revokeStatus({...defaultTxStatus, success: true});
-
-			if (!tokenAddresses) {
-				return;
-			}
-			refreshApproveEvents(tokenAddresses);
-		},
-		[refreshApproveEvents]
-	);
 
 	const revokeTokenAllowance = useCallback(
 		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
@@ -47,11 +35,11 @@ export const RevokeWizard = (): ReactElement => {
 				statusHandler: set_revokeStatus
 			}).then(result => {
 				if (result.isSuccessful) {
-					onRevokeSuccess(configuration.tokensToCheck?.map(item => item.address!));
+					set_revokeStatus({...defaultTxStatus, success: true});
 				}
 			});
 		},
-		[chainID, configuration.tokensToCheck, dispatchConfiguration, isDev, onRevokeSuccess, provider, safeChainID]
+		[chainID, dispatchConfiguration, isDev, provider, safeChainID]
 	);
 
 	return (

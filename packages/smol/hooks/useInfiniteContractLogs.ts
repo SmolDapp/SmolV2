@@ -51,6 +51,14 @@ export function useInfiniteApprovalLogs({
 	const [isDoneWithInitialFetch, set_isDoneWithInitialFetch] = useState(false);
 
 	/**********************************************************************************************
+	 ** If we are getting a new chainID, addresses, or owner, we want to reset the
+	 ** isDoneWithInitialFetch flag to false. This will allow us to fetch the logs again.
+	 *********************************************************************************************/
+	useEffect(() => {
+		set_isDoneWithInitialFetch(false);
+	}, [chainID, addresses, owner]);
+
+	/**********************************************************************************************
 	 ** hasNextPage is a function that will return the next page to fetch if there are still logs
 	 ** to fetch. If the endBlock is reached, the function will return undefined, which is used to
 	 ** indicate that we want to fetch everything up to the endBlock.
@@ -84,7 +92,7 @@ export function useInfiniteApprovalLogs({
 	 ** in a single array.
 	 *********************************************************************************************/
 	const query = useInfiniteQuery({
-		queryKey: ['infinite_contract_logs', addresses, startBlock.toString()],
+		queryKey: ['infinite_contract_logs', addresses, startBlock.toString(), chainID, owner],
 		queryFn: async ({pageParam}) => {
 			return getClient(chainID).getLogs({
 				address: addresses,
