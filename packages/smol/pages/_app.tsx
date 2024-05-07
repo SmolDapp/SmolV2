@@ -10,7 +10,6 @@ import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
-import {Analytics} from '@vercel/analytics/react';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -86,7 +85,6 @@ function MyApp(props: AppProps): ReactElement {
 					</SafeProvider>
 				</WalletContextApp>
 			</WithMom>
-			<Analytics />
 		</>
 	);
 }

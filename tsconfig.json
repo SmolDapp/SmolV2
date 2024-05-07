@@ -80,9 +80,7 @@
 		"packages/*/tailwind.config.js",
 		"packages/*/next.config.js",
 		"packages/*/stylelint.config.js",
-
-		"theme.config.js",
-		"eslint.config.js",
+		".eslintrc.js",
 		".next/types/**/*.ts",
 		"jest.config.js",
 		"vitest.config.ts",
