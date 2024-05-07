@@ -3,6 +3,11 @@
 		"rootDirs": ["."],
 		"baseUrl": ".",
 		"paths": {
+			"@multisafeCommons/*": ["packages/multisafe/components/common/*"],
+			"@multisafeIcons/*": ["packages/multisafe/components/icons/*"],
+			"@multisafeUtils/*": ["packages/multisafe/utils/*"],
+			"@multisafe/*": ["packages/multisafe/*"],
+
 			"@gimmecommon/*": ["packages/gimme/components/common/*"],
 			"@gimmeicons/*": ["packages/gimme/components/icons/*"],
 			"@gimmeutils/*": ["packages/gimme/utils/*"],
@@ -70,14 +75,10 @@
 		"stylelint.config",
 		"commitlint.config",
 
-		"packages/gimme/postcss.config.js",
-		"packages/gimme/tailwind.config.js",
-		"packages/gimme/next.config.js",
-		"packages/smol/postcss.config.js",
-		"packages/smol/tailwind.config.js",
-		"packages/smol/next.config.js",
-		"packages/lib/postcss.config.js",
-		"packages/lib/tailwind.config.js",
+		"packages/*/postcss.config.js",
+		"packages/*/tailwind.config.js",
+		"packages/*/next.config.js",
+		"packages/*/stylelint.config.js",
 
 		"theme.config.js",
 		".eslintrc.js",
@@ -85,7 +86,6 @@
 		"jest.config.js",
 		"vitest.config.ts",
 		"worker/index.js",
-		"packages/gimme/stylelint.config.js",
 		"utils/*/*.json"
 	]
 }
