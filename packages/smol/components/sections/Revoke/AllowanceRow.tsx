@@ -33,15 +33,15 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 			}
 			key={transactionHash}>
 			<td className={'max-w-56 px-6 py-3'}>
-				<p className={'truncate'}>{args.sender}</p>
+				<p className={'truncate  text-sm '}>{args.sender}</p>
 			</td>
-			<td className={'px-6 py-3'}>{tokenSymbol}</td>
-			<td className={'max-w-md truncate px-6 py-3'}>{allowanceAmount}</td>
+			<td className={'px-6 py-3 text-right'}>{tokenSymbol}</td>
+			<td className={'max-w-[120px] truncate px-6 py-3 text-right'}>{allowanceAmount}</td>
 			<td className={'max-w-8 p-3'}>
 				<Button
 					onClick={() => revoke({address: allowance.address, name: tokenSymbol ?? ''}, allowance.args.sender)}
-					className={'!h-8'}>
-					{'Revoke'}
+					className={'!h-8 font-bold'}>
+					<p className={'text-xs font-bold leading-6'}>{'Revoke'}</p>
 				</Button>
 			</td>
 		</tr>
