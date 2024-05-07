@@ -1,11 +1,14 @@
-import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
+import {createContext, useContext, useEffect, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
-import {erc20Abi, parseAbiItem} from 'viem';
-import {useAccount, useReadContracts} from 'wagmi';
+import {erc20Abi} from 'viem';
+import {useReadContracts} from 'wagmi';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {toAddress} from '@builtbymom/web3/utils';
+import {useInfiniteApprovalLogs} from '@hooks/useInfiniteContractLogs';
 
 import type {TAllowances} from 'packages/lib/utils/types/revokeType';
 import type {Dispatch, ReactElement} from 'react';
@@ -17,12 +20,6 @@ export type TAllowancesConfiguration = {
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
 };
-
-// const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-
-const parsedApprovalEvent = parseAbiItem(
-	'event Approval(address indexed owner, address indexed sender, uint256 value)'
-);
 
 // Edit when multiple select added
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
@@ -73,11 +70,16 @@ const AllowancesContext = createContext<TAllowancesContext>(defaultProps);
 export const AllowancesContextApp = (props: {
 	children: TOptionalRenderProps<TAllowancesContext, ReactElement>;
 }): ReactElement => {
-	const {address} = useAccount();
+	const {address} = useWeb3();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
 	const {safeChainID} = useChainID();
+	const {currentNetworkTokenList} = useTokenList();
+
+	const tokenAddresses = useMemo(() => {
+		return Object.values(currentNetworkTokenList).map(item => item.address);
+	}, [currentNetworkTokenList]);
 
 	const {data: allAllowances, isLoading} = useReadContracts({
 		contracts: approveEvents?.map(item => {
@@ -113,41 +115,30 @@ export const AllowancesContextApp = (props: {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [`${approveEvents}`, allAllowances]);
 
-	const refreshApproveEvents = useCallback(
-		async (tokenAddresses?: TAddress[]): Promise<void> => {
-			if (!tokenAddresses) {
-				return;
-			}
-			try {
-				const approveEventLogs = await getClient(safeChainID).getLogs({
-					address: tokenAddresses,
-					event: parsedApprovalEvent,
-					args: {
-						owner: address
-					},
-					fromBlock: 1n
-				});
+	const {data} = useInfiniteApprovalLogs({
+		chainID: safeChainID,
+		addresses: tokenAddresses,
+		startBlock: 8_928_158n,
+		owner: toAddress(address),
+		pageSize: 1_000_000n
+	});
 
-				const filteredEvents = getLatestNotEmptyEvents(approveEventLogs as TAllowances);
-				set_approveEvents(filteredEvents);
-			} catch (error) {
-				if (error instanceof Error) {
-					console.error('Error refreshing approve events:', error);
-				}
-			}
-		},
-		[address, safeChainID]
-	);
+	useEffect((): void => {
+		if (data) {
+			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances);
+			set_approveEvents(filteredEvents);
+		}
+	}, [data]);
 
 	const contextValue = useMemo(
 		(): TAllowancesContext => ({
 			allowances,
 			dispatchConfiguration: dispatch,
-			refreshApproveEvents,
+			refreshApproveEvents: (): void => undefined,
 			configuration,
 			isLoading
 		}),
-		[allowances, refreshApproveEvents, configuration, isLoading]
+		[allowances, configuration, isLoading]
 	);
 
 	return (
