@@ -1,7 +1,6 @@
 import {useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
-import {IconCopy} from 'packages/lib/icons/IconCopy';
 import {Button} from 'packages/lib/primitives/Button';
 import {getTokenAmount} from 'packages/lib/utils/tools.revoke';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -34,10 +33,8 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	const {safeChainID} = useChainID();
 
 	return (
-		<tr
-			className={'border-separate rounded-md border border-neutral-400'}
-			key={transactionHash}>
-			<td className={'p-6'}>
+		<tr key={transactionHash}>
+			<td className={'rounded-l-md border-y border-l border-neutral-400 p-6'}>
 				<div className={'flex'}>
 					<div>
 						<ImageWithFallback
@@ -51,48 +48,52 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 						/>
 					</div>
 					<div className={'ml-4 flex flex-col'}>
-						<div className={'font-bold'}>{tokenSymbol}</div>
+						<div className={'text-base font-bold'}>{tokenSymbol}</div>
 
 						<button
 							className={
-								'z-10 flex w-full cursor-copy items-center justify-end text-sm font-light text-neutral-600'
+								'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
 							}
 							onClick={e => {
 								e.stopPropagation();
 								navigator.clipboard.writeText(toAddress(args.sender));
 								toast.success(`Address copied to clipboard: ${toAddress(allowance.address)}`);
 							}}>
-							<p className={'mb-[-2px] mr-1 hover:underline'}> {truncateHex(allowance.address, 5)}</p>
-							<IconCopy className={'size-4 font-bold'} />
+							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
+								{truncateHex(allowance.address, 5)}
+							</p>
 						</button>
 					</div>
 				</div>
 			</td>
-			<td className={'p-y-6  max-w-[120px] truncate'}>
-				<p className={'flex items-center justify-end text-base leading-6'}>{allowanceAmount}</p>
+			<td className={'p-y-6 h-full items-center border-y border-neutral-400 text-right'}>
+				<div className={'flex max-w-[100px] justify-end'}>
+					<p className={'h-full truncate text-base leading-6'}>{allowanceAmount}</p>
+				</div>
 			</td>
-			<td className={'max-w-32 p-6 '}>
+			<td className={'max-w-32 border-y border-neutral-400 p-6'}>
 				<div className={'flex flex-col text-right'}>
-					<div className={'font-bold'}>{tokenName}</div>
-					<div className={'flex items-center justify-end text-sm font-light text-neutral-600'}>
+					<div className={'flex max-w-[170px] justify-end'}>
+						<p className={'truncate text-base font-light text-neutral-900'}>{tokenName}</p>
+					</div>
+					<div className={'flex items-center justify-end font-light text-neutral-600'}>
 						<div className={'grid w-full'}>
 							<button
 								className={
-									'z-10 flex w-full cursor-copy items-center justify-end text-sm font-light text-neutral-600'
+									'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
 								}
 								onClick={e => {
 									e.stopPropagation();
 									navigator.clipboard.writeText(toAddress(args.sender));
 									toast.success(`Address copied to clipboard: ${toAddress(args.sender)}`);
 								}}>
-								<p className={'mb-[-2px] mr-1 hover:underline'}> {truncateHex(args.sender, 5)}</p>
-								<IconCopy className={'size-4 font-bold'} />
+								<p className={'mb-[-2px] text-xs hover:underline'}> {truncateHex(args.sender, 5)}</p>
 							</button>
 						</div>
 					</div>
 				</div>
 			</td>
-			<td className={'w-32 p-3'}>
+			<td className={'w-32 rounded-r-md border-y border-r border-neutral-400 p-3'}>
 				<Button
 					onClick={() => revoke({address: allowance.address, name: tokenSymbol ?? ''}, allowance.args.sender)}
 					className={'!h-8 font-bold'}>
