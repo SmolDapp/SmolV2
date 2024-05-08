@@ -9,14 +9,16 @@ import {
 	decodeAsBigInt,
 	decodeAsNumber,
 	decodeAsString,
+	isEthAddress,
 	isZeroAddress,
 	toAddress,
 	toNormalizedBN,
-	truncateHex
+	truncateHex,
+	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useSyncUrlParams} from '@hooks/useSyncUrlParams';
-import {readContracts, serialize} from '@wagmi/core';
+import {getBalance, readContracts, serialize} from '@wagmi/core';
 
 import {getNewInputToken, useSwapFlow} from './useSwapFlow.lifi';
 
@@ -136,42 +138,58 @@ export const SwapQueryManagement = (props: {
 		const {chainFrom, tokenFrom} = stateFromUrl;
 		const calls = [];
 		if (chainFrom && tokenFrom && toAddress(configuration.input.token?.address) !== toAddress(tokenFrom)) {
-			const from = {abi: erc20Abi, address: toAddress(tokenFrom), chainId: chainFrom};
-			calls.push({...from, functionName: 'symbol'});
-			calls.push({...from, functionName: 'decimals'});
-			if (!isZeroAddress(address)) {
-				calls.push({...from, functionName: 'balanceOf', args: [address]});
+			if (isEthAddress(tokenFrom)) {
+				const balance = await getBalance(retrieveConfig(), {address: toAddress(address), chainId: chainFrom});
+				const nativeCoin = getNetwork(chainFrom).nativeCurrency;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenFrom),
+					chainID: chainFrom,
+					symbol: nativeCoin.symbol,
+					decimals: nativeCoin.decimals,
+					name: nativeCoin.symbol,
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainFrom}/${tokenFrom}/logo-128.png`,
+					value: 0,
+					balance: isZeroAddress(address)
+						? zeroNormalizedBN
+						: toNormalizedBN(balance.value, nativeCoin.decimals)
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				dispatchConfiguration({type: 'SET_INPUT_VALUE', payload: newToken});
+			} else {
+				const from = {abi: erc20Abi, address: toAddress(tokenFrom), chainId: chainFrom};
+				calls.push({...from, functionName: 'symbol'});
+				calls.push({...from, functionName: 'decimals'});
+				if (!isZeroAddress(address)) {
+					calls.push({...from, functionName: 'balanceOf', args: [address]});
+				}
+
+				if (!calls.length) {
+					return;
+				}
+
+				/******************************************************************************************
+				 ** Once we have a valid result, we just need to update the configuration with the new
+				 ** token information, mimicking the user input.
+				 *****************************************************************************************/
+				const result = await readContracts(retrieveConfig(), {contracts: calls});
+				const [symbol, decimals, balance] = result.splice(0, 3);
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenFrom),
+					chainID: chainFrom,
+					symbol: decodeAsString(symbol),
+					decimals: decodeAsNumber(decimals),
+					name: decodeAsString(symbol),
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainFrom}/${tokenFrom}/logo-128.png`,
+					value: 0,
+					balance: toNormalizedBN(decodeAsBigInt(balance), decodeAsNumber(decimals))
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				dispatchConfiguration({type: 'SET_INPUT_VALUE', payload: newToken});
 			}
-		}
-
-		if (!calls.length) {
-			return;
-		}
-
-		/******************************************************************************************
-		 ** Once we have a valid result, we just need to update the configuration with the new
-		 ** token information, mimicking the user input.
-		 *****************************************************************************************/
-		const result = await readContracts(retrieveConfig(), {contracts: calls});
-		if (chainFrom && tokenFrom && toAddress(configuration.input.token?.address) !== toAddress(tokenFrom)) {
-			const [symbol, decimals, balance] = result.splice(0, 3);
-			const newToken = getNewInputToken();
-			newToken.token = {
-				address: toAddress(tokenFrom),
-				chainID: chainFrom,
-				symbol: decodeAsString(symbol),
-				decimals: decodeAsNumber(decimals),
-				name: decodeAsString(symbol),
-				logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainFrom}/${tokenFrom}/logo-128.png`,
-				value: 0,
-				balance: toNormalizedBN(decodeAsBigInt(balance), decodeAsNumber(decimals))
-			};
-			newToken.amount = newToken.token.balance.display;
-			newToken.normalizedBigAmount = newToken.token.balance;
-			dispatchConfiguration({
-				type: 'SET_INPUT_VALUE',
-				payload: newToken
-			});
 		}
 
 		/******************************************************************************************
@@ -212,37 +230,54 @@ export const SwapQueryManagement = (props: {
 		const {chainTo, tokenTo} = stateFromUrl;
 		const calls = [];
 		if (chainTo && tokenTo && toAddress(configuration.output.token?.address) !== toAddress(tokenTo)) {
-			const to = {abi: erc20Abi, address: toAddress(tokenTo), chainId: chainTo};
-			calls.push({...to, functionName: 'symbol'});
-			calls.push({...to, functionName: 'decimals'});
-		}
+			if (isEthAddress(tokenTo)) {
+				const balance = await getBalance(retrieveConfig(), {address: toAddress(address), chainId: chainTo});
+				const nativeCoin = getNetwork(chainTo).nativeCurrency;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenTo),
+					chainID: chainTo,
+					symbol: nativeCoin.symbol,
+					decimals: nativeCoin.decimals,
+					name: nativeCoin.symbol,
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainTo}/${tokenTo}/logo-128.png`,
+					value: 0,
+					balance: isZeroAddress(address)
+						? zeroNormalizedBN
+						: toNormalizedBN(balance.value, nativeCoin.decimals)
+				};
+				dispatchConfiguration({type: 'SET_OUTPUT_VALUE', payload: newToken});
+			} else {
+				const to = {abi: erc20Abi, address: toAddress(tokenTo), chainId: chainTo};
+				calls.push({...to, functionName: 'symbol'});
+				calls.push({...to, functionName: 'decimals'});
+				if (!isZeroAddress(address)) {
+					calls.push({...to, functionName: 'balanceOf', args: [address]});
+				}
 
-		if (!calls.length) {
-			return;
-		}
+				if (!calls.length) {
+					return;
+				}
 
-		/******************************************************************************************
-		 ** Once we have a valid result, we just need to update the configuration with the new
-		 ** token information, mimicking the user input.
-		 *****************************************************************************************/
-		const result = await readContracts(retrieveConfig(), {contracts: calls});
-		if (chainTo && tokenTo && toAddress(configuration.output.token?.address) !== toAddress(tokenTo)) {
-			const [symbol, decimals, balance] = result.splice(0, 2);
-			const newToken = getNewInputToken();
-			newToken.token = {
-				address: toAddress(tokenTo),
-				chainID: chainTo,
-				symbol: decodeAsString(symbol),
-				decimals: decodeAsNumber(decimals),
-				name: decodeAsString(symbol),
-				logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainTo}/${tokenTo}/logo-128.png`,
-				value: 0,
-				balance: toNormalizedBN(decodeAsBigInt(balance), decodeAsNumber(decimals))
-			};
-			dispatchConfiguration({
-				type: 'SET_OUTPUT_VALUE',
-				payload: newToken
-			});
+				/******************************************************************************************
+				 ** Once we have a valid result, we just need to update the configuration with the new
+				 ** token information, mimicking the user input.
+				 *****************************************************************************************/
+				const result = await readContracts(retrieveConfig(), {contracts: calls});
+				const [symbol, decimals, balance] = result.splice(0, 3);
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenTo),
+					chainID: chainTo,
+					symbol: decodeAsString(symbol),
+					decimals: decodeAsNumber(decimals),
+					name: decodeAsString(symbol),
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainTo}/${tokenTo}/logo-128.png`,
+					value: 0,
+					balance: toNormalizedBN(decodeAsBigInt(balance), decodeAsNumber(decimals))
+				};
+				dispatchConfiguration({type: 'SET_OUTPUT_VALUE', payload: newToken});
+			}
 		}
 
 		/******************************************************************************************
