@@ -3,8 +3,8 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {truncateHex} from '@builtbymom/web3/utils';
 
 export function ConnectButton(): ReactElement {
-	const {onConnect, address, ens, onDesactivate} = useWeb3();
-
+	const {onConnect, address, chainID, ens, onDesactivate} = useWeb3();
+	console.log(chainID);
 	const buttonLabel = useMemo(() => {
 		if (ens) {
 			return ens;

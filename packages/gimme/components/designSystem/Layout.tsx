@@ -1,10 +1,11 @@
 import {type ReactElement, type ReactNode} from 'react';
 import {type NextRouter} from 'next/router';
-import {LinkOrDiv} from 'packages/lib/common/LinkOrDiv';
+import {LinkOrDiv} from 'lib/common/LinkOrDiv';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 
 import {ConnectButton} from './ConnectButton';
+import {NetworkPopoverSelector} from './NetworkPopoverSelector';
 
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
@@ -63,7 +64,10 @@ export default function Layout(props: AppProps): ReactElement {
 						</LinkOrDiv>
 					))}
 				</div>
-				<ConnectButton />
+				<div className={'flex gap-2'}>
+					<NetworkPopoverSelector />
+					<ConnectButton />
+				</div>
 			</div>
 			<App>
 				<AnimatePresence>
