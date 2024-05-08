@@ -66,9 +66,9 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 					</div>
 				</div>
 			</td>
-			<td className={'p-y-6 h-full items-center border-y border-neutral-400 text-right'}>
-				<div className={'flex max-w-[100px] justify-end'}>
-					<p className={'h-full truncate text-base leading-6'}>{allowanceAmount}</p>
+			<td className={'p-y-6 max-w-[80px] border-y border-neutral-400'}>
+				<div className={'flex w-full justify-end'}>
+					<p className={'h-full truncate text-right text-base leading-6'}>{allowanceAmount}</p>
 				</div>
 			</td>
 			<td className={'max-w-32 border-y border-neutral-400 p-6'}>
