@@ -5,6 +5,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 
+import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
 
@@ -44,6 +45,7 @@ export const RevokeWizard = (): ReactElement => {
 
 	return (
 		<>
+			<AllowancesFilters />
 			<AllowancesTable revoke={revokeTokenAllowance} />
 
 			<ErrorModal

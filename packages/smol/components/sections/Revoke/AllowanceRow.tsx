@@ -34,7 +34,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 
 	return (
 		<tr key={transactionHash}>
-			<td className={'rounded-l-md border-y border-l border-neutral-400 p-6'}>
+			<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
 				<div className={'flex'}>
 					<div>
 						<ImageWithFallback
@@ -93,7 +93,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 					</div>
 				</div>
 			</td>
-			<td className={'w-32 rounded-r-md border-y border-r border-neutral-400 p-3'}>
+			<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
 				<Button
 					onClick={() => revoke({address: allowance.address, name: tokenSymbol ?? ''}, allowance.args.sender)}
 					className={'!h-8 font-bold'}>

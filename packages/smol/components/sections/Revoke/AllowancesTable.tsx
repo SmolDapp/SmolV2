@@ -1,9 +1,10 @@
+import {type ReactElement, useMemo, useState} from 'react';
+import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {IconSpinner} from 'packages/lib/icons/IconSpinner';
 
 import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
-import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAllowance} from './useAllowances';
 
@@ -11,9 +12,33 @@ type TAllowancesTableProps = {
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 };
 
+type TSortType = {
+	sortBy: 'spender' | 'amount' | null;
+	asc: boolean;
+};
+
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
 	const {allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading;
+
+	const [sort, set_sort] = useState<TSortType>({sortBy: null, asc: true});
+
+	const sortedAllowances = useMemo(() => {
+		if (sort.sortBy === 'amount' && sort.asc) {
+			return allowances?.toSorted((a, b) => (a.args.value! > b.args.value! ? -1 : 1));
+		}
+		if (sort.sortBy === 'amount' && !sort.asc) {
+			return allowances?.toSorted((a, b) => (a.args.value! < b.args.value! ? -1 : 1));
+		}
+		if (sort.sortBy === 'spender' && sort.asc) {
+			console.log(allowances?.map(item => item.address));
+			return allowances?.toSorted((a, b) => a.args.sender.localeCompare(b.args.sender));
+		}
+		if (sort.sortBy === 'spender' && !sort.asc) {
+			return allowances?.toSorted((a, b) => b.args.sender.localeCompare(a.args.sender));
+		}
+		return allowances;
+	}, [allowances, sort.asc, sort.sortBy]);
 
 	return (
 		<>
@@ -22,20 +47,64 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 			) : (
 				<table
 					className={
-						'mt-10 w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'
+						'mt-6 w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'
 					}>
 					<thead className={'bg-gray-50 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
 						<tr>
 							<th className={'font-medium'}>{'Asset'}</th>
-							<th className={'text-right font-light text-neutral-500'}>{'Amount'}</th>
-							<th className={'px-6 text-right font-light text-neutral-500'}>{'Spender'}</th>
+							<th className={'flex justify-end font-light text-neutral-500'}>
+								<button
+									onClick={() =>
+										set_sort(prev => {
+											return {
+												...sort,
+												sortBy: 'amount',
+												asc: prev.sortBy === 'amount' ? !prev.asc : prev.asc
+											};
+										})
+									}
+									className={'flex items-center'}>
+									<p>{'Amount'}</p>
+									{sort.sortBy === 'amount' && !sort.asc ? (
+										<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+									) : sort.sortBy === 'amount' && sort.asc ? (
+										<IconChevronPlain className={'ml-1 size-4'} />
+									) : (
+										<IconChevronPlain className={'ml-1 size-4'} />
+									)}
+								</button>
+							</th>
+							<th className={'px-6 font-light text-neutral-500'}>
+								<div className={'flex justify-end'}>
+									<button
+										onClick={() =>
+											set_sort(prev => {
+												return {
+													...sort,
+													sortBy: 'spender',
+													asc: prev.sortBy === 'spender' ? !prev.asc : prev.asc
+												};
+											})
+										}
+										className={'flex items-center justify-end'}>
+										<p>{'Spender'}</p>
+										{sort.sortBy === 'spender' && !sort.asc ? (
+											<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+										) : sort.sortBy === 'spender' && sort.asc ? (
+											<IconChevronPlain className={'ml-1 size-4'} />
+										) : (
+											<IconChevronPlain className={'ml-1 size-4'} />
+										)}
+									</button>
+								</div>
+							</th>
 							<th className={'px-6 font-medium'}></th>
 						</tr>
 					</thead>
 					<tbody
 						suppressHydrationWarning
 						className={'w-full'}>
-						{allowances?.map(item => (
+						{sortedAllowances?.map(item => (
 							<>
 								<AllowanceRow
 									key={item.transactionHash}

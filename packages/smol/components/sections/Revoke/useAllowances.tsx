@@ -15,10 +15,13 @@ import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
+export type TStablesFilter = 'stables' | 'non-stables' | null;
+
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
+	stablesFilter?: TStablesFilter;
 };
 
 // Edit when multiple select added
@@ -36,14 +39,16 @@ export type TAllowancesActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
 	| {type: 'RESET'; payload: undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
-	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined};
+	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
+	| {type: 'SET_STABLES_FILTER'; payload: TStablesFilter};
 
 const defaultProps: TAllowancesContext = {
 	allowances: null,
 	configuration: {
 		tokenToCheck: undefined,
 		tokensToCheck: [],
-		tokenToRevoke: undefined
+		tokenToRevoke: undefined,
+		stablesFilter: null
 	},
 	dispatchConfiguration: (): void => undefined,
 	isDoneWithInitialFetch: false,
@@ -63,6 +68,8 @@ const configurationReducer = (
 			return {...state, tokensToCheck: action.payload ? [...action.payload] : []};
 		case 'SET_TOKEN_TO_REVOKE':
 			return {...state, tokenToRevoke: action.payload};
+		case 'SET_STABLES_FILTER':
+			return {...state, stablesFilter: action.payload};
 	}
 };
 
