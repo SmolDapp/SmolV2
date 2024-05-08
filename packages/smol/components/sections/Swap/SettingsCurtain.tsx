@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
+import Link from 'next/link';
 import {CurtainContent} from 'lib/primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
 import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
@@ -79,7 +80,7 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 					</div>
 					<div className={'flex h-full flex-col gap-4'}>
 						<div className={'scrollable text-neutral-600'}>
-							<p>{'You can customize a few elements of your swap to better suit your needs.'}</p>
+							<p>{'Customize your swap settings, because why not?'}</p>
 						</div>
 						<div className={'my-1 h-px w-full bg-neutral-300'} />
 						<div className={'scrollable mb-8 mt-0 flex flex-col items-center gap-2 pb-2'}>
@@ -88,8 +89,15 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<p className={'text-sm text-neutral-900'}>{'Route preference'}</p>
 									<p className={'text-xs text-neutral-600'}>
 										{
-											'This setting allows you to prioritize different aspects of your swap to better suit your needs. By default, Smol will always prioritize the safest route for you, but you might want to go yolo!'
+											'Smol’s cross chain swaps are powered by Li.Fi. Smol priotizes the safest swap route by default but you can change your settings here. To learn more about the different options please feel free to check Li.Fi’s '
 										}
+										<Link
+											target={'_blank'}
+											className={'underline'}
+											href={'https://apidocs.li.fi/reference/get_quote'}>
+											{'docs'}
+										</Link>
+										{'.'}
 									</p>
 								</div>
 								<div
@@ -127,7 +135,7 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<p className={'text-sm text-neutral-900'}>{'Slippage tolerance'}</p>
 									<p className={'text-xs text-neutral-600'}>
 										{
-											'This setting allows you to set a tolerance for the price impact of your swap. If the price of the token changes by more than the set percentage, the transaction will fail.'
+											'Adjust your slippage tolerance for the price impact of your swap. If the price of the token changes by more than the set percentage, the swap will fail.'
 										}
 									</p>
 								</div>

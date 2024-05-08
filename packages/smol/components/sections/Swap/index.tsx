@@ -255,7 +255,7 @@ export function Swap(): ReactElement {
 					<button
 						onClick={() => set_shouldUseCustomRecipient(prev => !prev)}
 						className={'flex cursor-pointer items-center justify-center text-sm text-neutral-600'}>
-						<p className={'pr-1'}>{'Send to someone else'}</p>
+						<p className={'pr-1'}>{'Send to a different address'}</p>
 						<IconChevronBottom
 							className={cl(
 								'size-3.5 transition-all duration-100',
