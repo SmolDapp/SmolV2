@@ -205,6 +205,19 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	const quoteAbortController = useRef<AbortController>(new AbortController());
 
 	/**********************************************************************************************
+	 ** The resetState function will reset the state of the context. It will set the fetching state
+	 ** to false, the current transaction request to undefined, the current error to undefined, and
+	 ** it will reset the configuration to its default values.
+	 ** This is mainly used after a successful swap.
+	 *********************************************************************************************/
+	const resetState = useCallback((): void => {
+		set_isFetchingQuote(false);
+		set_currentTxRequest(undefined);
+		set_currentError(undefined);
+		dispatch({type: 'RESET', payload: undefined});
+	}, []);
+
+	/**********************************************************************************************
 	 ** onRefreshSolverBalances will refresh the balances of the input and output tokens. It will
 	 ** also refresh the balance of the native token of the input token chain.
 	 ** This is triggered after a successful swap.
@@ -542,6 +555,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					statusHandler({...defaultTxStatus, success: true, data: result});
 					await new Promise(resolve => setTimeout(resolve, 1000));
 					toast.dismiss(toastID);
+					resetState();
 				} else {
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
 					toast.dismiss(toastID);

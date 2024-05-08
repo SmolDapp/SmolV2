@@ -5,7 +5,7 @@ import {Button} from 'lib/primitives/Button';
 import {truncateHexTx} from 'lib/utils/helpers';
 import {IconAppSwap} from 'packages/lib/icons/IconApps';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
@@ -114,6 +114,7 @@ export function SendWizard(): ReactElement {
 		approveSolverSpender,
 		performSolverSwap,
 		isValid,
+		estimatedTime,
 		retrieveExpectedOut
 	} = useSwapFlow();
 	const [approveStatus, set_approveStatus] = useState(defaultTxStatus);
@@ -121,8 +122,7 @@ export function SendWizard(): ReactElement {
 	const [hasEnoughAllowance, set_hasEnoughAllowance] = useState(false);
 
 	const onHandleSwap = useCallback(async (): Promise<void> => {
-		const hasBeenExecuted = await performSolverSwap(set_swapStatus);
-		console.warn({hasBeenExecuted});
+		await performSolverSwap(set_swapStatus);
 	}, [performSolverSwap]);
 
 	/**********************************************************************************************
@@ -171,9 +171,11 @@ export function SendWizard(): ReactElement {
 				<div>
 					<button
 						onClick={async () => retrieveExpectedOut(true)}
-						className={
-							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
-						}>
+						className={cl(
+							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600',
+							'transition-all hover:scale-110',
+							estimatedTime ? 'opacity-100' : 'opacity-0 pointer-events-none'
+						)}>
 						<IconAppSwap className={'size-4 transition-colors group-hover:text-black'} />
 					</button>
 				</div>

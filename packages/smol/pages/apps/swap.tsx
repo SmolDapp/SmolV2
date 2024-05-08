@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
 import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import {SendQueryManagement} from '@sections/Send/useSendQuery';
 import {Swap} from '@sections/Swap';
 import {SwapContextApp} from '@sections/Swap/useSwapFlow.lifi';
+import {SwapQueryManagement} from '@sections/Swap/useSwapQuery';
 
 import type {ReactElement} from 'react';
 
@@ -10,11 +10,11 @@ export default function SendPage(): ReactElement {
 	return (
 		<SwapContextApp>
 			{({configuration: {input, output}}) => (
-				<SendQueryManagement>
+				<SwapQueryManagement>
 					<BalancesCurtainContextApp selectedTokens={[input, output].map(elem => elem.token).filter(Boolean)}>
 						<Swap />
 					</BalancesCurtainContextApp>
-				</SendQueryManagement>
+				</SwapQueryManagement>
 			)}
 		</SwapContextApp>
 	);

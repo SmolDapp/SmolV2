@@ -147,12 +147,12 @@ export function Swap(): ReactElement {
 
 	useEffect(() => {
 		if (fromNetwork === -1) {
-			set_fromNetwork(chainID);
+			set_fromNetwork(configuration.input.token?.chainID || chainID);
 		} else if (configuration.input.token?.chainID) {
 			set_fromNetwork(configuration.input.token.chainID);
 		}
 		if (toNetwork === -1) {
-			set_toNetwork(chainID);
+			set_toNetwork(configuration.output.token?.chainID || chainID);
 		} else if (configuration.output.token?.chainID) {
 			set_toNetwork(configuration.output.token.chainID);
 		}
@@ -189,7 +189,7 @@ export function Swap(): ReactElement {
 
 				<div className={'mb-1 mt-2 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
 					<div className={cl('flex flex-row gap-2')}>
-						<div>
+						<div className={'w-20'}>
 							<NetworkInputSelector
 								value={fromNetwork}
 								networks={swapSupportedNetworks}
@@ -225,7 +225,7 @@ export function Swap(): ReactElement {
 					</div>
 
 					<div className={cl('flex flex-row gap-2')}>
-						<div>
+						<div className={'w-20'}>
 							<NetworkInputSelector
 								value={toNetwork}
 								networks={swapSupportedNetworks}
@@ -251,10 +251,10 @@ export function Swap(): ReactElement {
 					</div>
 				</div>
 
-				<div
-					onClick={() => set_shouldUseCustomRecipient(prev => !prev)}
-					className={'flex w-full justify-between pl-1 pt-2'}>
-					<button className={'flex cursor-pointer items-center justify-center text-sm text-neutral-600'}>
+				<div className={'flex w-full justify-between pl-1 pt-2'}>
+					<button
+						onClick={() => set_shouldUseCustomRecipient(prev => !prev)}
+						className={'flex cursor-pointer items-center justify-center text-sm text-neutral-600'}>
 						<p className={'pr-1'}>{'Send to someone else'}</p>
 						<IconChevronBottom
 							className={cl(
@@ -270,21 +270,23 @@ export function Swap(): ReactElement {
 						</span>
 					</p>
 				</div>
-				{shouldUseCustomRecipient ? (
-					<div className={'my-1 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto'}>
-						<div className={cl('flex flex-row gap-2 mt-1')}>
-							<div className={'w-full'}>
-								<SmolAddressInput
-									inputRef={inputRef}
-									isSimple
-									isSplitted
-									onSetValue={onSetRecipient}
-									value={configuration.receiver}
-								/>
-							</div>
+				<div
+					className={cl(
+						'my-1 w-full items-center rounded-xl bg-neutral-200 p-6 pr-10 md:w-auto',
+						shouldUseCustomRecipient ? 'block' : 'hidden'
+					)}>
+					<div className={cl('flex flex-row gap-2 mt-1')}>
+						<div className={'w-full'}>
+							<SmolAddressInput
+								inputRef={inputRef}
+								isSimple
+								isSplitted
+								onSetValue={onSetRecipient}
+								value={configuration.receiver}
+							/>
 						</div>
 					</div>
-				) : null}
+				</div>
 			</div>
 
 			<div className={'mt-2'}>
