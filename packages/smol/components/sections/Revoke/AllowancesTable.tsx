@@ -49,7 +49,9 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 	return (
 		<>
 			{(!allowances || allowances.length === 0) && !isFetchingData ? (
-				<div>{'No allowances'}</div>
+				<div className={'mt-10 flex w-full justify-center'}>
+					<p>{'No allowances'}</p>
+				</div>
 			) : (
 				<table
 					className={
@@ -132,13 +134,11 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 						suppressHydrationWarning
 						className={'w-full'}>
 						{sortedAllowances?.map(item => (
-							<>
-								<AllowanceRow
-									key={item.transactionHash}
-									allowance={item}
-									revoke={revoke}
-								/>
-							</>
+							<AllowanceRow
+								key={item.transactionHash}
+								allowance={item}
+								revoke={revoke}
+							/>
 						))}
 					</tbody>
 				</table>

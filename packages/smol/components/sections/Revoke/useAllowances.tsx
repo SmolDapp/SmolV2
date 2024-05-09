@@ -1,6 +1,6 @@
 import {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
+import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {erc20Abi} from 'viem';
 import {useReadContracts} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -19,12 +19,14 @@ import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
 export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
+export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
 
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
 	unlimitedFilter?: TUnlimitedFilter;
+	allowancesFilters: TFilters;
 };
 
 export type TExpandedAllowance = TAllowance & {
@@ -44,12 +46,46 @@ export type TAllowancesContext = {
 	isLoading: boolean;
 };
 
+export type TAllowancesFilter = {
+	filterBy: 'asset' | 'spender' | 'unlimited' | 'with-balance';
+	filter: 'unlimited' | 'limited' | 'with-balance' | 'without-balance' | TAddress;
+};
+
+export type TFilters = {
+	unlimited: {
+		filter: TUnlimitedFilter;
+	};
+	withBalance: {
+		filter: TWithBalanceFilter;
+	};
+	asset: {
+		filter: TAddress[] | null;
+	};
+	spender: {
+		filter: TAddress[] | null;
+	};
+};
+
 export type TAllowancesActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
-	| {type: 'RESET'; payload: undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
-	| {type: 'SET_UNLIMITED_FILTER'; payload: TUnlimitedFilter};
+	| {type: 'SET_FILTER'; payload: TFilters};
+
+const initialFilters = {
+	unlimited: {
+		filter: null
+	},
+	withBalance: {
+		filter: null
+	},
+	asset: {
+		filter: null
+	},
+	spender: {
+		filter: null
+	}
+};
 
 const defaultProps: TAllowancesContext = {
 	allowances: null,
@@ -57,7 +93,8 @@ const defaultProps: TAllowancesContext = {
 		tokenToCheck: undefined,
 		tokensToCheck: [],
 		tokenToRevoke: undefined,
-		unlimitedFilter: null
+		unlimitedFilter: null,
+		allowancesFilters: initialFilters
 	},
 	dispatchConfiguration: (): void => undefined,
 	isDoneWithInitialFetch: false,
@@ -71,14 +108,12 @@ const configurationReducer = (
 	switch (action.type) {
 		case 'SET_TOKEN_TO_CHECK':
 			return {...state, tokenToCheck: action.payload};
-		case 'RESET':
-			return {tokenToCheck: undefined, tokensToCheck: undefined};
+		case 'SET_FILTER':
+			return {...state, allowancesFilters: action.payload};
 		case 'SET_TOKENS_TO_CHECK':
 			return {...state, tokensToCheck: action.payload ? [...action.payload] : []};
 		case 'SET_TOKEN_TO_REVOKE':
 			return {...state, tokenToRevoke: action.payload};
-		case 'SET_UNLIMITED_FILTER':
-			return {...state, unlimitedFilter: action.payload};
 	}
 };
 
@@ -112,6 +147,17 @@ export const AllowancesContextApp = (props: {
 			};
 		})
 	});
+
+	const filteredAllowances = useMemo(() => {
+		const unlimitedFilter = configuration.allowancesFilters.unlimited.filter;
+		return expandedAllowances.filter(item =>
+			unlimitedFilter === 'unlimited'
+				? isUnlimited(item.args.value as bigint)
+				: unlimitedFilter === 'limited'
+					? !isUnlimited(item.args.value as bigint)
+					: expandedAllowances
+		);
+	}, [configuration.allowancesFilters.unlimited.filter, expandedAllowances]);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents || !allAllowances) {
@@ -155,6 +201,11 @@ export const AllowancesContextApp = (props: {
 		return [...new Set(allowanceAddresses)];
 	}, [allowances]);
 
+	/*********************************************************************************
+	 ** When we fetch allowances, they don't have enough information in them, such as
+	 ** name, symbol and decimals. Here we take only unique tokens from all allowances
+	 ** and make a query.
+	 **********************************************************************************/
 	const expandAllowances = useCallback(async () => {
 		if (!allowances || !isDoneWithInitialFetch) {
 			return;
@@ -176,6 +227,10 @@ export const AllowancesContextApp = (props: {
 		if (data.length < 3) {
 			return;
 		}
+		/************************************************************************
+		 ** When we have an array of those additional fields, we form a dictionary
+		 ** with key of an address and additional fields as a value.
+		 *************************************************************************/
 		for (let i = 0; i < uniqueTokenAddresses.length; i++) {
 			const itterator = i * 3;
 			const address = uniqueTokenAddresses[i];
@@ -187,6 +242,9 @@ export const AllowancesContextApp = (props: {
 		}
 		const _expandedAllowances = [];
 
+		/********************************************************
+		 ** Here we expand allowances array using this dictionary
+		 *******************************************************/
 		for (const allowance of allowances) {
 			_expandedAllowances.push({
 				...allowance,
@@ -201,13 +259,13 @@ export const AllowancesContextApp = (props: {
 
 	const contextValue = useMemo(
 		(): TAllowancesContext => ({
-			allowances: expandedAllowances,
+			allowances: filteredAllowances,
 			dispatchConfiguration: dispatch,
 			configuration,
 			isDoneWithInitialFetch,
 			isLoading
 		}),
-		[expandedAllowances, configuration, isDoneWithInitialFetch, isLoading]
+		[filteredAllowances, configuration, isDoneWithInitialFetch, isLoading]
 	);
 
 	useEffect((): void => {

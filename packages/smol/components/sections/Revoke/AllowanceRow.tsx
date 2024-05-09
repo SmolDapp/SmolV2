@@ -2,9 +2,9 @@ import {useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
-import {getTokenAmount} from 'packages/lib/utils/tools.revoke';
+import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {parseUnits, toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 
 import {useGetTokenInfo} from './useGetTokenInfo';
 
@@ -22,7 +22,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	const {tokenName} = useGetTokenInfo(args.sender);
 
 	const allowanceAmount = useMemo(() => {
-		if ((allowance.args.value as bigint) > parseUnits('115', 74)) {
+		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
 		}
 		return getTokenAmount(allowance.decimals, allowance.args.value as bigint);
@@ -54,7 +54,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 							}
 							onClick={e => {
 								e.stopPropagation();
-								navigator.clipboard.writeText(toAddress(args.sender));
+								navigator.clipboard.writeText(toAddress(allowance.address));
 								toast.success(`Address copied to clipboard: ${toAddress(allowance.address)}`);
 							}}>
 							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>

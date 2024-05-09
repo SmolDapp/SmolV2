@@ -4,7 +4,7 @@
  * @returns {TAllowances}
  */
 
-import {formatUnits} from 'viem';
+import {formatUnits, parseUnits} from 'viem';
 
 import type {TAllowance, TAllowances} from './types/revokeType';
 
@@ -54,4 +54,8 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
 
 export const getTokenAmount = (decimals?: number, amountInBigint?: bigint): string => {
 	return formatUnits(amountInBigint ?? BigInt(0), decimals || 0);
+};
+
+export const isUnlimited = (value: bigint): boolean => {
+	return (value as bigint) > parseUnits('115', 74);
 };
