@@ -1,6 +1,6 @@
 import {type ReactElement} from 'react';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
-import {SelectOpportunityButton} from '@gimmeDesignSystem/SelectOpportunityButton';
+import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectOpportunityButton';
 
 import {useEarnFlow} from './useEarnFlow';
 
