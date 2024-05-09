@@ -13,7 +13,7 @@ type TAllowancesTableProps = {
 };
 
 type TSortType = {
-	sortBy: 'spender' | 'amount' | null;
+	sortBy: 'spender' | 'amount' | 'token' | null;
 	asc: boolean;
 };
 
@@ -31,12 +31,18 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 			return allowances?.toSorted((a, b) => (a.args.value! < b.args.value! ? -1 : 1));
 		}
 		if (sort.sortBy === 'spender' && sort.asc) {
-			console.log(allowances?.map(item => item.address));
 			return allowances?.toSorted((a, b) => a.args.sender.localeCompare(b.args.sender));
 		}
 		if (sort.sortBy === 'spender' && !sort.asc) {
 			return allowances?.toSorted((a, b) => b.args.sender.localeCompare(a.args.sender));
 		}
+		if (sort.sortBy === 'token' && sort.asc) {
+			return allowances?.toSorted((a, b) => (a.symbol && b.symbol ? a.symbol?.localeCompare(b.symbol) : 0));
+		}
+		if (sort.sortBy === 'token' && !sort.asc) {
+			return allowances?.toSorted((a, b) => (a.symbol && b.symbol ? b.symbol?.localeCompare(a.symbol) : 0));
+		}
+
 		return allowances;
 	}, [allowances, sort.asc, sort.sortBy]);
 
@@ -51,7 +57,28 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 					}>
 					<thead className={'bg-gray-50 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
 						<tr>
-							<th className={'font-medium'}>{'Asset'}</th>
+							<th className={' font-light text-neutral-500'}>
+								<button
+									onClick={() =>
+										set_sort(prev => {
+											return {
+												...sort,
+												sortBy: 'token',
+												asc: prev.sortBy === 'token' ? !prev.asc : prev.asc
+											};
+										})
+									}
+									className={'flex items-center'}>
+									<p>{'Asset'}</p>
+									{sort.sortBy === 'token' && !sort.asc ? (
+										<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+									) : sort.sortBy === 'token' && sort.asc ? (
+										<IconChevronPlain className={'ml-1 size-4'} />
+									) : (
+										<IconChevronPlain className={'ml-1 size-4'} />
+									)}
+								</button>
+							</th>
 							<th className={'flex justify-end font-light text-neutral-500'}>
 								<button
 									onClick={() =>

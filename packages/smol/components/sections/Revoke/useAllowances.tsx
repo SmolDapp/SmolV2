@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useMemo, useReducer, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
 import {erc20Abi} from 'viem';
@@ -8,27 +8,36 @@ import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useInfiniteApprovalLogs} from '@hooks/useInfiniteContractLogs';
+import {readContracts} from '@wagmi/core';
 
-import type {TAllowances} from 'packages/lib/utils/types/revokeType';
+import type {TAllowance, TAllowances} from 'packages/lib/utils/types/revokeType';
 import type {Dispatch, ReactElement} from 'react';
+import type {Abi} from 'viem';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
-export type TStablesFilter = 'stables' | 'non-stables' | null;
+export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
 
 export type TAllowancesConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
-	stablesFilter?: TStablesFilter;
+	unlimitedFilter?: TUnlimitedFilter;
+};
+
+export type TExpandedAllowance = TAllowance & {
+	name?: string;
+	symbol?: string;
+	decimals?: number;
 };
 
 // Edit when multiple select added
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
 
 export type TAllowancesContext = {
-	allowances: TAllowances | null | undefined;
+	allowances: TExpandedAllowance[] | null | undefined;
 	configuration: TAllowancesConfiguration;
 	dispatchConfiguration: Dispatch<TAllowancesActions>;
 	isDoneWithInitialFetch: boolean;
@@ -40,7 +49,7 @@ export type TAllowancesActions =
 	| {type: 'RESET'; payload: undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
-	| {type: 'SET_STABLES_FILTER'; payload: TStablesFilter};
+	| {type: 'SET_UNLIMITED_FILTER'; payload: TUnlimitedFilter};
 
 const defaultProps: TAllowancesContext = {
 	allowances: null,
@@ -48,7 +57,7 @@ const defaultProps: TAllowancesContext = {
 		tokenToCheck: undefined,
 		tokensToCheck: [],
 		tokenToRevoke: undefined,
-		stablesFilter: null
+		unlimitedFilter: null
 	},
 	dispatchConfiguration: (): void => undefined,
 	isDoneWithInitialFetch: false,
@@ -68,8 +77,8 @@ const configurationReducer = (
 			return {...state, tokensToCheck: action.payload ? [...action.payload] : []};
 		case 'SET_TOKEN_TO_REVOKE':
 			return {...state, tokenToRevoke: action.payload};
-		case 'SET_STABLES_FILTER':
-			return {...state, stablesFilter: action.payload};
+		case 'SET_UNLIMITED_FILTER':
+			return {...state, unlimitedFilter: action.payload};
 	}
 };
 
@@ -81,6 +90,7 @@ export const AllowancesContextApp = (props: {
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
+	const [expandedAllowances, set_expandedAllowances] = useState<TExpandedAllowance[]>([]);
 	const {chainID} = useChainID();
 	const {currentNetworkTokenList} = useTokenList();
 
@@ -140,16 +150,72 @@ export const AllowancesContextApp = (props: {
 		}
 	}, [data]);
 
+	const uniqueTokenAddresses = useMemo(() => {
+		const allowanceAddresses = allowances?.map(allowance => allowance.address);
+		return [...new Set(allowanceAddresses)];
+	}, [allowances]);
+
+	const expandAllowances = useCallback(async () => {
+		if (!allowances || !isDoneWithInitialFetch) {
+			return;
+		}
+
+		const calls: {address: TAddress; abi: Abi; functionName: string}[] = [];
+		for (const token of uniqueTokenAddresses) {
+			calls.push({abi: erc20Abi, address: token, functionName: 'name'});
+			calls.push({abi: erc20Abi, address: token, functionName: 'symbol'});
+			calls.push({abi: erc20Abi, address: token, functionName: 'decimals'});
+		}
+
+		const data = await readContracts(retrieveConfig(), {
+			contracts: calls
+		});
+
+		const dictionary: {[key: TAddress]: {name: string; symbol: string; decimals: number}} = {};
+
+		if (data.length < 3) {
+			return;
+		}
+		for (let i = 0; i < uniqueTokenAddresses.length; i++) {
+			const itterator = i * 3;
+			const address = uniqueTokenAddresses[i];
+			const name = data[itterator].result;
+			const symbol = data[itterator + 1].result;
+			const decimals = data[itterator + 2].result;
+
+			dictionary[address] = {name: name as string, symbol: symbol as string, decimals: decimals as number};
+		}
+		const _expandedAllowances = [];
+
+		for (const allowance of allowances) {
+			_expandedAllowances.push({
+				...allowance,
+				name: dictionary[allowance.address].name,
+				symbol: dictionary[allowance.address].symbol,
+				decimals: dictionary[allowance.address].decimals
+			});
+		}
+
+		set_expandedAllowances(_expandedAllowances);
+	}, [allowances, isDoneWithInitialFetch, uniqueTokenAddresses]);
+
 	const contextValue = useMemo(
 		(): TAllowancesContext => ({
-			allowances,
+			allowances: expandedAllowances,
 			dispatchConfiguration: dispatch,
 			configuration,
 			isDoneWithInitialFetch,
 			isLoading
 		}),
-		[allowances, configuration, isLoading, isDoneWithInitialFetch]
+		[expandedAllowances, configuration, isDoneWithInitialFetch, isLoading]
 	);
+
+	useEffect((): void => {
+		if (!allowances) {
+			return;
+		}
+		expandAllowances();
+	}, [allowances, expandAllowances]);
 
 	return (
 		<AllowancesContext.Provider value={contextValue}>

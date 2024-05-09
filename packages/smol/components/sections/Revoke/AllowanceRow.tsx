@@ -8,27 +8,25 @@ import {parseUnits, toAddress, truncateHex} from '@builtbymom/web3/utils';
 
 import {useGetTokenInfo} from './useGetTokenInfo';
 
-import type {TAllowance} from 'packages/lib/utils/types/revokeType';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TTokenAllowance} from './useAllowances';
+import type {TExpandedAllowance, TTokenAllowance} from './useAllowances';
 
 type TAllowanceRowProps = {
-	allowance: TAllowance;
+	allowance: TExpandedAllowance;
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 };
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
 	const {args, transactionHash} = allowance;
-	const {tokenDecimals, tokenSymbol} = useGetTokenInfo(allowance.address);
 	const {tokenName} = useGetTokenInfo(args.sender);
 
 	const allowanceAmount = useMemo(() => {
 		if ((allowance.args.value as bigint) > parseUnits('115', 74)) {
 			return 'Unlimited';
 		}
-		return getTokenAmount(tokenDecimals, allowance.args.value as bigint);
-	}, [tokenDecimals, allowance]);
+		return getTokenAmount(allowance.decimals, allowance.args.value as bigint);
+	}, [allowance]);
 
 	const {safeChainID} = useChainID();
 
@@ -38,7 +36,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 				<div className={'flex'}>
 					<div>
 						<ImageWithFallback
-							alt={tokenSymbol ?? ''}
+							alt={allowance.symbol ?? ''}
 							unoptimized
 							src={`${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${allowance.address}/logo-32.png`}
 							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${allowance.address}/logo-32.png`}
@@ -48,7 +46,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 						/>
 					</div>
 					<div className={'ml-4 flex flex-col'}>
-						<div className={'text-base font-bold'}>{tokenSymbol}</div>
+						<div className={'text-base font-bold'}>{allowance.symbol}</div>
 
 						<button
 							className={
@@ -95,7 +93,9 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 			</td>
 			<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
 				<Button
-					onClick={() => revoke({address: allowance.address, name: tokenSymbol ?? ''}, allowance.args.sender)}
+					onClick={() =>
+						revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender)
+					}
 					className={'!h-8 font-bold'}>
 					<p className={'text-xs font-bold leading-6'}>{'Revoke'}</p>
 				</Button>
