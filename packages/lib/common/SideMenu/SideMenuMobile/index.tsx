@@ -1,17 +1,16 @@
 import {Fragment, useState} from 'react';
-import {IconHamburger} from 'lib/icons/IconHamburger';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isAddress} from '@builtbymom/web3/utils';
 import {Dialog, Transition} from '@headlessui/react';
 import {useIsMounted} from '@react-hookz/web';
-import {NetworkPopoverSelector} from '@smolDesignSystem/NetworkSelector/Popover';
-
-import {SideMenuFooter} from '../SideMenuFooter';
-import {SideMenuNav} from '../SideMenuNav';
-import {CoinBalance} from '../SideMenuProfile/CoinBalance';
-import {ConnectButton} from '../SideMenuProfile/ConnectButton';
-import {ProfileBox} from '../SideMenuProfile/ProfileBox';
-import {SkeletonPlaceholder} from '../SideMenuProfile/SkeletonPlaceholder';
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
+import {SideMenuFooter} from '@lib/common/SideMenu/SideMenuFooter';
+import {SideMenuNav} from '@lib/common/SideMenu/SideMenuNav';
+import {CoinBalance} from '@lib/common/SideMenu/SideMenuProfile/CoinBalance';
+import {ConnectButton} from '@lib/common/SideMenu/SideMenuProfile/ConnectButton';
+import {ProfileBox} from '@lib/common/SideMenu/SideMenuProfile/ProfileBox';
+import {SkeletonPlaceholder} from '@lib/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
+import {IconHamburger} from '@lib/icons/IconHamburger';
 
 import type {ReactElement} from 'react';
 

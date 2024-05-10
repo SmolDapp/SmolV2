@@ -1,14 +1,14 @@
 import {type ReactElement, useMemo, useState} from 'react';
-import {Warning} from 'lib/common/Warning';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 
 import {useDisperse} from './useDisperse';
 
-import type {TWarningType} from 'lib/common/Warning';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TWarningType} from '@lib/common/Warning';
 
 export function DisperseStatus(): ReactElement | null {
 	const {configuration} = useDisperse();

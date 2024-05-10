@@ -2,57 +2,26 @@
 
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import assert from 'assert';
-import {slugify} from 'lib/utils/helpers';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import {useMountEffect} from '@react-hookz/web';
-import {AddressBookCurtain} from '@smolDesignSystem/Curtains/AddressBookCurtain';
-import {AddressSelectorCurtain} from '@smolDesignSystem/Curtains/AddressSelectorCurtain';
+import {AddressBookCurtain} from '@lib/common/Curtains/AddressBookCurtain';
+import {AddressSelectorCurtain} from '@lib/common/Curtains/AddressSelectorCurtain';
+import {slugify} from '@lib/utils/helpers';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {
+	TAddressBookEntry,
+	TAddressBookEntryReducer,
+	TAddressBookProps,
+	TCurtainStatus,
+	TSelectCallback
+} from '@lib/types/AddressBook';
 
-export type TAddressBookEntry = {
-	id?: number; // Unique ID of the entry
-	address: TAddress | undefined; // Address of the entry. Can be undefined if the entry is not yet saved.
-	label: string; // Name the user gave to the address. Default to a truncated version of the address.
-	chains: number[]; // List of chains on which the address is valid. Dynamically updated when the user interacts.
-	slugifiedLabel: string; // Slugified version of the label. Used for searching.
-	ens?: string; // ENS name of the address. Not saved in the database.
-	isFavorite?: boolean; // Indicates if the address is a favorite.
-	isHidden?: boolean; // Indicates if the address is hidden from the address book.
-	numberOfInteractions?: number; // Number of times the address has been used for a action via Smol.
-	tags?: string[]; // List of tags associated with the address.
-};
-type TCurtainStatus = {isOpen: boolean; isEditing: boolean; label?: string};
-export type TSelectCallback = (item: TAddressBookEntry) => void;
-export type TAddressBookEntryReducer =
-	| {type: 'SET_SELECTED_ENTRY'; payload: TAddressBookEntry}
-	| {type: 'SET_ADDRESS'; payload: TAddress | undefined}
-	| {type: 'SET_LABEL'; payload: string}
-	| {type: 'SET_CHAINS'; payload: number[]}
-	| {type: 'SET_IS_FAVORITE'; payload: boolean};
-
-export type TAddressBookProps = {
-	shouldOpenCurtain: boolean;
-	selectedEntry: TAddressBookEntry | undefined;
-	curtainStatus: TCurtainStatus;
-	listEntries: () => Promise<TAddressBookEntry[]>;
-	listCachedEntries: () => TAddressBookEntry[];
-	getEntry: (props: {address?: TAddress; label?: string}) => Promise<TAddressBookEntry | undefined>;
-	getCachedEntry: (props: {address?: TAddress; label?: string}) => TAddressBookEntry | undefined;
-	addEntry: (entry: TAddressBookEntry) => Promise<void>;
-	updateEntry: (entry: TAddressBookEntry) => Promise<void>;
-	bumpEntryInteractions: (entry: TAddressBookEntry) => Promise<void>;
-	deleteEntry: (address: TAddress) => Promise<void>;
-	onOpenCurtain: (callbackFn: TSelectCallback) => void;
-	onCloseCurtain: () => void;
-	dispatchConfiguration: React.Dispatch<TAddressBookEntryReducer>;
-	set_curtainStatus: React.Dispatch<React.SetStateAction<TCurtainStatus>>;
-};
 const defaultCurtainStatus = {
 	isOpen: false,
 	isEditing: false

@@ -1,23 +1,18 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {TextTruncate} from 'lib/common/TextTruncate';
-import {IconAppAddressBook} from 'lib/icons/IconApps';
-import {IconChevron} from 'lib/icons/IconChevron';
-import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {defaultInputAddressLike} from 'lib/utils/tools.address';
-import {checkENSValidity} from 'lib/utils/tools.ens';
-import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useAsyncAbortable} from '@react-hookz/web';
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {getEnsName} from '@wagmi/core';
+import {AvatarWrapper} from '@lib/common/Avatar';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
+import {IconAppAddressBook} from '@lib/icons/IconApps';
+import {IconChevron} from '@lib/icons/IconChevron';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconLoader} from '@lib/icons/IconLoader';
 
-import {AvatarWrapper} from './Avatar';
-
-import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 type TAddressInput = {
 	onSetValue: (value: Partial<TInputAddressLike>) => void;
@@ -25,109 +20,6 @@ type TAddressInput = {
 	inputRef: RefObject<HTMLInputElement>;
 	isSimple?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
-
-export function useValidateAddressInput(): {
-	validate: (signal: AbortSignal | undefined, input: string) => Promise<TInputAddressLike>;
-	isCheckingValidity: boolean;
-} {
-	const {getEntry} = useAddressBook();
-	const [isCheckingValidity, set_isCheckingValidity] = useState<boolean>(false);
-
-	const validate = async (signal: AbortSignal | undefined, input: string): Promise<TInputAddressLike> => {
-		if (input === '') {
-			return defaultInputAddressLike;
-		}
-
-		/**********************************************************
-		 ** Check if the input is an address from the address book
-		 **********************************************************/
-		const fromAddressBook = await getEntry({label: input, address: toAddress(input)});
-		if (fromAddressBook && !fromAddressBook.isHidden) {
-			if (signal?.aborted) {
-				throw new Error('Aborted!');
-			}
-
-			return {
-				address: toAddress(fromAddressBook.address),
-				label: fromAddressBook.label,
-				isValid: true,
-				error: undefined,
-				source: 'addressBook'
-			};
-		}
-
-		/**********************************************************
-		 ** Check if the input is an ENS name
-		 **********************************************************/
-		if (input && input.endsWith('.eth') && input.length > 4) {
-			set_isCheckingValidity(true);
-			// onSetValue({address: undefined, label: input, isValid: 'undetermined', source: 'typed'});
-			const [address, isValid] = await checkENSValidity(input);
-			if (signal?.aborted) {
-				throw new Error('Aborted!');
-			}
-			if (isAddress(address)) {
-				set_isCheckingValidity(false);
-				const fromAddressBook = await getEntry({label: input, address: toAddress(address)});
-				if (fromAddressBook && !fromAddressBook.isHidden) {
-					return {
-						address: toAddress(fromAddressBook.address),
-						label: fromAddressBook.label || fromAddressBook.ens || input,
-						isValid: true,
-						error: undefined,
-						source: 'addressBook'
-					};
-				}
-
-				return {address, label: input, error: undefined, isValid, source: 'typed'};
-			}
-			set_isCheckingValidity(false);
-
-			return {
-				address: undefined,
-				label: input,
-				isValid: false,
-				error: 'This ENS name looks invalid',
-				source: 'typed'
-			};
-		}
-
-		/**********************************************************
-		 ** Check if the input is an address
-		 **********************************************************/
-		if (isAddress(input)) {
-			if (signal?.aborted) {
-				throw new Error('Aborted!');
-			}
-			set_isCheckingValidity(true);
-
-			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id});
-
-			if (signal?.aborted) {
-				throw new Error('Aborted!');
-			}
-			set_isCheckingValidity(false);
-
-			return {
-				address: toAddress(input),
-				label: ensName || toAddress(input),
-				error: undefined,
-				isValid: true,
-				source: 'typed'
-			};
-		}
-
-		return {
-			address: undefined,
-			label: input,
-			isValid: false,
-			error: 'This address looks invalid',
-			source: 'typed'
-		};
-	};
-
-	return {isCheckingValidity, validate};
-}
 
 export function SmolAddressInput({
 	onSetValue,
@@ -137,9 +29,7 @@ export function SmolAddressInput({
 	...rest
 }: TAddressInput): ReactElement {
 	const {onOpenCurtain} = useAddressBook();
-
 	const [isFocused, set_isFocused] = useState<boolean>(false);
-
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
 

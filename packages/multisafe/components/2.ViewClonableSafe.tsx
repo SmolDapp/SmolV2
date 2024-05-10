@@ -1,6 +1,4 @@
 import React, {useCallback, useState} from 'react';
-import {Button} from 'lib/primitives/Button';
-import {SUPPORTED_MULTICHAINS} from 'packages/lib/utils/constants';
 import {fromHex, type Hex} from 'viem';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
@@ -21,10 +19,12 @@ import {
 	SINGLETON_L2_DDP
 } from '@multisafeUtils/constants';
 import {getTransaction} from '@wagmi/core';
+import {Button} from '@lib/primitives/Button';
+import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
-import type {TAppExtendedChain} from 'packages/lib/utils/tools.chains';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TAppExtendedChain} from '@lib/utils/tools.chains';
 import type {TInputAddressLike} from '@multisafeCommons/AddressInput';
 import type {GetTransactionReturnType} from '@wagmi/core';
 

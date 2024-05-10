@@ -1,9 +1,9 @@
 import {type ReactElement, useMemo} from 'react';
-import {Warning} from 'lib/common/Warning';
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 
-import type {TWarningType} from 'lib/common/Warning';
-import type {TInputAddressLike} from 'lib/utils/tools.address';
+import type {TWarningType} from '@lib/common/Warning';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 export const AddressBookStatus = ({
 	set_isFormValid,
@@ -12,9 +12,7 @@ export const AddressBookStatus = ({
 	set_isFormValid: (value: boolean) => void;
 	addressLike: TInputAddressLike;
 }): ReactElement | null => {
-	const {selectedEntry} = useAddressBook();
-	const {getCachedEntry} = useAddressBook();
-
+	const {getCachedEntry, selectedEntry} = useAddressBook();
 	const entry = getCachedEntry({label: selectedEntry?.label});
 	const addressEntry = getCachedEntry({address: addressLike.address});
 	const status: {type: TWarningType; message: string | ReactElement} | null = useMemo(() => {

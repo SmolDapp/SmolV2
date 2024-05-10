@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {IconWallet} from 'packages/lib/icons/IconWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {truncateHex} from '@builtbymom/web3/utils';
 import {useAccountModal, useChainModal} from '@rainbow-me/rainbowkit';
 import {useIsMounted} from '@react-hookz/web';
+import {IconWallet} from '@lib/icons/IconWallet';
 
 import type {ReactElement} from 'react';
 

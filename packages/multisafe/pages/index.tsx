@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import {DefaultSeo} from 'next-seo';
-import Logo from 'packages/lib/icons/logo';
 import ViewFlowSelection from '@multisafe/components/1.ViewFlowSelection';
 import ViewClonableSafe from '@multisafe/components/2.ViewClonableSafe';
 import ViewNewSafeOwners from '@multisafe/components/3.ViewNewSafeOwners';
 import ViewNewSafe from '@multisafe/components/4.ViewNewSafe';
 import {SafeCreatorContextApp, Step, useSafeCreator} from '@multisafe/components/useSafeCreator';
 import {WalletSelector} from '@multisafeCommons/HeaderElements';
+import Logo from '@lib/icons/logo';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';

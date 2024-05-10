@@ -1,11 +1,11 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {checkENSValidity} from 'packages/lib/utils/tools.ens';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import IconWarning from '@multisafeIcons/IconWarning';
 import {useUpdateEffect} from '@react-hookz/web';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {checkENSValidity} from '@lib/utils/tools.ens';
 
 import type {ReactElement} from 'react';
 

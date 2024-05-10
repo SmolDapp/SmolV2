@@ -4,8 +4,7 @@ import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl} from '@builtbymom/web3/utils';
 import {useUpdateEffect} from '@react-hookz/web';
 import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
-
-import {SmolTokenButton} from './SmolTokenButton';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 
 import type {TToken} from '@builtbymom/web3/types';
 

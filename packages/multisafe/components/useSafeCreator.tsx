@@ -1,11 +1,11 @@
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {COINGECKO_GAS_COIN_IDS} from 'packages/lib/utils/constants';
 import useSWR from 'swr';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {baseFetcher} from '@builtbymom/web3/utils';
 import {HEADER_HEIGHT} from '@multisafeUtils/constants';
 import {scrollToTargetAdjusted} from '@multisafeUtils/utils';
 import {useUpdateEffect} from '@react-hookz/web';
+import {COINGECKO_GAS_COIN_IDS} from '@lib/utils/constants';
 
 import type {Dispatch, SetStateAction} from 'react';
 import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
