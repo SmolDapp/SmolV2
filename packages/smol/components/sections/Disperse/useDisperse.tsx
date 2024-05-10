@@ -1,14 +1,14 @@
 import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
-import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from 'lib/utils/tools.address';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
+import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
-import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import type {TInputAddressLike} from 'lib/utils/tools.address';
-import type {TPartialExhaustive} from 'lib/utils/types/types';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
-import type {TAmountInputElement} from '@smolDesignSystem/SmolAmountInput';
+import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
+import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
+import type {TPartialExhaustive} from '@lib/utils/types/types';
 
 export type TDisperseInput = {receiver: TInputAddressLike; value: TAmountInputElement; UUID: string};
 

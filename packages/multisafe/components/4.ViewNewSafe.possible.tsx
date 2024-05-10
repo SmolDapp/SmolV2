@@ -1,11 +1,11 @@
 import React from 'react';
-import {SUPPORTED_MULTICHAINS} from 'packages/lib/utils/constants';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import ChainStatus from '@multisafe/components/ChainStatus';
 import {AddressLike} from '@multisafeCommons/AddressLike';
 import {Renderable} from '@multisafeCommons/Renderable';
 import IconRefresh from '@multisafeIcons/IconRefresh';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from '@multisafeUtils/constants';
+import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
 import type {ReactElement} from 'react';
 import type {TNewSafe} from '@multisafe/components/4.ViewNewSafe';

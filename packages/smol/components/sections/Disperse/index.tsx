@@ -1,8 +1,5 @@
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {IconFile} from 'lib/icons/IconFile';
-import {IconImport} from 'lib/icons/IconImport';
-import {Button} from 'lib/primitives/Button';
 import Papa from 'papaparse';
 import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -10,10 +7,13 @@ import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {useValidateAddressInput} from '@smolDesignSystem/SmolAddressInput';
-import {useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
 import {SmolTokenSelector} from '@smolDesignSystem/SmolTokenSelector';
 import {useDownloadFile} from '@smolHooks/useDownloadFile';
+import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
+import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
+import {IconFile} from '@lib/icons/IconFile';
+import {IconImport} from '@lib/icons/IconImport';
+import {Button} from '@lib/primitives/Button';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -22,9 +22,9 @@ import {useDisperseQueryManagement} from './useDisperseQuery';
 import {DisperseWizard} from './Wizard';
 
 import type {AxiosResponse} from 'axios';
-import type {TPrice} from 'lib/utils/types/types';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TPrice} from '@lib/utils/types/types';
 import type {TDisperseInput} from './useDisperse';
 
 type TRecord = {

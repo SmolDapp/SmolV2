@@ -1,6 +1,6 @@
 import {Fragment} from 'react';
-import {IconGears} from 'lib/icons/IconGears';
 import {Popover, Transition} from '@headlessui/react';
+import {IconGears} from '@lib/icons/IconGears';
 
 import type {ReactElement, ReactNode} from 'react';
 

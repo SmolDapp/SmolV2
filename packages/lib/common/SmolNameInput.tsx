@@ -1,6 +1,7 @@
 import {type InputHTMLAttributes, type ReactElement, type RefObject, useCallback, useState} from 'react';
-import {TextTruncate} from 'lib/common/TextTruncate';
 import {cl} from '@builtbymom/web3/utils';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useValidateNameInput} from '@lib/hooks/useValidateNameInput';
 
 type TSmolNameInputProps = {
 	onSetValue: (value: string) => void;
@@ -9,46 +10,6 @@ type TSmolNameInputProps = {
 	inputRef: RefObject<HTMLInputElement>;
 	disabled: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
-
-function useValidateNameInput(): {
-	validate: (
-		input: string,
-		isTouched?: boolean,
-		set_isValid?: (value: boolean | 'undetermined') => void
-	) => string | null;
-} {
-	const validate = (
-		input: string,
-		isTouched?: boolean,
-		set_isValid?: (value: boolean | 'undetermined') => void
-	): string | null => {
-		if (input.startsWith('0x')) {
-			set_isValid?.(false);
-			return 'The name cannot start with `0x`';
-		}
-		if (input.length > 22) {
-			set_isValid?.(false);
-			return 'The name cannot be longer than 22 characters';
-		}
-		if (input.includes('.')) {
-			set_isValid?.(false);
-			return 'The name must not contain `.`';
-		}
-		if (isTouched && input.length < 1) {
-			set_isValid?.(false);
-			return 'The name cannot be empty';
-		}
-
-		if (input.length < 1) {
-			set_isValid?.('undetermined');
-			return null;
-		}
-		set_isValid?.(true);
-		return null;
-	};
-
-	return {validate};
-}
 
 export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNameInputProps): ReactElement => {
 	const [isFocused, set_isFocused] = useState<boolean>(false);

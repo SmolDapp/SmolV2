@@ -1,15 +1,15 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {IconChevron} from 'lib/icons/IconChevron';
-import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
-import {supportedNetworks} from 'lib/utils/tools.chains';
-import {isDev} from 'packages/lib/utils/constants';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {IconChevron} from '@lib/icons/IconChevron';
+import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
+import {isDev} from '@lib/utils/constants';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkPopoverSelector(): ReactElement {
 	const isMounted = useIsMounted();

@@ -1,11 +1,11 @@
 import {Fragment, type ReactElement, type ReactNode} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
-import {IconCross} from 'lib/icons/IconCross';
-import {CurtainContent} from 'lib/primitives/Curtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useMountEffect} from '@react-hookz/web';
 import {useIsMounted} from '@smolHooks/useIsMounted';
+import {IconCross} from '@lib/icons/IconCross';
+import {CurtainContent} from '@lib/primitives/Curtain';
 
 export function CloseCurtainButton(): ReactElement {
 	const plausible = usePlausible();

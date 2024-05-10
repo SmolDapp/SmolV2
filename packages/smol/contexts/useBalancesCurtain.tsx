@@ -1,8 +1,6 @@
 'use client';
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -11,13 +9,15 @@ import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
-import {FetchedTokenButton} from '@smolDesignSystem/FetchedTokenButton';
-import {SmolTokenButton} from '@smolDesignSystem/SmolTokenButton';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {CurtainContent} from '@lib/primitives/Curtain';
 
-import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
+import type {TPrice} from '@lib/utils/types/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,

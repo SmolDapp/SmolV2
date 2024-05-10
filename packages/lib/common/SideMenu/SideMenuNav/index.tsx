@@ -1,13 +1,13 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {LinkOrDiv} from 'lib/common/LinkOrDiv';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from 'lib/icons/IconApps';
-import {IconWallet} from 'lib/icons/IconWallet';
-import {IconCross} from 'packages/lib/icons/IconCross';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@smolHooks/useIsMounted';
+import {LinkOrDiv} from '@lib/common/LinkOrDiv';
+import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
+import {IconCross} from '@lib/icons/IconCross';
+import {IconWallet} from '@lib/icons/IconWallet';
 
 const SIDE_MENU = [
 	{

@@ -1,16 +1,16 @@
 import {Toaster} from 'react-hot-toast';
 import {Rubik, Source_Code_Pro} from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
-import {Meta} from 'lib/common/Meta';
-import {IconCheck} from 'lib/icons/IconCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {IndexedDB} from '@smolContexts/useIndexedDB';
-import Layout from '@smolDesignSystem/Layout';
+import Layout from '@lib/common/Layout';
+import {Meta} from '@lib/common/Meta';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -78,7 +78,7 @@ function MyApp(props: AppProps): ReactElement {
 								enabled={true}>
 								<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 									<Meta />
-									<Layout {...props} />
+									<Layout {...(props as any)} />
 								</main>
 							</PlausibleProvider>
 						</SafeProvider>

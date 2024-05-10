@@ -2,21 +2,21 @@
 
 import {useEffect} from 'react';
 import {toast} from 'react-hot-toast';
-import {TextTruncate} from 'lib/common/TextTruncate';
-import {IconHeart, IconHeartFilled} from 'lib/icons/IconHeart';
-import {TooltipContent} from 'lib/primitives/Tooltip';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import {useAddressBook} from '@smolContexts/useAddressBook';
 import {useIsMounted} from '@smolHooks/useIsMounted';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
+import {TooltipContent} from '@lib/primitives/Tooltip';
 
 import {Avatar} from './Avatar';
 
 import type {MouseEventHandler, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAddressBookEntry} from '@smolContexts/useAddressBook';
+import type {TAddressBookEntry} from '@lib/types/AddressBook';
 
 function EntryBookEntryFavorite(props: {
 	isFavorite: boolean;

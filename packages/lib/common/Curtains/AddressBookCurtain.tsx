@@ -3,27 +3,27 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
-import {IconEdit} from 'lib/icons/IconEdit';
-import {IconGears} from 'lib/icons/IconGears';
-import {IconHeart, IconHeartFilled} from 'lib/icons/IconHeart';
-import {IconTrash} from 'lib/icons/IconTrash';
-import {Button} from 'lib/primitives/Button';
-import {CurtainContent} from 'lib/primitives/Curtain';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
 import {AddressBookStatus} from '@smolSections/AddressBook/AddressBookStatus';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {IconEdit} from '@lib/icons/IconEdit';
+import {IconGears} from '@lib/icons/IconGears';
+import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
+import {IconTrash} from '@lib/icons/IconTrash';
+import {Button} from '@lib/primitives/Button';
+import {CurtainContent} from '@lib/primitives/Curtain';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
 import {SmolAddressInput} from '../SmolAddressInput';
 import {SmolNameInput} from '../SmolNameInput';
 
-import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
-import type {TAddressBookEntry, TAddressBookEntryReducer} from '@smolContexts/useAddressBook';
+import type {TAddressBookEntry, TAddressBookEntryReducer} from '@lib/types/AddressBook';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): ReactElement {
 	return (

@@ -1,7 +1,7 @@
 import {type ReactElement} from 'react';
-import {AddressBookEntryAddress} from '@smolDesignSystem/AddressBookEntry';
-import {Avatar} from '@smolDesignSystem/Avatar';
-import {NetworkPopoverSelector} from '@smolDesignSystem/NetworkSelector/Popover';
+import {AddressBookEntryAddress} from '@lib/common/AddressBookEntry';
+import {Avatar} from '@lib/common/Avatar';
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
 
 export function SkeletonPlaceholder(): ReactElement {
 	return (

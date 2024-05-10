@@ -1,6 +1,6 @@
 import {cloneElement} from 'react';
-import {IconCircleCheck} from 'packages/lib/icons/IconCircleCheck';
 import {cl} from '@builtbymom/web3/utils';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 
 import type {ReactElement} from 'react';
 

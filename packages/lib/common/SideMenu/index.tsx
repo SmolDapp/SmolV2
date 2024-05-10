@@ -1,6 +1,6 @@
-import {SideMenuFooter} from './SideMenuFooter';
-import {SideMenuNav} from './SideMenuNav';
-import {SideMenuProfile} from './SideMenuProfile';
+import {SideMenuFooter} from '@lib/common/SideMenu/SideMenuFooter';
+import {SideMenuNav} from '@lib/common/SideMenu/SideMenuNav';
+import {SideMenuProfile} from '@lib/common/SideMenu/SideMenuProfile';
 
 import type {ReactElement} from 'react';
 

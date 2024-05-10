@@ -1,8 +1,8 @@
 import {type ReactElement} from 'react';
 import {useAccount, useEnsAvatar} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {AddressBookEntryAddress} from '@smolDesignSystem/AddressBookEntry';
-import {Avatar} from '@smolDesignSystem/Avatar';
+import {AddressBookEntryAddress} from '@lib/common/AddressBookEntry';
+import {Avatar} from '@lib/common/Avatar';
 
 export function ProfileBox(): ReactElement {
 	const {address, ens} = useWeb3();

@@ -3,6 +3,8 @@
 		"rootDirs": ["."],
 		"baseUrl": ".",
 		"paths": {
+			"@lib/*": ["packages/lib/*"],
+
 			"@multisafeCommons/*": ["packages/multisafe/components/common/*"],
 			"@multisafeIcons/*": ["packages/multisafe/components/icons/*"],
 			"@multisafeUtils/*": ["packages/multisafe/utils/*"],
@@ -62,8 +64,8 @@
 		"packages",
 		"public",
 		"public/manifest.json",
-		"stylelint.config",
-		"commitlint.config",
+		"stylelint.config.js",
+		"commitlint.config.js",
 
 		"packages/*/postcss.config.js",
 		"packages/*/tailwind.config.js",
