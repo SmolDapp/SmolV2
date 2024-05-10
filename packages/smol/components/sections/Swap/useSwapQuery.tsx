@@ -17,7 +17,7 @@ import {
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {useSyncUrlParams} from '@hooks/useSyncUrlParams';
+import {useSyncUrlParams} from '@smolHooks/useSyncUrlParams';
 import {getBalance, readContracts, serialize} from '@wagmi/core';
 
 import {getNewInputToken, useSwapFlow} from './useSwapFlow.lifi';

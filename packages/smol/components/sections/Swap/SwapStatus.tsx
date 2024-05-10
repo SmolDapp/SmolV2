@@ -6,7 +6,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isEthAddress, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {useAddressBook} from '@contexts/useAddressBook';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 

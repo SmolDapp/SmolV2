@@ -4,8 +4,8 @@ import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {CurtainContent} from 'lib/primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
-import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
+import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 

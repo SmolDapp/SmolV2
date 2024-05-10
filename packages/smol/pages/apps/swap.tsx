@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import {Swap} from '@sections/Swap';
-import {SwapContextApp} from '@sections/Swap/useSwapFlow.lifi';
-import {SwapQueryManagement} from '@sections/Swap/useSwapQuery';
+import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import {Swap} from '@smolSections/Swap';
+import {SwapContextApp} from '@smolSections/Swap/useSwapFlow.lifi';
+import {SwapQueryManagement} from '@smolSections/Swap/useSwapQuery';
 
 import type {ReactElement} from 'react';
 

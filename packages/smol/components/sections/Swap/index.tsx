@@ -12,12 +12,12 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue} from '@builtbymom/web3/utils';
-import {NetworkInputSelector} from '@designSystem/NetworkSelector/Input';
-import {SmolAddressInput} from '@designSystem/SmolAddressInput';
-import {SmolTokenAmountInput, useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
-import {SmolTokenSelectorButton} from '@designSystem/SmolTokenSelectorButton';
-import {formatSeconds} from '@hooks/useTimer';
 import {useDeepCompareEffect} from '@react-hookz/web';
+import {NetworkInputSelector} from '@smolDesignSystem/NetworkSelector/Input';
+import {SmolAddressInput} from '@smolDesignSystem/SmolAddressInput';
+import {SmolTokenAmountInput, useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
+import {SmolTokenSelectorButton} from '@smolDesignSystem/SmolTokenSelectorButton';
+import {formatSeconds} from '@smolHooks/useTimer';
 
 import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';

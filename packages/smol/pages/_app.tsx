@@ -4,7 +4,6 @@ import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
-import {WithPopularTokens} from '@contexts/usePopularTokens';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {WithPopularTokens} from '@smolContexts/usePopularTokens';
 import Layout from '@lib/common/Layout';
