@@ -124,7 +124,7 @@ function PossibleSafe({
 							<Renderable
 								shouldRender={!!address}
 								fallback={<span className={'text-neutral-600'}>{'-'}</span>}>
-								<div className={'mt-1 grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4'}>
+								<div className={'mt-1 grid grid-cols-1 gap-2 md:gap-4'}>
 									{supportedNetworks
 										.filter((chain): boolean => ![5, 324, 1337, 84531].includes(chain.id))
 										.map(

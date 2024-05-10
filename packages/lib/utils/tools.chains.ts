@@ -104,7 +104,7 @@ const CHAINS: TSmolChains = {
 	[zkSync.id]: {
 		...zkSync,
 		isLifiSwapSupported: true,
-		isMultisafeSupported: true,
+		isMultisafeSupported: false,
 		safeAPIURI: 'https://safe-transaction-zksync.safe.global',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')

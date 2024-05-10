@@ -351,17 +351,28 @@ function ChainStatus({
 	return (
 		<div
 			key={chain.id}
-			className={'box-0 flex w-full flex-col items-center justify-center p-4 pb-2 md:pb-4'}>
-			<div className={'size-8'}>
-				<Image
-					src={`${process.env.SMOL_ASSETS_URL}/chain/${chain.id}/logo-128.png`}
-					width={32}
-					height={32}
-					alt={chain.name}
-				/>
+			className={'box-0 flex w-full items-center justify-between p-4'}>
+			<div className={'flex flex-row gap-2'}>
+				<div className={'size-10'}>
+					<Image
+						src={`${process.env.SMOL_ASSETS_URL}/chain/${chain.id}/logo-128.png`}
+						width={40}
+						height={40}
+						alt={chain.name}
+					/>
+				</div>
+				<div className={''}>
+					<b className={'text-sm text-neutral-700'}>{getNetwork(chain.id).name}</b>
+					<Link
+						href={`${getNetwork(chain.id).blockExplorers?.default.url}/address/${safeAddress}`}
+						target={'_blank'}>
+						<p className={'text-xs text-neutral-600 transition-colors hover:text-neutral-900'}>
+							{safeAddress}
+						</p>
+					</Link>
+				</div>
 			</div>
-			<p className={'mt-1 text-center text-sm text-neutral-700'}>{getNetwork(chain.id).name}</p>
-			<div className={'mt-4'}>{currentView}</div>
+			<div className={'flex justify-end'}>{currentView}</div>
 		</div>
 	);
 }

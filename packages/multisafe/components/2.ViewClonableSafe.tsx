@@ -161,7 +161,7 @@ function ViewClonableSafe(): ReactElement {
 	function renderDeploymentData(): ReactElement {
 		const safeArgs = existingSafeArgs as TExistingSafeArgs | undefined;
 		return (
-			<div className={'box-100 relative p-4 md:px-6'}>
+			<div className={''}>
 				<div className={'grid grid-cols-1 gap-20 transition-colors'}>
 					<div className={'flex flex-col gap-4'}>
 						<div className={'flex flex-col'}>
@@ -213,7 +213,7 @@ function ViewClonableSafe(): ReactElement {
 							<Renderable
 								shouldRender={!!safeArgs?.address}
 								fallback={<span className={'text-neutral-600'}>{'-'}</span>}>
-								<div className={'mt-1 grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4'}>
+								<div className={'mt-1 grid grid-cols-1 gap-2 md:gap-4'}>
 									{supportedNetworks
 										.filter((chain): boolean => ![5, 324, 1337, 84531].includes(chain.id))
 										.map(
