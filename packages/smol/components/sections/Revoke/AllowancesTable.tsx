@@ -18,7 +18,7 @@ type TSortType = {
 };
 
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
-	const {allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
+	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading;
 
 	const [sort, set_sort] = useState<TSortType>({sortBy: null, asc: true});

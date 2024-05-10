@@ -10,8 +10,8 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
-// import {useInfiniteApprovalLogs} from '@hooks/useInfiniteContractLogs';
 import {readContracts} from '@wagmi/core';
 
 import type {
@@ -33,15 +33,16 @@ const initialFilters = {
 		filter: null
 	},
 	asset: {
-		filter: null
+		filter: []
 	},
 	spender: {
-		filter: null
+		filter: []
 	}
 };
 
 const defaultProps: TAllowancesContext = {
 	allowances: null,
+	filteredAllowances: null,
 	configuration: {
 		tokenToCheck: undefined,
 		tokensToCheck: [],
@@ -90,7 +91,8 @@ export const AllowancesContextApp = (props: {
 
 	const tokenAddresses = useMemo(() => {
 		return Object.values(currentNetworkTokenList).map(item => item.address);
-	}, [currentNetworkTokenList]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentNetworkTokenList.length]);
 
 	/***************************************************************
 	 * The allowances vary across different chains, necessitating us
@@ -119,16 +121,42 @@ export const AllowancesContextApp = (props: {
 		})
 	});
 
-	const filteredAllowances = useMemo(() => {
-		const unlimitedFilter = configuration.allowancesFilters.unlimited.filter;
-		return expandedAllowances.filter(item =>
-			unlimitedFilter === 'unlimited'
-				? isUnlimited(item.args.value as bigint)
-				: unlimitedFilter === 'limited'
-					? !isUnlimited(item.args.value as bigint)
-					: expandedAllowances
-		);
-	}, [configuration.allowancesFilters.unlimited.filter, expandedAllowances]);
+	/*************************************************************************
+	 * We sequentially apply filters to the allowances based on the provided
+	 * filter object. First, we check for the presence of the 'unlimited'
+	 * filter and apply it. Then, we move on to the 'asset' filter, ensuring
+	 * the array is not empty before filtering by assets. The same process
+	 * applies to the 'spender' filter.
+	 *************************************************************************/
+
+	const filteredAllowances = useDeepCompareMemo(() => {
+		const filters = configuration.allowancesFilters;
+		return expandedAllowances?.filter(item => {
+			if (filters.unlimited.filter === 'unlimited') {
+				if (!isUnlimited(item.args.value as bigint)) {
+					return false;
+				}
+			} else if (filters.unlimited.filter === 'limited') {
+				if (isUnlimited(item.args.value as bigint)) {
+					return false;
+				}
+			}
+
+			if (filters.asset.filter.length > 0) {
+				if (!filters.asset.filter.includes(item.address)) {
+					return false;
+				}
+			}
+
+			if (filters.spender.filter.length > 0) {
+				if (!filters.spender.filter.includes(item.args.sender)) {
+					return false;
+				}
+			}
+
+			return true;
+		});
+	}, [configuration.allowancesFilters, expandedAllowances]);
 
 	/*****************************************************************
 	 * Once we've obtained the actual allowances from the blockchain,
@@ -256,15 +284,16 @@ export const AllowancesContextApp = (props: {
 		set_expandedAllowances(_expandedAllowances);
 	}, [allowances, chainID, isDoneWithInitialFetch, safeChainID, uniqueTokenAddresses]);
 
-	const contextValue = useMemo(
+	const contextValue = useDeepCompareMemo(
 		(): TAllowancesContext => ({
-			allowances: filteredAllowances,
+			allowances: expandedAllowances,
+			filteredAllowances,
 			dispatchConfiguration: dispatch,
 			configuration,
 			isDoneWithInitialFetch,
 			isLoading
 		}),
-		[filteredAllowances, configuration, isDoneWithInitialFetch, isLoading]
+		[expandedAllowances, filteredAllowances, configuration, isDoneWithInitialFetch, isLoading]
 	);
 
 	return (

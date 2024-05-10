@@ -38,10 +38,8 @@ const smolIDBConfig: IndexedDBConfig = {
 	]
 };
 
-type TIndexDBContext = IndexedDBConfig;
-
 const defaultProps = smolIDBConfig;
-const IndexDBContext = createContext<TIndexDBContext>(defaultProps);
+const IndexDBContext = createContext<IndexedDBConfig>(defaultProps);
 export const IndexedDB = ({children}: {children: React.ReactElement}): React.ReactElement => {
 	useMountEffect(async () => {
 		setupIndexedDB(smolIDBConfig);
@@ -50,7 +48,7 @@ export const IndexedDB = ({children}: {children: React.ReactElement}): React.Rea
 	return <IndexDBContext.Provider value={smolIDBConfig}>{children}</IndexDBContext.Provider>;
 };
 
-export const useIndexDB = (): TIndexDBContext => {
+export const useIndexDB = (): IndexedDBConfig => {
 	const ctx = useContext(IndexDBContext);
 	if (!ctx) {
 		throw new Error('IndexDBContext not found');

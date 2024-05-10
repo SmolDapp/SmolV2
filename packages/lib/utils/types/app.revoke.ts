@@ -46,6 +46,7 @@ export type TAllowancesContext = {
 	configuration: TAllowancesConfiguration;
 	dispatchConfiguration: Dispatch<TAllowancesActions>;
 	isDoneWithInitialFetch: boolean;
+	filteredAllowances: TExpandedAllowance[] | null | undefined;
 	isLoading: boolean;
 };
 
@@ -57,10 +58,10 @@ export type TAllowancesFilters = {
 		filter: TWithBalanceFilter;
 	};
 	asset: {
-		filter: TAddress[] | null;
+		filter: TAddress[];
 	};
 	spender: {
-		filter: TAddress[] | null;
+		filter: TAddress[];
 	};
 };
 
