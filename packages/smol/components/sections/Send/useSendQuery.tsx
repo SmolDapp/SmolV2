@@ -6,18 +6,18 @@ import {getStateFromUrlQuery} from 'lib/utils/url/getStateFromUrlQuery';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {useValidateAddressInput} from '@designSystem/SmolAddressInput';
-import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
-import {useSyncUrlParams} from '@hooks/useSyncUrlParams';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {getNewInput, useSendFlow} from '@sections/Send/useSendFlow';
+import {useValidateAddressInput} from '@smolDesignSystem/SmolAddressInput';
+import {useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
+import {useSyncUrlParams} from '@smolHooks/useSyncUrlParams';
+import {getNewInput, useSendFlow} from '@smolSections/Send/useSendFlow';
 
 import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
-import type {TSendQuery} from '@sections/Send/useSendFlow';
+import type {TSendQuery} from '@smolSections/Send/useSendFlow';
 
 type TSendQueryManagement = {
 	stateFromUrl: TSendQuery;

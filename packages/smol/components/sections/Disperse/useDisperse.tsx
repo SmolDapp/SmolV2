@@ -8,7 +8,7 @@ import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {TPartialExhaustive} from 'lib/utils/types/types';
 import type {Dispatch, ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
-import type {TAmountInputElement} from '@designSystem/SmolAmountInput';
+import type {TAmountInputElement} from '@smolDesignSystem/SmolAmountInput';
 
 export type TDisperseInput = {receiver: TInputAddressLike; value: TAmountInputElement; UUID: string};
 

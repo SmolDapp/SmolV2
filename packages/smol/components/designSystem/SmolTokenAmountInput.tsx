@@ -14,7 +14,7 @@ import {
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
-import {getNewInput} from '@sections/Send/useSendFlow';
+import {getNewInput} from '@smolSections/Send/useSendFlow';
 
 import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 

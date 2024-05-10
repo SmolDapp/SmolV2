@@ -5,7 +5,7 @@ import {supportedNetworks} from 'lib/utils/tools.chains';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isEthAddress, isZeroAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import {useSendFlow} from './useSendFlow';
 

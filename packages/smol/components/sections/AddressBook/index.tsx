@@ -7,12 +7,12 @@ import {TextInput} from 'lib/primitives/TextInput';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
-import {AddressBookEntry} from '@designSystem/AddressBookEntry';
+import {useAddressBook} from '@smolContexts/useAddressBook';
+import {AddressBookEntry} from '@smolDesignSystem/AddressBookEntry';
 
 import type {ChangeEvent, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAddressBookEntry} from '@contexts/useAddressBook';
+import type {TAddressBookEntry} from '@smolContexts/useAddressBook';
 
 function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}): ReactElement {
 	return (

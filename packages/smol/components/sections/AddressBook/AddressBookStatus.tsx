@@ -1,6 +1,6 @@
 import {type ReactElement, useMemo} from 'react';
 import {Warning} from 'lib/common/Warning';
-import {useAddressBook} from '@contexts/useAddressBook';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import type {TWarningType} from 'lib/common/Warning';
 import type {TInputAddressLike} from 'lib/utils/tools.address';

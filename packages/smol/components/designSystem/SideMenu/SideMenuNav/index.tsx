@@ -6,7 +6,7 @@ import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppSt
 import {IconWallet} from 'lib/icons/IconWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
-import {useIsMounted} from '@hooks/useIsMounted';
+import {useIsMounted} from '@smolHooks/useIsMounted';
 
 const SIDE_MENU = [
 	{

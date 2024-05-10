@@ -7,10 +7,10 @@ import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
-import {FetchedTokenButton} from '@designSystem/FetchedTokenButton';
-import {SmolTokenButton} from '@designSystem/SmolTokenButton';
-import {useTokensWithBalance} from '@hooks/useTokensWithBalance';
 import {useDeepCompareMemo} from '@react-hookz/web';
+import {FetchedTokenButton} from '@smolDesignSystem/FetchedTokenButton';
+import {SmolTokenButton} from '@smolDesignSystem/SmolTokenButton';
+import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 
 import type {TPrice} from 'lib/utils/types/types';
 

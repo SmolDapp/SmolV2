@@ -2,9 +2,9 @@ import {Fragment, useState} from 'react';
 import {IconHamburger} from 'lib/icons/IconHamburger';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isAddress} from '@builtbymom/web3/utils';
-import {NetworkPopoverSelector} from '@designSystem/NetworkSelector/Popover';
 import {Dialog, Transition} from '@headlessui/react';
 import {useIsMounted} from '@react-hookz/web';
+import {NetworkPopoverSelector} from '@smolDesignSystem/NetworkSelector/Popover';
 
 import {SideMenuFooter} from '../SideMenuFooter';
 import {SideMenuNav} from '../SideMenuNav';

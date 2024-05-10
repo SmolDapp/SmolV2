@@ -11,10 +11,10 @@ import {Button} from 'lib/primitives/Button';
 import {CurtainContent} from 'lib/primitives/Curtain';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
-import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
-import {AddressBookStatus} from '@sections/AddressBook/AddressBookStatus';
+import {useAddressBook} from '@smolContexts/useAddressBook';
+import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
+import {AddressBookStatus} from '@smolSections/AddressBook/AddressBookStatus';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
@@ -23,7 +23,7 @@ import {SmolNameInput} from '../SmolNameInput';
 
 import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
-import type {TAddressBookEntry, TAddressBookEntryReducer} from '@contexts/useAddressBook';
+import type {TAddressBookEntry, TAddressBookEntryReducer} from '@smolContexts/useAddressBook';
 
 function FavoriteToggle(props: {isFavorite: boolean; onClick: () => void}): ReactElement {
 	return (

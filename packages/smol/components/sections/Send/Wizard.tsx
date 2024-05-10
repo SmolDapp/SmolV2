@@ -21,9 +21,9 @@ import {
 } from '@builtbymom/web3/utils';
 import {getNetwork, transferERC20, transferEther} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus, type TTxResponse} from '@builtbymom/web3/utils/wagmi';
-import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {useDeepCompareMemo} from '@react-hookz/web';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import {useSendFlow} from './useSendFlow';
 
