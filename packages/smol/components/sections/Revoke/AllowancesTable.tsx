@@ -23,24 +23,33 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 
 	const [sort, set_sort] = useState<TSortType>({sortBy: null, asc: true});
 
+	/****************************************************************
+	 * Sorting allowances by amount, spender and token. All of them
+	 * are sorted ether asc or desc order. If sortings are not selected
+	 * we return allowances in the initial timestamp order
+	 ****************************************************************/
+
 	const sortedAllowances = useMemo(() => {
-		if (sort.sortBy === 'amount' && sort.asc) {
-			return allowances?.toSorted((a, b) => (a.args.value! > b.args.value! ? -1 : 1));
+		if (sort.sortBy === 'amount') {
+			return allowances?.toSorted((a, b) =>
+				sort.asc ? (a.args.value! > b.args.value! ? -1 : 1) : a.args.value! < b.args.value! ? -1 : 1
+			);
 		}
-		if (sort.sortBy === 'amount' && !sort.asc) {
-			return allowances?.toSorted((a, b) => (a.args.value! < b.args.value! ? -1 : 1));
+
+		if (sort.sortBy === 'spender') {
+			return allowances?.toSorted((a, b) =>
+				sort.asc ? b.args.sender.localeCompare(a.args.sender) : a.args.sender.localeCompare(b.args.sender)
+			);
 		}
-		if (sort.sortBy === 'spender' && sort.asc) {
-			return allowances?.toSorted((a, b) => a.args.sender.localeCompare(b.args.sender));
-		}
-		if (sort.sortBy === 'spender' && !sort.asc) {
-			return allowances?.toSorted((a, b) => b.args.sender.localeCompare(a.args.sender));
-		}
-		if (sort.sortBy === 'token' && sort.asc) {
-			return allowances?.toSorted((a, b) => (a.symbol && b.symbol ? a.symbol?.localeCompare(b.symbol) : 0));
-		}
-		if (sort.sortBy === 'token' && !sort.asc) {
-			return allowances?.toSorted((a, b) => (a.symbol && b.symbol ? b.symbol?.localeCompare(a.symbol) : 0));
+
+		if (sort.sortBy === 'token') {
+			return allowances?.toSorted((a, b) =>
+				a.symbol && b.symbol
+					? sort.asc
+						? b.symbol?.localeCompare(a.symbol)
+						: a.symbol?.localeCompare(b.symbol)
+					: 0
+			);
 		}
 
 		return allowances;
