@@ -1,21 +1,21 @@
 'use client';
 
 import React, {Fragment, useEffect, useMemo, useState} from 'react';
-import {Button} from 'lib/primitives/Button';
-import {CurtainContent} from 'lib/primitives/Curtain';
-import {TextInput} from 'lib/primitives/TextInput';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
 import {useIsMounted} from '@smolHooks/useIsMounted';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {Button} from '@lib/primitives/Button';
+import {CurtainContent} from '@lib/primitives/Curtain';
+import {TextInput} from '@lib/primitives/TextInput';
 
 import {AddressBookEntry} from '../AddressBookEntry';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TAddressBookEntry, TSelectCallback} from '@smolContexts/useAddressBook';
+import type {TAddressBookEntry, TSelectCallback} from '@lib/types/AddressBook';
 
 function FavoriteList(props: {
 	favorite: TAddressBookEntry[];

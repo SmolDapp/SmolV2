@@ -1,7 +1,7 @@
 import {useRouter} from 'next/router';
-import {getPathWithoutQueryParams} from 'lib/utils/url/getPathWithoutQueryParams';
-import {serializeSearchStateForUrl} from 'lib/utils/url/serializeStateForUrl';
 import {useDeepCompareEffect} from '@react-hookz/web';
+import {getPathWithoutQueryParams} from '@lib/utils/url/getPathWithoutQueryParams';
+import {serializeSearchStateForUrl} from '@lib/utils/url/serializeStateForUrl';
 
 export function useSyncUrlParams(state: {[key: string]: unknown}): void {
 	const router = useRouter();

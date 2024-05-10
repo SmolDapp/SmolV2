@@ -2,8 +2,6 @@ import {useCallback, useEffect, useState} from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Button} from 'packages/lib/primitives/Button';
-import {COINGECKO_GAS_COIN_IDS, DISPERSE_CONTRACT_PER_CHAIN, SAFE_API_URI} from 'packages/lib/utils/constants';
 import {encodeFunctionData, parseEther} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toAddress} from '@builtbymom/web3/utils';
@@ -20,6 +18,8 @@ import {
 } from '@multisafeUtils/constants';
 import {generateArgInitializers} from '@multisafeUtils/utils';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {Button} from '@lib/primitives/Button';
+import {COINGECKO_GAS_COIN_IDS, DISPERSE_CONTRACT_PER_CHAIN, SAFE_API_URI} from '@lib/utils/constants';
 
 import DISPERSE_ABI from '../utils/abi/disperse.abi';
 import GNOSIS_SAFE_PROXY_FACTORY from '../utils/abi/gnosisSafeProxyFactory.abi';

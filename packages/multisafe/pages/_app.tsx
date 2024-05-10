@@ -2,12 +2,12 @@ import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {Rubik, Source_Code_Pro} from 'next/font/google';
 import Head from 'next/head';
-import {Meta} from 'lib/common/Meta';
-import {IconCheck} from 'lib/icons/IconCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {SUPPORTED_MULTICHAINS} from 'packages/lib/utils/constants';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
+import {Meta} from '@lib/common/Meta';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';

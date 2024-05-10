@@ -1,9 +1,9 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {checkENSValidity} from 'lib/utils/tools.ens';
 import {cl, isZeroAddress, toAddress, ZERO_ADDRESS} from '@builtbymom/web3/utils';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {checkENSValidity} from '@lib/utils/tools.ens';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';

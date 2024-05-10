@@ -1,11 +1,11 @@
 import React, {useCallback, useState} from 'react';
-import {Button} from 'lib/primitives/Button';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import AddressLikeInput from '@multisafeCommons/AddressLikeInput';
 import ViewSectionHeading from '@multisafeCommons/ViewSectionHeading';
 import IconInfo from '@multisafeIcons/IconInfo';
 import IconWarning from '@multisafeIcons/IconWarning';
 import {useMountEffect} from '@react-hookz/web';
+import {Button} from '@lib/primitives/Button';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';

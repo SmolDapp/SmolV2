@@ -192,8 +192,10 @@ module.exports = {
 								'^tailwindcss',
 								'^framer-motion',
 								'^nprogress',
-								'^@?\\w',
-								'^(@y.*)?\\w'
+								'^@(builtbymom)?\\w',
+								'^(@lib.*)?\\w',
+								'^(@y.*)?\\w',
+								'^@?\\w'
 							],
 							// Parent imports.
 							[
@@ -208,6 +210,8 @@ module.exports = {
 							[
 								'^node:.*\\u0000$',
 								'^(@common)?\\w.*\\u0000$',
+								'^@(builtbymom)?\\w.*\\u0000$',
+								'^(@lib.*)?\\w.*\\u0000$',
 								'^(@y.*)?\\w.*\\u0000$',
 								'^@?\\w.*\\u0000$',
 								'^[^.].*\\u0000$',

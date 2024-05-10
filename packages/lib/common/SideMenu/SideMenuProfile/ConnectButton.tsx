@@ -1,7 +1,7 @@
 import {type ReactElement} from 'react';
-import {IconWallet} from 'lib/icons/IconWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl} from '@builtbymom/web3/utils';
+import {IconWallet} from '@lib/icons/IconWallet';
 
 export function ConnectButton(): ReactElement {
 	const {onConnect} = useWeb3();

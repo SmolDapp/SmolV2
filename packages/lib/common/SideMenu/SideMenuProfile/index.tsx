@@ -2,12 +2,11 @@ import {type ReactElement} from 'react';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {isAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@react-hookz/web';
-import {NetworkPopoverSelector} from '@smolDesignSystem/NetworkSelector/Popover';
-
-import {CoinBalance} from './CoinBalance';
-import {ConnectButton} from './ConnectButton';
-import {ProfileBox} from './ProfileBox';
-import {SkeletonPlaceholder} from './SkeletonPlaceholder';
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
+import {CoinBalance} from '@lib/common/SideMenu/SideMenuProfile/CoinBalance';
+import {ConnectButton} from '@lib/common/SideMenu/SideMenuProfile/ConnectButton';
+import {ProfileBox} from '@lib/common/SideMenu/SideMenuProfile/ProfileBox';
+import {SkeletonPlaceholder} from '@lib/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
 
 export function SideMenuProfile(): ReactElement {
 	const isMounted = useIsMounted();

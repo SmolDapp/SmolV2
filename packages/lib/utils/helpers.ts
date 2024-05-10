@@ -1,8 +1,9 @@
 /* eslint-disable prefer-destructuring */
 
-import {formatAmount} from '@builtbymom/web3/utils';
+import {formatAmount, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@lib/types/Inputs';
 
 /******************************************************************************
  ** Used to slugify a string.
@@ -25,4 +26,18 @@ export function handleLowAmount(normalizedBN: TNormalizedBN, min = 0, max = 6): 
 		return `< ${formatAmount(normalizedBN.normalized, max - 1, max - 1)}1`;
 	}
 	return expected;
+}
+
+/******************************************************************************
+ ** Create a new empty TTokenAmountInputElement.
+ *****************************************************************************/
+export function getNewInput(): TTokenAmountInputElement {
+	return {
+		amount: '',
+		normalizedBigAmount: zeroNormalizedBN,
+		isValid: 'undetermined',
+		token: undefined,
+		status: 'none',
+		UUID: crypto.randomUUID()
+	};
 }

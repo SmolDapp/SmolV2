@@ -1,6 +1,4 @@
 import {type ReactElement, useMemo, useState} from 'react';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {IconWallet} from 'lib/icons/IconWallet';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -8,11 +6,13 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {FetchedTokenButton} from '@smolDesignSystem/FetchedTokenButton';
-import {SmolTokenButton} from '@smolDesignSystem/SmolTokenButton';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
+import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {IconWallet} from '@lib/icons/IconWallet';
 
-import type {TPrice} from 'lib/utils/types/types';
+import type {TPrice} from '@lib/utils/types/types';
 
 function WalletListHeader(): ReactElement {
 	return (

@@ -1,8 +1,8 @@
 import {type ReactElement, useMemo} from 'react';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {IconChevron} from 'lib/icons/IconChevron';
-import {IconWallet} from 'lib/icons/IconWallet';
 import {cl, formatAmount, isAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {IconChevron} from '@lib/icons/IconChevron';
+import {IconWallet} from '@lib/icons/IconWallet';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 

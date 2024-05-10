@@ -1,12 +1,11 @@
 import {type ReactElement, type ReactNode} from 'react';
-import {IconQuestionMark} from 'lib/icons/IconQuestionMark';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
-import {WithAddressBook} from '@smolContexts/useAddressBook';
-
-import {SideMenu} from './SideMenu';
-import {InfoCurtain} from './Curtains/InfoCurtain';
-import {SideMenuMobile} from './SideMenu/SideMenuMobile';
+import {InfoCurtain} from '@lib/common/Curtains/InfoCurtain';
+import {SideMenu} from '@lib/common/SideMenu';
+import {SideMenuMobile} from '@lib/common/SideMenu/SideMenuMobile';
+import {WithAddressBook} from '@lib/contexts/useAddressBook';
+import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
