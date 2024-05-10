@@ -2,8 +2,8 @@ import {useCallback, useState} from 'react';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl} from '@builtbymom/web3/utils';
-import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
 import {useUpdateEffect} from '@react-hookz/web';
+import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
 
 import {SmolTokenButton} from './SmolTokenButton';
 

@@ -10,10 +10,10 @@ import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {useValidateAddressInput} from '@designSystem/SmolAddressInput';
-import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
-import {SmolTokenSelector} from '@designSystem/SmolTokenSelector';
-import {useDownloadFile} from '@hooks/useDownloadFile';
+import {useValidateAddressInput} from '@smolDesignSystem/SmolAddressInput';
+import {useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
+import {SmolTokenSelector} from '@smolDesignSystem/SmolTokenSelector';
+import {useDownloadFile} from '@smolHooks/useDownloadFile';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';

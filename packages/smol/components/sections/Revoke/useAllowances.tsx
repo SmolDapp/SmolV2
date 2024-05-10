@@ -10,7 +10,8 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {useInfiniteApprovalLogs} from '@hooks/useInfiniteContractLogs';
+import {useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
+// import {useInfiniteApprovalLogs} from '@hooks/useInfiniteContractLogs';
 import {readContracts} from '@wagmi/core';
 
 import type {

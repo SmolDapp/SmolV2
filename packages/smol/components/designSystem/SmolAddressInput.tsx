@@ -10,8 +10,8 @@ import {checkENSValidity} from 'lib/utils/tools.ens';
 import {mainnet} from 'viem/chains';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {useAddressBook} from '@contexts/useAddressBook';
 import {useAsyncAbortable} from '@react-hookz/web';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 import {getEnsName} from '@wagmi/core';
 
 import {AvatarWrapper} from './Avatar';

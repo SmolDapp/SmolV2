@@ -193,7 +193,6 @@ module.exports = {
 								'^framer-motion',
 								'^nprogress',
 								'^@?\\w',
-								'^(@common/.*)?\\w',
 								'^(@y.*)?\\w'
 							],
 							// Parent imports.

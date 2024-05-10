@@ -1,8 +1,8 @@
 import React, {Fragment} from 'react';
-import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import Disperse from '@sections/Disperse/index';
-import {DisperseContextApp} from '@sections/Disperse/useDisperse';
-import {DisperseQueryManagement} from '@sections/Disperse/useDisperseQuery';
+import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import Disperse from '@smolSections/Disperse/index';
+import {DisperseContextApp} from '@smolSections/Disperse/useDisperse';
+import {DisperseQueryManagement} from '@smolSections/Disperse/useDisperseQuery';
 
 import type {ReactElement} from 'react';
 

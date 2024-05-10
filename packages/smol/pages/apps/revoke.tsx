@@ -1,7 +1,7 @@
 import {Fragment, type ReactElement} from 'react';
-import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import {Revoke} from '@sections/Revoke';
-import {AllowancesContextApp} from '@sections/Revoke/useAllowances';
+import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import {Revoke} from '@smolSections/Revoke';
+import {AllowancesContextApp} from '@smolSections/Revoke/useAllowances';
 
 export default function RevokePage(): ReactElement {
 	return (

@@ -7,15 +7,15 @@ import {TextInput} from 'lib/primitives/TextInput';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
-import {CloseCurtainButton} from '@designSystem/Curtains/InfoCurtain';
-import {useIsMounted} from '@hooks/useIsMounted';
 import * as Dialog from '@radix-ui/react-dialog';
+import {useAddressBook} from '@smolContexts/useAddressBook';
+import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
+import {useIsMounted} from '@smolHooks/useIsMounted';
 
 import {AddressBookEntry} from '../AddressBookEntry';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TAddressBookEntry, TSelectCallback} from '@contexts/useAddressBook';
+import type {TAddressBookEntry, TSelectCallback} from '@smolContexts/useAddressBook';
 
 function FavoriteList(props: {
 	favorite: TAddressBookEntry[];

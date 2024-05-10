@@ -2,7 +2,7 @@ import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {IconChevron} from 'lib/icons/IconChevron';
 import {IconWallet} from 'lib/icons/IconWallet';
 import {cl, isAddress} from '@builtbymom/web3/utils';
-import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
+import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
 
 import type {TToken} from '@builtbymom/web3/types';
 

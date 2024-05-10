@@ -5,8 +5,8 @@ import {IconCross} from 'lib/icons/IconCross';
 import {IconSpinner} from 'lib/icons/IconSpinner';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
-import {SmolAddressInput} from '@designSystem/SmolAddressInput';
-import {SmolTokenAmountInput} from '@designSystem/SmolTokenAmountInput';
+import {SmolAddressInput} from '@smolDesignSystem/SmolAddressInput';
+import {SmolTokenAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
 
 import {SendStatus} from './SendStatus';
 import {useSendFlow} from './useSendFlow';

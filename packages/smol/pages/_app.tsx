@@ -8,9 +8,9 @@ import {supportedNetworks} from 'lib/utils/tools.chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
-import {IndexedDB} from '@contexts/useIndexedDB';
-import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
+import {IndexedDB} from '@smolContexts/useIndexedDB';
+import Layout from '@smolDesignSystem/Layout';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';

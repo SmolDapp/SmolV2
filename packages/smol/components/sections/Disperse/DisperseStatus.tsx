@@ -3,7 +3,7 @@ import {Warning} from 'lib/common/Warning';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import {useDisperse} from './useDisperse';
 

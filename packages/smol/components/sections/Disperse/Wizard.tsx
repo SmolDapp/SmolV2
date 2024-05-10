@@ -26,8 +26,8 @@ import {
 } from '@builtbymom/web3/utils';
 import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
-import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {useAddressBook} from '@smolContexts/useAddressBook';
 
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
