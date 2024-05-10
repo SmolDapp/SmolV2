@@ -7,8 +7,9 @@ import {
 import {truncateHex} from '@builtbymom/web3/utils';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
-import {type TExpandedAllowance, useAllowances} from './useAllowances';
+import {useAllowances} from './useAllowances';
 
+import type {TExpandedAllowance} from 'packages/lib/utils/types/app.revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 

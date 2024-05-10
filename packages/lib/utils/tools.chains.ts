@@ -1,4 +1,4 @@
-import {COINGECKO_GAS_COIN_IDS, SAFE_API_URI} from 'lib/utils/constants';
+import {COINGECKO_GAS_COIN_IDS, isDev, SAFE_API_URI} from 'lib/utils/constants';
 import {
 	arbitrum,
 	base,
@@ -20,8 +20,6 @@ import {indexedWagmiChains, localhost} from '@builtbymom/web3/utils/wagmi';
 
 import type {Chain} from 'wagmi/chains';
 import type {TChainContract, TExtendedChain} from '@builtbymom/web3/utils/wagmi';
-
-const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 export const supportedNetworks: Chain[] = [
 	mainnet,

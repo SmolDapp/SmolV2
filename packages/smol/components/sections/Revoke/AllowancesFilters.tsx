@@ -10,6 +10,11 @@ import {useAllowances} from './useAllowances';
 
 export const AllowancesFilters = (): ReactElement | null => {
 	const {dispatchConfiguration, configuration, allowances} = useAllowances();
+
+	/****************************************************************
+	 * Here we get non-repetitive tokens by token address and sender
+	 * and form new arrays to have filters for original arrays
+	 ****************************************************************/
 	const uniqueAllowancesByToken = useMemo(() => {
 		return [...new Map(allowances?.map(item => [item.address, item])).values()];
 	}, [allowances]);

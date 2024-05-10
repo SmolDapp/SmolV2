@@ -6,7 +6,7 @@
 
 import {formatUnits, parseUnits} from 'viem';
 
-import type {TAllowance, TAllowances} from './types/revokeType';
+import type {TAllowance, TAllowances} from './types/app.revoke';
 
 /**
  *
@@ -26,14 +26,11 @@ export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
 
 export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowances => {
 	const senderMap = approvalEvents.reduce((map: {[key: string]: TAllowance}, obj: TAllowance) => {
-		// Check if the current object's address is already in the map
 		if (obj.args.sender in map) {
-			// If yes, compare the values and update if necessary
 			if (obj.blockNumber > map[obj.args.sender].blockNumber) {
 				map[obj.args.sender] = obj;
 			}
 		} else {
-			// If not, add it to the map
 			map[obj.args.sender] = obj;
 		}
 		return map;

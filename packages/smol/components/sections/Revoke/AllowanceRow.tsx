@@ -6,11 +6,9 @@ import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 
-import {useGetTokenInfo} from './useGetTokenInfo';
-
+import type {TExpandedAllowance, TTokenAllowance} from 'packages/lib/utils/types/app.revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TExpandedAllowance, TTokenAllowance} from './useAllowances';
 
 type TAllowanceRowProps = {
 	allowance: TExpandedAllowance;
@@ -19,7 +17,6 @@ type TAllowanceRowProps = {
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
 	const {args, transactionHash} = allowance;
-	const {tokenName} = useGetTokenInfo(args.sender);
 
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
@@ -71,9 +68,6 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 			</td>
 			<td className={'max-w-32 border-y border-neutral-400 p-6'}>
 				<div className={'flex flex-col text-right'}>
-					<div className={'flex max-w-[170px] justify-end'}>
-						<p className={'truncate text-base font-light text-neutral-900'}>{tokenName}</p>
-					</div>
 					<div className={'flex items-center justify-end font-light text-neutral-600'}>
 						<div className={'grid w-full'}>
 							<button

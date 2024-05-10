@@ -124,3 +124,5 @@ export const SUPPORTED_MULTICHAINS = [
 	fraxtal,
 	mode
 ];
+
+export const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);

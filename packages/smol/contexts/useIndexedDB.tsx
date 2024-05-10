@@ -32,13 +32,7 @@ const smolIDBConfig: IndexedDBConfig = {
 				{name: 'value', keyPath: 'value'},
 				{name: 'blockHash', keyPath: 'blockHash'},
 				{name: 'blockNumber', keyPath: 'blockNumber'},
-				{name: 'data', keyPath: 'data'},
-				{name: 'eventName', keyPath: 'eventName'},
-				{name: 'logIndex', keyPath: 'logIndex'},
-				{name: 'removed', keyPath: 'removed'},
-				{name: 'topics', keyPath: 'topics'},
-				{name: 'transactionHash', keyPath: 'transactionHash'},
-				{name: 'transactionIndex', keyPath: 'transactionIndex'}
+				{name: 'transactionHash', keyPath: 'transactionHash'}
 			]
 		}
 	]
