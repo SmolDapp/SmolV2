@@ -1,18 +1,15 @@
-import {type ReactElement, useMemo, useState} from 'react';
+import {type ReactElement, useMemo} from 'react';
 import {IconPlus} from 'packages/lib/icons/IconPlus';
 import {cl} from '@builtbymom/web3/utils';
 
 import {AssetFilterDropdown} from './AssetFilterDropdown';
+import {SpenderFilterDropdown} from './SpenderFilterDropdown';
 import {useAllowances} from './useAllowances';
-
-import type {TFilterAllowance} from './AssetFilterDropdown';
 
 // WIP- filters
 
 export const AllowancesFilters = (): ReactElement | null => {
 	const {dispatchConfiguration, configuration, allowances} = useAllowances();
-	const [selectedAssets, set_selectedAssets] = useState<TFilterAllowance[]>([]);
-	const [selectedSpenders, set_selectedSpenders] = useState<TFilterAllowance[]>([]);
 	const uniqueAllowancesByToken = useMemo(() => {
 		return [...new Map(allowances?.map(item => [item.address, item])).values()];
 	}, [allowances]);
@@ -38,10 +35,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 							displayName: item.symbol,
 							args: item.args
 						};
-					})}
-					selectedOptions={selectedAssets}
-					filterBy={'asset'}
-					set_selectedOptions={set_selectedAssets}>
+					})}>
 					<div
 						onClick={() => {}}
 						className={'flex items-center rounded-md bg-neutral-200'}>
@@ -51,7 +45,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 						</div>
 					</div>
 				</AssetFilterDropdown>
-				<AssetFilterDropdown
+				<SpenderFilterDropdown
 					allOptions={uniqueAllowancesBySpender.map(item => {
 						return {
 							address: item.args.sender,
@@ -60,17 +54,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 							displayName: item.args.sender,
 							args: item.args
 						};
-					})}
-					filterBy={'spender'}
-					selectedOptions={selectedSpenders}
-					set_selectedOptions={set_selectedSpenders}>
+					})}>
 					<div className={'flex items-center rounded-md bg-neutral-200'}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
 							<IconPlus className={'size-3'} />
 							<p className={'text-xs leading-4'}>{' Spender'}</p>
 						</div>
 					</div>
-				</AssetFilterDropdown>
+				</SpenderFilterDropdown>
 				<button
 					onClick={() =>
 						dispatchConfiguration({

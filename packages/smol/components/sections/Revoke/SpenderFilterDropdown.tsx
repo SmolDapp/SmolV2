@@ -4,6 +4,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuSeparator
 } from 'packages/lib/primitives/DropdownMenu';
+import {truncateHex} from '@builtbymom/web3/utils';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {type TExpandedAllowance, useAllowances} from './useAllowances';
@@ -15,50 +16,50 @@ export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'address' | '
 	displayName?: TAddress | string;
 };
 
-export const AssetFilterDropdown = (props: {
+export const SpenderFilterDropdown = (props: {
 	children: React.ReactElement;
 	allOptions: TFilterAllowance[];
 }): ReactElement => {
 	const {dispatchConfiguration, configuration} = useAllowances();
 	const {children, allOptions} = props;
-	const assetFilter = configuration.allowancesFilters.asset.filter;
+	const spenderFilter = configuration.allowancesFilters.spender.filter;
 
 	return (
 		<DropdownMenu.Root modal>
 			<DropdownMenu.Trigger>{children}</DropdownMenu.Trigger>
 			<DropdownMenuContent className={'absolute left-0 !min-w-[200px] p-2'}>
 				<div className={'pl-2'}>
-					<p className={'text-xs font-bold'}>{'Select Asset'}</p>
+					<p className={'text-xs font-bold'}>{'Select Spender'}</p>
 				</div>
 				<DropdownMenuSeparator className={'my-3'} />
 
 				{allOptions?.map(option => (
 					<DropdownMenuCheckboxItem
 						key={option.blockHash}
-						checked={assetFilter?.some(item => item === option.address)}
+						checked={spenderFilter?.some(item => item === option.args.sender)}
 						onCheckedChange={() => {
-							if (!assetFilter?.some(item => item === option.address)) {
+							if (!spenderFilter?.some(item => item === option.args.sender)) {
 								dispatchConfiguration({
 									type: 'SET_FILTER',
 									payload: {
 										...configuration.allowancesFilters,
-										asset: {
-											filter: [...(assetFilter ?? []), option.address]
+										spender: {
+											filter: [...(spenderFilter ?? []), option.args.sender]
 										}
 									}
 								});
 							} else {
-								const filteredOptions = assetFilter.filter(item => item !== option.address);
+								const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
 								dispatchConfiguration({
 									type: 'SET_FILTER',
 									payload: {
 										...configuration.allowancesFilters,
-										asset: {filter: filteredOptions}
+										spender: {filter: filteredOptions}
 									}
 								});
 							}
 						}}>
-						{option.symbol}
+						{truncateHex(option.args.sender, 7)}
 					</DropdownMenuCheckboxItem>
 				))}
 			</DropdownMenuContent>
