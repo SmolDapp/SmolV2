@@ -1,7 +1,7 @@
 import {Fragment, useState} from 'react';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isAddress} from '@builtbymom/web3/utils';
-import {Dialog, Transition} from '@headlessui/react';
+import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import {useIsMounted} from '@react-hookz/web';
 import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
 import {SideMenuFooter} from '@lib/common/SideMenu/SideMenuFooter';
@@ -13,6 +13,7 @@ import {SkeletonPlaceholder} from '@lib/common/SideMenu/SideMenuProfile/Skeleton
 import {IconHamburger} from '@lib/icons/IconHamburger';
 
 import type {ReactElement} from 'react';
+import type {TSideMenuItem} from '@lib/common/SideMenu/SideMenuNav';
 
 function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {
 	const {address} = useWeb3();
@@ -52,7 +53,7 @@ function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {
 	);
 }
 
-export function SideMenuMobile(): ReactElement {
+export function SideMenuMobile(props: {menu: TSideMenuItem[]}): ReactElement {
 	const [isOpen, set_isOpen] = useState(false);
 	const isMounted = useIsMounted();
 
@@ -67,14 +68,14 @@ export function SideMenuMobile(): ReactElement {
 	return (
 		<>
 			<SideMenuProfileMobile onOpen={() => set_isOpen(true)} />
-			<Transition.Root
+			<Transition
 				show={isOpen}
 				as={Fragment}>
 				<Dialog
 					as={'div'}
 					className={'relative z-[1000] block w-full md:hidden'}
 					onClose={() => set_isOpen(!isOpen)}>
-					<Transition.Child
+					<TransitionChild
 						as={Fragment}
 						enter={'ease-in duration-300'}
 						enterFrom={'translate-y-full opacity-0'}
@@ -83,14 +84,14 @@ export function SideMenuMobile(): ReactElement {
 						leaveFrom={'translate-y-0 opacity-100'}
 						leaveTo={'translate-y-full opacity-0'}>
 						<div className={'fixed inset-0 bg-neutral-900/40 backdrop-blur-sm transition-opacity'} />
-					</Transition.Child>
+					</TransitionChild>
 
 					<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
 						<div
 							className={
 								'flex min-h-full items-end justify-center p-0 text-center md:items-center md:p-0'
 							}>
-							<Transition.Child
+							<TransitionChild
 								as={Fragment}
 								enter={'ease-in duration-300'}
 								enterFrom={'translate-y-full opacity-0'}
@@ -98,18 +99,21 @@ export function SideMenuMobile(): ReactElement {
 								leave={'ease-out duration-300'}
 								leaveFrom={'translate-y-0 opacity-100'}
 								leaveTo={'translate-y-full opacity-0'}>
-								<Dialog.Panel
+								<DialogPanel
 									className={cl(
 										'relative overflow-hidden rounded-md !bg-neutral-0 transition-all w-full'
 									)}>
-									<SideMenuNav onClose={() => set_isOpen(false)} />
+									<SideMenuNav
+										menu={props.menu}
+										onClose={() => set_isOpen(false)}
+									/>
 									<SideMenuFooter />
-								</Dialog.Panel>
-							</Transition.Child>
+								</DialogPanel>
+							</TransitionChild>
 						</div>
 					</div>
 				</Dialog>
-			</Transition.Root>
+			</Transition>
 		</>
 	);
 }
