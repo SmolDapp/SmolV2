@@ -1,65 +1,54 @@
-import React, {useState} from 'react';
-import ViewFlowSelection from '@multisafe/components/1.ViewFlowSelection';
-import ViewClonableSafe from '@multisafe/components/2.ViewClonableSafe';
-import ViewNewSafeOwners from '@multisafe/components/3.ViewNewSafeOwners';
-import ViewNewSafe from '@multisafe/components/4.ViewNewSafe';
-import {SafeCreatorContextApp, Step, useSafeCreator} from '@multisafe/components/useSafeCreator';
+import React from 'react';
+import {useRouter} from 'next/router';
+import {MultisafeContextApp} from '@multisafe/contexts/useMultisafe';
+import CardWithIcon from '@multisafeCommons/CardWithIcon';
+import {IconClone} from '@lib/icons/IconClone';
+import IconSquarePlus from '@lib/icons/IconSquarePlus';
 
 import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types';
 
 function Safe(): ReactElement {
-	const {currentStep, selectedFlow, set_currentStep} = useSafeCreator();
-	const [owners, set_owners] = useState<TAddress[]>([]);
-	const [threshold, set_threshold] = useState(1);
+	const router = useRouter();
 
 	return (
-		<div className={'mx-auto grid w-full max-w-4xl'}>
-			<div id={'flow'}>
-				<ViewFlowSelection />
-			</div>
-
-			<div
-				id={'flowData'}
-				className={`overflow-hidden pt-10 transition-opacity${
-					[Step.FLOW_DATA, Step.NEW_DEPLOY].includes(currentStep)
-						? 'opacity-100'
-						: 'pointer-events-none h-0 overflow-hidden opacity-0'
-				}`}>
-				{selectedFlow === 'EXISTING' ? <ViewClonableSafe /> : null}
-				{selectedFlow === 'NEW' ? (
-					<ViewNewSafeOwners
-						onUpdateSafeSettings={(newOwners, newThreshold): void => {
-							set_currentStep(Step.NEW_DEPLOY);
-							set_owners(newOwners);
-							set_threshold(newThreshold);
-						}}
-					/>
-				) : null}
-			</div>
-
-			<div
-				id={'newDeploy'}
-				className={`pt-10 transition-opacity ${
-					[Step.NEW_DEPLOY].includes(currentStep)
-						? 'opacity-100'
-						: 'pointer-events-none h-0 overflow-hidden opacity-0'
-				}`}>
-				{selectedFlow === 'NEW' ? (
-					<ViewNewSafe
-						owners={owners}
-						threshold={threshold}
-					/>
-				) : null}
+		<div className={'grid w-full max-w-[600px]'}>
+			<div className={'grid gap-4'}>
+				<CardWithIcon
+					icon={<IconClone />}
+					label={'Clone a Safe'}
+					description={
+						'Clone an existing safe with the original configuration: same address, same owner, same threshold, different chain!'
+					}
+					onClick={async () => router.push('/clone-safe')}
+				/>
+				<CardWithIcon
+					icon={<IconSquarePlus />}
+					label={'Create a Safe'}
+					description={'Create your own fancy new safe with your own custom address!'}
+					onClick={async () => router.push('/new-safe')}
+				/>
 			</div>
 		</div>
 	);
 }
 
-export default function SafeWrapper(): ReactElement {
+export default function MultisafeWrapper(): ReactElement {
 	return (
-		<SafeCreatorContextApp>
+		<MultisafeContextApp>
 			<Safe />
-		</SafeCreatorContextApp>
+		</MultisafeContextApp>
 	);
 }
+
+MultisafeWrapper.AppName = 'MultiSafe';
+MultisafeWrapper.AppDescription =
+	'Make your multi-sig, multi-chain: get the same Safe address on all chains. Wow, fancy!';
+MultisafeWrapper.AppInfo = (
+	<>
+		<p>{'Well, basically, it’s… your wallet. '}</p>
+		<p>{'You can see your tokens. '}</p>
+		<p>{'You can switch chains and see your tokens on that chain. '}</p>
+		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
+		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
+	</>
+);

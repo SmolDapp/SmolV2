@@ -1,4 +1,5 @@
 import {pad, toHex} from 'viem';
+import XXH from 'xxhashjs';
 import {ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {FALLBACK_HANDLER, ZERO} from '@multisafeUtils/constants';
 
@@ -23,15 +24,7 @@ export function generateArgInitializers(owners: TAddress[], threshold: number): 
 	);
 }
 
-export function scrollToTargetAdjusted(element: HTMLElement): void {
-	const headerOffset = 32;
-	if (!element) {
-		return;
-	}
-	const elementPosition = element.getBoundingClientRect().top;
-	const offsetPosition = elementPosition + window.scrollY - headerOffset;
-	window.scrollTo({
-		top: Math.round(offsetPosition),
-		behavior: 'smooth'
-	});
+export function createUniqueID(msg: string): string {
+	const hash = XXH.h32(0x536d6f6c).update(msg).digest().toString(16);
+	return hash;
 }

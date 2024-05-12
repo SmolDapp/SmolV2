@@ -5,39 +5,25 @@ import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import type {ReactElement} from 'react';
 
 export type TCardWithIcon = {
-	isSelected: boolean;
+	isSelected?: boolean;
 	onClick?: () => void;
 	label: string;
+	description?: string;
 	icon: ReactElement;
 };
 
-export default function CardWithIcon({isSelected, onClick, label, icon}: TCardWithIcon): ReactElement {
+export default function CardWithIcon({onClick, label, icon, description}: TCardWithIcon): ReactElement {
 	return (
 		<button
-			className={cl(
-				'hover box-0 group relative flex w-full items-center justify-center p-4 md:p-6',
-				isSelected ? '!bg-primary-50' : ''
-			)}
+			className={cl('hover box-0 group relative flex w-full justify-center p-4 md:p-6')}
 			onClick={onClick}>
-			<div className={'relative flex w-full flex-col items-center justify-center'}>
-				<div
-					suppressHydrationWarning
-					className={`group-hover:bg-neutral-0 mb-4 flex size-10 items-center justify-center rounded-full border border-neutral-200 transition-colors md:size-12 ${
-						isSelected ? 'bg-neutral-0' : ''
-					}`}>
-					{cloneElement(icon, {className: 'h-5 md:h-6 w-5 md:w-6 text-neutral-900'})}
+			<div className={'relative flex w-full gap-4'}>
+				<div>{cloneElement(icon, {className: 'size-5 text-neutral-700'})}</div>
+				<div className={'-mt-1 text-left'}>
+					<b className={'text-sm md:text-base'}>{label}</b>
+					<p className={'text-sm text-neutral-600'}>{description}</p>
 				</div>
-				<b
-					suppressHydrationWarning
-					className={'text-sm md:text-base'}>
-					{label}
-				</b>
 			</div>
-			<IconCircleCheck
-				className={`absolute right-4 top-4 size-4 text-[#16a34a] transition-opacity ${
-					isSelected ? 'opacity-100' : 'opacity-0'
-				}`}
-			/>
 		</button>
 	);
 }

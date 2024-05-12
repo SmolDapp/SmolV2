@@ -4,8 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {encodeFunctionData, parseEther} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {toAddress} from '@builtbymom/web3/utils';
+import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {defaultTxStatus, getClient, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {useMultisafe} from '@multisafe/contexts/useMultisafe';
 import {IconLinkOut} from '@multisafeIcons/IconLinkOut';
 import {
 	DEFAULT_FEES_USD,
@@ -24,7 +25,6 @@ import {CHAINS} from '@lib/utils/tools.chains';
 import DISPERSE_ABI from '../utils/abi/disperse.abi';
 import GNOSIS_SAFE_PROXY_FACTORY from '../utils/abi/gnosisSafeProxyFactory.abi';
 import {multicall} from '../utils/actions';
-import {useSafeCreator} from './useSafeCreator';
 
 import type {ReactElement} from 'react';
 import type {Chain} from 'viem';
@@ -63,7 +63,7 @@ function ChainStatus({
 	salt,
 	singleton
 }: TChainStatusArgs): ReactElement {
-	const {chainCoinPrices} = useSafeCreator();
+	const {chainCoinPrices} = useMultisafe();
 	const gasCoinID = CHAINS?.[chain.id]?.coingeckoGasCoinID || 'ethereum';
 	const coinPrice = chainCoinPrices?.[gasCoinID]?.usd;
 	const {provider, address, chainID} = useWeb3();
@@ -285,7 +285,7 @@ function ChainStatus({
 				<Button
 					className={'!h-8'}
 					isDisabled>
-					{'Deployed'}
+					<p className={'text-sm'}>{'Deployed'}</p>
 				</Button>
 				<Link
 					href={`${CHAINS[chain.id].safeAPIURI || ''}${safeAddress}`}
@@ -303,7 +303,7 @@ function ChainStatus({
 					className={'!h-8'}
 					isBusy={cloneStatus.pending}
 					onClick={onDeploySafe}>
-					{'Deploy'}
+					<p className={'text-sm'}>{'Deploy'}</p>
 				</Button>
 				<p className={'block text-center text-xs text-neutral-600 md:hidden'}>&nbsp;</p>
 			</div>
@@ -334,7 +334,7 @@ function ChainStatus({
 				<Button
 					className={'!h-8'}
 					isBusy>
-					{'Loading'}
+					<p className={'text-sm'}>{'Loading'}</p>
 				</Button>
 			</div>
 		)
@@ -367,7 +367,7 @@ function ChainStatus({
 						href={`${getNetwork(chain.id).blockExplorers?.default.url}/address/${safeAddress}`}
 						target={'_blank'}>
 						<p className={'text-xs text-neutral-600 transition-colors hover:text-neutral-900'}>
-							{safeAddress}
+							{truncateHex(safeAddress, 6)}
 						</p>
 					</Link>
 				</div>

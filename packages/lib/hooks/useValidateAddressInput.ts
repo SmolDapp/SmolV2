@@ -46,7 +46,6 @@ export function useValidateAddressInput(): {
 				throw new Error('Aborted!');
 			}
 			set_isCheckingValidity(true);
-
 			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id});
 
 			if (signal?.aborted) {

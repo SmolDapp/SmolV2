@@ -1,9 +1,11 @@
-import React, {Fragment, useCallback, useMemo, useRef, useState} from 'react';
-import Link from 'next/link';
+import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useRouter} from 'next/router';
 import assert from 'assert';
 import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex} from 'viem';
+import {serialize} from 'wagmi';
 import {cl, isZeroAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
-import {useMultisafe} from '@multisafe/contexts/useMultisafe';
+import {ConfigurationStatus} from '@multisafe/components/ConfigurationStatus';
+import {MultisafeContextApp, useMultisafe} from '@multisafe/contexts/useMultisafe';
 import {
 	GNOSIS_SAFE_PROXY_CREATION_CODE,
 	PROXY_FACTORY_L2,
@@ -11,37 +13,19 @@ import {
 	SINGLETON_L2,
 	SINGLETON_L2_DDP
 } from '@multisafeUtils/constants';
-import {generateArgInitializers} from '@multisafeUtils/utils';
-import {useMountEffect, useUpdateEffect} from '@react-hookz/web';
+import {createUniqueID, generateArgInitializers} from '@multisafeUtils/utils';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {IconCross} from '@lib/icons/IconCross';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconFire} from '@lib/icons/IconFire';
 import {Button} from '@lib/primitives/Button';
 
-import {PossibleSafe} from './4.ViewNewSafe.possible';
-import {ConfigurationStatus} from './ConfigurationStatus';
-
+import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TInputAddressLikeWithUUID} from '@multisafe/contexts/useMultisafe';
 import type {TInputAddressLike} from '@multisafeCommons/AddressInput';
-import type {TNewSafe} from './4.ViewNewSafe';
-
-type TOwners = {
-	address: TAddress | undefined;
-	label: string;
-	UUID: string;
-};
-
-export function newVoidOwner(): TOwners {
-	return {
-		address: undefined,
-		label: '',
-		UUID: crypto.randomUUID()
-	};
-}
 
 function SafeOwner(props: {
 	owner: TInputAddressLike;
@@ -66,8 +50,12 @@ function SafeOwner(props: {
 	);
 }
 
-function ViewNewSafeOwners(): ReactElement {
-	const {threshold, onUpdateThreshold, owners, onAddOwner, onUpdateOwner, onRemoveOwner} = useMultisafe();
+function Safe(): ReactElement {
+	const router = useRouter();
+	const {threshold, onUpdateThreshold, owners, onAddOwner, onSetOwners, onUpdateOwner, onRemoveOwner} =
+		useMultisafe();
+	const uniqueIdentifier = useRef<string | undefined>(undefined);
+	const [safeAddress, set_safeAddress] = useState<TAddress | undefined>(undefined);
 	const [prefix, set_prefix] = useState<string | undefined>(undefined);
 	const [suffix, set_suffix] = useState('');
 	const [seed, set_seed] = useState<bigint | undefined>(undefined);
@@ -75,17 +63,87 @@ function ViewNewSafeOwners(): ReactElement {
 	const [shouldUseExpertMode, set_shouldUseExpertMode] = useState<boolean>(false);
 	const shouldCancel = useRef(false);
 	const [isLoadingSafes, set_isLoadingSafes] = useState(false);
-	const [possibleSafe, set_possibleSafe] = useState<TNewSafe | undefined>(undefined);
 	const [currentSeed, set_currentSeed] = useState(0n);
 
-	useMountEffect((): void => {
-		set_currentSeed(hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())]))));
-		set_possibleSafe(undefined);
-	});
+	/**********************************************************************************************
+	 ** The linkToDeploy is a memoized value that is used to generate the query arguments for the
+	 ** deployment link. These arguments will be appended to the /deploy route to show the list
+	 ** or networks on which the Safe can be deployed in the next page.
+	 *********************************************************************************************/
+	const linkToDeploy = useMemo(() => {
+		const URLQueryParam = new URLSearchParams();
 
-	useUpdateEffect((): void => {
-		set_possibleSafe(undefined);
-	}, [owners, threshold]);
+		URLQueryParam.set('owners', owners.map(owner => toAddress(owner.address)).join('_'));
+		URLQueryParam.set('threshold', threshold.toString());
+		URLQueryParam.set('singleton', factory);
+		URLQueryParam.set('salt', currentSeed.toString());
+		return URLQueryParam;
+	}, [currentSeed, factory, owners, threshold]);
+
+	/**********************************************************************************************
+	 ** The user can come to this page with a bunch of query arguments. If this is the case, we
+	 ** should populate the form with the values from the query arguments.
+	 ** The valid query arguments are:
+	 ** - address: The address of the Safe to be deployed.
+	 ** - owners: A list of addresses separated by underscores.
+	 ** - threshold: The number of owners required to confirm a transaction.
+	 ** - singleton: The type of Safe to be deployed.
+	 ** - salt: The seed to be used for the CREATE2 address computation.
+	 ** Any "valid" value can be passed, but if we cannot regenerate the safe address from the
+	 ** other values, an error will be displayed.
+	 **
+	 ** The uniqueIdentifier is used to prevent the useEffect from overwriting the form values
+	 ** once we have set them from the query arguments.
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (uniqueIdentifier.current) {
+			return;
+		}
+		const {address, owners, threshold, singleton, salt} = router.query;
+		if (address && !isZeroAddress(address as string)) {
+			set_safeAddress(toAddress(address as string));
+		}
+		if (owners) {
+			onSetOwners((owners as string).split('_').map(toAddress));
+		}
+		if (threshold) {
+			onUpdateThreshold(parseInt(threshold as string, 10));
+		}
+		if (singleton) {
+			assert(['ssf', 'ddp'].includes(singleton as string));
+			set_factory(singleton as 'ssf' | 'ddp');
+		}
+		if (salt) {
+			set_currentSeed(toBigInt(salt as string));
+		}
+		uniqueIdentifier.current = createUniqueID(serialize(router.query));
+	}, [onSetOwners, onUpdateThreshold, router.query]);
+
+	/**********************************************************************************************
+	 ** The navigateToDeploy function is used to navigate to the /deploy route with the query
+	 ** arguments generated from the linkToDeploy URLSearchParams object.
+	 ** One little trick here is that we are first replacing the current URL with the new query
+	 ** arguments in order to update the browser history. Thanks to this, the user can navigate
+	 ** back to this page and the form will be populated with the same values.
+	 *********************************************************************************************/
+	const navigateToDeploy = useCallback(() => {
+		const thisPageUpdatedQueryURL = linkToDeploy;
+		thisPageUpdatedQueryURL.set('address', toAddress(safeAddress));
+		router.replace(`/new-safe?${thisPageUpdatedQueryURL.toString()}`);
+		router.push(`/new-safe/${safeAddress}?${linkToDeploy.toString()}`);
+	}, [linkToDeploy, router, safeAddress]);
+
+	/**********************************************************************************************
+	 ** The onParamChange function is used to reset the safeAddress state when the parameters
+	 ** of the form are changed. This is to ensure that the user is aware that the address
+	 ** will be recomputed.
+	 ** If this function is called when the user is generating a new address, the computation
+	 ** will be cancelled.
+	 *********************************************************************************************/
+	const onParamChange = useCallback(() => {
+		set_safeAddress(undefined);
+		shouldCancel.current = true;
+	}, []);
 
 	const compute = useCallback(
 		async ({
@@ -123,16 +181,14 @@ function ViewNewSafeOwners(): ReactElement {
 	);
 
 	const generateCreate2Addresses = useCallback(async (): Promise<void> => {
-		set_possibleSafe(undefined);
+		set_safeAddress(undefined);
 		const salt = currentSeed;
 
 		set_isLoadingSafes(true);
 		const ownersAddresses = owners.map(owner => toAddress(owner.address));
 		const argInitializers = generateArgInitializers(ownersAddresses, threshold);
-		const bytecode = encodePacked(
-			['bytes', 'uint256'],
-			[GNOSIS_SAFE_PROXY_CREATION_CODE, hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP)]
-		);
+		const singletonFactory = hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
+		const bytecode = encodePacked(['bytes', 'uint256'], [GNOSIS_SAFE_PROXY_CREATION_CODE, singletonFactory]);
 		const result = await compute({
 			argInitializers,
 			bytecode,
@@ -142,34 +198,15 @@ function ViewNewSafeOwners(): ReactElement {
 		});
 		if (shouldCancel.current) {
 			shouldCancel.current = false;
-			set_possibleSafe(undefined);
+			onParamChange();
 			set_isLoadingSafes(false);
 			return;
 		}
 		shouldCancel.current = false;
-		set_possibleSafe({
-			address: result.address,
-			salt: result.salt,
-			owners: ownersAddresses,
-			threshold,
-			prefix: prefix || '0x',
-			suffix,
-			singleton: factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP
-		});
+		set_safeAddress(result.address);
 		set_currentSeed(result.salt);
 		set_isLoadingSafes(false);
-	}, [currentSeed, owners, threshold, compute, prefix, suffix, factory]);
-
-	const linkToDeploy = useMemo(() => {
-		const URLQueryParam = new URLSearchParams();
-
-		URLQueryParam.set('address', possibleSafe?.address || '');
-		URLQueryParam.set('owners', owners.map(owner => toAddress(owner.address)).join('_'));
-		URLQueryParam.set('threshold', threshold.toString());
-		URLQueryParam.set('singleton', factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
-		URLQueryParam.set('salt', currentSeed.toString());
-		return URLQueryParam.toString();
-	}, [currentSeed, factory, owners, threshold, possibleSafe?.address]);
+	}, [onParamChange, currentSeed, owners, threshold, factory, compute, prefix, suffix]);
 
 	return (
 		<div className={'grid w-full max-w-[600px]'}>
@@ -202,8 +239,12 @@ function ViewNewSafeOwners(): ReactElement {
 							<SafeOwner
 								key={index}
 								owner={owner}
-								removeOwner={(): void => onRemoveOwner(owner.UUID)}
+								removeOwner={(): void => {
+									onParamChange();
+									onRemoveOwner(owner.UUID);
+								}}
 								updateOwner={(value): void => {
+									onParamChange();
 									onUpdateOwner(owner.UUID, {
 										...value,
 										UUID: owner.UUID
@@ -214,10 +255,14 @@ function ViewNewSafeOwners(): ReactElement {
 					</div>
 					<div className={'mb-2 mt-4'}>
 						<button
-							className={
-								'rounded-lg bg-neutral-200 px-5 py-2 text-xs text-neutral-700 transition-colors hover:bg-neutral-300'
-							}
-							onClick={onAddOwner}>
+							className={cl(
+								'rounded-lg bg-neutral-200 px-5 py-2 text-xs text-neutral-7000',
+								'transition-colors hover:bg-neutral-30'
+							)}
+							onClick={(): void => {
+								onParamChange();
+								onAddOwner();
+							}}>
 							{'+ Add owner'}
 						</button>
 					</div>
@@ -247,7 +292,10 @@ function ViewNewSafeOwners(): ReactElement {
 									'disabled:opacity-0'
 								)}
 								disabled={threshold <= 1}
-								onClick={(): void => onUpdateThreshold(threshold - 1)}>
+								onClick={(): void => {
+									onParamChange();
+									onUpdateThreshold(threshold - 1);
+								}}>
 								{'-'}
 							</button>
 							<p className={'font-number font-medium'}>
@@ -264,7 +312,10 @@ function ViewNewSafeOwners(): ReactElement {
 									'disabled:opacity-0'
 								)}
 								disabled={threshold >= owners.length}
-								onClick={(): void => onUpdateThreshold(threshold + 1)}>
+								onClick={(): void => {
+									onParamChange();
+									onUpdateThreshold(threshold + 1);
+								}}>
 								{'+'}
 							</button>
 						</div>
@@ -281,6 +332,7 @@ function ViewNewSafeOwners(): ReactElement {
 									let {value} = e.target;
 									value = value.replaceAll('[^a-fA-F0-9]', '');
 									if (!value || value === '0x' || value === '0X') {
+										onParamChange();
 										set_prefix(undefined);
 										const input = document.getElementById('prefix') as HTMLInputElement;
 										if (input) {
@@ -288,10 +340,13 @@ function ViewNewSafeOwners(): ReactElement {
 										}
 									} else if (value.length <= 6) {
 										if (!value || value === '0x' || value === '0X') {
+											onParamChange();
 											set_prefix(undefined);
 										} else if (value.match(/^0x[a-fA-F0-9]{0,6}$/)) {
+											onParamChange();
 											set_prefix(value);
 										} else if (value.match(/^[a-fA-F0-9]{0,4}$/) && !value.startsWith('0x')) {
+											onParamChange();
 											set_prefix(`0x${value}`);
 										}
 									}
@@ -315,6 +370,7 @@ function ViewNewSafeOwners(): ReactElement {
 									const {value} = e.target;
 									if (value.length <= 4) {
 										if (value.match(/^[a-fA-F0-9]{0,4}$/)) {
+											onParamChange();
 											set_suffix(value);
 										}
 									}
@@ -339,6 +395,7 @@ function ViewNewSafeOwners(): ReactElement {
 									<input
 										onChange={(e): void => {
 											const {value} = e.target;
+											onParamChange();
 											set_seed(toBigInt(value.replace(/\D/g, '')));
 										}}
 										type={'text'}
@@ -361,6 +418,7 @@ function ViewNewSafeOwners(): ReactElement {
 										value={factory}
 										onChange={(e): void => {
 											assert(['ssf', 'ddp'].includes(e.target.value));
+											onParamChange();
 											set_factory(e.target.value as 'ssf' | 'ddp');
 										}}>
 										<option value={'ssf'}>{'Safe Singleton Factory'}</option>
@@ -379,13 +437,15 @@ function ViewNewSafeOwners(): ReactElement {
 							threshold={threshold}
 						/>
 					</div>
-					<div>
+					<div className={'flex gap-2'}>
 						<Button
-							className={'group !h-8 w-auto md:min-w-[160px]'}
+							className={'group !h-8 w-auto'}
+							variant={'light'}
 							isBusy={isLoadingSafes}
 							isDisabled={owners.some((owner): boolean => !owner || isZeroAddress(owner.address))}
 							onClick={(e: React.MouseEvent<HTMLButtonElement>): void => {
 								e.currentTarget.blur();
+								shouldCancel.current = false;
 								generateCreate2Addresses();
 							}}>
 							<p className={'text-sm'}>{'Generate'}</p>
@@ -403,29 +463,42 @@ function ViewNewSafeOwners(): ReactElement {
 								</span>
 							) : null}
 						</Button>
+						{safeAddress && !isLoadingSafes ? (
+							<Button
+								onClick={navigateToDeploy}
+								className={'group !h-8 w-auto md:min-w-[160px]'}>
+								<p className={'text-sm'}>
+									{'Deploy: '}
+									<span className={'font-number font-medium'}>{`${safeAddress}`}</span>
+								</p>
+							</Button>
+						) : null}
 					</div>
-
-					{possibleSafe && !isLoadingSafes ? (
-						<Link href={`/deploy?${linkToDeploy}`}>
-							<Button>{`Deploy ${possibleSafe?.address}`}</Button>
-						</Link>
-					) : null}
 				</div>
-
-				{possibleSafe && !isLoadingSafes ? (
-					<PossibleSafe
-						possibleSafe={possibleSafe}
-						prefix={prefix || '0x'}
-						suffix={suffix}
-						currentSeed={currentSeed}
-						factory={factory}
-						shouldUseTestnets={false}
-						onGenerate={generateCreate2Addresses}
-					/>
-				) : null}
 			</div>
 		</div>
 	);
 }
 
-export default ViewNewSafeOwners;
+export default function MultisafeWrapper(): ReactElement {
+	return (
+		<MultisafeContextApp>
+			<Safe />
+		</MultisafeContextApp>
+	);
+}
+
+MultisafeWrapper.AppName = 'One new Safe, coming right up.';
+MultisafeWrapper.AppDescription =
+	'Your Safe needs owners. Let us know the other addresses or ENS you want to be in charge of your Safe alongside you.';
+MultisafeWrapper.AppInfo = (
+	<>
+		<p>{'Well, basically, it’s… your wallet. '}</p>
+		<p>{'You can see your tokens. '}</p>
+		<p>{'You can switch chains and see your tokens on that chain. '}</p>
+		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
+		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
+	</>
+);
+
+export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
