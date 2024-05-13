@@ -85,7 +85,7 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 					<div className={'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'}>
 						<WithAddressBook>
 							<App
-								key={router.route}
+								key={appName}
 								title={appName}
 								description={appDescription}
 								action={appAction()}
