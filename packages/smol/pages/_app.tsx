@@ -85,7 +85,7 @@ function MyApp(props: AppProps): ReactElement {
 								enabled={true}>
 								<main className={'h-app flex flex-col'}>
 									<Layout
-										{...props}
+										{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
 										menu={MENU}
 									/>
 								</main>

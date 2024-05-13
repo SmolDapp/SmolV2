@@ -33,7 +33,7 @@ function MyApp(props: AppProps): ReactElement {
 				<WalletContextApp>
 					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
 						<Layout
-							{...props}
+							{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
 							menu={[
 								{
 									href: '/new-safe',
