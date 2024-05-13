@@ -88,7 +88,6 @@ export const AllowancesContextApp = (props: {
 	 ** obtain allowances for each address in the list. This process allows us to gather allowance
 	 ** data for all tokens listed.
 	 *********************************************************************************************/
-
 	const tokenAddresses = useMemo(() => {
 		return Object.values(currentNetworkTokenList).map(item => item.address);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
