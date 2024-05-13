@@ -35,7 +35,7 @@ export const supportedNetworks: Chain[] = [
 	base,
 	arbitrum,
 	metis,
-	zora,
+	{...zora, url: 'https://zora.superscan.network'},
 	confluxESpace,
 	isDev && localhost
 ].filter(Boolean);
