@@ -1,4 +1,6 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import {IconLoader} from 'lib/icons/IconLoader';
+import {IconWallet} from 'lib/icons/IconWallet';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -9,10 +11,8 @@ import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
-import {IconLoader} from '@lib/icons/IconLoader';
-import {IconWallet} from '@lib/icons/IconWallet';
 
-import type {TPrice} from '@lib/utils/types/types';
+import type {TPrice} from 'lib/utils/types/types';
 
 function WalletListHeader(): ReactElement {
 	return (
@@ -67,26 +67,26 @@ export function Wallet(): ReactElement {
 	const [searchValue, set_searchValue] = useState('');
 	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
-	const {tokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
 
 	const searchTokenAddress = useMemo(() => {
 		if (
 			isAddress(searchValue) &&
-			!tokensWithBalance.some(token => isAddressEqual(token.address, toAddress(searchValue)))
+			!listTokensWithBalance().some(token => isAddressEqual(token.address, toAddress(searchValue)))
 		) {
 			return toAddress(searchValue);
 		}
 		return undefined;
-	}, [tokensWithBalance, searchValue]);
+	}, [listTokensWithBalance, searchValue]);
 
 	const filteredTokens = useDeepCompareMemo(() => {
-		return tokensWithBalance.filter(
+		return listTokensWithBalance().filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				token.name.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				toAddress(token.address).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
 		);
-	}, [searchValue, tokensWithBalance]);
+	}, [searchValue, listTokensWithBalance]);
 	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID}) as TPrice;
 
 	const walletLayout = useMemo(() => {
@@ -101,6 +101,7 @@ export function Wallet(): ReactElement {
 				<FetchedTokenButton
 					tokenAddress={searchTokenAddress}
 					displayInfo
+					chainID={safeChainID}
 					onSelect={selected => {
 						addCustomToken(selected);
 						set_searchValue('');
@@ -124,7 +125,17 @@ export function Wallet(): ReactElement {
 		}
 
 		return <EmptyWallet />;
-	}, [addCustomToken, address, filteredTokens, isLoading, onConnect, prices, searchTokenAddress, searchValue]);
+	}, [
+		addCustomToken,
+		address,
+		filteredTokens,
+		isLoading,
+		onConnect,
+		prices,
+		safeChainID,
+		searchTokenAddress,
+		searchValue
+	]);
 
 	return (
 		<div className={'max-w-108 w-full gap-4'}>

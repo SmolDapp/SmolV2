@@ -295,7 +295,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 						'rounded-lg bg-neutral-200 px-5 py-2 text-xs text-neutral-700 transition-colors hover:bg-neutral-300'
 					}
 					onClick={() => onAddReceivers(1)}>
-					{'+Add receiver'}
+					{'+ Add receiver'}
 				</button>
 			</div>
 			<DisperseStatus />

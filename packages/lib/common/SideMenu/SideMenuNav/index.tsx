@@ -99,7 +99,7 @@ export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}
 							label={label}
 							icon={icon}
 							isDisabled={isDisabled}
-							isSelected={pathname.startsWith(href)}
+							isSelected={pathname?.startsWith(href)}
 							onClick={props.onClose}
 						/>
 					))}

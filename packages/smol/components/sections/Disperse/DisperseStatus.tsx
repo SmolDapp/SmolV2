@@ -22,16 +22,6 @@ export function DisperseStatus(): ReactElement | null {
 	);
 
 	const listDuplicates = useMemo(() => {
-		// return configuration.inputs.some(currentRow =>
-		// 	configuration.inputs.find(
-		// 		iteratedRow =>
-		// 			isAddress(currentRow.receiver.address) &&
-		// 			isAddress(iteratedRow.receiver.address) &&
-		// 			currentRow.UUID !== iteratedRow.UUID &&
-		// 			currentRow.receiver.address === iteratedRow.receiver.address
-		// 	)
-		// );
-
 		// Check if two addresses are the same and list the duplicates
 		const allDuplicates = configuration.inputs.reduce((acc, currentRow) => {
 			const duplicates = configuration.inputs.reduce((acc, iteratedRow) => {
