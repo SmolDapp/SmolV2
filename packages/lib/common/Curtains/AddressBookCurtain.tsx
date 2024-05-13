@@ -1,10 +1,13 @@
 'use client';
 
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
+import {IconLinkOut} from '@multisafeIcons/IconLinkOut';
 import * as Dialog from '@radix-ui/react-dialog';
 import {AddressBookStatus} from '@smolSections/AddressBook/AddressBookStatus';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
@@ -15,6 +18,7 @@ import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
 import {IconTrash} from '@lib/icons/IconTrash';
 import {Button} from '@lib/primitives/Button';
 import {CurtainContent} from '@lib/primitives/Curtain';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import {AvatarWrapper} from '../Avatar';
 import {NetworkDropdownSelector} from '../NetworkSelector/Dropdown';
@@ -203,6 +207,7 @@ export function AddressBookCurtain(props: {
 	const plausible = usePlausible();
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
+	const {safeChainID} = useChainID();
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
@@ -217,6 +222,11 @@ export function AddressBookCurtain(props: {
 	});
 	const [isFormValid, set_isFormValid] = useState<boolean>(false);
 	const [isValidName, set_isValidName] = useState<boolean | 'undetermined'>(false);
+
+	const currentNetwork = useMemo(
+		() => supportedNetworks.find((network): boolean => network.id === safeChainID),
+		[safeChainID]
+	);
 
 	/**********************************************************************************************
 	 ** We need to use this useEffect to prevent an UI issue where the address input is not updated
@@ -392,6 +402,17 @@ export function AddressBookCurtain(props: {
 							) : null}
 						</div>
 					</form>
+					{addressLike.address && (
+						<Link
+							href={`${currentNetwork?.blockExplorers?.default.url}/address/${addressLike.address}`}
+							target={'_blank'}
+							className={
+								'absolute bottom-4 flex items-center gap-x-2 text-neutral-600 transition-colors hover:text-neutral-900'
+							}>
+							<IconLinkOut className={'size-4'} />
+							<p className={'text-sm '}>{'View on Block Explorer'}</p>
+						</Link>
+					)}
 				</aside>
 			</CurtainContent>
 		</Dialog.Root>
