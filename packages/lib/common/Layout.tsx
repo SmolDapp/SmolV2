@@ -85,13 +85,14 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 					<div className={'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'}>
 						<WithAddressBook>
 							<App
-								key={appName}
+								key={router.route}
 								title={appName}
 								description={appDescription}
 								action={appAction()}
 								info={appInfo}>
 								<AnimatePresence>
 									<motion.div
+										key={router.route}
 										initial={{scale: 0.9, opacity: 0}}
 										animate={{scale: 1, opacity: 1}}
 										transition={{

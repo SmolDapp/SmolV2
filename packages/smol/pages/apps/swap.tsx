@@ -6,7 +6,7 @@ import {SwapQueryManagement} from '@smolSections/Swap/useSwapQuery';
 
 import type {ReactElement} from 'react';
 
-export default function SwapPage(): ReactElement {
+function SwapPage(): ReactElement {
 	return (
 		<SwapContextApp>
 			{({configuration: {input, output}}) => (
@@ -68,3 +68,5 @@ SwapPage.AppInfo = (
 SwapPage.getLayout = function getLayout(page: ReactElement): ReactElement {
 	return <Fragment>{page}</Fragment>;
 };
+
+export default SwapPage;

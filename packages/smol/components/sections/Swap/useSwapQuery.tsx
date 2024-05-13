@@ -17,12 +17,14 @@ import {
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {useSyncUrlParams} from '@smolHooks/useSyncUrlParams';
 import {getBalance, readContracts, serialize} from '@wagmi/core';
 
 import {getNewInputToken, useSwapFlow} from './useSwapFlow.lifi';
 
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
+import type {GetServerSideProps} from 'next';
 import type {TPartialExhaustive} from 'packages/lib/utils/types/types';
 import type {ReactElement} from 'react';
 
@@ -65,14 +67,35 @@ export const SwapQueryManagement = (props: {
 		output: false,
 		receiver: false
 	});
-	const stateFromUrl = getStateFromUrlQuery<TSwapQuery>(queryParams, ({string, number}) => ({
-		chainFrom: number('chainFrom'), // The ID of the chain where the tokenFrom is located
-		chainTo: number('chainTo'), // The ID of the chain where the tokenTo is located
-		tokenFrom: string('tokenFrom'), // The address of the tokenFrom
-		tokenTo: string('tokenTo'), // The address of the tokenTo
-		receiver: string('receiver') // The address of the receiver
-	}));
-	const initialStateFromUrl = useMemo(() => stateFromUrl, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	/**********************************************************************************************
+	 ** InitialStateFromUrl is the initial state of the URL parameters. This is the one we received
+	 ** from the URL when the page was first loaded.
+	 ** StateFromUrl is the current state of the URL parameters. This is the one we are currently
+	 ** using in the application, which might be different from the initial state.
+	 **
+	 ** @dev It's important to use useDeepCompareMemo to avoid unnecessary re-renders.
+	 *********************************************************************************************/
+	const initialStateFromUrl = useDeepCompareMemo(
+		() =>
+			getStateFromUrlQuery<TSwapQuery>(queryParams, ({string, number}) => ({
+				chainFrom: number('chainFrom'), // The ID of the chain where the tokenFrom is located
+				chainTo: number('chainTo'), // The ID of the chain where the tokenTo is located
+				tokenFrom: string('tokenFrom'), // The address of the tokenFrom
+				tokenTo: string('tokenTo'), // The address of the tokenTo
+				receiver: string('receiver') // The address of the receiver
+			})),
+		[] // eslint-disable-line react-hooks/exhaustive-deps
+	);
+	const stateFromUrl = useDeepCompareMemo(() => {
+		return getStateFromUrlQuery<TSwapQuery>(queryParams, ({string, number}) => ({
+			chainFrom: number('chainFrom'), // The ID of the chain where the tokenFrom is located
+			chainTo: number('chainTo'), // The ID of the chain where the tokenTo is located
+			tokenFrom: string('tokenFrom'), // The address of the tokenFrom
+			tokenTo: string('tokenTo'), // The address of the tokenTo
+			receiver: string('receiver') // The address of the receiver
+		}));
+	}, [queryParams]);
 
 	/**********************************************************************************************
 	 ** The useSyncUrlParams hook will make sure that every time the configuration changes for the
@@ -335,6 +358,9 @@ export const SwapQueryManagement = (props: {
 	 ** here).
 	 *********************************************************************************************/
 	useEffect(() => {
+		if (hasFinishedInitialFetch.input) {
+			return;
+		}
 		const hasInitialStateFrom = initialStateFromUrl.tokenFrom && initialStateFromUrl.chainFrom;
 		if (hasInitialStateFrom) {
 			if (!hasFinishedInitialFetch.input) {
@@ -343,9 +369,12 @@ export const SwapQueryManagement = (props: {
 		} else {
 			set_hasFinishedInitialFetch(prev => ({...prev, input: true}));
 		}
-	}, [populateInputArgs, initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch]);
+	}, [initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch, populateInputArgs]);
 
 	useEffect(() => {
+		if (hasFinishedInitialFetch.output) {
+			return;
+		}
 		const hasInitialStateTo = initialStateFromUrl.tokenTo && initialStateFromUrl.chainTo;
 		if (hasInitialStateTo) {
 			if (!hasFinishedInitialFetch.output) {
@@ -354,9 +383,12 @@ export const SwapQueryManagement = (props: {
 		} else {
 			set_hasFinishedInitialFetch(prev => ({...prev, output: true}));
 		}
-	}, [populateOuputArgs, initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch]);
+	}, [initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch, populateOuputArgs]);
 
 	useEffect(() => {
+		if (hasFinishedInitialFetch.receiver) {
+			return;
+		}
 		const hasInitialStateReceiver = initialStateFromUrl.receiver && !isZeroAddress(initialStateFromUrl.receiver);
 		if (hasInitialStateReceiver) {
 			if (!hasFinishedInitialFetch.receiver) {
@@ -365,7 +397,7 @@ export const SwapQueryManagement = (props: {
 		} else {
 			set_hasFinishedInitialFetch(prev => ({...prev, receiver: true}));
 		}
-	}, [populateReceiverArgs, initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch]);
+	}, [initialStateFromUrl, stateFromUrl, hasFinishedInitialFetch, populateReceiverArgs]);
 
 	/**********************************************************************************************
 	 ** Create the context value to be used by the children components.
@@ -385,3 +417,9 @@ export const SwapQueryManagement = (props: {
 		</SwapQueryManagementContext.Provider>
 	);
 };
+
+/**************************************************************************************************
+ ** Exporting this will tell the vercel host that we need the query argument for the first render.
+ ** Without it, the first render will ignore the query parameters.
+ *************************************************************************************************/
+export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
