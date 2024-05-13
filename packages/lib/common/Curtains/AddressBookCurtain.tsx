@@ -4,7 +4,6 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
@@ -209,7 +208,6 @@ export function AddressBookCurtain(props: {
 	const {updateEntry, listCachedEntries} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const {safeChainID} = useChainID();
-	const {address} = useWeb3();
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
 	const [isEditMode, set_isEditMode] = useState<boolean>(props.isEditing);
 	const [addressLike, set_addressLike] = useState<TInputAddressLike>({
@@ -404,13 +402,17 @@ export function AddressBookCurtain(props: {
 							) : null}
 						</div>
 					</form>
-					<Link
-						href={`${currentNetwork?.blockExplorers?.default.url}/address/${address}`}
-						target={'_blank'}
-						className={'absolute bottom-4 flex items-center gap-x-2'}>
-						<IconLinkOut className={'size-4'} />
-						<p className={'text-sm hover:underline'}>{'View on Block Explorer'}</p>
-					</Link>
+					{addressLike.address && (
+						<Link
+							href={`${currentNetwork?.blockExplorers?.default.url}/address/${addressLike.address}`}
+							target={'_blank'}
+							className={
+								'absolute bottom-4 flex items-center gap-x-2 text-neutral-600 transition-colors hover:text-neutral-900'
+							}>
+							<IconLinkOut className={'size-4'} />
+							<p className={'text-sm '}>{'View on Block Explorer'}</p>
+						</Link>
+					)}
 				</aside>
 			</CurtainContent>
 		</Dialog.Root>
