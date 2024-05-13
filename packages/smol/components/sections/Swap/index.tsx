@@ -177,7 +177,7 @@ export function Swap(): ReactElement {
 		<div className={'w-full max-w-screen-sm'}>
 			<div>
 				<div className={'flex items-end justify-between'}>
-					<p className={'font-medium'}>{'Your swap'}</p>
+					<p className={'font-medium'}>{'Your crosschain swap'}</p>
 					<button
 						className={
 							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
