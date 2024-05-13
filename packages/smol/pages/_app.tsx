@@ -8,8 +8,11 @@ import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import {IndexedDB} from '@smolContexts/useIndexedDB';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
+import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconCross} from '@lib/icons/IconCross';
+import {IconWallet} from '@lib/icons/IconWallet';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
@@ -30,6 +33,46 @@ const sourceCodePro = Source_Code_Pro({
 	display: 'swap',
 	variable: '--scp-font'
 });
+
+const MENU = [
+	{
+		href: '/apps/send',
+		label: 'Send',
+		icon: <IconAppSend />
+	},
+	{
+		href: '/apps/disperse',
+		label: 'Disperse',
+		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
+	},
+	{
+		href: '/apps/address-book',
+		label: 'Address Book',
+		icon: <IconAppAddressBook />
+	},
+	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	},
+	{
+		href: '/apps/revoke',
+		label: 'Revoke',
+		icon: <IconCross />
+	}
+];
 
 function MyApp(props: AppProps): ReactElement {
 	return (
@@ -67,7 +110,10 @@ function MyApp(props: AppProps): ReactElement {
 			<IndexedDB>
 				<WithMom
 					supportedChains={[...supportedNetworks, localhost]}
-					tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/popular.json']}>
+					tokenLists={[
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+					]}>
 					<WalletContextApp
 						shouldWorkOnTestnet={
 							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
@@ -78,7 +124,10 @@ function MyApp(props: AppProps): ReactElement {
 								enabled={true}>
 								<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
 									<Meta />
-									<Layout {...(props as any)} />
+									<Layout
+										{...(props as any)}
+										menu={MENU}
+									/>
 								</main>
 							</PlausibleProvider>
 						</SafeProvider>

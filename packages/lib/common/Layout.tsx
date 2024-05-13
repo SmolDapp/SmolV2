@@ -10,6 +10,7 @@ import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
 import type {NextRouter} from 'next/router';
+import type {TSideMenuItem} from './SideMenu/SideMenuNav';
 
 type TAppProp = {
 	title: string;
@@ -57,7 +58,7 @@ type TComponent = NextComponentType & {
 	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
-export default function Layout(props: AppProps): ReactElement {
+export default function Layout(props: AppProps & {menu: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 	const appName = (Component as TComponent).AppName || 'App';
@@ -73,11 +74,11 @@ export default function Layout(props: AppProps): ReactElement {
 					animate={{scale: 1, opacity: 1}}
 					transition={{duration: 0.6, ease: 'easeInOut'}}
 					className={'col-sidebar h-app bg-neutral-0 sticky top-10 z-20 hidden flex-col rounded-lg md:flex'}>
-					<SideMenu />
+					<SideMenu menu={props.menu} />
 				</motion.nav>
 
 				<div className={'col-span-full mb-4 flex px-4 md:hidden'}>
-					<SideMenuMobile />
+					<SideMenuMobile menu={props.menu} />
 				</div>
 
 				<div className={'md:col-main col-span-full px-4 '}>

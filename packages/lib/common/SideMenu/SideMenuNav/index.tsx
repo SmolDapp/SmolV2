@@ -5,51 +5,13 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@smolHooks/useIsMounted';
 import {LinkOrDiv} from '@lib/common/LinkOrDiv';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
-import {IconCross} from '@lib/icons/IconCross';
-import {IconWallet} from '@lib/icons/IconWallet';
 
-const SIDE_MENU = [
-	{
-		href: '/apps/send',
-		label: 'Send',
-		icon: <IconAppSend />
-	},
-	{
-		href: '/apps/disperse',
-		label: 'Disperse',
-		icon: <IconAppDisperse />
-	},
-	{
-		href: '/apps/earn',
-		label: 'Earn',
-		isDisabled: true,
-		icon: <IconAppEarn />
-	},
-	{
-		href: '/apps/stream',
-		label: 'Stream',
-		isDisabled: true,
-		icon: <IconAppStream />
-	},
-
-	{
-		href: '/apps/address-book',
-		label: 'Address Book',
-		icon: <IconAppAddressBook />
-	},
-	{
-		href: '/apps/wallet',
-		label: 'Wallet',
-		icon: <IconWallet />
-	},
-	{
-		href: '/apps/revoke',
-		label: 'Revoke',
-		icon: <IconCross />
-	}
-];
-
+export type TSideMenuItem = {
+	href: string;
+	label: string;
+	icon: ReactElement;
+	isDisabled?: boolean;
+};
 type TNavItemProps = {
 	label: string;
 	href: string;
@@ -123,14 +85,14 @@ function LogOutButton(): ReactElement {
 	);
 }
 
-export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
+export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}): ReactElement {
 	const pathname = usePathname();
 
 	return (
 		<div className={'scrollable scrollbar-show h-full pt-4'}>
 			<section className={'flex h-full flex-col justify-between'}>
 				<ul className={'grid gap-2 pb-8'}>
-					{SIDE_MENU.map(({href, label, icon, isDisabled}) => (
+					{props.menu.map(({href, label, icon, isDisabled}) => (
 						<NavItem
 							key={href}
 							href={href}
@@ -138,7 +100,7 @@ export function SideMenuNav({onClose}: {onClose?: () => void}): ReactElement {
 							icon={icon}
 							isDisabled={isDisabled}
 							isSelected={pathname.startsWith(href)}
-							onClick={onClose}
+							onClick={props.onClose}
 						/>
 					))}
 				</ul>
