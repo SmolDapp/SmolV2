@@ -61,7 +61,7 @@ export function ConfigurationStatus(props: {
 				message: (
 					<>
 						{
-							'Some duplicates were found in the configuration, please check that all the receivers are different addresses: \n'
+							'Some duplicates were found in the configuration, please check that all the owners are different addresses: \n'
 						}
 						<span className={'font-mono'}>{listDuplicates}</span>
 					</>

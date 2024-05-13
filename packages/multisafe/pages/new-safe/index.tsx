@@ -36,11 +36,13 @@ function SafeOwner(props: {
 
 	return (
 		<div className={'flex w-full max-w-full'}>
-			<SmolAddressInput
-				inputRef={inputRef}
-				onSetValue={props.updateOwner}
-				value={props.owner}
-			/>
+			<div className={'max-w-108 w-full'}>
+				<SmolAddressInput
+					inputRef={inputRef}
+					onSetValue={props.updateOwner}
+					value={props.owner}
+				/>
+			</div>
 			<button
 				className={'mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700'}
 				onClick={props.removeOwner}>
@@ -55,15 +57,16 @@ function Safe(): ReactElement {
 	const {threshold, onUpdateThreshold, owners, onAddOwner, onSetOwners, onUpdateOwner, onRemoveOwner} =
 		useMultisafe();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
+	const shouldCancel = useRef(false);
 	const [safeAddress, set_safeAddress] = useState<TAddress | undefined>(undefined);
 	const [prefix, set_prefix] = useState<string | undefined>(undefined);
 	const [suffix, set_suffix] = useState('');
-	const [seed, set_seed] = useState<bigint | undefined>(undefined);
+	const [currentSeed, set_currentSeed] = useState(
+		hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])))
+	);
 	const [factory, set_factory] = useState<'ssf' | 'ddp'>('ssf');
 	const [shouldUseExpertMode, set_shouldUseExpertMode] = useState<boolean>(false);
-	const shouldCancel = useRef(false);
 	const [isLoadingSafes, set_isLoadingSafes] = useState(false);
-	const [currentSeed, set_currentSeed] = useState(0n);
 
 	/**********************************************************************************************
 	 ** The linkToDeploy is a memoized value that is used to generate the query arguments for the
@@ -151,51 +154,47 @@ function Safe(): ReactElement {
 			bytecode,
 			prefix,
 			suffix,
-			saltNonce
+			seed
 		}: {
 			argInitializers: string;
 			bytecode: Hex;
-			prefix: string;
-			suffix: string;
-			saltNonce: bigint;
+			prefix?: string;
+			suffix?: string;
+			seed: bigint;
 		}): Promise<{address: TAddress; salt: bigint}> => {
 			if (shouldCancel.current) {
 				return {address: '' as TAddress, salt: 0n};
 			}
-			const salt = keccak256(encodePacked(['bytes', 'uint256'], [keccak256(`0x${argInitializers}`), saltNonce]));
+			const salt = keccak256(encodePacked(['bytes', 'uint256'], [keccak256(`0x${argInitializers}`), seed]));
 			const addrCreate2 = getContractAddress({
 				bytecode,
 				from: factory == 'ssf' ? PROXY_FACTORY_L2 : PROXY_FACTORY_L2_DDP,
 				opcode: 'CREATE2',
 				salt
 			});
-			if (addrCreate2.startsWith(prefix) && addrCreate2.endsWith(suffix)) {
-				return {address: addrCreate2, salt: saltNonce};
+			if (addrCreate2.startsWith(prefix || '') && addrCreate2.endsWith(suffix || '')) {
+				return {address: addrCreate2, salt: seed};
 			}
 			const newSalt = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));
 			set_currentSeed(newSalt);
 			await new Promise(resolve => setTimeout(resolve, 0));
-			return compute({argInitializers, bytecode, prefix, suffix, saltNonce: newSalt});
+			return compute({argInitializers, bytecode, prefix, suffix, seed: newSalt});
 		},
 		[shouldCancel, factory]
 	);
 
 	const generateCreate2Addresses = useCallback(async (): Promise<void> => {
 		set_safeAddress(undefined);
-		const salt = currentSeed;
-
 		set_isLoadingSafes(true);
+		let seed = currentSeed;
+		if (!shouldUseExpertMode || safeAddress) {
+			seed = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));
+		}
 		const ownersAddresses = owners.map(owner => toAddress(owner.address));
 		const argInitializers = generateArgInitializers(ownersAddresses, threshold);
 		const singletonFactory = hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
 		const bytecode = encodePacked(['bytes', 'uint256'], [GNOSIS_SAFE_PROXY_CREATION_CODE, singletonFactory]);
-		const result = await compute({
-			argInitializers,
-			bytecode,
-			prefix: prefix || '0x',
-			suffix,
-			saltNonce: salt
-		});
+		const result = await compute({argInitializers, bytecode, prefix, suffix, seed});
 		if (shouldCancel.current) {
 			shouldCancel.current = false;
 			onParamChange();
@@ -206,7 +205,18 @@ function Safe(): ReactElement {
 		set_safeAddress(result.address);
 		set_currentSeed(result.salt);
 		set_isLoadingSafes(false);
-	}, [onParamChange, currentSeed, owners, threshold, factory, compute, prefix, suffix]);
+	}, [
+		currentSeed,
+		shouldUseExpertMode,
+		safeAddress,
+		owners,
+		threshold,
+		factory,
+		compute,
+		prefix,
+		suffix,
+		onParamChange
+	]);
 
 	return (
 		<div className={'grid w-full max-w-[600px]'}>
@@ -273,121 +283,57 @@ function Safe(): ReactElement {
 						<p className={'font-medium'}>{'Customization'}</p>
 					</div>
 					<div className={'full grid max-w-full grid-cols-3 gap-x-4'}>
-						<small>{'Threshold'}</small>
-						<small>{'Prefix'}</small>
-						<small>{'Suffix'}</small>
-
-						<div
-							className={cl(
-								'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
-								'flex flex-row items-center justify-between cursor-text',
-								'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
-							)}>
-							<button
+						<div>
+							<small>{'Threshold'}</small>
+							<div
 								className={cl(
-									'h-full aspect-square rounded-lg flex items-center justify-center',
-									'text-lg text-center text-neutral-600 hover:text-neutral-0',
-									'bg-neutral-300 hover:bg-neutral-900',
-									'transition-all opacity-100',
-									'disabled:opacity-0'
-								)}
-								disabled={threshold <= 1}
-								onClick={(): void => {
-									onParamChange();
-									onUpdateThreshold(threshold - 1);
-								}}>
-								{'-'}
-							</button>
-							<p className={'font-number font-medium'}>
-								{threshold}
-								<span className={'text-neutral-600'}>{` / ${owners.length}`}</span>
-							</p>
-							<button
-								type={'button'}
-								className={cl(
-									'h-full aspect-square rounded-lg flex items-center justify-center',
-									'text-lg text-center text-neutral-600 hover:text-neutral-0',
-									'bg-neutral-300 hover:bg-neutral-900',
-									'transition-all opacity-100',
-									'disabled:opacity-0'
-								)}
-								disabled={threshold >= owners.length}
-								onClick={(): void => {
-									onParamChange();
-									onUpdateThreshold(threshold + 1);
-								}}>
-								{'+'}
-							</button>
-						</div>
-
-						<div
-							className={cl(
-								'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
-								'flex flex-row items-center justify-between cursor-text',
-								'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
-							)}>
-							<input
-								id={'prefix'}
-								onChange={(e): void => {
-									let {value} = e.target;
-									value = value.replaceAll('[^a-fA-F0-9]', '');
-									if (!value || value === '0x' || value === '0X') {
+									'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
+									'flex flex-row items-center justify-between cursor-text',
+									'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
+								)}>
+								<button
+									className={cl(
+										'h-full aspect-square rounded-lg flex items-center justify-center',
+										'text-lg text-center text-neutral-600 hover:text-neutral-0',
+										'bg-neutral-300 hover:bg-neutral-900',
+										'transition-all opacity-100',
+										'disabled:opacity-0'
+									)}
+									disabled={threshold <= 1}
+									onClick={(): void => {
 										onParamChange();
-										set_prefix(undefined);
-										const input = document.getElementById('prefix') as HTMLInputElement;
-										if (input) {
-											input.value = '';
-										}
-									} else if (value.length <= 6) {
-										if (!value || value === '0x' || value === '0X') {
-											onParamChange();
-											set_prefix(undefined);
-										} else if (value.match(/^0x[a-fA-F0-9]{0,6}$/)) {
-											onParamChange();
-											set_prefix(value);
-										} else if (value.match(/^[a-fA-F0-9]{0,4}$/) && !value.startsWith('0x')) {
-											onParamChange();
-											set_prefix(`0x${value}`);
-										}
-									}
-								}}
-								placeholder={'0x'}
-								type={'text'}
-								value={prefix}
-								pattern={'^0x[a-fA-F0-9]{0,6}$'}
-								className={'smol--input font-mono font-bold'}
-							/>
+										onUpdateThreshold(threshold - 1);
+									}}>
+									{'-'}
+								</button>
+								<p className={'font-number font-medium'}>
+									{threshold}
+									<span className={'text-neutral-600'}>{` / ${owners.length}`}</span>
+								</p>
+								<button
+									type={'button'}
+									className={cl(
+										'h-full aspect-square rounded-lg flex items-center justify-center',
+										'text-lg text-center text-neutral-600 hover:text-neutral-0',
+										'bg-neutral-300 hover:bg-neutral-900',
+										'transition-all opacity-100',
+										'disabled:opacity-0'
+									)}
+									disabled={threshold >= owners.length}
+									onClick={(): void => {
+										onParamChange();
+										onUpdateThreshold(threshold + 1);
+									}}>
+									{'+'}
+								</button>
+							</div>
 						</div>
 
-						<div
-							className={cl(
-								'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
-								'flex flex-row items-center justify-between cursor-text',
-								'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
-							)}>
-							<input
-								onChange={(e): void => {
-									const {value} = e.target;
-									if (value.length <= 4) {
-										if (value.match(/^[a-fA-F0-9]{0,4}$/)) {
-											onParamChange();
-											set_suffix(value);
-										}
-									}
-								}}
-								type={'text'}
-								value={suffix}
-								pattern={'[a-fA-F0-9]{0,6}$'}
-								className={'smol--input font-mono font-bold'}
-							/>
-						</div>
-
-						{shouldUseExpertMode && (
-							<Fragment>
-								<small className={'mt-4'}>{'Seed'}</small>
+						{shouldUseExpertMode ? (
+							<div className={'col-span-2'}>
+								<small>{'Seed'}</small>
 								<div
 									className={cl(
-										'col-span-3',
 										'h-12 w-full rounded-lg p-2',
 										'flex flex-row items-center justify-between cursor-text',
 										'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
@@ -396,15 +342,92 @@ function Safe(): ReactElement {
 										onChange={(e): void => {
 											const {value} = e.target;
 											onParamChange();
-											set_seed(toBigInt(value.replace(/\D/g, '')));
+											set_currentSeed(toBigInt(value.replace(/\D/g, '')));
 										}}
 										type={'text'}
-										value={seed ? seed.toString() : undefined}
+										value={currentSeed ? currentSeed.toString() : undefined}
 										pattern={'[0-9]{0,512}$'}
 										className={'smol--input font-mono font-bold'}
 									/>
 								</div>
+							</div>
+						) : (
+							<Fragment>
+								<div>
+									<small>{'Prefix'}</small>
+									<div
+										className={cl(
+											'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
+											'flex flex-row items-center justify-between cursor-text',
+											'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
+										)}>
+										<input
+											id={'prefix'}
+											onChange={(e): void => {
+												let {value} = e.target;
+												value = value.replaceAll('[^a-fA-F0-9]', '');
+												if (!value || value === '0x' || value === '0X') {
+													onParamChange();
+													set_prefix(undefined);
+													const input = document.getElementById('prefix') as HTMLInputElement;
+													if (input) {
+														input.value = '';
+													}
+												} else if (value.length <= 6) {
+													if (!value || value === '0x' || value === '0X') {
+														onParamChange();
+														set_prefix(undefined);
+													} else if (value.match(/^0x[a-fA-F0-9]{0,6}$/)) {
+														onParamChange();
+														set_prefix(value);
+													} else if (
+														value.match(/^[a-fA-F0-9]{0,4}$/) &&
+														!value.startsWith('0x')
+													) {
+														onParamChange();
+														set_prefix(`0x${value}`);
+													}
+												}
+											}}
+											placeholder={'0x'}
+											type={'text'}
+											value={prefix}
+											pattern={'^0x[a-fA-F0-9]{0,6}$'}
+											className={'smol--input font-mono font-bold'}
+										/>
+									</div>
+								</div>
 
+								<div>
+									<small>{'Suffix'}</small>
+									<div
+										className={cl(
+											'h-12 w-full max-w-full md:max-w-[188px] rounded-lg p-2',
+											'flex flex-row items-center justify-between cursor-text',
+											'border border-neutral-400 focus-within:border-neutral-600 transition-colors'
+										)}>
+										<input
+											onChange={(e): void => {
+												const {value} = e.target;
+												if (value.length <= 4) {
+													if (value.match(/^[a-fA-F0-9]{0,4}$/)) {
+														onParamChange();
+														set_suffix(value);
+													}
+												}
+											}}
+											type={'text'}
+											value={suffix}
+											pattern={'[a-fA-F0-9]{0,6}$'}
+											className={'smol--input font-mono font-bold'}
+										/>
+									</div>
+								</div>
+							</Fragment>
+						)}
+
+						{shouldUseExpertMode && (
+							<div className={'col-span-3'}>
 								<small className={'mt-4'}>{'Factory'}</small>
 								<div
 									className={cl(
@@ -425,7 +448,7 @@ function Safe(): ReactElement {
 										<option value={'ddp'}>{'Deterministic Deployment Proxy'}</option>
 									</select>
 								</div>
-							</Fragment>
+							</div>
 						)}
 					</div>
 				</div>
@@ -463,17 +486,29 @@ function Safe(): ReactElement {
 								</span>
 							) : null}
 						</Button>
-						{safeAddress && !isLoadingSafes ? (
-							<Button
-								onClick={navigateToDeploy}
-								className={'group !h-8 w-auto md:min-w-[160px]'}>
-								<p className={'text-sm'}>
-									{'Deploy: '}
-									<span className={'font-number font-medium'}>{`${safeAddress}`}</span>
-								</p>
-							</Button>
-						) : null}
 					</div>
+					{safeAddress && !isLoadingSafes ? (
+						<div className={'box-0 mt-6 grid gap-4 p-4'}>
+							<div>
+								<p className={'font-medium'}>{'We found a safe for you!'}</p>
+							</div>
+							<div>
+								<small className={'text-neutral-600'}>{'Address'}</small>
+								<p className={'font-number text-sm font-medium'}>{safeAddress}</p>
+							</div>
+							<div>
+								<small className={'text-neutral-600'}>{'Seed'}</small>
+								<p className={'font-number break-all text-sm font-medium'}>{currentSeed.toString()}</p>
+							</div>
+							<div>
+								<Button
+									onClick={navigateToDeploy}
+									className={'group !h-8 w-auto md:min-w-[160px]'}>
+									<p className={'text-sm'}>{'Choose network & deploy'}</p>
+								</Button>
+							</div>
+						</div>
+					) : null}
 				</div>
 			</div>
 		</div>

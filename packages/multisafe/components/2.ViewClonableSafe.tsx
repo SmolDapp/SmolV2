@@ -9,7 +9,6 @@ import {PopoverSettings} from '@multisafeCommons/PopoverSettings';
 import {PopoverSettingsItemTestnets} from '@multisafeCommons/PopoverSettings.item.testnets';
 import {Renderable} from '@multisafeCommons/Renderable';
 import ViewSectionHeading from '@multisafeCommons/ViewSectionHeading';
-import IconWarning from '@multisafeIcons/IconWarning';
 import {
 	CALL_INIT_SIGNATURE,
 	SAFE_CREATION_SIGNATURE,
@@ -19,6 +18,7 @@ import {
 	SINGLETON_L2_DDP
 } from '@multisafeUtils/constants';
 import {getTransaction} from '@wagmi/core';
+import IconWarning from '@lib/icons/IconWarning';
 import {Button} from '@lib/primitives/Button';
 import {CHAINS} from '@lib/utils/tools.chains';
 

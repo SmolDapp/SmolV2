@@ -3,8 +3,8 @@ import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import ChainStatus from '@multisafe/components/ChainStatus';
 import {AddressLike} from '@multisafeCommons/AddressLike';
 import {Renderable} from '@multisafeCommons/Renderable';
-import IconRefresh from '@multisafeIcons/IconRefresh';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from '@multisafeUtils/constants';
+import {IconAppSwap} from '@lib/icons/IconApps';
 import {CHAINS} from '@lib/utils/tools.chains.ts';
 
 import type {ReactElement} from 'react';
@@ -48,7 +48,7 @@ function PossibleSafe({
 								e.currentTarget.blur();
 								onGenerate();
 							}}>
-							<IconRefresh
+							<IconAppSwap
 								className={
 									'size-3 min-w-[16px] cursor-pointer text-neutral-500 transition-colors hover:text-neutral-900'
 								}
@@ -64,7 +64,7 @@ function PossibleSafe({
 								e.currentTarget.blur();
 								onGenerate();
 							}}>
-							<IconRefresh
+							<IconAppSwap
 								className={
 									'size-3 min-w-[16px] cursor-pointer text-neutral-500 transition-colors hover:text-neutral-900'
 								}

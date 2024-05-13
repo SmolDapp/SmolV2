@@ -67,6 +67,7 @@ export function Avatar(props: {
 	return (
 		<div className={cl('rounded-full bg-neutral-200/40', sizeClassname)}>
 			<Image
+				key={imageSrc}
 				className={'rounded-full'}
 				unoptimized
 				src={imageSrc || ''}

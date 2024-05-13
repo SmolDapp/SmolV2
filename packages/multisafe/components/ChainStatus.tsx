@@ -7,7 +7,6 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {defaultTxStatus, getClient, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useMultisafe} from '@multisafe/contexts/useMultisafe';
-import {IconLinkOut} from '@multisafeIcons/IconLinkOut';
 import {
 	DEFAULT_FEES_USD,
 	PROXY_FACTORY_L1,
@@ -19,6 +18,7 @@ import {
 } from '@multisafeUtils/constants';
 import {generateArgInitializers} from '@multisafeUtils/utils';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {IconLinkOut} from '@lib/icons/IconLinkOut';
 import {Button} from '@lib/primitives/Button';
 import {CHAINS} from '@lib/utils/tools.chains';
 

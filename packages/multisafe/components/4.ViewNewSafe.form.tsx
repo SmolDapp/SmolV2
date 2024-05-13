@@ -1,8 +1,8 @@
 import React from 'react';
 import assert from 'assert';
 import {isZeroAddress} from '@builtbymom/web3/utils';
-import IconInfo from '@multisafeIcons/IconInfo';
-import IconWarning from '@multisafeIcons/IconWarning';
+import IconInfo from '@lib/icons/IconInfo';
+import IconWarning from '@lib/icons/IconWarning';
 import {Button} from '@lib/primitives/Button';
 
 import type {Dispatch, ReactElement, SetStateAction} from 'react';

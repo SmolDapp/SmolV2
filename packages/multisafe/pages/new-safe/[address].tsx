@@ -2,72 +2,24 @@ import React, {useMemo, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {mainnet} from 'viem/chains';
-import {useEnsName} from 'wagmi';
-import {cl, toAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
+import {cl, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import ChainStatus from '@multisafe/components/ChainStatus';
 import {MultisafeContextApp} from '@multisafe/contexts/useMultisafe';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from '@multisafeUtils/constants';
-import {AvatarWrapper} from '@lib/common/Avatar';
-import {TextTruncate} from '@lib/common/TextTruncate';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
+import {IconBug} from '@lib/icons/IconBug';
+import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
+import {IconDoc} from '@lib/icons/IconDoc';
 import {IconEdit} from '@lib/icons/IconEdit';
+import {Button} from '@lib/primitives/Button';
 import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
 import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types';
-
-function FakeSmolAddressInput(props: {value: TAddress}): ReactElement {
-	const {data: ens} = useEnsName({
-		address: props.value,
-		chainId: mainnet.id
-	});
-	return (
-		<div className={'max-w-108 group relative size-full rounded-[8px]'}>
-			<label
-				className={cl(
-					'h-20 z-20 relative',
-					'flex flex-row justify-between items-center cursor-text',
-					'p-2 pl-4 group bg-neutral-0 rounded-lg',
-					'overflow-hidden border',
-					'border-neutral-400'
-				)}>
-				<div className={'relative w-full pr-2 transition-all'}>
-					<input
-						disabled
-						className={cl(
-							'w-full border-none bg-transparent p-0 text-xl transition-all pr-6',
-							'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
-							'focus:placeholder:text-neutral-300 placeholder:transition-colors'
-						)}
-						type={'text'}
-						placeholder={'0x...'}
-						autoComplete={'off'}
-						autoCorrect={'off'}
-						spellCheck={'false'}
-						value={ens || truncateHex(props.value, 5)}
-					/>
-					<TextTruncate
-						value={toAddress(props.value)}
-						className={'pointer-events-auto translate-y-0 text-neutral-600 opacity-100'}
-					/>
-				</div>
-				<div className={'w-fit flex-1'}>
-					<div className={cl('flex items-center gap-4 rounded-[4px] p-4', 'bg-neutral-200')}>
-						<div className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
-							<AvatarWrapper
-								address={toAddress(props.value)}
-								sizeClassname={'h-8 w-8 min-w-8'}
-							/>
-						</div>
-					</div>
-				</div>
-			</label>
-		</div>
-	);
-}
 
 function Safe(): ReactElement {
 	const router = useRouter();
+	const [shouldDisplayDetails, set_shouldDisplayDetails] = useState<boolean>(false);
 	const [shouldUseTestnets, set_shouldUseTestnets] = useState<boolean>(false);
 	const address = toAddress((router.query.address || '') as string);
 	const owners = ((router.query.owners || '') as string).split('_').map(toAddress);
@@ -88,17 +40,83 @@ function Safe(): ReactElement {
 
 	return (
 		<div className={'grid w-full max-w-[600px] gap-6'}>
+			<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
+				<Button
+					className={'!h-8 !text-xs'}
+					variant={'light'}
+					onClick={() => {
+						// plausible('download template');
+						// downloadTemplate();
+					}}>
+					<IconDoc className={'mr-2 size-3'} />
+					{'View FAQ'}
+				</Button>
+				<Button
+					className={'!h-8 !text-xs'}
+					variant={shouldUseTestnets ? 'filled' : 'light'}
+					onClick={() => set_shouldUseTestnets(!shouldUseTestnets)}>
+					<IconBug className={'mr-2 size-3'} />
+					{'Enable Testnets'}
+				</Button>
+			</div>
+
 			<div>
 				<div className={'mb-2'}>
 					<p className={'font-medium'}>{'Safe Address'}</p>
 				</div>
 				<div className={'relative flex items-center'}>
-					<FakeSmolAddressInput value={address} />
+					<ReadonlySmolAddressInput value={address} />
 					<Link href={`/new-safe?${linkToEdit}`}>
 						<div className={'mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700'}>
 							<IconEdit className={'size-4'} />
 						</div>
 					</Link>
+				</div>
+				<div className={'mt-2'}>
+					<button
+						onClick={(): void => set_shouldDisplayDetails(!shouldDisplayDetails)}
+						className={'flex cursor-pointer items-center pl-1 text-neutral-600'}>
+						<p className={'pr-1 text-xs'}>{'Check safe details'}</p>
+						<IconChevronBottom
+							className={cl(
+								'size-3.5 transition-all duration-100 transform',
+								!shouldDisplayDetails ? '-rotate-90' : '-rotate-0'
+							)}
+						/>
+					</button>
+
+					{shouldDisplayDetails && (
+						<div className={'my-1 grid w-full gap-4 rounded-md bg-neutral-200 p-4 md:w-auto'}>
+							<div>
+								<small className={'text-neutral-600'}>{'Owners'}</small>
+								<div>
+									{owners.map(owner => (
+										<Link
+											key={owner}
+											target={'_blank'}
+											href={`${mainnet.blockExplorers.default.url}/address/${owner}`}>
+											<p
+												className={
+													'font-number cursor-alias text-sm font-medium hover:underline'
+												}>
+												{owner}
+											</p>
+										</Link>
+									))}
+								</div>
+							</div>
+							<div>
+								<small className={'text-neutral-600'}>{'Threshold'}</small>
+								<p className={'font-number text-sm font-medium'}>
+									{`${threshold} of ${owners.length}`}
+								</p>
+							</div>
+							<div>
+								<small className={'text-neutral-600'}>{'Seed'}</small>
+								<p className={'font-number break-all text-sm font-medium'}>{salt.toString()}</p>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -106,7 +124,7 @@ function Safe(): ReactElement {
 				<div className={'mb-2'}>
 					<p className={'font-medium'}>{'Deployments'}</p>
 				</div>
-				<div className={'flex flex-col'}>
+				<div className={'flex flex-col overflow-hidden'}>
 					<div className={'grid grid-cols-1 gap-2'}>
 						{SUPPORTED_MULTICHAINS.filter(
 							(chain): boolean => ![5, 324, 1337, 84531].includes(chain.id)
@@ -125,7 +143,7 @@ function Safe(): ReactElement {
 						)}
 					</div>
 					{shouldUseTestnets && (
-						<div className={'mt-6 grid grid-cols-2 gap-2 border-t border-neutral-100 pt-6 md:grid-cols-3'}>
+						<div className={'mt-6 grid gap-2 border-t border-neutral-100 pt-6'}>
 							{SUPPORTED_MULTICHAINS.filter((chain): boolean => ![324].includes(chain.id))
 								.filter((chain): boolean => [5, 1337, 84531].includes(chain.id))
 								.map(

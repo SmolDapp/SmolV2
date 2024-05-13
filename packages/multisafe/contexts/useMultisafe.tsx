@@ -68,6 +68,7 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 					...defaultInputAddressLike,
 					address,
 					label: address,
+					source: 'autoPopulate',
 					isValid: !isZeroAddress(address),
 					UUID: crypto.randomUUID()
 				})
