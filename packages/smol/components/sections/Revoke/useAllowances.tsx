@@ -83,32 +83,30 @@ export const AllowancesContextApp = (props: {
 	const {chainID, safeChainID} = useChainID();
 	const {currentNetworkTokenList} = useTokenList();
 
-	/**************************************************************************
-	 * We're retrieving an array of addresses from the currentNetworkTokenList,
-	 * intending to obtain allowances for each address in the list. This process
-	 * allows us to gather allowance data for all tokens listed.
-	 ***************************************************************************/
+	/**********************************************************************************************
+	 ** We're retrieving an array of addresses from the currentNetworkTokenList, intending to
+	 ** obtain allowances for each address in the list. This process allows us to gather allowance
+	 ** data for all tokens listed.
+	 *********************************************************************************************/
 
 	const tokenAddresses = useMemo(() => {
 		return Object.values(currentNetworkTokenList).map(item => item.address);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentNetworkTokenList.length]);
 
-	/***************************************************************
-	 * The allowances vary across different chains, necessitating us
-	 * to reset the current state when the user switches chains.
-	 ***************************************************************/
-
+	/**********************************************************************************************
+	 ** The allowances vary across different chains, necessitating us to reset the current state
+	 *** when the user switches chains.
+	 *********************************************************************************************/
 	useEffect(() => {
 		set_allowances(null);
 	}, [chainID, safeChainID]);
 
-	/********************************************************************************
-	 * Once we've gathered approval events for the token list, we need to verify if
-	 * allowances still persist on the chain and haven't been utilized by the contract.
-	 * To achieve this, we utilize the allowance function on the ERC20 contract.
-	 ********************************************************************************/
-
+	/**********************************************************************************************
+	 ** Once we've gathered approval events for the token list, we need to verify if allowances
+	 ** still persist on the chain and haven't been utilized by the contract. To achieve this, we
+	 ** utilize the allowance function on the ERC20 contract.
+	 *********************************************************************************************/
 	const {data: allAllowances, isLoading} = useReadContracts({
 		contracts: approveEvents?.map(item => {
 			return {
@@ -121,14 +119,12 @@ export const AllowancesContextApp = (props: {
 		})
 	});
 
-	/*************************************************************************
-	 * We sequentially apply filters to the allowances based on the provided
-	 * filter object. First, we check for the presence of the 'unlimited'
-	 * filter and apply it. Then, we move on to the 'asset' filter, ensuring
-	 * the array is not empty before filtering by assets. The same process
-	 * applies to the 'spender' filter.
-	 *************************************************************************/
-
+	/**********************************************************************************************
+	 ** We sequentially apply filters to the allowances based on the provided filter object. First,
+	 ** we check for the presence of the 'unlimited' filter and apply it. Then, we move on to the
+	 ** 'asset' filter, ensuring the array is not empty before filtering by assets. The same
+	 ** process applies to the 'spender' filter.
+	 *********************************************************************************************/
 	const filteredAllowances = useDeepCompareMemo(() => {
 		const filters = configuration.allowancesFilters;
 		return expandedAllowances?.filter(item => {
@@ -158,12 +154,10 @@ export const AllowancesContextApp = (props: {
 		});
 	}, [configuration.allowancesFilters, expandedAllowances]);
 
-	/*****************************************************************
-	 * Once we've obtained the actual allowances from the blockchain,
-	 * we proceed to update the existing array of allowances and remove
-	 * any empty allowances from it.
-	 *****************************************************************/
-
+	/**********************************************************************************************
+	 ** Once we've obtained the actual allowances from the blockchain, we proceed to update the
+	 ** existing array of allowances and remove any empty allowances from it.
+	 *********************************************************************************************/
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents || !allAllowances) {
 			return;
@@ -186,11 +180,10 @@ export const AllowancesContextApp = (props: {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [`${approveEvents}`, allAllowances]);
 
-	/**************************************************
-	 * We utilize a watcher to consistently obtain the
-	 * latest approval events for the list of tokens.
-	 *************************************************/
-
+	/**********************************************************************************************
+	 ** We utilize a watcher to consistently obtain the latest approval events for the list of
+	 ** tokens.
+	 *********************************************************************************************/
 	const {data, isDoneWithInitialFetch} = useInfiniteApprovalLogs({
 		chainID: chainID,
 		addresses: tokenAddresses,
@@ -199,13 +192,11 @@ export const AllowancesContextApp = (props: {
 		pageSize: 1_000_000n
 	});
 
-	/******************************************************************
-	 * Once we've gathered all the latest allowances from the blockchain,
-	 * we aim to utilize only those with a value. Therefore, we arrange
-	 * them by block number to prioritize the latest ones and filter out
-	 * those with null values.
-	 ******************************************************************/
-
+	/**********************************************************************************************
+	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
+	 ** those with a value. Therefore, we arrange them by block number to prioritize the latest
+	 ** ones and filter out those with null values.
+	 *********************************************************************************************/
 	useEffect((): void => {
 		if (data) {
 			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances);
@@ -213,21 +204,19 @@ export const AllowancesContextApp = (props: {
 		}
 	}, [data]);
 
-	/*******************************************************************
-	 * Here, we obtain distinctive tokens based on their token addresses
-	 * to avoid making additional requests for the same tokens.
-	 *******************************************************************/
-
+	/**********************************************************************************************
+	 ** Here, we obtain distinctive tokens based on their token addresses to avoid making
+	 ** additional requests for the same tokens.
+	 *********************************************************************************************/
 	const uniqueTokenAddresses = useMemo(() => {
 		const allowanceAddresses = allowances?.map(allowance => allowance.address);
 		return [...new Set(allowanceAddresses)];
 	}, [allowances]);
 
-	/*********************************************************************************
-	 ** When we fetch allowances, they don't have enough information in them, such as
-	 ** name, symbol and decimals. Here we take only unique tokens from all allowances
-	 ** and make a query.
-	 **********************************************************************************/
+	/**********************************************************************************************
+	 ** When we fetch allowances, they don't have enough information in them, such as name, symbol
+	 ** and decimals. Here we take only unique tokens from all allowances and make a query.
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		if (!allowances || !isDoneWithInitialFetch) {
 			return;
@@ -254,10 +243,11 @@ export const AllowancesContextApp = (props: {
 		if (data.length < 3) {
 			return;
 		}
-		/************************************************************************
+
+		/******************************************************************************************
 		 ** When we have an array of those additional fields, we form a dictionary
 		 ** with key of an address and additional fields as a value.
-		 *************************************************************************/
+		 *****************************************************************************************/
 		for (let i = 0; i < uniqueTokenAddresses.length; i++) {
 			const itterator = i * 3;
 			const address = uniqueTokenAddresses[i];
@@ -269,9 +259,9 @@ export const AllowancesContextApp = (props: {
 		}
 		const _expandedAllowances = [];
 
-		/********************************************************
+		/******************************************************************************************
 		 ** Here we expand allowances array using the dictionary
-		 *******************************************************/
+		 *****************************************************************************************/
 		for (const allowance of allowances) {
 			_expandedAllowances.push({
 				...allowance,
