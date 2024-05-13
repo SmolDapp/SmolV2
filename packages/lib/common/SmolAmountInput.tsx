@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import InputNumber from 'rc-input-number';
 import {cl, formatCounterValue, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
@@ -25,7 +25,11 @@ type TAmountInput = {
 export function SmolAmountInput({onSetValue, value, token, price}: TAmountInput): ReactElement {
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const {result, validate} = useValidateAmountInput();
-	const selectedTokenBalance = token?.balance ?? zeroNormalizedBN;
+	const [selectedTokenBalance, set_selectedTokenBalance] = useState(token?.balance ?? zeroNormalizedBN);
+
+	useEffect(() => {
+		set_selectedTokenBalance(token?.balance ?? zeroNormalizedBN);
+	}, [token?.balance]);
 
 	const onSetMax = (): void => {
 		return onSetValue({

@@ -425,7 +425,7 @@ export function DisperseWizard(): ReactElement {
 				ctaLabel={'Close'}
 				downloadConfigButton={
 					<ExportConfigurationButton
-						className={'w-full'}
+						className={'!h-10 w-full'}
 						title={'Export Config'}
 					/>
 				}

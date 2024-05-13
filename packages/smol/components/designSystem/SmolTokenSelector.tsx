@@ -40,7 +40,7 @@ export function SmolTokenSelector({
 					'h-20 z-20 relative border transition-all',
 					'flex flex-row items-center cursor-text',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'p-2 group bg-neutral-0 rounded-[8px]',
+					'p-2 group bg-neutral-0 rounded-lg',
 					getBorderColor()
 				)}>
 				<SmolTokenButton

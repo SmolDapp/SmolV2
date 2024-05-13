@@ -36,7 +36,7 @@ module.exports = {
 		extend: {
 			fontFamily: {
 				sans: ['var(--rubik-font)', 'Rubik', 'Roboto', ...defaultTheme.fontFamily.sans],
-				mono: ['Source Code Pro', ...defaultTheme.fontFamily.mono]
+				mono: ['var(--scp-font)', 'Source Code Pro', ...defaultTheme.fontFamily.mono]
 			},
 			height: {
 				content: '656px',
@@ -76,23 +76,42 @@ module.exports = {
 			gridColumn: {
 				sidebar: 'span 7 / span 7',
 				main: 'span 23 / span 23'
-			}
-		}
-	},
-	plugins: [
-		require('@tailwindcss/forms'),
-		require('@tailwindcss/typography'),
-		require('tailwindcss-animate'),
-		plugin(function ({addUtilities}) {
-			addUtilities({
-				'.scrollbar-none': {
-					'-ms-overflow-style': 'none',
-					'scrollbar-width': 'none',
-					'&::-webkit-scrollbar': {
-						display: 'none'
-					}
+			},
+			animation: {
+				enter: 'enter 200ms ease-out',
+				'slide-in': 'slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)',
+				leave: 'leave 150ms ease-in forwards'
+			},
+			keyframes: {
+				enter: {
+					'0%': {transform: 'scale(0.9)', opacity: 0},
+					'100%': {transform: 'scale(1)', opacity: 1}
+				},
+				leave: {
+					'0%': {transform: 'scale(1)', opacity: 1},
+					'100%': {transform: 'scale(0.9)', opacity: 0}
+				},
+				'slide-in': {
+					'0%': {transform: 'translateY(-100%)'},
+					'100%': {transform: 'translateY(0)'}
 				}
-			});
-		})
-	]
+			}
+		},
+		plugins: [
+			require('@tailwindcss/forms'),
+			require('@tailwindcss/typography'),
+			require('tailwindcss-animate'),
+			plugin(function ({addUtilities}) {
+				addUtilities({
+					'.scrollbar-none': {
+						'-ms-overflow-style': 'none',
+						'scrollbar-width': 'none',
+						'&::-webkit-scrollbar': {
+							display: 'none'
+						}
+					}
+				});
+			})
+		]
+	}
 };

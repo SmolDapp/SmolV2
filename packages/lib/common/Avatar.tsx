@@ -3,6 +3,7 @@
 import React, {useMemo, useState} from 'react';
 import Image from 'next/image';
 import Identicon from 'identicon.js';
+import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {useUpdateEffect} from '@react-hookz/web';
@@ -91,8 +92,11 @@ export function AvatarWrapper(props: {address: TAddress; sizeClassname?: string}
 		isFetched: isFetchedENS,
 		isError: isErrorENS
 	} = useEnsName({
-		chainId: 1,
-		address: toAddress(props.address)
+		chainId: mainnet.id,
+		address: toAddress(props.address),
+		query: {
+			staleTime: Infinity
+		}
 	});
 	const {
 		data: avatar,
@@ -100,10 +104,11 @@ export function AvatarWrapper(props: {address: TAddress; sizeClassname?: string}
 		isFetched: isFetchedAvatar,
 		isError: isErrorAvatar
 	} = useEnsAvatar({
-		chainId: 1,
+		chainId: mainnet.id,
 		name: ensName || undefined,
 		query: {
-			enabled: Boolean(ensName)
+			enabled: Boolean(ensName),
+			staleTime: Infinity
 		}
 	});
 	const hasENS = isFetchedENS || isErrorENS;

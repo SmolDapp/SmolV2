@@ -99,32 +99,6 @@ select.smol--input {
 @tailwind utilities;
 
 /***************************************************************************
-** NsProgress is used to display the loading indicator. All of theses
-** styles are required to make it visible
-**************************************************************************/
-.nprogress-custom-parent {
-	@apply overflow-hidden relative;
-}
-.nprogress-custom-parent #nprogress .spinner {
-	@apply absolute;
-}
-.nprogress-custom-parent #nprogress .bar {
-	@apply absolute;
-}
-#nprogress {
-	@apply pointer-events-none;
-}
-#nprogress .bar {
-	@apply bg-neutral-900 fixed top-0 left-0 w-full h-1 z-[1031];
-}
-#nprogress .spinner {
-	@apply block fixed z-[1031] top-4 right-4;
-}
-#nprogress .spinner-icon {
-	@apply hidden;
-}
-
-/***************************************************************************
 ** Some accessibilities fixes
 **************************************************************************/
 .scrollbar-none::-webkit-scrollbar {
@@ -135,31 +109,6 @@ select.smol--input {
 	scrollbar-width: none; /* Firefox */
 }
 
-/***************************************************************************
-** Some custom css for the components
-**************************************************************************/
-.img-gradient::after {
-	content: '';
-	background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
-	@apply absolute inset-0 w-full h-full;
-}
-
-.mobile-nav-item {
-	@apply flex flex-col items-start justify-between rounded-md bg-neutral-200;
-	& > p {
-		@apply p-2 text-base font-bold text-neutral-900;
-	}
-}
-.mobile-nav-item {
-	@apply rounded-none border-b border-neutral-300 bg-neutral-200/60;
-}
-
-.tab {
-	@apply font-normal text-neutral-600 transition-colors hover:text-neutral-900 cursor-pointer border-b-2 border-transparent pb-4 z-20;
-	&[aria-selected='true'] {
-		@apply font-bold text-neutral-900 border-neutral-900;
-	}
-}
 .hover-fix::before {
 	display: block;
 	content: attr(title);

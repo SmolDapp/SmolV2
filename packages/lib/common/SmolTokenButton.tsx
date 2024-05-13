@@ -22,8 +22,11 @@ export function SmolTokenButton(props: {
 			return '';
 		}
 		const formatedBalance = formatAmount(props.token.balance.normalized, 0, 6);
-		if (Number(formatedBalance) <= 0) {
+		if (Number(formatedBalance) < 0) {
 			return '< 0.000001';
+		}
+		if (Number(formatedBalance) === 0) {
+			return '0.00';
 		}
 		return formatedBalance;
 	}, [props.token]);

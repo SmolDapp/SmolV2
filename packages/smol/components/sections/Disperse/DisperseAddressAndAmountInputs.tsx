@@ -32,7 +32,7 @@ export function DisperseAddressAndAmountInputs({input, price}: TDisperseAddressA
 	};
 
 	return (
-		<div className={'mb-4 flex w-full items-center rounded-xl bg-neutral-200 py-2 pl-2 md:w-auto'}>
+		<div className={'mb-4 flex w-full items-center rounded-md bg-neutral-200 py-2 pl-2 md:w-auto'}>
 			<div className={'flex w-full flex-col gap-4 md:flex-row'}>
 				<div className={'flex w-full max-w-full md:max-w-[424px]'}>
 					<SmolAddressInput

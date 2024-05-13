@@ -40,8 +40,8 @@ function App(props: TAppProp): ReactElement {
 			<section className={'-mt-2 w-full p-8'}>
 				<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
 					<div>
-						<h1 className={'text-3xl font-bold text-neutral-900'}>{props.title}</h1>
-						<p className={'text-base text-neutral-600'}>{props.description}</p>
+						<h1 className={'whitespace-nowrap text-3xl font-bold text-neutral-900'}>{props.title}</h1>
+						<p className={'pt-1 text-base text-neutral-600'}>{props.description}</p>
 					</div>
 					{props.action ? <div className={'mt-3'}>{props.action}</div> : null}
 				</div>
