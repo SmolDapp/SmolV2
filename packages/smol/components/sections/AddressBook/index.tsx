@@ -1,4 +1,5 @@
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useDropzone} from 'react-dropzone';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
@@ -10,9 +11,12 @@ import {IconImport} from '@lib/icons/IconImport';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {TextInput} from '@lib/primitives/TextInput';
 
-import type {ChangeEvent, ReactElement} from 'react';
+import type {ReactElement} from 'react';
+import type {DropzoneInputProps} from 'react-dropzone';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAddressBookEntry} from '@lib/types/AddressBook';
+
+type TInputProps = <T extends DropzoneInputProps>(props?: T | undefined) => T;
 
 function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}): ReactElement {
 	return (
@@ -28,14 +32,14 @@ function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}):
 	);
 }
 
-function ImportContactsButton(props: {className?: string}): ReactElement {
+function ImportContactsButton(props: {className?: string; files: Blob[]; getInputProps: TInputProps}): ReactElement {
 	const {addEntry} = useAddressBook();
 
-	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
-		if (!e.target.files) {
+	const handleFileUpload = (files: Blob[]): void => {
+		if (!files) {
 			return;
 		}
-		const [file] = e.target.files as unknown as Blob[];
+		const [file] = files as unknown as Blob[];
 		const reader = new FileReader();
 		reader.onload = event => {
 			if (!event?.target?.result) {
@@ -113,6 +117,14 @@ function ImportContactsButton(props: {className?: string}): ReactElement {
 		reader.readAsBinaryString(file);
 	};
 
+	useEffect(() => {
+		if (!props.files) {
+			return;
+		}
+		handleFileUpload(props.files);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [props.files]);
+
 	return (
 		<button
 			onClick={() => document.querySelector<HTMLInputElement>('#file-upload')?.click()}
@@ -122,13 +134,14 @@ function ImportContactsButton(props: {className?: string}): ReactElement {
 				'bg-neutral-300 text-neutral-900 transition-colors hover:bg-neutral-400'
 			)}>
 			<input
+				{...props.getInputProps()}
 				id={'file-upload'}
 				tabIndex={-1}
 				className={'absolute inset-0 !cursor-pointer opacity-0'}
 				type={'file'}
 				accept={'.csv'}
 				onClick={event => event.stopPropagation()}
-				onChange={handleFileUpload}
+				onChange={e => handleFileUpload(e.target.files as unknown as Blob[])}
 			/>
 			<IconImport className={'mr-2 size-3 text-neutral-900'} />
 			{'Import Contacts'}
@@ -181,17 +194,28 @@ function ExportContactsButton(): ReactElement {
 	);
 }
 
-function AddressBookActions(props: {onOpenCurtain: VoidFunction}): ReactElement {
+function AddressBookActions(props: {
+	onOpenCurtain: VoidFunction;
+	files: Blob[];
+	getInputProps: TInputProps;
+}): ReactElement {
 	return (
 		<div className={'flex flex-row space-x-2'}>
 			<AddContactButton onOpenCurtain={props.onOpenCurtain} />
-			<ImportContactsButton />
+			<ImportContactsButton
+				getInputProps={props.getInputProps}
+				files={props.files}
+			/>
 			<ExportContactsButton />
 		</div>
 	);
 }
 
-function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
+function EmptyAddressBook(props: {
+	onOpenCurtain: VoidFunction;
+	files: Blob[];
+	getInputProps: TInputProps;
+}): ReactElement {
 	return (
 		<div className={'flex w-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
 			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
@@ -212,7 +236,11 @@ function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 				</p>
 				<div className={'flex flex-row gap-x-2 pt-6'}>
 					<AddContactButton onOpenCurtain={props.onOpenCurtain} />
-					<ImportContactsButton className={'!bg-neutral-0'} />
+					<ImportContactsButton
+						getInputProps={props.getInputProps}
+						files={props.files}
+						className={'!bg-neutral-0'}
+					/>
 				</div>
 			</div>
 		</div>
@@ -240,6 +268,12 @@ export function AddressBook(): ReactElement {
 			);
 	}, [listCachedEntries, searchValue]);
 
+	const [files, set_files] = useState<Blob[] | undefined>(undefined);
+
+	const onDrop = useCallback((acceptedFiles: Blob[]) => {
+		set_files(acceptedFiles);
+	}, []);
+	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop, noClick: true});
 	/**************************************************************************
 	 * Memo function that sorts the entries in the address book, with the
 	 * following priority:
@@ -262,15 +296,25 @@ export function AddressBook(): ReactElement {
 	const hasNoFilteredEntry = entries.length === 0;
 
 	return (
-		<div className={'max-w-108'}>
+		<div className={cl('max-w-108', isDragActive ? 'border border-red' : '')}>
 			{hasNoEntries ? (
 				<div className={'w-444 md:h-content md:min-h-content'}>
-					<EmptyAddressBook onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})} />
+					<EmptyAddressBook
+						getInputProps={getInputProps}
+						files={files as Blob[]}
+						onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})}
+					/>
 				</div>
 			) : (
-				<div className={'w-444'}>
+				<div
+					className={'w-444'}
+					{...getRootProps()}>
 					<div className={'my-4 grid gap-4'}>
-						<AddressBookActions onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})} />
+						<AddressBookActions
+							getInputProps={getInputProps}
+							files={files as Blob[]}
+							onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})}
+						/>
 						<TextInput
 							placeholder={'Search ...'}
 							value={searchValue}

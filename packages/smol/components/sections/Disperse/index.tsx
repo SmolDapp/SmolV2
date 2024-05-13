@@ -1,4 +1,5 @@
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {useDropzone} from 'react-dropzone';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import axios from 'axios';
@@ -22,10 +23,13 @@ import {useDisperseQueryManagement} from './useDisperseQuery';
 import {DisperseWizard} from './Wizard';
 
 import type {AxiosResponse} from 'axios';
-import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
+import type {ComponentPropsWithoutRef, ReactElement} from 'react';
+import type {DropzoneInputProps} from 'react-dropzone';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
 import type {TPrice} from '@lib/utils/types/types';
 import type {TDisperseInput} from './useDisperse';
+
+type TInputProps = <T extends DropzoneInputProps>(props?: T | undefined) => T;
 
 type TRecord = {
 	tokenAddress: TAddress;
@@ -34,7 +38,15 @@ type TRecord = {
 	chainId: string;
 };
 
-function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TToken) => void}): ReactElement {
+function ImportConfigurationButton({
+	onSelectToken,
+	files,
+	getInputProps
+}: {
+	onSelectToken: (token: TToken) => void;
+	files?: Blob[];
+	getInputProps: TInputProps;
+}): ReactElement {
 	const {dispatchConfiguration} = useDisperse();
 	const {chainID: safeChainID} = useWeb3();
 	const {validate: validateAddress} = useValidateAddressInput();
@@ -47,6 +59,13 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 	const {data: initialTokenRaw} = useBalances({
 		tokens: [{address: toAddress(importedTokenToSend), chainID: safeChainID}]
 	});
+
+	useEffect(() => {
+		if (!files) {
+			return;
+		}
+		handleFileUpload(files);
+	}, [files]);
 
 	const initialToken = useMemo((): TToken | undefined => {
 		return initialTokenRaw[safeChainID] && importedTokenToSend
@@ -73,11 +92,11 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 		dispatchConfiguration({type: 'CLEAR_RECEIVERS', payload: undefined});
 	};
 
-	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
-		if (!e.target.files) {
+	const handleFileUpload = (files: Blob[]): void => {
+		if (!files) {
 			return;
 		}
-		const [file] = e.target.files as unknown as Blob[];
+		const [file] = files as unknown as Blob[];
 		const reader = new FileReader();
 		reader.onload = event => {
 			if (!event?.target?.result) {
@@ -153,13 +172,14 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 			onClick={() => document.querySelector<HTMLInputElement>('#file-upload')?.click()}
 			className={'!h-8 py-1.5 !text-xs'}>
 			<input
+				{...getInputProps()}
 				id={'file-upload'}
 				tabIndex={-1}
 				className={'absolute inset-0 !cursor-pointer opacity-0'}
 				type={'file'}
 				accept={'.csv'}
 				onClick={event => event.stopPropagation()}
-				onChange={handleFileUpload}
+				onChange={e => handleFileUpload(e.target.files as unknown as Blob[])}
 			/>
 			<IconImport className={'mr-2 size-3 text-neutral-900'} />
 			{'Import Configuration'}
@@ -212,7 +232,14 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {safeChainID} = useChainID();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {hasInitialInputs} = useDisperseQueryManagement();
+	const [files, set_files] = useState<Blob[] | undefined>(undefined);
 	const plausible = usePlausible();
+
+	const onDrop = useCallback((acceptedFiles: Blob[]): void => {
+		set_files(acceptedFiles);
+	}, []);
+
+	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop, noClick: true});
 
 	const downloadFile = async (): Promise<AxiosResponse<Blob>> => {
 		const url =
@@ -257,9 +284,15 @@ const Disperse = memo(function Disperse(): ReactElement {
 	}, [hasInitialInputs]);
 
 	return (
-		<div className={'w-full'}>
+		<div
+			className={cl('size-full', isDragActive ? 'border border-red' : '')}
+			{...getRootProps()}>
 			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
-				<ImportConfigurationButton onSelectToken={onSelectToken} />
+				<ImportConfigurationButton
+					files={files}
+					getInputProps={getInputProps}
+					onSelectToken={onSelectToken}
+				/>
 				<ExportConfigurationButton className={'!h-8 !text-xs'} />
 				<Button
 					className={'!h-8 !text-xs'}
