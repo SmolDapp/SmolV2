@@ -18,6 +18,8 @@
 		"dayjs": "^1.11.11",
 		"formidable": "^3.5.1",
 		"papaparse": "^5.4.1",
-		"telegraf": "^4.16.3"
+		"telegraf": "^4.16.3",
+		"uuid": "^9.0.1",
+		"@yearn-finance/web-lib": "^3.0.191"
 	}
 }

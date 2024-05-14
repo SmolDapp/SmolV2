@@ -3,9 +3,21 @@ import {IconCross} from 'packages/lib/icons/IconCross';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 
-import {Opportunity} from './Opportunity';
+import {Vault} from './Vault';
 
-export function SelectOpportunity({isOpen, onClose}: {isOpen: boolean; onClose: () => void}): ReactElement {
+import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
+
+export function SelectVault({
+	isOpen,
+	onClose,
+	onSelect,
+	filteredVaults
+}: {
+	isOpen: boolean;
+	onClose: () => void;
+	onSelect: (value: TYDaemonVault) => void;
+	filteredVaults: TYDaemonVault[];
+}): ReactElement {
 	return (
 		<Transition
 			show={isOpen}
@@ -52,10 +64,14 @@ export function SelectOpportunity({isOpen, onClose}: {isOpen: boolean; onClose: 
 										/>
 									</button>
 								</div>
-								<div className={'flex w-full flex-col gap-2'}>
-									<Opportunity />
-									<Opportunity />
-									<Opportunity />
+								<div className={'scrollable flex max-h-96 w-full flex-col gap-2'}>
+									{filteredVaults.map(vault => (
+										<Vault
+											vault={vault}
+											onSelect={onSelect}
+											onClose={onClose}
+										/>
+									))}
 								</div>
 							</DialogPanel>
 						</TransitionChild>

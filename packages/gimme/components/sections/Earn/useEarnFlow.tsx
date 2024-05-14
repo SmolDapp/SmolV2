@@ -5,14 +5,16 @@ import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import type {Dispatch, ReactElement} from 'react';
+import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TEarnConfiguration = {
 	asset: TTokenAmountInputElement;
-	opportunity: any;
+	opportunity: TYDaemonVault | undefined;
 };
 
 export type TEarnActions =
 	| {type: 'SET_ASSET'; payload: Partial<TTokenAmountInputElement>}
+	| {type: 'SET_OPPORTUNITY'; payload: TYDaemonVault}
 	| {type: 'RESET'; payload: undefined};
 
 export type TEarn = {
@@ -45,6 +47,12 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 				return {
 					...state,
 					asset: {...state.asset, ...action.payload}
+				};
+			}
+			case 'SET_OPPORTUNITY': {
+				return {
+					...state,
+					opportunity: action.payload
 				};
 			}
 			case 'RESET':

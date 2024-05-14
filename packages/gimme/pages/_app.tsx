@@ -9,6 +9,8 @@ import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Header} from '@lib/common/Header';
 import {WithFonts} from '@lib/common/WithFonts';
 
+import {GimmeContextApp} from '../contexts/useGimme';
+
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
 

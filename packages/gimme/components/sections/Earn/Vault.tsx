@@ -1,10 +1,11 @@
 import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {IconQuestionMark} from 'lib/icons/IconQuestionMark';
-import {cl} from '@builtbymom/web3/utils';
+import {cl, formatTAmount} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
+import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-function OpportunityStats({value}: {value: 'low' | 'medium' | 'high'}): ReactElement {
+function VaultRisk({value}: {value: 'low' | 'medium' | 'high'}): ReactElement {
 	return (
 		<div className={'flex items-end gap-[6px]'}>
 			<div className={'h-[9px] w-[3px] rounded-sm bg-neutral-900'} />
@@ -21,34 +22,51 @@ function OpportunityStats({value}: {value: 'low' | 'medium' | 'high'}): ReactEle
 	);
 }
 
-export function Opportunity(): ReactElement {
+export function Vault({
+	vault,
+	onSelect,
+	onClose
+}: {
+	vault: TYDaemonVault;
+	onSelect: (value: TYDaemonVault) => void;
+	onClose: () => void;
+}): ReactElement {
+	const {token, chainID, name, apr} = vault;
+
 	return (
 		<div
 			className={
 				'flex w-full cursor-pointer justify-between rounded-md px-4 py-3 transition-colors hover:bg-neutral-200'
-			}>
+			}
+			onClick={() => {
+				onSelect(vault);
+				onClose();
+			}}>
 			<div className={'flex items-center gap-4'}>
 				<ImageWithFallback
-					alt={'S'}
+					alt={token.symbol}
 					unoptimized
-					src={'opportunity.png'}
+					src={`${process.env.SMOL_ASSETS_URL}/token/${chainID}/${token.address}/logo-32.png`}
+					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${chainID}/${token.address}/logo-32.png`}
 					quality={90}
 					width={32}
 					height={32}
 				/>
 				<div className={'flex flex-col items-start gap-0.5'}>
-					<p>{'DAI Savings Rate'}</p>
+					<p>{name}</p>
 					<div className={'flex items-start gap-1'}>
 						<p className={'text-xs text-[#AF9300]'}>{'+ $270 over 1y'}</p>
-						<div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
+						{/* <div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
 							{'DAI -> USDT'}
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
 			<div className={'flex items-center'}>
-				<p className={'mr-6 text-lg font-medium'}>{'6.78%'}</p>
-				<OpportunityStats value={'medium'} />
+				<p className={'mr-6 text-lg font-medium'}>
+					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
+				</p>
+				<VaultRisk value={'medium'} />
 				<button className={'ml-4'}>
 					<IconQuestionMark className={'size-6 text-neutral-600'} />
 				</button>
