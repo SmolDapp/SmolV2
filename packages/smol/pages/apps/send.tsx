@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import {Send} from '@sections/Send';
-import {SendContextApp} from '@sections/Send/useSendFlow';
-import {SendQueryManagement} from '@sections/Send/useSendQuery';
+import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import {Send} from '@smolSections/Send';
+import {SendContextApp} from '@smolSections/Send/useSendFlow';
+import {SendQueryManagement} from '@smolSections/Send/useSendQuery';
 
 import type {ReactElement} from 'react';
 
@@ -11,8 +11,7 @@ export default function SendPage(): ReactElement {
 		<SendContextApp>
 			{({configuration: {inputs}}) => (
 				<SendQueryManagement>
-					<BalancesCurtainContextApp
-						selectedTokenAddresses={inputs.map(input => input.token?.address).filter(Boolean)}>
+					<BalancesCurtainContextApp selectedTokens={inputs.map(input => input.token).filter(Boolean)}>
 						<Send />
 					</BalancesCurtainContextApp>
 				</SendQueryManagement>

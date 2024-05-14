@@ -30,7 +30,7 @@ export function Warning({
 			{title && <b className={'text-left capitalize'}>{title}</b>}
 			<div className={'flex gap-3'}>
 				{statusIcon && <div className={'flex items-center'}>{statusIcon}</div>}
-				{message && <div className={'text-xs'}>{message}</div>}
+				{message && <div className={'whitespace-pre text-xs'}>{message}</div>}
 			</div>
 		</div>
 	);

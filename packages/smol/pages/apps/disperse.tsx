@@ -1,10 +1,12 @@
 import React, {Fragment} from 'react';
-import {BalancesCurtainContextApp} from '@contexts/useBalancesCurtain';
-import Disperse from '@sections/Disperse/index';
-import {DisperseContextApp} from '@sections/Disperse/useDisperse';
-import {DisperseQueryManagement} from '@sections/Disperse/useDisperseQuery';
+import {isZeroAddress} from '@builtbymom/web3/utils';
+import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import Disperse from '@smolSections/Disperse/index';
+import {DisperseContextApp} from '@smolSections/Disperse/useDisperse';
+import {DisperseQueryManagement} from '@smolSections/Disperse/useDisperseQuery';
 
 import type {ReactElement} from 'react';
+import type {TToken} from '@builtbymom/web3/types';
 
 function DispersePage(): ReactElement {
 	return (
@@ -12,8 +14,10 @@ function DispersePage(): ReactElement {
 			{({configuration}) => (
 				<DisperseQueryManagement>
 					<BalancesCurtainContextApp
-						selectedTokenAddresses={
-							configuration.tokenToSend?.address ? [configuration.tokenToSend?.address] : []
+						selectedTokens={
+							!isZeroAddress(configuration.tokenToSend?.address)
+								? [configuration.tokenToSend as TToken]
+								: []
 						}>
 						<Disperse />
 					</BalancesCurtainContextApp>

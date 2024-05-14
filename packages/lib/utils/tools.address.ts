@@ -1,22 +1,23 @@
-import {supportedNetworks} from 'lib/utils/tools.chains';
-import {assertFulfilled} from 'lib/utils/types/assertType';
 import axios from 'axios';
 import {getClient, getNetwork} from '@builtbymom/web3/utils/wagmi';
+import {supportedNetworks} from '@lib/utils/tools.chains';
+import {assertFulfilled} from '@lib/utils/types/assertType';
 
-import type {TAppExtendedChain} from 'lib/utils/tools.chains';
 import type {GetBytecodeReturnType} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TAppExtendedChain} from '@lib/utils/tools.chains';
 
 export type TInputAddressLike = {
 	address: TAddress | undefined;
 	label: string;
 	isValid: boolean | 'undetermined';
-	source?: 'typed' | 'addressBook' | 'defaultValue';
+	source?: 'typed' | 'addressBook' | 'defaultValue' | 'autoPopulate';
 	error?: string;
 };
 export const defaultInputAddressLike: TInputAddressLike = {
 	address: undefined,
 	label: '',
+	error: '',
 	isValid: 'undetermined',
 	source: 'typed'
 };

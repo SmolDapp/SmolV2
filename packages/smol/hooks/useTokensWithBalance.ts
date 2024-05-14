@@ -1,25 +1,24 @@
-import {useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
+import {createUniqueID} from 'lib/utils/tools.identifiers';
 import {serialize} from 'wagmi';
-import XXH from 'xxhashjs';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {ETH_TOKEN_ADDRESS, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
+import {useDeepCompareEffect} from '@react-hookz/web';
 
-import type {TDict, TToken} from '@builtbymom/web3/types';
+import type {TDict, TNDict, TToken} from '@builtbymom/web3/types';
 
-function createUniqueID(msg: string): string {
-	const hash = XXH.h32(0x536d6f6c).update(msg).digest().toString(16);
-	return hash;
-}
-
-export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading: boolean} {
-	const {chainID, safeChainID} = useChainID();
+export function useTokensWithBalance(): {
+	listTokensWithBalance: (chainID?: number) => TToken[];
+	listTokens: (chainID?: number) => TToken[];
+	isLoading: boolean;
+} {
+	const {chainID} = useWeb3();
 	const {balances, getBalance, isLoading} = useWallet();
-	const [allTokens, set_allTokens] = useState<TDict<TToken>>({});
-	const {currentNetworkTokenList, isCustomToken} = useTokenList();
+	const [allTokens, set_allTokens] = useState<TNDict<TDict<TToken>>>({});
+	const {tokenLists, isCustomToken} = useTokenList();
 
 	/**********************************************************************************************
 	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
@@ -37,49 +36,91 @@ export function useTokensWithBalance(): {tokensWithBalance: TToken[]; isLoading:
 	 ** current network.
 	 *********************************************************************************************/
 	useDeepCompareEffect((): void => {
-		const possibleDestinationsTokens: TDict<TToken> = {};
-		const {nativeCurrency} = getNetwork(safeChainID);
-		if (nativeCurrency) {
-			possibleDestinationsTokens[ETH_TOKEN_ADDRESS] = {
-				address: ETH_TOKEN_ADDRESS,
-				chainID: chainID,
-				name: nativeCurrency.name,
-				symbol: nativeCurrency.symbol,
-				decimals: nativeCurrency.decimals,
-				value: 0,
-				balance: zeroNormalizedBN,
-				logoURI: `${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${ETH_TOKEN_ADDRESS}/logo-32.png`
-			};
-		}
-		for (const eachToken of Object.values(currentNetworkTokenList)) {
-			if (eachToken.address === toAddress('0x0000000000000000000000000000000000001010')) {
-				continue; //ignore matic erc20
+		const possibleDestinationsTokens: TNDict<TDict<TToken>> = {};
+		for (const [networkID, eachNetwork] of Object.entries(tokenLists)) {
+			if (!possibleDestinationsTokens[Number(networkID)]) {
+				possibleDestinationsTokens[Number(networkID)] = {};
+				const {nativeCurrency} = getNetwork(Number(networkID));
+				if (nativeCurrency) {
+					possibleDestinationsTokens[Number(networkID)][ETH_TOKEN_ADDRESS] = {
+						address: ETH_TOKEN_ADDRESS,
+						chainID: Number(networkID),
+						name: nativeCurrency.name,
+						symbol: nativeCurrency.symbol,
+						decimals: nativeCurrency.decimals,
+						value: 0,
+						balance: zeroNormalizedBN,
+						logoURI: `${process.env.SMOL_ASSETS_URL}/token/${Number(networkID)}/${ETH_TOKEN_ADDRESS}/logo-32.png`
+					};
+				}
 			}
-			if (eachToken.chainID === chainID) {
-				possibleDestinationsTokens[toAddress(eachToken.address)] = eachToken;
+
+			for (const eachToken of Object.values(eachNetwork)) {
+				if (eachToken.address === toAddress('0x0000000000000000000000000000000000001010')) {
+					continue; //ignore matic erc20
+				}
+				possibleDestinationsTokens[Number(networkID)][toAddress(eachToken.address)] = eachToken;
 			}
 		}
 		set_allTokens(possibleDestinationsTokens);
-	}, [currentNetworkTokenList, chainID]);
+	}, [tokenLists]);
 
 	/**********************************************************************************************
 	 ** This function will be used to get the list of tokens with balance. It will be triggered
 	 ** when the allTokens or getBalance or isCustomToken or currentIdentifier changes.
 	 *********************************************************************************************/
-	const tokensWithBalance = useDeepCompareMemo((): TToken[] => {
-		// Only used to trigger the useEffect hook
-		currentIdentifier;
-
-		const withBalance = [];
-		for (const dest of Object.values(allTokens)) {
-			const balance = getBalance({address: dest.address, chainID: dest.chainID});
-			// force displaying extra tokens along with other tokens with balance
-			if (balance.raw > 0n || isCustomToken({address: dest.address, chainID: dest.chainID})) {
-				withBalance.push({...dest, balance});
+	const listTokensWithBalance = useCallback(
+		(_chainID?: number): TToken[] => {
+			currentIdentifier; // Only used to trigger the useEffect hook
+			if (_chainID === undefined) {
+				_chainID = chainID;
 			}
-		}
-		return withBalance;
-	}, [allTokens, getBalance, isCustomToken, currentIdentifier]);
 
-	return {tokensWithBalance, isLoading};
+			const withBalance = [];
+			for (const [networkID, eachNetwork] of Object.entries(allTokens)) {
+				if (Number(networkID) !== _chainID) {
+					continue;
+				}
+
+				for (const dest of Object.values(eachNetwork)) {
+					const balance = getBalance({address: dest.address, chainID: dest.chainID});
+					// force displaying extra tokens along with other tokens with balance
+					if (balance.raw > 0n || isCustomToken({address: dest.address, chainID: dest.chainID})) {
+						withBalance.push({...dest, balance});
+					}
+				}
+			}
+			return withBalance;
+		},
+		[allTokens, getBalance, isCustomToken, currentIdentifier, chainID]
+	);
+
+	/**********************************************************************************************
+	 ** This function will be used to get the list of tokens with or without balance. It will be
+	 ** triggered when the allTokens or getBalance or isCustomToken or currentIdentifier changes.
+	 *********************************************************************************************/
+	const listTokens = useCallback(
+		(_chainID?: number): TToken[] => {
+			currentIdentifier; // Only used to trigger the useEffect hook
+			if (_chainID === undefined) {
+				_chainID = chainID;
+			}
+
+			const withBalance = [];
+			for (const [networkID, eachNetwork] of Object.entries(allTokens)) {
+				if (Number(networkID) !== _chainID) {
+					continue;
+				}
+
+				for (const dest of Object.values(eachNetwork)) {
+					const balance = getBalance({address: dest.address, chainID: dest.chainID});
+					withBalance.push({...dest, balance});
+				}
+			}
+			return withBalance;
+		},
+		[allTokens, getBalance, currentIdentifier, chainID]
+	);
+
+	return {listTokensWithBalance, listTokens, isLoading};
 }

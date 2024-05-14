@@ -1,14 +1,23 @@
 {
 	"name": "gimme",
-	"version": "1.0.0",
-	"homepage": "./",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
 	"scripts": {
 		"dev": "next",
 		"dev:ts": "tsc --watch",
 		"start": "tsc && next build && next start",
 		"build": "tsc && next build",
 		"prepare": "husky install",
-		"export": "tsc && next build && next export -o ipfs",
-		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+		"export": "tsc && next build && next export -o ipfs"
+	},
+	"dependencies": {
+		"lib": "workspace:*",
+		"@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
+		"dayjs": "^1.11.11",
+		"formidable": "^3.5.1",
+		"papaparse": "^5.4.1",
+		"telegraf": "^4.16.3"
 	}
 }

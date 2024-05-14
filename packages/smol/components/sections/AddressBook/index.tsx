@@ -1,18 +1,18 @@
 import {useCallback, useMemo, useState} from 'react';
-import {IconAppAddressBook} from 'lib/icons/IconApps';
-import {IconEmptyAddressBook} from 'lib/icons/IconEmptyAddressBook';
-import {IconImport} from 'lib/icons/IconImport';
-import {IconPlus} from 'lib/icons/IconPlus';
-import {TextInput} from 'lib/primitives/TextInput';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
-import {AddressBookEntry} from '@designSystem/AddressBookEntry';
+import {AddressBookEntry} from '@lib/common/AddressBookEntry';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {IconAppAddressBook} from '@lib/icons/IconApps';
+import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
+import {IconImport} from '@lib/icons/IconImport';
+import {IconPlus} from '@lib/icons/IconPlus';
+import {TextInput} from '@lib/primitives/TextInput';
 
 import type {ChangeEvent, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAddressBookEntry} from '@contexts/useAddressBook';
+import type {TAddressBookEntry} from '@lib/types/AddressBook';
 
 function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}): ReactElement {
 	return (

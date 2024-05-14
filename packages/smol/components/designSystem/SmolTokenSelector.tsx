@@ -2,10 +2,9 @@ import {useCallback, useState} from 'react';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl} from '@builtbymom/web3/utils';
-import {useBalancesCurtain} from '@contexts/useBalancesCurtain';
 import {useUpdateEffect} from '@react-hookz/web';
-
-import {SmolTokenButton} from './SmolTokenButton';
+import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 
 import type {TToken} from '@builtbymom/web3/types';
 
@@ -41,7 +40,7 @@ export function SmolTokenSelector({
 					'h-20 z-20 relative border transition-all',
 					'flex flex-row items-center cursor-text',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'p-2 group bg-neutral-0 rounded-[8px]',
+					'p-2 group bg-neutral-0 rounded-lg',
 					getBorderColor()
 				)}>
 				<SmolTokenButton
