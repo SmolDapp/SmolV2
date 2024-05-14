@@ -5,7 +5,7 @@ import {SideMenuProfile} from '@lib/common/SideMenu/SideMenuProfile';
 import type {ReactElement} from 'react';
 import type {TSideMenuItem} from '@lib/common/SideMenu/SideMenuNav';
 
-export function SideMenu(props: {menu: TSideMenuItem[]}): ReactElement {
+export function SideMenu(props: {menu?: TSideMenuItem[]}): ReactElement {
 	return (
 		<>
 			<SideMenuProfile />

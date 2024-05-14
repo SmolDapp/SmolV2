@@ -85,14 +85,14 @@ function LogOutButton(): ReactElement {
 	);
 }
 
-export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}): ReactElement {
+export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void}): ReactElement {
 	const pathname = usePathname();
 
 	return (
 		<div className={'scrollable scrollbar-show h-full pt-4'}>
 			<section className={'flex h-full flex-col justify-between'}>
 				<ul className={'grid gap-2 pb-8'}>
-					{props.menu.map(({href, label, icon, isDisabled}) => (
+					{(props.menu || []).map(({href, label, icon, isDisabled}) => (
 						<NavItem
 							key={href}
 							href={href}

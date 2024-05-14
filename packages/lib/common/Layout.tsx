@@ -58,7 +58,7 @@ type TComponent = NextComponentType & {
 	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
-export default function Layout(props: AppProps & {menu: TSideMenuItem[]}): ReactElement {
+export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 	const appName = (Component as TComponent).AppName || 'App';
