@@ -1,6 +1,7 @@
 'use client';
 
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {IconGears} from 'lib/icons/IconGears';
 import {IconLoader} from 'lib/icons/IconLoader';
@@ -20,6 +21,7 @@ import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {usePopularTokens} from './usePopularTokens';
 
@@ -209,9 +211,10 @@ function TokenListSelectorLayout(): ReactNode {
  ** tokens the user has in their wallet and a search bar to filter them.
  *************************************************************************************************/
 function BalancesCurtain(props: TBalancesCurtain): ReactElement {
+	const plausible = usePlausible();
+	const {address} = useWeb3();
 	const [searchValue, set_searchValue] = useState('');
 	const [tab, set_tab] = useState(0);
-	const {address} = useWeb3();
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -219,10 +222,11 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	 *********************************************************************************************/
 	useEffect((): void => {
 		if (props.isOpen) {
+			plausible(PLAUSIBLE_EVENTS.OPEN_TOKEN_SELECTOR_CURTAIN);
 			set_searchValue('');
 			set_tab(0);
 		}
-	}, [props.isOpen]);
+	}, [props.isOpen, plausible]);
 
 	/**********************************************************************************************
 	 ** When user searches for a specific address, not present in the token list,

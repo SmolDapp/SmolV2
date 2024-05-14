@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useRef} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
 import {SmolTokenAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
@@ -7,6 +8,7 @@ import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconCross} from '@lib/icons/IconCross';
 import {IconSpinner} from '@lib/icons/IconSpinner';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {SendStatus} from './SendStatus';
 import {useSendFlow} from './useSendFlow';
@@ -66,6 +68,7 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 }
 
 export function Send(): ReactElement {
+	const plausible = usePlausible();
 	const {configuration, dispatchConfiguration} = useSendFlow();
 	const {hasInitialInputs} = useSendQueryManagement();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -76,11 +79,9 @@ export function Send(): ReactElement {
 	);
 
 	const onAddToken = useCallback((): void => {
-		dispatchConfiguration({
-			type: 'ADD_INPUT',
-			payload: undefined
-		});
-	}, [dispatchConfiguration]);
+		plausible(PLAUSIBLE_EVENTS.ADD_TOKEN_OPTION);
+		dispatchConfiguration({type: 'ADD_INPUT', payload: undefined});
+	}, [dispatchConfiguration, plausible]);
 
 	const onSetRecipient = (value: Partial<TInputAddressLike>): void => {
 		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
@@ -116,11 +117,11 @@ export function Send(): ReactElement {
 			</div>
 			<div className={'mb-4'}>
 				<button
+					onClick={onAddToken}
 					className={
 						'rounded-lg bg-neutral-200 px-5 py-2 text-xs text-neutral-700 transition-colors hover:bg-neutral-300'
-					}
-					onClick={onAddToken}>
-					{'+Add token'}
+					}>
+					{'+ Add token'}
 				</button>
 			</div>
 			<SendStatus isReceiverERC20={isReceiverERC20} />
