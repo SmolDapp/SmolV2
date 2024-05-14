@@ -1,10 +1,11 @@
 import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {LIFI_SUPPORTED_NETWORKS} from 'packages/lib/utils/constants';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {cl, formatAmount, formatCounterValue} from '@builtbymom/web3/utils';
+import {cl, formatAmount, formatCounterValue, isZeroAddress} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {SmolTokenAmountInput, useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
 import {SmolTokenSelectorButton} from '@smolDesignSystem/SmolTokenSelectorButton';
@@ -18,6 +19,7 @@ import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconSpinner} from '@lib/icons/IconSpinner';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
@@ -26,7 +28,7 @@ import {SendWizard} from './Wizard';
 import type {TTokenAmountInputElement} from '@lib/types/Inputs';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-function FakeOutputTokenRow(props: {
+function ReadonlySwapTokenRow(props: {
 	value: TTokenAmountInputElement;
 	isFetchingQuote: boolean;
 	onChangeValue: (value: Partial<TTokenAmountInputElement>) => void;
@@ -138,6 +140,7 @@ function SwapTokenRow(props: {
 }
 
 export function Swap(): ReactElement {
+	const plausible = usePlausible();
 	const {chainID} = useWeb3();
 	const {isFetchingQuote, configuration, dispatchConfiguration, openSettingsCurtain, estimatedTime} = useSwapFlow();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -145,6 +148,12 @@ export function Swap(): ReactElement {
 	const [fromNetwork, set_fromNetwork] = useState(-1);
 	const [toNetwork, set_toNetwork] = useState(-1);
 
+	/**********************************************************************************************
+	 ** This useEffect is used to set the fromNetwork and toNetwork values based on the
+	 ** configuration input and output tokens. If the fromNetwork or toNetwork is set to -1, then
+	 ** the value is set to the chainID. If the configuration input or output token chainID is set,
+	 ** then the value is set to the configuration input or output token chainID.
+	 *********************************************************************************************/
 	useEffect(() => {
 		if (fromNetwork === -1) {
 			set_fromNetwork(configuration.input.token?.chainID || chainID);
@@ -158,16 +167,35 @@ export function Swap(): ReactElement {
 		}
 	}, [chainID, fromNetwork, toNetwork, configuration]);
 
-	const swapChains = useCallback(() => {
+	/**********************************************************************************************
+	 ** The swapTokens function is used to swap the fromNetwork and toNetwork values. It dispatches
+	 ** the INVERSE_TOKENS action to the configuration reducer to swap the input and output tokens.
+	 ** As the values are swapped, the output token amount will also be recomputed.
+	 *********************************************************************************************/
+	const swapTokens = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.SWAP_INVERSE_IN_OUT);
 		dispatchConfiguration({type: 'INVERSE_TOKENS', payload: undefined});
 		set_fromNetwork(toNetwork);
 		set_toNetwork(fromNetwork);
-	}, [dispatchConfiguration, fromNetwork, toNetwork]);
+	}, [dispatchConfiguration, fromNetwork, plausible, toNetwork]);
 
+	/**********************************************************************************************
+	 ** The onSetRecipient function is used to set the recipient address for the swap. It
+	 ** dispatches the SET_RECEIVER action to the configuration reducer to set the recipient
+	 ** address.
+	 *********************************************************************************************/
 	const onSetRecipient = (value: Partial<TInputAddressLike>): void => {
+		if (!isZeroAddress(value.address)) {
+			plausible(PLAUSIBLE_EVENTS.SWAP_SET_RECIPIENT);
+		}
 		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
 	};
 
+	/**********************************************************************************************
+	 ** The swapSupportedNetworks constant is used to filter the supported networks from the
+	 ** LIFI_SUPPORTED_NETWORKS object. It filters the supported networks based on the isSupported
+	 ** property.
+	 *********************************************************************************************/
 	const swapSupportedNetworks = useMemo(() => {
 		const allSupportedNetworks = Object.values(LIFI_SUPPORTED_NETWORKS).filter(network => network.isSupported);
 		return allSupportedNetworks;
@@ -194,6 +222,7 @@ export function Swap(): ReactElement {
 								value={fromNetwork}
 								networks={swapSupportedNetworks}
 								onChange={value => {
+									plausible(PLAUSIBLE_EVENTS.SWAP_SET_FROM_NETWORK, {props: {toChainID: value}});
 									set_fromNetwork(value);
 									dispatchConfiguration({type: 'RESET_INPUT', payload: undefined});
 								}}
@@ -216,7 +245,7 @@ export function Swap(): ReactElement {
 
 					<div className={'my-4 flex w-full items-end justify-center'}>
 						<button
-							onClick={swapChains}
+							onClick={swapTokens}
 							className={
 								'bg-neutral-0 hover:bg-primaryHover group rounded-lg border border-neutral-400 p-2 text-neutral-600 transition-all hover:scale-110'
 							}>
@@ -230,13 +259,14 @@ export function Swap(): ReactElement {
 								value={toNetwork}
 								networks={swapSupportedNetworks}
 								onChange={value => {
+									plausible(PLAUSIBLE_EVENTS.SWAP_SET_TO_NETWORK, {props: {toChainID: value}});
 									set_toNetwork(value);
 									dispatchConfiguration({type: 'RESET_OUTPUT', payload: undefined});
 								}}
 							/>
 						</div>
 						<div className={'w-full'}>
-							<FakeOutputTokenRow
+							<ReadonlySwapTokenRow
 								value={configuration.output}
 								isFetchingQuote={isFetchingQuote}
 								chainIDToUse={toNetwork}

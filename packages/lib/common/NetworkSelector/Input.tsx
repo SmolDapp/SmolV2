@@ -1,4 +1,5 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {CommandList} from 'cmdk';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
@@ -6,6 +7,7 @@ import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkInputSelector(props: {
@@ -13,6 +15,7 @@ export function NetworkInputSelector(props: {
 	onChange: (value: number) => void;
 	networks?: typeof supportedNetworks;
 }): ReactElement {
+	const plausible = usePlausible();
 	const isMounted = useIsMounted();
 	const safeChainID = toSafeChainID(props.value, Number(process.env.BASE_CHAINID));
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
@@ -47,7 +50,10 @@ export function NetworkInputSelector(props: {
 	return (
 		<Popover.Root
 			open={isOpen}
-			onOpenChange={set_isOpen}>
+			onOpenChange={() => {
+				set_isOpen(!isOpen);
+				plausible(PLAUSIBLE_EVENTS.SWAP_CLICK_NETWORK_DROPDOWN);
+			}}>
 			<Popover.Trigger asChild>
 				<div className={'relative size-full h-20 rounded-lg'}>
 					<button

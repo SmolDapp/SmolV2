@@ -52,7 +52,7 @@ const defaultProps: TAddressBookProps = {
  *****************************************************************************/
 const addressBookIDBConfig: IndexedDBConfig = {
 	databaseName: 'smol',
-	version: 2,
+	version: 3,
 	stores: [
 		{
 			name: 'address-book',

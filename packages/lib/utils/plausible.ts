@@ -4,6 +4,7 @@ export const PLAUSIBLE_EVENTS = {
 	OPEN_ADDRESS_SELECTOR_CURTAIN: 'open address selector curtain',
 	OPEN_TOKEN_SELECTOR_CURTAIN: 'open token selector curtain',
 	OPEN_AB_CURTAIN: 'open address book curtain',
+	OPEN_SWAP_SETTINGS_CURTAIN: 'open swap settings curtain',
 
 	// Address Book events
 	AB_ADD_FIRST_CONTACT: 'ab: add 1st contact',
@@ -21,6 +22,19 @@ export const PLAUSIBLE_EVENTS = {
 	DISPERSE_IMPORT_CONFIG: 'disperse: import configuration',
 	DISPERSE_DOWNLOAD_CONFIG: 'disperse: download configuration',
 	DISPERSE_DOWNLOAD_TEMPLATE: 'disperse: download template',
+
+	// Swap events
+	SWAP_INVERSE_IN_OUT: 'swap: inverse in/out',
+	SWAP_SET_RECIPIENT: 'swap: set recipient',
+	SWAP_SET_FROM_NETWORK: 'swap: set from network',
+	SWAP_SET_TO_NETWORK: 'swap: set to network',
+	SWAP_CLICK_NETWORK_DROPDOWN: 'swap: click to network dropdown',
+	SWAP_SET_ORDER: 'swap: set order',
+	SWAP_SET_SLIPPAGE: 'swap: set slippage',
+	SWAP_GET_QUOTE: 'swap: get quote',
+	SWAP_EXECUTED: 'swap: executed',
+	SWAP_CONFIRMED: 'swap: confirmed',
+	SWAP_REVERTED: 'swap: reverted',
 
 	// Navigation
 	NAVIGATE_TO_DUMP_SERVICES: 'navigate: dump.services',

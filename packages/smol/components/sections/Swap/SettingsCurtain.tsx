@@ -2,10 +2,12 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
+import {usePlausible} from 'next-plausible';
 import {cl} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {CurtainContent} from '@lib/primitives/Curtain';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
@@ -21,6 +23,7 @@ export type TSwapCurtain = {
 };
 
 function RatioOption(props: {label: string; details: string; value: TSwapConfiguration['order']}): ReactElement {
+	const plausible = usePlausible();
 	const {configuration, dispatchConfiguration} = useSwapFlow();
 
 	return (
@@ -29,7 +32,10 @@ function RatioOption(props: {label: string; details: string; value: TSwapConfigu
 			htmlFor={props.label}>
 			<div className={'group flex items-start gap-2 p-4 transition-colors hover:bg-neutral-400'}>
 				<input
-					onChange={() => dispatchConfiguration({type: 'SET_ORDER', payload: props.value})}
+					onChange={() => {
+						plausible(PLAUSIBLE_EVENTS.SWAP_SET_ORDER, {props: {order: props.value}});
+						dispatchConfiguration({type: 'SET_ORDER', payload: props.value});
+					}}
 					id={props.label}
 					defaultChecked={configuration.order === props.value}
 					value={props.label}
@@ -53,6 +59,7 @@ function RatioOption(props: {label: string; details: string; value: TSwapConfigu
  ** tokens the user has in their wallet and a search bar to filter them.
  *************************************************************************************************/
 export function SwapCurtain(props: TSwapCurtain): ReactElement {
+	const plausible = usePlausible();
 	const [, set_searchValue] = useState('');
 	const {configuration, dispatchConfiguration} = useSwapFlow();
 
@@ -145,7 +152,10 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 										'grid grid-cols-4 divide-x divide-neutral-400 overflow-hidden rounded-lg bg-neutral-200'
 									}>
 									<button
-										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.001})}
+										onClick={() => {
+											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.001}});
+											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.001});
+										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
 											configuration.slippageTolerance === 0.001
@@ -155,7 +165,10 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 										<p className={'text-sm'}>{'0.1%'}</p>
 									</button>
 									<button
-										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.005})}
+										onClick={() => {
+											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.005}});
+											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.005});
+										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
 											configuration.slippageTolerance === 0.005
@@ -165,7 +178,10 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 										<p className={'text-sm'}>{'0.5%'}</p>
 									</button>
 									<button
-										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.01})}
+										onClick={() => {
+											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.01}});
+											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.01});
+										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
 											configuration.slippageTolerance === 0.01
@@ -175,7 +191,10 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 										<p className={'text-sm'}>{'1%'}</p>
 									</button>
 									<button
-										onClick={() => dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.015})}
+										onClick={() => {
+											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.015}});
+											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.015});
+										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
 											configuration.slippageTolerance === 0.015

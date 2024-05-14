@@ -1,5 +1,6 @@
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
+import {usePlausible} from 'next-plausible';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -23,6 +24,7 @@ import {
 	toWagmiProvider
 } from '@builtbymom/web3/utils/wagmi';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {optionalRenderProps, type TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
@@ -68,7 +70,7 @@ const defaultProps: TSwapContext = {
 		input: getNewInputToken(),
 		output: getNewInputToken(),
 		slippageTolerance: 0.01,
-		order: 'SAFEST'
+		order: 'RECOMMENDED'
 	},
 	estimatedTime: undefined,
 	isFetchingQuote: false,
@@ -195,6 +197,7 @@ function assertLastSolverFetch(senderAddress: TAddress, configuration: TSwapConf
 
 const SwapContext = createContext<TSwapContext>(defaultProps);
 export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapContext, ReactElement>}): ReactElement => {
+	const plausible = usePlausible();
 	const {address, provider, chainID} = useWeb3();
 	const {onRefresh} = useWallet();
 	const [configuration, dispatch] = useReducer(swapReducer, defaultProps.configuration);
@@ -265,6 +268,19 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			set_isFetchingQuote(false);
 			set_currentTxRequest(result);
 			set_currentError(undefined);
+			plausible(PLAUSIBLE_EVENTS.SWAP_GET_QUOTE, {
+				props: {
+					inputChainID: configuration.input.token?.chainID,
+					inputAmount: configuration.input.normalizedBigAmount.display,
+					inputToken: configuration.input.token?.symbol,
+					outputChainID: configuration.output.token?.chainID,
+					outputToken: configuration.output.token?.symbol,
+					outputAmount: out.display,
+					slippage: configuration.slippageTolerance,
+					order: configuration.order,
+					estimate: result.estimate
+				}
+			});
 			dispatch({
 				type: 'SET_OUTPUT_VALUE',
 				payload: {
@@ -284,7 +300,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				}
 			});
 		},
-		[configuration.input, configuration.output]
+		[configuration.input, configuration.order, configuration.output, configuration.slippageTolerance, plausible]
 	);
 	const retrieveExpectedOut = useAsyncTriggerWithArgs(
 		async (force = false): Promise<void> => {
@@ -474,6 +490,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				account: toAddress(currentTxRequest.transactionRequest.from)
 			};
 
+			/**********************************************************************************
+			 ** Try to estimate the gas for this transaction. If the estimation fails, update
+			 ** the status to error and return false.
+			 *********************************************************************************/
 			try {
 				await estimateGas(retrieveConfig(), txParams);
 			} catch (error) {
@@ -483,21 +503,51 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				return false;
 			}
 
+			/**************************************************************************************
+			 ** Send the transaction. If the transaction fails, update the status to error and
+			 ** return false.
+			 *************************************************************************************/
+			let txHash: Hex;
 			try {
-				const txHash = await sendTransaction(retrieveConfig(), txParams);
+				txHash = await sendTransaction(retrieveConfig(), txParams);
+				/**********************************************************************************
+				 ** If the transaction was sent successfully, update the status to pending and
+				 ** send the event.
+				 *********************************************************************************/
+				plausible(PLAUSIBLE_EVENTS.SWAP_EXECUTED, {
+					props: {
+						inputChainID: configuration.input.token?.chainID,
+						inputAmount: configuration.input.normalizedBigAmount.display,
+						inputToken: configuration.input.token?.symbol,
+						outputChainID: configuration.output.token?.chainID,
+						outputToken: configuration.output.token?.symbol,
+						outputAmount: configuration.output.normalizedBigAmount.display,
+						slippage: configuration.slippageTolerance,
+						order: configuration.order,
+						txHash
+					}
+				});
 				const receipt = await waitForTransactionReceipt(retrieveConfig(), {
 					chainId: currentTxRequest.transactionRequest.chainId,
 					hash: txHash
 				});
 				if (receipt.status !== 'success') {
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
+					return false;
 				}
+			} catch (error) {
+				console.warn(error);
+				statusHandler({...defaultTxStatus, error: true});
+				set_currentError(`The transaction failed with the following error: ${(error as any).details}`);
+				return false;
+			}
 
-				/**********************************************************************************
-				 ** Then, if it's a cross-chain swap, check the status of the transaction on the
-				 ** output chain. If the status is not DONE or FAILED, keep checking until it is.
-				 ** This is done to ensure the transaction is mined on the output chain.
-				 *********************************************************************************/
+			/**************************************************************************************
+			 ** Then, if it's a cross-chain swap, check the status of the transaction on the output
+			 ** chain. If the status is not DONE or FAILED, keep checking until it is.
+			 ** This is done to ensure the transaction is mined on the output chain.
+			 *************************************************************************************/
+			try {
 				const durationInSeconds = currentTxRequest?.estimate.executionDuration || 0;
 				const durationInMs = durationInSeconds * 1000;
 				const expectedEnd = new Date(Date.now() + durationInMs).toLocaleTimeString();
@@ -538,6 +588,19 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				toast.dismiss(toastID);
 				await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
 				if (result.status === 'DONE') {
+					plausible(PLAUSIBLE_EVENTS.SWAP_CONFIRMED, {
+						props: {
+							inputChainID: configuration.input.token?.chainID,
+							inputAmount: configuration.input.normalizedBigAmount.display,
+							inputToken: configuration.input.token?.symbol,
+							outputChainID: configuration.output.token?.chainID,
+							outputToken: configuration.output.token?.symbol,
+							outputAmount: configuration.output.normalizedBigAmount.display,
+							slippage: configuration.slippageTolerance,
+							order: configuration.order,
+							txHash
+						}
+					});
 					toast.custom(
 						t => (
 							<ProgressToasts
@@ -557,6 +620,19 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					toast.dismiss(toastID);
 					resetState();
 				} else {
+					plausible(PLAUSIBLE_EVENTS.SWAP_REVERTED, {
+						props: {
+							inputChainID: configuration.input.token?.chainID,
+							inputAmount: configuration.input.normalizedBigAmount.display,
+							inputToken: configuration.input.token?.symbol,
+							outputChainID: configuration.output.token?.chainID,
+							outputToken: configuration.output.token?.symbol,
+							outputAmount: configuration.output.normalizedBigAmount.display,
+							slippage: configuration.slippageTolerance,
+							order: configuration.order,
+							txHash
+						}
+					});
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
 					toast.dismiss(toastID);
 				}
@@ -568,8 +644,29 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				return false;
 			}
 		},
-		[configuration.input.token, configuration.output.token, currentTxRequest, onRefreshSolverBalances, provider]
+		[
+			configuration.input.normalizedBigAmount.display,
+			configuration.input.token,
+			configuration.order,
+			configuration.output.normalizedBigAmount.display,
+			configuration.output.token,
+			configuration.slippageTolerance,
+			currentTxRequest,
+			onRefreshSolverBalances,
+			plausible,
+			provider,
+			resetState
+		]
 	);
+
+	/**********************************************************************************************
+	 ** onOpenSettingsCurtain will open the settings curtain. This is used to show the user the
+	 ** settings of the swap.
+	 *********************************************************************************************/
+	const onOpenSettingsCurtain = useCallback((): void => {
+		set_shouldOpenCurtain(true);
+		plausible(PLAUSIBLE_EVENTS.OPEN_SWAP_SETTINGS_CURTAIN);
+	}, [plausible]);
 
 	/**********************************************************************************************
 	 ** The context value is the value that will be provided to the children of the SwapContext.
@@ -589,7 +686,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			hasSolverAllowance,
 			approveSolverSpender,
 			performSolverSwap,
-			openSettingsCurtain: (): void => set_shouldOpenCurtain(true)
+			openSettingsCurtain: onOpenSettingsCurtain
 		}),
 		[
 			configuration,
@@ -600,7 +697,8 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			retrieveExpectedOut,
 			hasSolverAllowance,
 			approveSolverSpender,
-			performSolverSwap
+			performSolverSwap,
+			onOpenSettingsCurtain
 		]
 	);
 
