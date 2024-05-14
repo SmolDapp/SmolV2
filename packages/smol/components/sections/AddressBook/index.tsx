@@ -1,4 +1,5 @@
 import {useCallback, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
@@ -9,6 +10,7 @@ import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
 import {IconImport} from '@lib/icons/IconImport';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {TextInput} from '@lib/primitives/TextInput';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import type {ChangeEvent, ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -29,6 +31,7 @@ function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}):
 }
 
 function ImportContactsButton(props: {className?: string}): ReactElement {
+	const plausible = usePlausible();
 	const {addEntry} = useAddressBook();
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -115,7 +118,10 @@ function ImportContactsButton(props: {className?: string}): ReactElement {
 
 	return (
 		<button
-			onClick={() => document.querySelector<HTMLInputElement>('#file-upload')?.click()}
+			onClick={() => {
+				plausible(PLAUSIBLE_EVENTS.AB_IMPORT_CONTACTS);
+				document.querySelector<HTMLInputElement>('#file-upload')?.click();
+			}}
 			className={cl(
 				props.className,
 				'rounded-lg p-2 text-xs flex flex-row items-center relative overflow-hidden',

@@ -18,6 +18,7 @@ import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
 import {IconTrash} from '@lib/icons/IconTrash';
 import {Button} from '@lib/primitives/Button';
 import {CurtainContent} from '@lib/primitives/Curtain';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import {AvatarWrapper} from '../Avatar';
@@ -248,7 +249,7 @@ export function AddressBookCurtain(props: {
 				updateEntry({...currentEntry, address: addressLike.address, isHidden: false});
 				props.onOpenChange({isOpen: false, isEditing: false});
 				if (listCachedEntries().length === 0) {
-					plausible('add 1st ab contact');
+					plausible(PLAUSIBLE_EVENTS.AB_ADD_FIRST_CONTACT);
 				}
 			} else {
 				updateEntry({...currentEntry, address: addressLike.address, isHidden: false});

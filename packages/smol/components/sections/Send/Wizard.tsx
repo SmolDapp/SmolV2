@@ -23,6 +23,7 @@ import {SuccessModal} from '@lib/common/SuccessModal';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {Button} from '@lib/primitives/Button';
 import {notifySend} from '@lib/utils/notifier';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 
 import {useSendFlow} from './useSendFlow';
@@ -271,7 +272,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			from: toAddress(address)
 		});
 
-		plausible('send', {
+		plausible(PLAUSIBLE_EVENTS.SEND_TOKENS, {
 			props: {
 				sendChainID: chainID,
 				sendTo: toAddress(configuration.receiver?.address),

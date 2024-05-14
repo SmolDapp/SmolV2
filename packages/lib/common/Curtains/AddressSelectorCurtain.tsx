@@ -1,6 +1,7 @@
 'use client';
 
 import React, {Fragment, useEffect, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {zeroAddress} from 'viem';
 import {LayoutGroup, motion} from 'framer-motion';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
@@ -11,6 +12,7 @@ import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {Button} from '@lib/primitives/Button';
 import {CurtainContent} from '@lib/primitives/Curtain';
 import {TextInput} from '@lib/primitives/TextInput';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {AddressBookEntry} from '../AddressBookEntry';
 
@@ -154,6 +156,7 @@ export function AddressSelectorCurtain(props: {
 	onOpenChange: (isOpen: boolean) => void;
 	onSelect: TSelectCallback | undefined;
 }): ReactElement {
+	const plausible = usePlausible();
 	const isMounted = useIsMounted();
 	const {listCachedEntries} = useAddressBook();
 	const [searchValue, set_searchValue] = useState('');
@@ -164,9 +167,10 @@ export function AddressSelectorCurtain(props: {
 	 *********************************************************************************************/
 	useEffect((): void => {
 		if (props.isOpen) {
+			plausible(PLAUSIBLE_EVENTS.OPEN_ADDRESS_SELECTOR_CURTAIN);
 			set_searchValue('');
 		}
-	}, [props.isOpen]);
+	}, [plausible, props.isOpen]);
 
 	/**********************************************************************************************
 	 ** Memo function that filters the entries in the address book based on the search value.
