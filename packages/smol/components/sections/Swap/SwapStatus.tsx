@@ -1,17 +1,17 @@
 import {useState} from 'react';
 import Link from 'next/link';
-import {Warning} from 'lib/common/Warning';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isEthAddress, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
-import type {TWarningType} from 'lib/common/Warning';
 import type {ReactElement, ReactNode} from 'react';
+import type {TWarningType} from '@lib/common/Warning';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();

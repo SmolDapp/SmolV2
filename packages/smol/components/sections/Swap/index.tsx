@@ -1,11 +1,4 @@
 import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {TextTruncate} from 'lib/common/TextTruncate';
-import {IconChevronBoth} from 'lib/icons/IconChevronBoth';
-import {IconChevronBottom} from 'lib/icons/IconChevronBottom';
-import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {IconGears} from 'lib/icons/IconGears';
-import {IconSpinner} from 'lib/icons/IconSpinner';
 import {LIFI_SUPPORTED_NETWORKS} from 'packages/lib/utils/constants';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -13,18 +6,25 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {NetworkInputSelector} from '@smolDesignSystem/NetworkSelector/Input';
-import {SmolAddressInput} from '@smolDesignSystem/SmolAddressInput';
 import {SmolTokenAmountInput, useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
 import {SmolTokenSelectorButton} from '@smolDesignSystem/SmolTokenSelectorButton';
 import {formatSeconds} from '@smolHooks/useTimer';
+import {NetworkInputSelector} from '@lib/common/NetworkSelector/Input';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
+import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconGears} from '@lib/icons/IconGears';
+import {IconSpinner} from '@lib/icons/IconSpinner';
 
 import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
 import {SendWizard} from './Wizard';
 
-import type {TTokenAmountInputElement} from 'lib/types/Inputs';
-import type {TInputAddressLike} from 'lib/utils/tools.address';
+import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 function FakeOutputTokenRow(props: {
 	value: TTokenAmountInputElement;

@@ -2,7 +2,6 @@
 
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {IconGears} from 'lib/icons/IconGears';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {CurtainContent} from 'lib/primitives/Curtain';
@@ -20,6 +19,7 @@ import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 

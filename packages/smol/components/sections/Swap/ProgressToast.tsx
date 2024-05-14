@@ -1,7 +1,7 @@
-import {IconCheck} from 'lib/icons/IconCheck';
-import {IconLoader} from 'lib/icons/IconLoader';
 import {cl} from '@builtbymom/web3/utils';
 import {NProgress} from '@tanem/react-nprogress';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {IconLoader} from '@lib/icons/IconLoader';
 
 import type {ReactElement} from 'react';
 import type {Toast} from 'react-hot-toast';

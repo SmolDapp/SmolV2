@@ -1,12 +1,12 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkInputSelector(props: {
 	value: number;

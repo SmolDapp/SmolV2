@@ -1,20 +1,20 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {TextTruncate} from 'lib/common/TextTruncate';
-import {IconAppAddressBook} from 'lib/icons/IconApps';
-import {IconChevron} from 'lib/icons/IconChevron';
-import {IconCircleCheck} from 'lib/icons/IconCircleCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {IconLoader} from 'lib/icons/IconLoader';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {useAsyncAbortable} from '@react-hookz/web';
+import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
+import {IconAppAddressBook} from '@lib/icons/IconApps';
+import {IconChevron} from '@lib/icons/IconChevron';
+import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconLoader} from '@lib/icons/IconLoader';
 
 import {AvatarWrapper} from './Avatar';
 
-import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 type TAddressInput = {
 	onSetValue: (value: Partial<TInputAddressLike>) => void;

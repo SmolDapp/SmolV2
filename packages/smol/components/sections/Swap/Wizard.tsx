@@ -1,12 +1,12 @@
 import React, {useCallback, useState} from 'react';
 import Link from 'next/link';
-import {SuccessModal} from 'lib/common/SuccessModal';
-import {Button} from 'lib/primitives/Button';
-import {truncateHexTx} from 'lib/utils/helpers';
 import {IconAppSwap} from 'packages/lib/icons/IconApps';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {cl, formatAmount, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
+import {SuccessModal} from '@lib/common/SuccessModal';
+import {Button} from '@lib/primitives/Button';
+import {truncateHexTx} from '@lib/utils/helpers';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 

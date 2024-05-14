@@ -1,6 +1,6 @@
-import type {TTokenAmountInputElement} from 'lib/types/Inputs';
 import type {Dispatch, SetStateAction} from 'react';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TTokenAmountInputElement} from '@lib/types/Inputs';
 import type {TInputAddressLike} from '../tools.address';
 
 /**********************************************************************************************

@@ -2,15 +2,15 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {CurtainContent} from 'lib/primitives/Curtain';
 import {cl} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
-import {CloseCurtainButton} from '@smolDesignSystem/Curtains/InfoCurtain';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {CurtainContent} from '@lib/primitives/Curtain';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
-import type {TSwapConfiguration} from 'lib/utils/types/app.swap';
 import type {ReactElement} from 'react';
+import type {TSwapConfiguration} from '@lib/utils/types/app.swap';
 
 /**************************************************************************************************
  ** The TSwapCurtain type is used to type the props of the SwapCurtain component.
