@@ -7,8 +7,9 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {assert, MAX_UINT_256, toAddress, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {allowanceOf, approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
+import {SuccessModal} from '@lib/common/SuccessModal';
 import {Button} from '@lib/primitives/Button';
-import {deposit, redeemV3Shares} from '@lib/utils/actions';
+import {deposit, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {useEarnFlow} from './useEarnFlow';
@@ -124,7 +125,12 @@ const useDeposit = ({
 	onSuccess
 }: {
 	onSuccess: () => void;
-}): {onExecuteDeposit: () => Promise<void>; onExecuteWithdraw: () => Promise<void>; depositStatus: TTxStatus} => {
+}): {
+	onExecuteDeposit: () => Promise<void>;
+	onExecuteWithdraw: () => Promise<void>;
+	depositStatus: TTxStatus;
+	set_depositStatus: (value: TTxStatus) => void;
+} => {
 	const {configuration} = useEarnFlow();
 	const {provider} = useWeb3();
 	const {safeChainID} = useChainID();
@@ -139,16 +145,20 @@ const useDeposit = ({
 		assert(configuration.opportunity?.address, 'Output token is not set');
 		assert(configuration.asset.token?.address, 'Input amount is not set');
 
+		set_depositStatus({...defaultTxStatus, pending: true});
+
 		const result = await deposit({
 			connector: provider,
 			chainID: safeChainID,
 			contractAddress: configuration.opportunity?.address,
-			amount: configuration.asset.normalizedBigAmount.raw,
-			statusHandler: set_depositStatus
+			amount: configuration.asset.normalizedBigAmount.raw
 		});
 		if (result.isSuccessful) {
 			onSuccess();
+			set_depositStatus({...defaultTxStatus, success: true});
+			return;
 		}
+		set_depositStatus({...defaultTxStatus, error: true});
 	}, [
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token?.address,
@@ -165,40 +175,55 @@ const useDeposit = ({
 	const onExecuteWithdraw = useCallback(async (): Promise<void> => {
 		assert(configuration.asset.token, 'Output token is not set');
 		assert(configuration.asset.amount, 'Input amount is not set');
+		const isV3 = configuration.opportunity?.version.split('.')?.[0] === '3';
 
-		const result = await redeemV3Shares({
-			connector: provider,
-			chainID: safeChainID,
-			contractAddress: configuration.asset.token.address,
-			amount: configuration.asset.normalizedBigAmount.raw,
-			maxLoss: 1n,
-			statusHandler: set_depositStatus
-		});
+		let result;
+		set_depositStatus({...defaultTxStatus, pending: true});
+		if (isV3) {
+			result = await redeemV3Shares({
+				connector: provider,
+				chainID: safeChainID,
+				contractAddress: configuration.asset.token.address,
+				amount: configuration.asset.normalizedBigAmount.raw,
+				maxLoss: 1n
+			});
+		} else {
+			result = await withdrawShares({
+				connector: provider,
+				chainID: safeChainID,
+				contractAddress: configuration.asset.token.address,
+				amount: configuration.asset.normalizedBigAmount.raw
+			});
+		}
+
 		if (result.isSuccessful) {
 			onSuccess();
+			set_depositStatus({...defaultTxStatus, success: true});
+			return;
 		}
-		return;
+		set_depositStatus({...defaultTxStatus, error: true});
 	}, [
 		configuration.asset.amount,
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token,
+		configuration.opportunity?.version,
 		onSuccess,
 		provider,
 		safeChainID
 	]);
 
-	return {onExecuteDeposit, onExecuteWithdraw, depositStatus};
+	return {onExecuteDeposit, set_depositStatus, onExecuteWithdraw, depositStatus};
 };
 
 export function EarnWizard(): ReactElement {
-	const {configuration} = useEarnFlow();
+	const {configuration, onResetEarn} = useEarnFlow();
 	const {vaults} = useVaults();
 
 	const {onApprove, isApproved, approvalStatus} = useApproveDeposit({
 		onSuccess: () => console.log('success approve')
 	});
 
-	const {onExecuteDeposit, onExecuteWithdraw, depositStatus} = useDeposit({
+	const {onExecuteDeposit, onExecuteWithdraw, set_depositStatus, depositStatus} = useDeposit({
 		onSuccess: () => {
 			console.log('success deposit');
 		}
@@ -208,6 +233,9 @@ export function EarnWizard(): ReactElement {
 		return !!vaults.find(vault => isAddressEqual(vault.address, toAddress(configuration.asset.token?.address)));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [configuration.asset.token?.address, vaults.length]);
+	const widrawingVaultName = isWithdrawing
+		? vaults.find(vault => isAddressEqual(vault.address, toAddress(configuration.asset.token?.address)))?.name
+		: undefined;
 
 	const isValid = useMemo((): boolean => {
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -250,22 +278,17 @@ export function EarnWizard(): ReactElement {
 				<b>{getButtonTitle()}</b>
 			</Button>
 
-			{/* <SuccessModal
+			<SuccessModal
 				title={'It looks like a success!'}
-				content={`Successfully dispersed ${configuration.tokenToSend?.name} to ${configuration.inputs.length} receivers!`}
-				ctaLabel={'Close'}
-				downloadConfigButton={
-					<ExportConfigurationButton
-						className={'w-full'}
-						title={'Export Config'}
-					/>
-				}
-				isOpen={disperseStatus.success}
+				content={`Successfully ${isWithdrawing ? 'withdrawn' : 'deposited'} ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} ${isWithdrawing ? 'from' : 'to'} ${configuration.opportunity?.name ?? widrawingVaultName}`}
+				ctaLabel={isWithdrawing ? 'Deposit' : 'Another deposit'}
+				isOpen={depositStatus.success}
+				className={'!bg-white shadow-lg'}
 				onClose={(): void => {
-					onResetDisperse();
-					set_disperseStatus(defaultTxStatus);
+					onResetEarn();
+					set_depositStatus(defaultTxStatus);
 				}}
-			/> */}
+			/>
 
 			{/* <ErrorModal
 				title={'Error'}

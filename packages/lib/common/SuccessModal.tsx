@@ -15,6 +15,7 @@ type TSuccessModal = {
 	title: string;
 	content: ReactElement | string;
 	ctaLabel: string;
+	className?: string;
 	downloadConfigButton?: JSX.Element;
 	twitterShareContent?: string;
 };
@@ -73,9 +74,9 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
 							<DialogPanel
 								className={cl(
-									'relative overflow-hidden flex flex-col items-center justify-center rounded-lg !bg-neutral-200 transition-all',
-									'shadow-lg',
-									'sm:my-8 sm:w-full sm:max-w-lg md:max-w-screen-sm'
+									'relative overflow-hidden flex flex-col items-center justify-center rounded-md !bg-neutral-200 !p-10 transition-all',
+									'sm:my-8 sm:w-full sm:max-w-lg sm:p-6',
+									props.className
 								)}>
 								<div className={'bg-green flex w-full items-center justify-center'}>
 									<div className={'my-6 rounded-full bg-white p-4'}>

@@ -75,7 +75,7 @@ export function SelectVault({
 										/>
 									</button>
 								</div>
-								<div className={'scrollable flex max-h-96 w-full flex-col gap-2'}>
+								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
 									{filteredVaults.map(vault => (
 										<Vault
 											key={`${vault.address}-${vault.chainID}`}

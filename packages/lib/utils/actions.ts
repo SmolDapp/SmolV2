@@ -122,3 +122,25 @@ export async function redeemV3Shares(props: TRedeemV3Shares): Promise<TTxRespons
 		args: [props.amount, wagmiProvider.address, wagmiProvider.address, props.maxLoss]
 	});
 }
+
+/* 🔵 - Yearn Finance **********************************************************
+ ** withdrawShares is a _WRITE_ function that withdraws a share of underlying
+ ** collateral from a vault.
+ **
+ ** @app - Vaults
+ ** @param amount - The amount of ETH to withdraw.
+ ******************************************************************************/
+type TWithdrawShares = TWriteTransaction & {
+	amount: bigint;
+};
+export async function withdrawShares(props: TWithdrawShares): Promise<TTxResponse> {
+	assert(props.amount > 0n, 'Amount is 0');
+	assertAddress(props.contractAddress);
+
+	return await handleTx(props, {
+		address: props.contractAddress,
+		abi: VAULT_ABI,
+		functionName: 'withdraw',
+		args: [props.amount]
+	});
+}

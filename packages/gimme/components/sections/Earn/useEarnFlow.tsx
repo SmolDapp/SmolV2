@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useMemo, useReducer} from 'react';
+import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 
@@ -20,6 +20,8 @@ export type TEarnActions =
 export type TEarn = {
 	configuration: TEarnConfiguration;
 	dispatchConfiguration: Dispatch<TEarnActions>;
+	onResetEarn: () => void;
+	isDeposited: boolean;
 };
 
 const defaultProps: TEarn = {
@@ -35,7 +37,8 @@ const defaultProps: TEarn = {
 		},
 		opportunity: undefined
 	},
-
+	isDeposited: false,
+	onResetEarn: (): void => undefined,
 	dispatchConfiguration: (): void => undefined
 };
 
@@ -71,13 +74,24 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 	};
 
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
+	const [isDeposited, set_isDeposited] = useState<boolean>(false);
+
+	const onResetEarn = (): void => {
+		set_isDeposited(true);
+		setTimeout((): void => {
+			dispatch({type: 'RESET', payload: undefined});
+			set_isDeposited(false);
+		}, 500);
+	};
 
 	const contextValue = useMemo(
 		(): TEarn => ({
 			configuration,
-			dispatchConfiguration: dispatch
+			dispatchConfiguration: dispatch,
+			onResetEarn,
+			isDeposited
 		}),
-		[configuration]
+		[configuration, isDeposited]
 	);
 
 	return (
