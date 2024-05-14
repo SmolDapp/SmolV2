@@ -1,8 +1,11 @@
 import {Fragment, type ReactElement} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 
+import {useEarnFlow} from './useEarnFlow';
 import {Vault} from './Vault';
 
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
@@ -18,6 +21,14 @@ export function SelectVault({
 	onSelect: (value: TYDaemonVault) => void;
 	filteredVaults: TYDaemonVault[];
 }): ReactElement {
+	const {configuration} = useEarnFlow();
+	const {safeChainID} = useChainID();
+
+	const {data: prices} = usePrices({
+		tokens: configuration.asset.token ? [configuration.asset.token] : [],
+		chainId: safeChainID
+	});
+	const price = prices && configuration.asset.token ? prices[configuration.asset.token.address] : undefined;
 	return (
 		<Transition
 			show={isOpen}
@@ -67,7 +78,9 @@ export function SelectVault({
 								<div className={'scrollable flex max-h-96 w-full flex-col gap-2'}>
 									{filteredVaults.map(vault => (
 										<Vault
+											key={`${vault.address}-${vault.chainID}`}
 											vault={vault}
+											price={price}
 											onSelect={onSelect}
 											onClose={onClose}
 										/>

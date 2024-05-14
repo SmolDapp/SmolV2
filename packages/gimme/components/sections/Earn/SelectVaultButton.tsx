@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
+import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {IconChevron} from 'packages/lib/icons/IconChevron';
 import {cl, formatTAmount} from '@builtbymom/web3/utils';
@@ -16,7 +17,16 @@ export function SelectOpportunityButton({
 	filteredVaults: TYDaemonVault[];
 }): JSX.Element {
 	const {configuration} = useEarnFlow();
+	const {vaults} = useVaults();
 	const [isOpen, set_isOpen] = useState(false);
+
+	const maxAPR = useMemo(() => {
+		const vaultsToUse = configuration.asset.token?.address ? filteredVaults : vaults;
+		const APRs = vaultsToUse.map(vault => vault.apr.netAPR);
+		const max = Math.max(...APRs);
+		return max;
+	}, [configuration.asset.token?.address, filteredVaults, vaults]);
+
 	return (
 		<>
 			<div className={'relative size-full'}>
@@ -32,11 +42,13 @@ export function SelectOpportunityButton({
 						className={cl(
 							'flex items-center justify-between gap-2 rounded-[4px] py-2 pl-4 pr-2 size-full',
 							'transition-colors',
+							'disabled:opacity-30 disabled:cursor-not-allowed',
 							configuration.opportunity
 								? 'bg-neutral-200 hover:bg-neutral-300'
 								: 'bg-primary hover:bg-primaryHover'
 						)}
-						onClick={() => set_isOpen(true)}>
+						onClick={() => set_isOpen(true)}
+						disabled={filteredVaults.length === 0}>
 						{configuration.opportunity ? (
 							<>
 								<div className={'flex w-full items-center gap-4'}>
@@ -67,7 +79,9 @@ export function SelectOpportunityButton({
 						) : (
 							<div className={'flex size-full flex-col items-center'}>
 								<p className={'font-bold'}>{'Select Opportunity'}</p>
-								<p className={'text-xs'}>{'Earn up to 0.45% APY'}</p>
+								<p className={'text-xs'}>
+									{`Earn up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APR`}
+								</p>
 							</div>
 						)}
 					</button>

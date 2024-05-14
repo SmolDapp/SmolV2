@@ -5,27 +5,27 @@ import {useFetchYearnVaults} from '@yearn-finance/web-lib/hooks/useFetchYearnVau
 import type {ReactElement} from 'react';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-export type TGimmeContext = {
+export type TVaultsContext = {
 	vaults: TYDaemonVault[];
 };
 
-const GimmeContext = createContext<TGimmeContext>({
+const VaultsContext = createContext<TVaultsContext>({
 	vaults: []
 });
 
-export const GimmeContextApp = memo(function GimmeContextApp({children}: {children: ReactElement}): ReactElement {
+export const VaultsContextApp = memo(function VaultsContextApp({children}: {children: ReactElement}): ReactElement {
 	const {chainID} = useChainID();
 
 	const {vaults: rawVaults} = useFetchYearnVaults([chainID]);
 
 	return (
-		<GimmeContext.Provider
+		<VaultsContext.Provider
 			value={{
 				vaults: Object.values(rawVaults)
 			}}>
 			{children}
-		</GimmeContext.Provider>
+		</VaultsContext.Provider>
 	);
 });
 
-export const useGimme = (): TGimmeContext => useContext(GimmeContext);
+export const useVaults = (): TVaultsContext => useContext(VaultsContext);

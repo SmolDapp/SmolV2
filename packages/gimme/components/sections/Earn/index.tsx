@@ -1,9 +1,10 @@
 import {type ReactElement, useMemo} from 'react';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
-import {useGimme} from 'packages/gimme/contexts/useGimme';
+import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {toAddress} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 
+import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
 import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
@@ -21,7 +22,7 @@ export function Earn(): ReactElement {
 		dispatchConfiguration({type: 'SET_OPPORTUNITY', payload: value});
 	};
 
-	const {vaults} = useGimme();
+	const {vaults} = useVaults();
 
 	const filteredVaults = useMemo(() => {
 		if (!configuration.asset.token?.address) {
@@ -34,7 +35,7 @@ export function Earn(): ReactElement {
 
 	return (
 		<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>
-			<div className={'mb-6 w-full'}>
+			<div className={'w-full'}>
 				<p className={'mb-2 text-xs font-medium'}>{'Asset'}</p>
 				<SmolTokenAmountInput
 					onSetValue={onSetAsset}
@@ -45,6 +46,7 @@ export function Earn(): ReactElement {
 					onSetOpportunity={onSetOpportunity}
 					filteredVaults={filteredVaults}
 				/>
+				<EarnWizard />
 			</div>
 		</div>
 	);
