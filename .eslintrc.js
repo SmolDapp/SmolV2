@@ -23,7 +23,10 @@ module.exports = {
 	plugins: ['@typescript-eslint', 'react', 'tailwindcss', 'unused-imports', 'simple-import-sort', 'import'],
 	settings: {
 		react: {version: 'detect'},
-		'import/resolver': {typescript: {}}
+		'import/resolver': {typescript: {}},
+		next: {
+			rootDir: 'packages/*/'
+		}
 	},
 	rules: {
 		'import/default': 0,
@@ -189,9 +192,10 @@ module.exports = {
 								'^tailwindcss',
 								'^framer-motion',
 								'^nprogress',
-								'^@?\\w',
-								'^(@common/.*)?\\w',
-								'^(@y.*)?\\w'
+								'^@(builtbymom)?\\w',
+								'^(@lib.*)?\\w',
+								'^(@y.*)?\\w',
+								'^@?\\w'
 							],
 							// Parent imports.
 							[
@@ -206,6 +210,8 @@ module.exports = {
 							[
 								'^node:.*\\u0000$',
 								'^(@common)?\\w.*\\u0000$',
+								'^@(builtbymom)?\\w.*\\u0000$',
+								'^(@lib.*)?\\w.*\\u0000$',
 								'^(@y.*)?\\w.*\\u0000$',
 								'^@?\\w.*\\u0000$',
 								'^[^.].*\\u0000$',

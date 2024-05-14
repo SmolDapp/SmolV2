@@ -1,13 +1,13 @@
 import {type ReactElement, useRef} from 'react';
-import {IconCross} from 'lib/icons/IconCross';
-import {SmolAddressInput} from '@designSystem/SmolAddressInput';
-import {SmolAmountInput} from '@designSystem/SmolAmountInput';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolAmountInput} from '@lib/common/SmolAmountInput';
+import {IconCross} from '@lib/icons/IconCross';
 
 import {useDisperse} from './useDisperse';
 
-import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TAmountInputElement} from '@designSystem/SmolAmountInput';
+import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 import type {TDisperseInput} from './useDisperse';
 
 type TDisperseAddressAndAmountInputs = {
@@ -32,7 +32,7 @@ export function DisperseAddressAndAmountInputs({input, price}: TDisperseAddressA
 	};
 
 	return (
-		<div className={'mb-4 flex w-full items-center rounded-xl bg-neutral-200 py-2 pl-2 md:w-auto'}>
+		<div className={'mb-4 flex w-full items-center rounded-md bg-neutral-200 py-2 pl-2 md:w-auto'}>
 			<div className={'flex w-full flex-col gap-4 md:flex-row'}>
 				<div className={'flex w-full max-w-full md:max-w-[424px]'}>
 					<SmolAddressInput

@@ -1,9 +1,10 @@
-import {Fragment, useState} from 'react';
+import {Fragment, useMemo, useState} from 'react';
 import Confetti from 'react-dom-confetti';
+import Link from 'next/link';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {Button} from 'lib/primitives/Button';
 import {cl} from '@builtbymom/web3/utils';
-import {Dialog, Transition} from '@headlessui/react';
+import {Dialog, DialogPanel, DialogTitle, Transition, TransitionChild} from '@headlessui/react';
 import {useUpdateEffect} from '@react-hookz/web';
 
 import type {ReactElement} from 'react';
@@ -12,12 +13,18 @@ type TSuccessModal = {
 	isOpen: boolean;
 	onClose: VoidFunction;
 	title: string;
-	content: string;
+	content: ReactElement | string;
 	ctaLabel: string;
 	downloadConfigButton?: JSX.Element;
 };
 function SuccessModal(props: TSuccessModal): ReactElement {
 	const [shouldTriggerConfettis, set_shouldTriggerConfettis] = useState(false);
+
+	const tweetURL = useMemo(() => {
+		const content =
+			'Something%20something%20something%2C%20%40smoldapp%20is%20awesome%2C%20something%20something%0A%0A';
+		return `http://twitter.com/share?text=${content}&url=https://smold.app`;
+	}, []);
 
 	useUpdateEffect((): void => {
 		if (props.isOpen) {
@@ -28,14 +35,14 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 	}, [props.isOpen]);
 
 	return (
-		<Transition.Root
+		<Transition
 			show={props.isOpen}
 			as={Fragment}>
 			<Dialog
 				as={'div'}
 				className={'relative z-[1000]'}
 				onClose={props.onClose}>
-				<Transition.Child
+				<TransitionChild
 					as={Fragment}
 					enter={'ease-out duration-300'}
 					enterFrom={'opacity-0'}
@@ -43,8 +50,8 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 					leave={'ease-in duration-200'}
 					leaveFrom={'opacity-100'}
 					leaveTo={'opacity-0'}>
-					<div className={'bg-primary-900/40 fixed inset-0 backdrop-blur-sm transition-opacity'} />
-				</Transition.Child>
+					<div className={'fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity'} />
+				</TransitionChild>
 
 				<div className={'size-screen fixed inset-0 z-[1001] flex items-center justify-center'}>
 					<Confetti
@@ -54,7 +61,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 				</div>
 				<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
 					<div className={'flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0'}>
-						<Transition.Child
+						<TransitionChild
 							as={Fragment}
 							enter={'ease-out duration-300'}
 							enterFrom={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}
@@ -62,43 +69,52 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 							leave={'ease-in duration-200'}
 							leaveFrom={'opacity-100 translate-y-0 sm:scale-100'}
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
-							<Dialog.Panel
+							<DialogPanel
 								className={cl(
-									'relative overflow-hidden flex flex-col items-center justify-center rounded-md !bg-neutral-200 !p-10 transition-all',
-									'sm:my-8 sm:w-full sm:max-w-lg sm:p-6'
+									'relative overflow-hidden flex flex-col items-center justify-center rounded-lg !bg-neutral-200 transition-all',
+									'shadow-lg',
+									'sm:my-8 sm:w-full sm:max-w-lg md:max-w-screen-sm'
 								)}>
-								<div className={'bg-green mb-10 rounded-full p-7'}>
-									<IconCheck className={'size-6 text-white'} />
-								</div>
-								<div>
-									<div className={'text-center'}>
-										<Dialog.Title
-											as={'h3'}
-											className={'text-primary-900 text-3xl font-bold leading-6'}>
-											{props.title}
-										</Dialog.Title>
-										<div className={'mt-6'}>
-											<p className={'text-neutral-900/80'}>{props.content}</p>
-										</div>
+								<div className={'bg-green flex w-full items-center justify-center'}>
+									<div className={'my-6 rounded-full bg-white p-4'}>
+										<IconCheck className={'text-green size-10'} />
 									</div>
 								</div>
-								<div
-									className={
-										'flex w-[200px] flex-col items-center justify-center gap-2 pt-10 text-center'
-									}>
-									{props.downloadConfigButton}
-									<Button
-										className={'w-full'}
-										onClick={props.onClose}>
-										{props.ctaLabel}
-									</Button>
+								<div className={'w-full px-10 pt-10'}>
+									<DialogTitle
+										as={'h3'}
+										className={'text-primary-900 text-center text-3xl font-bold leading-6'}>
+										{props.title}
+									</DialogTitle>
+									<div className={'mt-6 w-full text-neutral-900/80'}>{props.content}</div>
 								</div>
-							</Dialog.Panel>
-						</Transition.Child>
+								<div className={'flex flex-col items-center justify-center gap-2 py-6 text-center'}>
+									{props.downloadConfigButton}
+									<div className={'grid grid-cols-2 gap-4'}>
+										<div className={'hidden'}>
+											<Link
+												href={tweetURL}
+												target={'_blank'}>
+												<Button
+													variant={'light-alt'}
+													className={'!h-10 w-full'}>
+													{'Share on Twitter'}
+												</Button>
+											</Link>
+										</div>
+										<Button
+											className={'!h-10 w-full'}
+											onClick={props.onClose}>
+											{props.ctaLabel}
+										</Button>
+									</div>
+								</div>
+							</DialogPanel>
+						</TransitionChild>
 					</div>
 				</div>
 			</Dialog>
-		</Transition.Root>
+		</Transition>
 	);
 }
 export {SuccessModal};

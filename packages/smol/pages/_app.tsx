@@ -1,49 +1,99 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
-import {Rubik, Source_Code_Pro} from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
-import {Meta} from 'lib/common/Meta';
-import {IconCheck} from 'lib/icons/IconCheck';
-import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
-import Layout from '@designSystem/Layout';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
-import {Analytics} from '@vercel/analytics/react';
+import {WithPopularTokens} from '@smolContexts/usePopularTokens';
+import Layout from '@lib/common/Layout';
+import {Meta} from '@lib/common/Meta';
+import {WithFonts} from '@lib/common/WithFonts';
+import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconWallet} from '@lib/icons/IconWallet';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
 
 import '../style.css';
 
-const rubik = Rubik({
-	weight: ['400', '500', '600', '700'],
-	subsets: ['latin'],
-	display: 'swap',
-	variable: '--rubik-font'
-});
-
-const sourceCodePro = Source_Code_Pro({
-	weight: ['400', '500', '600', '700'],
-	subsets: ['latin'],
-	display: 'swap',
-	variable: '--scp-font'
-});
+const MENU = [
+	{
+		href: '/apps/send',
+		label: 'Send',
+		icon: <IconAppSend />
+	},
+	{
+		href: '/apps/disperse',
+		label: 'Disperse',
+		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
+	},
+	{
+		href: '/apps/address-book',
+		label: 'Address Book',
+		icon: <IconAppAddressBook />
+	},
+	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	}
+];
 
 function MyApp(props: AppProps): ReactElement {
 	return (
-		<>
-			<style
-				jsx
-				global>
-				{`
-					html {
-						font-family: ${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily};
-					}
-				`}
-			</style>
+		<WithFonts>
+			<Meta
+				title={'SmolDapp'}
+				description={
+					'Simple, smart and elegant dapps, designed to make your crypto journey a little bit easier.'
+				}
+				titleColor={'#000000'}
+				themeColor={'#FFD915'}
+				og={'https://smold.app/og.png'}
+				uri={'https://smold.app'}
+			/>
+			<WithMom
+				supportedChains={[...supportedNetworks, localhost]}
+				tokenLists={[
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+				]}>
+				<WalletContextApp
+					shouldWorkOnTestnet={
+						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+					}>
+					<WithPopularTokens>
+						<SafeProvider>
+							<PlausibleProvider
+								domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
+								enabled={true}>
+								<main className={'h-app flex flex-col'}>
+									<Layout
+										{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
+										menu={MENU}
+									/>
+								</main>
+							</PlausibleProvider>
+						</SafeProvider>
+					</WithPopularTokens>
+				</WalletContextApp>
+			</WithMom>
 			<Toaster
 				toastOptions={{
 					duration: 5_000,
@@ -65,30 +115,7 @@ function MyApp(props: AppProps): ReactElement {
 				}}
 				position={'top-right'}
 			/>
-			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={[
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
-				]}>
-				<WalletContextApp
-					shouldWorkOnTestnet={
-						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-					}>
-					<SafeProvider>
-						<PlausibleProvider
-							domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
-							enabled={true}>
-							<main className={`h-app flex flex-col ${rubik.variable} ${sourceCodePro.variable}`}>
-								<Meta />
-								<Layout {...props} />
-							</main>
-						</PlausibleProvider>
-					</SafeProvider>
-				</WalletContextApp>
-			</WithMom>
-			<Analytics />
-		</>
+		</WithFonts>
 	);
 }
 

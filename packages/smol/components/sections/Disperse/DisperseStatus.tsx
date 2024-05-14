@@ -1,14 +1,14 @@
 import {type ReactElement, useMemo, useState} from 'react';
-import {Warning} from 'lib/common/Warning';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
-import {useAddressBook} from '@contexts/useAddressBook';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 
 import {useDisperse} from './useDisperse';
 
-import type {TWarningType} from 'lib/common/Warning';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TWarningType} from '@lib/common/Warning';
 
 export function DisperseStatus(): ReactElement | null {
 	const {configuration} = useDisperse();
@@ -22,16 +22,6 @@ export function DisperseStatus(): ReactElement | null {
 	);
 
 	const listDuplicates = useMemo(() => {
-		// return configuration.inputs.some(currentRow =>
-		// 	configuration.inputs.find(
-		// 		iteratedRow =>
-		// 			isAddress(currentRow.receiver.address) &&
-		// 			isAddress(iteratedRow.receiver.address) &&
-		// 			currentRow.UUID !== iteratedRow.UUID &&
-		// 			currentRow.receiver.address === iteratedRow.receiver.address
-		// 	)
-		// );
-
 		// Check if two addresses are the same and list the duplicates
 		const allDuplicates = configuration.inputs.reduce((acc, currentRow) => {
 			const duplicates = configuration.inputs.reduce((acc, iteratedRow) => {

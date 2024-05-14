@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import {Wallet} from '@sections/Wallet';
+import {Wallet} from '@smolSections/Wallet';
 
 import type {ReactElement} from 'react';
 

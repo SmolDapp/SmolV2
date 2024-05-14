@@ -1,23 +1,23 @@
 import {createContext, useCallback, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {isString} from 'lib/utils/types/typeGuards';
-import {getStateFromUrlQuery} from 'lib/utils/url/getStateFromUrlQuery';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {useValidateAddressInput} from '@designSystem/SmolAddressInput';
-import {useValidateAmountInput} from '@designSystem/SmolTokenAmountInput';
-import {useSyncUrlParams} from '@hooks/useSyncUrlParams';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {getNewInput, useSendFlow} from '@sections/Send/useSendFlow';
+import {useSyncUrlParams} from '@smolHooks/useSyncUrlParams';
+import {getNewInput, useSendFlow} from '@smolSections/Send/useSendFlow';
+import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
+import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
+import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
+import {isString} from '@lib/utils/types/typeGuards';
+import {getStateFromUrlQuery} from '@lib/utils/url/getStateFromUrlQuery';
 
-import type {TTokenAmountInputElement} from 'lib/types/Inputs';
-import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import type {TInputAddressLike} from 'lib/utils/tools.address';
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
-import type {TSendQuery} from '@sections/Send/useSendFlow';
+import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
+import type {TSendQuery} from '@smolSections/Send/useSendFlow';
 
 type TSendQueryManagement = {
 	stateFromUrl: TSendQuery;

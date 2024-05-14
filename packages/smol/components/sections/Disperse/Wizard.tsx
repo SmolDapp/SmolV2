@@ -1,13 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import toast from 'react-hot-toast';
 import {usePlausible} from 'next-plausible';
-import {ErrorModal} from 'lib/common/ErrorModal';
-import {SuccessModal} from 'lib/common/SuccessModal';
-import {Button} from 'lib/primitives/Button';
-import {disperseERC20, disperseETH} from 'lib/utils/actions';
-import {DISPERSE_CONTRACT_PER_CHAIN} from 'lib/utils/constants';
-import {notifyDisperse} from 'lib/utils/notifier';
-import {getTransferTransaction} from 'lib/utils/tools.gnosis';
 import {type BaseError, erc20Abi, type Hex} from 'viem';
 import {useReadContract} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
@@ -26,8 +19,15 @@ import {
 } from '@builtbymom/web3/utils';
 import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
-import {useAddressBook} from '@contexts/useAddressBook';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {ErrorModal} from '@lib/common/ErrorModal';
+import {SuccessModal} from '@lib/common/SuccessModal';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {Button} from '@lib/primitives/Button';
+import {disperseERC20, disperseETH} from '@lib/utils/actions';
+import {DISPERSE_CONTRACT_PER_CHAIN} from '@lib/utils/constants';
+import {notifyDisperse} from '@lib/utils/notifier';
+import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
@@ -425,7 +425,7 @@ export function DisperseWizard(): ReactElement {
 				ctaLabel={'Close'}
 				downloadConfigButton={
 					<ExportConfigurationButton
-						className={'w-full'}
+						className={'!h-10 w-full'}
 						title={'Export Config'}
 					/>
 				}
