@@ -133,6 +133,7 @@ const useDeposit = ({
 	const {configuration} = useEarnFlow();
 	const {provider} = useWeb3();
 	const {safeChainID} = useChainID();
+	const {vaults} = useVaults();
 
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 
@@ -174,10 +175,14 @@ const useDeposit = ({
 	const onExecuteWithdraw = useCallback(async (): Promise<void> => {
 		assert(configuration.asset.token, 'Output token is not set');
 		assert(configuration.asset.amount, 'Input amount is not set');
-		const isV3 = configuration.opportunity?.version.split('.')?.[0] === '3';
+		const vault = vaults.find(vault =>
+			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
+		);
+		const isV3 = vault?.version.split('.')?.[0] === '3';
 
 		let result;
 		set_depositStatus({...defaultTxStatus, pending: true});
+
 		if (isV3) {
 			result = await redeemV3Shares({
 				connector: provider,
@@ -205,10 +210,10 @@ const useDeposit = ({
 		configuration.asset.amount,
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token,
-		configuration.opportunity?.version,
 		onSuccess,
 		provider,
-		safeChainID
+		safeChainID,
+		vaults
 	]);
 
 	return {onExecuteDeposit, set_depositStatus, onExecuteWithdraw, depositStatus};

@@ -3,6 +3,7 @@ import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {toAddress} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
+import {useUpdateEffect} from '@react-hookz/web';
 
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
@@ -17,7 +18,7 @@ export function Earn(): ReactElement {
 		dispatchConfiguration({type: 'SET_ASSET', payload: value});
 	};
 
-	const onSetOpportunity = (value: TYDaemonVault): void => {
+	const onSetOpportunity = (value: TYDaemonVault | undefined): void => {
 		dispatchConfiguration({type: 'SET_OPPORTUNITY', payload: value});
 	};
 
@@ -31,6 +32,10 @@ export function Earn(): ReactElement {
 			rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address)
 		);
 	}, [configuration.asset.token?.address, vaults]);
+
+	useUpdateEffect(() => {
+		onSetOpportunity(undefined);
+	}, [configuration.asset.token?.address]);
 
 	return (
 		<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>

@@ -14,7 +14,7 @@ export type TEarnConfiguration = {
 
 export type TEarnActions =
 	| {type: 'SET_ASSET'; payload: Partial<TTokenAmountInputElement>}
-	| {type: 'SET_OPPORTUNITY'; payload: TYDaemonVault}
+	| {type: 'SET_OPPORTUNITY'; payload: TYDaemonVault | undefined}
 	| {type: 'RESET'; payload: undefined};
 
 export type TEarn = {
