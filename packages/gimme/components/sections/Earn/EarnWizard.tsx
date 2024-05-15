@@ -82,7 +82,6 @@ const useApproveDeposit = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [address, configuration.asset.token?.address, configuration.asset.token?.address, onRetrieveAllowance]);
 
-	console.log(allowance);
 	/* 🔵 - Yearn Finance ******************************************************
 	 ** Trigger an approve web3 action, simply trying to approve `amount` tokens
 	 ** to be used by the final vault, in charge of depositing the tokens.

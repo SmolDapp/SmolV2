@@ -14,7 +14,6 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 
 	const onSetAsset = (value: Partial<TTokenAmountInputElement>): void => {
-		console.log(value);
 		dispatchConfiguration({type: 'SET_ASSET', payload: value});
 	};
 
