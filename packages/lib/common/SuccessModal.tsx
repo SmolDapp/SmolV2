@@ -103,7 +103,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 											</Link>
 										</div>
 										<Button
-											className={'!h-10 w-full'}
+											className={'col-span-2 !h-10 w-full'}
 											onClick={props.onClose}>
 											{props.ctaLabel}
 										</Button>
