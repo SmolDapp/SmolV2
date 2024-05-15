@@ -7,6 +7,7 @@ import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@lib/common/SuccessModal';
 import {Button} from '@lib/primitives/Button';
 import {truncateHexTx} from '@lib/utils/helpers';
+import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
@@ -26,11 +27,12 @@ function SendSuccessModal(props: {
 					<div className={'w-full p-4 text-left'}>
 						<p className={'text-center'}>
 							{
-								'We are really happy to inform you that your transaction has been successfully processed! This was an adventure, an unforgettable journey. We hope you enjoyed it as much as we did!'
+								'Looks like your swap has been successfully processed. What an adventure we’ve been on together anon. The highs, the lows, the swapping… we’ve enjoyed every moment of it!'
 							}
 						</p>
 					</div>
 				}
+				twitterShareContent={TWEETER_SHARE_CONTENT.SWAP}
 				ctaLabel={'Close'}
 				isOpen={props.swapStatus.success}
 				onClose={props.onClose}
@@ -46,7 +48,7 @@ function SendSuccessModal(props: {
 				<div className={'w-full rounded-md bg-neutral-400/40 p-4 text-left'}>
 					<p className={'text-center'}>
 						{
-							'We are really happy to inform you that your transaction has been successfully processed! This was an adventure, an unforgettable journey. We hope you enjoyed it as much as we did!'
+							'Looks like your swap has been successfully processed. What an adventure we’ve been on together anon. The highs, the lows, the swapping… we’ve enjoyed every moment of it!'
 						}
 					</p>
 					<div className={'mt-4 flex flex-col gap-0 border-t border-dashed border-neutral-600/60 pt-4'}>
@@ -99,6 +101,7 @@ function SendSuccessModal(props: {
 					</div>
 				</div>
 			}
+			twitterShareContent={TWEETER_SHARE_CONTENT.SWAP}
 			ctaLabel={'Close'}
 			isOpen={props.swapStatus.success}
 			onClose={props.onClose}
