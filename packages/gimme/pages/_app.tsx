@@ -6,7 +6,7 @@ import {IconCircleCross} from 'lib/icons/IconCircleCross';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
-import {Header} from '@lib/common/Header';
+import Layout from '@gimmeDesignSystem/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
 
 import type {AppProps} from 'next/app';
@@ -27,18 +27,19 @@ function MyApp(props: AppProps): ReactElement {
 			/>
 			<WithMom
 				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
-				<WalletContextApp
-					shouldWorkOnTestnet={
-						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-					}>
-					<div>
-						<Header />
-						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
-							<Layout {...props} />
-						</main>
-					</div>
-				</WalletContextApp>
+				tokenLists={[
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+				]}>
+				<VaultsContextApp>
+					<WalletContextApp>
+						<div>
+							<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
+								<Layout {...props} />
+							</main>
+						</div>
+					</WalletContextApp>
+				</VaultsContextApp>
 			</WithMom>
 			<Toaster
 				toastOptions={{
