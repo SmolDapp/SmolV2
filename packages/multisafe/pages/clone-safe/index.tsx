@@ -274,15 +274,15 @@ export default function MultisafeCloneWrapper(): ReactElement {
 	);
 }
 
-// MultisafeCloneWrapper.Title = 'Cloneit';
-// MultisafeCloneWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
-// MultisafeCloneWrapper.AppInfo = (
-// 	<>
-// 		<p>{'Well, basically, it’s… your wallet. '}</p>
-// 		<p>{'You can see your tokens. '}</p>
-// 		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-// 		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-// 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-// 	</>
-// );
+MultisafeCloneWrapper.Title = 'Cloneit';
+MultisafeCloneWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
+MultisafeCloneWrapper.AppInfo = (
+	<>
+		<p>{'Well, basically, it’s… your wallet. '}</p>
+		<p>{'You can see your tokens. '}</p>
+		<p>{'You can switch chains and see your tokens on that chain. '}</p>
+		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
+		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
+	</>
+);
 export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
