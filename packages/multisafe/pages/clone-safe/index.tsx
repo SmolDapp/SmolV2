@@ -274,6 +274,7 @@ export default function MultisafeCloneWrapper(): ReactElement {
 	);
 }
 
+MultisafeCloneWrapper.Title = 'Cloneit';
 MultisafeCloneWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
 MultisafeCloneWrapper.AppInfo = (
 	<>
