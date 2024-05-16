@@ -285,7 +285,7 @@ export default function MultisafeClonableWrapper(): ReactElement {
 	);
 }
 
-MultisafeClonableWrapper.AppName = 'Your safe, your rules';
+MultisafeClonableWrapper.AppName = 'Clone me!';
 MultisafeClonableWrapper.AppDescription = 'This is your safe, deploy if everywhere for 4.20$ per network!';
 MultisafeClonableWrapper.AppInfo = (
 	<>
