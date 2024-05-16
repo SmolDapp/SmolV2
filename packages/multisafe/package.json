@@ -10,7 +10,8 @@
 		"export": "tsc && next build && next export -o ipfs"
 	},
 	"dependencies": {
-		"lib": "workspace:*"
+		"lib": "workspace:*",
+		"next": "14.0.4"
 	},
 	"devDependencies": {
 		"autoprefixer": "^10.4.19",
