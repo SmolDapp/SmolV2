@@ -9,11 +9,11 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {useAllowances} from './useAllowances';
 
-import type {TExpandedAllowance} from 'packages/lib/utils/types/app.revoke';
+import type {TExpandedAllowance} from 'packages/lib/types/Revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 
-export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'address' | 'blockHash' | 'args'> & {
+export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
 };
 
@@ -36,7 +36,7 @@ export const SpenderFilterDropdown = (props: {
 
 				{allOptions?.map(option => (
 					<DropdownMenuCheckboxItem
-						key={option.blockHash}
+						key={option.symbol}
 						checked={spenderFilter?.some(item => item === option.args.sender)}
 						onCheckedChange={() => {
 							if (!spenderFilter?.some(item => item === option.args.sender)) {

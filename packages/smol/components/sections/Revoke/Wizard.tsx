@@ -10,7 +10,7 @@ import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
 
-import type {TTokenAllowance} from 'packages/lib/utils/types/app.revoke';
+import type {TTokenAllowance} from 'packages/lib/types/Revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 

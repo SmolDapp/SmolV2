@@ -36,7 +36,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.address,
 							symbol: item.symbol,
-							blockHash: item.blockHash,
+							blockHash: item.blockNumber,
 							displayName: item.symbol,
 							args: item.args
 						};
@@ -55,7 +55,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.args.sender,
 							symbol: item.symbol,
-							blockHash: item.blockHash,
+							blockHash: item.blockNumber,
 							displayName: item.args.sender,
 							args: item.args
 						};

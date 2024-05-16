@@ -5,8 +5,8 @@ import {IconSpinner} from 'packages/lib/icons/IconSpinner';
 import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
-import type {TTokenAllowance} from 'packages/lib/utils/types/app.revoke';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TTokenAllowance} from '@lib/types/Revoke';
 
 type TAllowancesTableProps = {
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
@@ -144,7 +144,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 						className={'w-full'}>
 						{sortedAllowances?.map(item => (
 							<AllowanceRow
-								key={item.transactionHash}
+								key={item.blockNumber}
 								allowance={item}
 								revoke={revoke}
 							/>

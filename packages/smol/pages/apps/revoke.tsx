@@ -1,15 +1,15 @@
 import {Fragment, type ReactElement} from 'react';
 import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
 import {Revoke} from '@smolSections/Revoke';
-import {AllowancesContextApp} from '@smolSections/Revoke/useAllowances';
+import {RevokeContextApp} from '@smolSections/Revoke/useAllowances';
 
 export default function RevokePage(): ReactElement {
 	return (
-		<AllowancesContextApp>
+		<RevokeContextApp>
 			<BalancesCurtainContextApp selectedTokens={[]}>
 				<Revoke />
 			</BalancesCurtainContextApp>
-		</AllowancesContextApp>
+		</RevokeContextApp>
 	);
 }
 

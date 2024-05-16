@@ -6,9 +6,9 @@ import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 
-import type {TExpandedAllowance, TTokenAllowance} from 'packages/lib/utils/types/app.revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
+import type {TExpandedAllowance, TTokenAllowance} from '@lib/types/Revoke';
 
 type TAllowanceRowProps = {
 	allowance: TExpandedAllowance;
@@ -16,7 +16,7 @@ type TAllowanceRowProps = {
 };
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
-	const {args, transactionHash} = allowance;
+	const {args, blockNumber} = allowance;
 
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
@@ -28,7 +28,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 	const {safeChainID} = useChainID();
 
 	return (
-		<tr key={transactionHash}>
+		<tr key={blockNumber}>
 			<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
 				<div className={'flex'}>
 					<div>
