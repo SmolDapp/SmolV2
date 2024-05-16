@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {Toaster} from 'react-hot-toast';
+import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import Layout from '@lib/common/Layout';
@@ -35,23 +36,27 @@ function MyApp(props: AppProps): ReactElement {
 				supportedChains={supportedNetworks}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
-					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
-						<Layout
-							{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
-							menu={[
-								{
-									href: '/new-safe',
-									label: 'Create a Safe',
-									icon: <IconSquarePlus />
-								},
-								{
-									href: '/clone-safe',
-									label: 'Clone a Safe',
-									icon: <IconClone />
-								}
-							]}
-						/>
-					</main>
+					<PlausibleProvider
+						domain={process.env.PLAUSIBLE_DOMAIN || 'multisafe.app'}
+						enabled={true}>
+						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
+							<Layout
+								{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
+								menu={[
+									{
+										href: '/new-safe',
+										label: 'Create a Safe',
+										icon: <IconSquarePlus />
+									},
+									{
+										href: '/clone-safe',
+										label: 'Clone a Safe',
+										icon: <IconClone />
+									}
+								]}
+							/>
+						</main>
+					</PlausibleProvider>
 				</WalletContextApp>
 			</WithMom>
 			<Toaster
