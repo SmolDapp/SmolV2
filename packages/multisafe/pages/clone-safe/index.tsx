@@ -15,6 +15,7 @@ import {Button} from '@lib/primitives/Button';
 import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
+import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 import type {GetTransactionReturnType, Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -284,4 +285,4 @@ MultisafeCloneWrapper.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-// export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
+export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;

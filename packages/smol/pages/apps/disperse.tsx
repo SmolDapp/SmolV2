@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {isZeroAddress} from '@builtbymom/web3/utils';
 import Disperse from '@smolSections/Disperse/index';
 import {DisperseContextApp} from '@smolSections/Disperse/useDisperse';
@@ -49,8 +49,5 @@ DispersePage.AppInfo = (
 		<br />
 	</>
 );
-DispersePage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};
 
 export default DispersePage;

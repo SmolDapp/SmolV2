@@ -60,12 +60,11 @@ type TComponent = NextComponentType & {
 	AppName: string;
 	AppDescription: string;
 	AppInfo: string;
-	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
+	getLayout?: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
 export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
-	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 	const appName = (Component as TComponent).AppName || 'App';
 	const appDescription = (Component as TComponent).AppDescription || '';
 	const appAction = (Component as TComponent).getAction || (() => null);
@@ -105,7 +104,7 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 											duration: 0.6,
 											ease: 'easeInOut'
 										}}>
-										{getLayout(<Component {...props} />, router)}
+										<Component {...props} />
 									</motion.div>
 								</AnimatePresence>
 							</App>
