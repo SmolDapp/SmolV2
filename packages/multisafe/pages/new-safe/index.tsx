@@ -35,8 +35,8 @@ function SafeOwner(props: {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	return (
-		<div className={'flex w-full max-w-full'}>
-			<div className={'max-w-108 w-full'}>
+		<div className={'flex w-full md:max-w-full'}>
+			<div className={'md:max-w-108 w-full'}>
 				<SmolAddressInput
 					inputRef={inputRef}
 					onSetValue={props.updateOwner}
@@ -44,7 +44,7 @@ function SafeOwner(props: {
 				/>
 			</div>
 			<button
-				className={'mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700'}
+				className={'pl-2 text-neutral-600 transition-colors hover:text-neutral-700 md:mx-2 md:p-2'}
 				onClick={props.removeOwner}>
 				<IconCross className={'size-4'} />
 			</button>
@@ -242,7 +242,7 @@ function Safe(): ReactElement {
 			<div className={'grid w-full max-w-[600px] gap-6'}>
 				<div className={'w-full'}>
 					<div className={'mb-2'}>
-						<p className={'font-medium'}>{'Owners'}</p>
+						<p className={'text-sm font-medium md:text-base'}>{'Owners'}</p>
 					</div>
 					<div className={'grid gap-4'}>
 						{owners.map((owner, index) => (
@@ -280,9 +280,9 @@ function Safe(): ReactElement {
 
 				<div className={'w-full max-w-[552px]'}>
 					<div className={'mb-2'}>
-						<p className={'font-medium'}>{'Customization'}</p>
+						<p className={'text-sm font-medium md:text-base'}>{'Customization'}</p>
 					</div>
-					<div className={'full grid max-w-full grid-cols-3 gap-x-4'}>
+					<div className={'full grid max-w-full grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-x-4 md:gap-y-0'}>
 						<div>
 							<small>{'Threshold'}</small>
 							<div
@@ -330,7 +330,7 @@ function Safe(): ReactElement {
 						</div>
 
 						{shouldUseExpertMode ? (
-							<div className={'col-span-2'}>
+							<div className={'col-span-1 md:col-span-2'}>
 								<small>{'Seed'}</small>
 								<div
 									className={cl(
@@ -427,8 +427,8 @@ function Safe(): ReactElement {
 						)}
 
 						{shouldUseExpertMode && (
-							<div className={'col-span-3'}>
-								<small className={'mt-4'}>{'Factory'}</small>
+							<div className={'col-span-1 md:col-span-3'}>
+								<small className={'md:mt-4'}>{'Factory'}</small>
 								<div
 									className={cl(
 										'col-span-3',
@@ -494,7 +494,7 @@ function Safe(): ReactElement {
 							</div>
 							<div>
 								<small className={'text-neutral-600'}>{'Address'}</small>
-								<p className={'font-number text-sm font-medium'}>{safeAddress}</p>
+								<p className={'font-number break-all text-sm font-medium'}>{safeAddress}</p>
 							</div>
 							<div>
 								<small className={'text-neutral-600'}>{'Seed'}</small>

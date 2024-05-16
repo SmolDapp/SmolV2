@@ -195,13 +195,13 @@ function Safe(): ReactElement {
 
 				<div>
 					<div className={'mb-2'}>
-						<p className={'font-medium'}>{'Safe Address'}</p>
+						<p className={'text-sm font-medium md:text-base'}>{'Safe Address'}</p>
 					</div>
 					<div className={'relative flex items-center'}>
 						<ReadonlySmolAddressInput value={address} />
 						<button
 							className={cl(
-								'mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700',
+								'hidden md:block mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700',
 								!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
 									? 'pointer-events-none invisible'
 									: 'visible'
@@ -212,11 +212,16 @@ function Safe(): ReactElement {
 							/>
 						</button>
 					</div>
+					<div className={'block pl-1 md:hidden'}>
+						<button onClick={() => set_isInfoOpen(true)}>
+							<small>{'See Safe Info'}</small>
+						</button>
+					</div>
 				</div>
 
 				<div>
 					<div className={'mb-2'}>
-						<p className={'font-medium'}>{'Deployments'}</p>
+						<p className={'text-sm font-medium md:text-base'}>{'Deployments'}</p>
 					</div>
 					<div className={'flex flex-col overflow-hidden'}>
 						<div className={'grid grid-cols-1 gap-2'}>

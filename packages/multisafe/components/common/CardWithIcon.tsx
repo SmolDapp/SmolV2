@@ -17,12 +17,15 @@ export default function CardWithIcon({onClick, label, icon, description}: TCardW
 		<button
 			className={cl('hover box-0 group relative flex w-full justify-center p-4 md:p-6')}
 			onClick={onClick}>
-			<div className={'relative flex w-full gap-4'}>
-				<div>{cloneElement(icon, {className: 'size-5 text-neutral-700'})}</div>
-				<div className={'-mt-1 text-left'}>
-					<b className={'text-sm md:text-base'}>{label}</b>
-					<p className={'text-sm text-neutral-600'}>{description}</p>
+			<div className={'relative flex w-full flex-col gap-2'}>
+				<div className={'flex w-full items-center gap-2 md:items-start md:gap-4'}>
+					<div>{cloneElement(icon, {className: 'size-4 md:size-5 text-neutral-700'})}</div>
+					<div className={'text-left md:-mt-1'}>
+						<b className={'text-sm md:text-base'}>{label}</b>
+						<p className={'hidden text-sm text-neutral-600 md:block'}>{description}</p>
+					</div>
 				</div>
+				<p className={'block text-left text-sm text-neutral-600 md:hidden'}>{description}</p>
 			</div>
 		</button>
 	);

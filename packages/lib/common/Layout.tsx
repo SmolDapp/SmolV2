@@ -27,7 +27,7 @@ function App(props: TAppProp): ReactElement {
 					trigger={
 						<div
 							className={cl(
-								'h-8 w-8 rounded-full absolute right-4 top-4',
+								'size-4 md:size-8 rounded-full absolute right-4 top-4',
 								'bg-neutral-200 transition-colors hover:bg-neutral-300',
 								'flex justify-center items-center'
 							)}>
@@ -37,11 +37,16 @@ function App(props: TAppProp): ReactElement {
 					info={props.info}
 				/>
 			</div>
-			<section className={'-mt-2 w-full p-8'}>
+			<section className={'-mt-2 w-full p-4 md:p-8'}>
 				<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
 					<div>
-						<h1 className={'whitespace-nowrap text-3xl font-bold text-neutral-900'}>{props.title}</h1>
-						<p className={'pt-1 text-base text-neutral-600'}>{props.description}</p>
+						<h1
+							className={
+								'pr-6 text-2xl font-bold text-neutral-900 md:whitespace-nowrap md:pr-0 md:text-3xl'
+							}>
+							{props.title}
+						</h1>
+						<p className={'pt-2 text-base text-neutral-600 md:pt-1'}>{props.description}</p>
 					</div>
 					{props.action ? <div className={'mt-3'}>{props.action}</div> : null}
 				</div>

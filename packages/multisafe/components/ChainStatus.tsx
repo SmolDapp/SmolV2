@@ -281,7 +281,7 @@ function ChainStatus({
 
 	const currentView = {
 		Deployed: (
-			<div className={'flex flex-col items-center gap-2 md:flex-row'}>
+			<div className={'flex items-center gap-2'}>
 				<Button
 					className={'!h-8'}
 					isDisabled>
@@ -290,15 +290,14 @@ function ChainStatus({
 				<Link
 					href={`${CHAINS[chain.id].safeAPIURI || ''}${safeAddress}`}
 					target={'_blank'}>
-					<Button className={'hidden !h-8 md:block'}>
+					<Button className={'block !h-8'}>
 						<IconLinkOut className={'size-4 !text-black'} />
 					</Button>
-					<p className={'block text-center text-xs text-neutral-600 md:hidden'}>{'See on explorer'}</p>
 				</Link>
 			</div>
 		),
 		CanDeploy: (
-			<div className={'flex flex-col items-center gap-2 md:flex-row'}>
+			<div className={'flex items-center gap-2'}>
 				<Button
 					className={'!h-8'}
 					isBusy={cloneStatus.pending}
@@ -310,7 +309,7 @@ function ChainStatus({
 		),
 		CannotDeploy: (
 			<div>
-				<span className={'tooltip flex flex-col items-center justify-center gap-2 md:flex-row'}>
+				<span className={'tooltip flex items-center gap-2'}>
 					<Button
 						className={'white !h-8'}
 						isDisabled>
@@ -351,8 +350,8 @@ function ChainStatus({
 	return (
 		<div
 			key={chain.id}
-			className={'box-0 flex w-full items-center justify-between p-4'}>
-			<div className={'flex flex-row gap-2'}>
+			className={'box-0 flex w-full flex-col justify-between gap-4 p-4 md:flex-row md:items-center md:gap-0'}>
+			<div className={'flex gap-2'}>
 				<div className={'size-10'}>
 					<Image
 						src={`${process.env.SMOL_ASSETS_URL}/chain/${chain.id}/logo-128.png`}
@@ -372,7 +371,7 @@ function ChainStatus({
 					</Link>
 				</div>
 			</div>
-			<div className={'flex justify-end'}>{currentView}</div>
+			<div className={'flex md:justify-end'}>{currentView}</div>
 		</div>
 	);
 }

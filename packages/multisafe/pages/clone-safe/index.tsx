@@ -197,12 +197,12 @@ function Safe(): ReactElement {
 	}, [router, safe.address]);
 
 	return (
-		<div className={'grid w-full max-w-[600px] gap-4'}>
+		<div className={'grid w-full max-w-full gap-4 md:max-w-[600px]'}>
 			<div>
 				<div className={'mb-2'}>
-					<p className={'font-medium'}>{'Safe Address'}</p>
+					<p className={'text-sm font-medium md:text-base'}>{'Safe Address'}</p>
 				</div>
-				<div className={'max-w-108 relative flex items-center'}>
+				<div className={'md:max-w-108 relative flex max-w-full items-center'}>
 					<SmolAddressInput
 						inputRef={inputRef}
 						value={safe}
@@ -213,7 +213,7 @@ function Safe(): ReactElement {
 					/>
 					<button
 						className={cl(
-							'mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700',
+							'hidden md:block mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700',
 							!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
 								? 'pointer-events-none invisible'
 								: 'visible'
@@ -231,6 +231,16 @@ function Safe(): ReactElement {
 					className={'group !h-8 w-auto md:min-w-[160px]'}>
 					<p className={'text-sm'}>{'Choose network & deploy'}</p>
 				</Button>
+				<button
+					className={cl(
+						'block md:hidden text-neutral-600 transition-colors hover:text-neutral-700',
+						!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
+							? 'pointer-events-none invisible'
+							: 'visible'
+					)}
+					onClick={() => set_isInfoOpen(true)}>
+					<IconInfoLight className={'size-4 text-neutral-600 transition-colors hover:text-neutral-700'} />
+				</button>
 			</div>
 
 			{existingSafeArgs && !existingSafeArgs.error && !existingSafeArgs.isLoading && (
