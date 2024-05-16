@@ -1,30 +1,41 @@
 'use client';
 
-import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
+import {ImageWithFallback} from 'lib/common/ImageWithFallback';
+import {IconGears} from 'lib/icons/IconGears';
+import {IconLoader} from 'lib/icons/IconLoader';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
+import useSWR from 'swr';
+import {LayoutGroup, motion} from 'framer-motion';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {baseFetcher} from '@builtbymom/web3/utils/fetchers';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
-import {IconLoader} from '@lib/icons/IconLoader';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
+import {usePopularTokens} from './usePopularTokens';
+
+import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
-import type {TPrice} from '@lib/utils/types/types';
+import type {TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
 	TBalancesCurtainContextProps,
+	TBalancesCurtainOptions,
 	TSelectCallback,
 	TWalletLayoutProps
-} from './useBalancesCurtain.types';
+} from '@lib/types/curtain.balances';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,
@@ -80,6 +91,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	if (props.searchTokenAddress) {
 		return (
 			<FetchedTokenButton
+				chainID={props.chainID}
 				tokenAddress={props.searchTokenAddress}
 				onSelect={selected => {
 					props.onSelect?.(selected);
@@ -99,7 +111,11 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 				key={`${token.address}_${token.chainID}`}
 				token={token}
 				price={prices ? prices[token.address] : undefined}
-				isDisabled={props.selectedTokenAddresses?.includes(token.address) || false}
+				isDisabled={
+					props.selectedTokens?.some(
+						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
+					) || false
+				}
 				onClick={() => {
 					props.onSelect?.(token);
 					props.onOpenChange(false);
@@ -114,13 +130,91 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	return <p className={'text-center text-xs text-neutral-600'}>{'No tokens found'}</p>;
 }
 
+/**************************************************************************************************
+ ** The TokenListSelectorLayout component is responsible for displaying the list of token lists
+ ** the user can select. This list is fetched from the tokenLists repository, and if not stored
+ ** anywhere. After every app refresh, the user will need to select the lists again.
+ *************************************************************************************************/
+function TokenListSelectorLayout(): ReactNode {
+	const {listsURI, onChangeListsURI} = usePopularTokens();
+	const {data} = useSWR('https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json', baseFetcher);
+
+	const relevantData = useMemo(() => {
+		const lists = ((data as any)?.lists || []) as {
+			URI: string;
+			decription: string;
+			logoURI: string;
+			name: string;
+			tokenCount: number;
+		}[];
+		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
+		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
+		return filteredLists;
+	}, [data]);
+
+	//Sort by if in selectedLists, then by tokenCount
+	const sortedData = useMemo(() => {
+		const inSelected = relevantData.filter(e => listsURI.includes(e.URI));
+		const notSelected = relevantData.filter(e => !listsURI.includes(e.URI));
+		return [...inSelected, ...notSelected];
+	}, [relevantData, listsURI]);
+
+	return (
+		<LayoutGroup>
+			<div className={'scrollable mb-8 flex w-full flex-col items-center gap-2 pb-2'}>
+				{(sortedData || []).map(e => (
+					<motion.div
+						layout
+						key={e.URI}
+						onClick={() => {
+							if (listsURI.includes(e.URI)) {
+								onChangeListsURI(prev => prev.filter(el => el !== e.URI));
+							} else {
+								onChangeListsURI(prev => [...prev, e.URI]);
+							}
+						}}
+						className={cl(
+							'flex items-center gap-2 p-2 rounded-lg text-neutral-900 w-full relative',
+							'bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer'
+						)}>
+						<div className={'bg-neutral-0 flex size-10 items-center justify-center rounded-lg'}>
+							<ImageWithFallback
+								alt={e.name}
+								src={e.logoURI}
+								altSrc={e.logoURI}
+								unoptimized
+								className={'p-1'}
+								width={40}
+								height={40}
+							/>
+						</div>
+						<div>
+							<p className={'text-sm font-bold'}>{e.name}</p>
+							<p className={'text-xs text-neutral-600'}>{`${e.tokenCount} tokens`}</p>
+						</div>
+						<div className={'absolute right-2'}>
+							<input
+								type={'checkbox'}
+								className={'text-primary accent-primary rounded-lg focus:ring-0 focus:ring-offset-0'}
+								checked={listsURI.includes(e.URI)}
+							/>
+						</div>
+					</motion.div>
+				))}
+			</div>
+		</LayoutGroup>
+	);
+}
+
 /**********************************************************************************************
  ** The BalancesCurtain component is responsible for displaying the curtain with the list of
  ** tokens the user has in their wallet and a search bar to filter them.
  *************************************************************************************************/
 function BalancesCurtain(props: TBalancesCurtain): ReactElement {
-	const [searchValue, set_searchValue] = useState('');
+	const plausible = usePlausible();
 	const {address} = useWeb3();
+	const [searchValue, set_searchValue] = useState('');
+	const [tab, set_tab] = useState(0);
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -128,9 +222,11 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	 *********************************************************************************************/
 	useEffect((): void => {
 		if (props.isOpen) {
+			plausible(PLAUSIBLE_EVENTS.OPEN_TOKEN_SELECTOR_CURTAIN);
 			set_searchValue('');
+			set_tab(0);
 		}
-	}, [props.isOpen]);
+	}, [props.isOpen, plausible]);
 
 	/**********************************************************************************************
 	 ** When user searches for a specific address, not present in the token list,
@@ -138,27 +234,60 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	 ** Memo function returns this search value if it is address and not present in the token list.
 	 *********************************************************************************************/
 	const searchTokenAddress = useMemo(() => {
-		const isHere = props.tokensWithBalance.some(token => isAddressEqual(token.address, toAddress(searchValue)));
+		const listToUse = tab === 0 ? props.tokensWithBalance : props.allTokens;
+		const isHere = listToUse.some(token => isAddressEqual(token.address, toAddress(searchValue)));
 
 		if (isAddress(searchValue) && !isHere) {
 			return toAddress(searchValue);
 		}
 		return undefined;
-	}, [props.tokensWithBalance, searchValue]);
+	}, [tab, props.tokensWithBalance, props.allTokens, searchValue]);
 
 	/**********************************************************************************************
 	 ** Memo function that filters the tokens user have on the search value.
 	 ** Only tokens the symbol or the address of which includes the search value will be returned.
 	 *********************************************************************************************/
+	function getDifference(item: string, searchTerm: string): number {
+		if (item.startsWith(searchTerm)) {
+			return item.length - searchTerm.length; // Difference is the extra characters beyond the search term
+		}
+		return item.length + searchTerm.length; // Large difference if not starting with searchTerm
+	}
+
 	const filteredTokens = useDeepCompareMemo(() => {
+		const listToUse = tab === 0 ? props.tokensWithBalance : props.allTokens;
 		const searchFor = searchValue.toLocaleLowerCase();
-		return props.tokensWithBalance.filter(
+		if (searchFor === '') {
+			return listToUse;
+		}
+		const filtering = listToUse.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchFor) ||
 				token.name.toLocaleLowerCase().includes(searchFor) ||
 				toAddress(token.address).toLocaleLowerCase().includes(searchFor)
 		);
-	}, [searchValue, props.tokensWithBalance]);
+
+		const sorted = filtering
+			.map(item => ({
+				item,
+				exactness:
+					item.name.toLocaleLowerCase() === searchFor || item.symbol.toLocaleLowerCase() === searchFor
+						? 1
+						: 0,
+				diffName: getDifference(item.name.toLocaleLowerCase(), searchFor),
+				diffSymbol: getDifference(item.symbol.toLocaleLowerCase(), searchFor)
+			}))
+			.sort(
+				(a, b) =>
+					b.exactness - a.exactness || Math.min(a.diffName, a.diffSymbol) - Math.min(b.diffName, b.diffSymbol)
+			) // Sort by exactness first, then by the smallest ascending difference of name or symbol
+			.map(sortedItem => sortedItem.item); // Return sorted items
+
+		if (tab === 0) {
+			return sorted;
+		}
+		return sorted.slice(0, 20);
+	}, [tab, props.tokensWithBalance, props.allTokens, searchValue]);
 
 	return (
 		<Dialog.Root
@@ -189,16 +318,52 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 							disabled={!address}
 							onChange={e => set_searchValue(e.target.value)}
 						/>
-						<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-							<WalletLayout
-								filteredTokens={filteredTokens}
-								selectedTokenAddresses={props.selectedTokenAddresses}
-								isLoading={props.isLoading}
-								onSelect={props.onSelect}
-								searchTokenAddress={searchTokenAddress}
-								onOpenChange={props.onOpenChange}
-							/>
-						</div>
+						{props.options.withTabs ? (
+							<div className={'flex items-center gap-2'}>
+								<button
+									onClick={() => set_tab(0)}
+									className={cl(
+										'w-full',
+										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+										tab === 0 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+									)}>
+									<p>{'Your tokens'}</p>
+								</button>
+								<button
+									onClick={() => set_tab(1)}
+									className={cl(
+										'w-full',
+										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+										tab === 1 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+									)}>
+									<p>{'All tokens'}</p>
+								</button>
+								<button
+									onClick={() => set_tab(3)}
+									className={cl(
+										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+										tab === 3 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+									)}>
+									<IconGears className={'size-4'} />
+								</button>
+							</div>
+						) : null}
+
+						{tab === 0 || tab === 1 ? (
+							<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
+								<WalletLayout
+									filteredTokens={filteredTokens}
+									selectedTokens={props.selectedTokens}
+									isLoading={props.isLoading}
+									onSelect={props.onSelect}
+									searchTokenAddress={searchTokenAddress}
+									onOpenChange={props.onOpenChange}
+									chainID={Number(props.options.chainID)}
+								/>
+							</div>
+						) : (
+							<TokenListSelectorLayout />
+						)}
 					</div>
 				</aside>
 			</CurtainContent>
@@ -208,9 +373,55 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 
 const BalancesCurtainContext = createContext<TBalancesCurtainContextProps>(defaultProps);
 export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps): React.ReactElement => {
+	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {tokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokens} = usePopularTokens();
+	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
+	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
+	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
+
+	/**********************************************************************************************
+	 ** We want to update the chainIDToUse when the chainID changes.
+	 ** This is to keep the chain we are displaying the tokens for in sync with the chainID, even
+	 ** when we are getting new tokens from the listTokensWithBalance hook.
+	 *********************************************************************************************/
+	useEffect((): void => {
+		set_options(prev => ({...prev, chainID}));
+	}, [chainID]);
+
+	/**********************************************************************************************
+	 ** When the listTokensWithBalance hook is updated, we are getting a new list of tokens for
+	 ** the selected chainID. We want to update the tokensToUse state with this new list, but only
+	 ** based on the chainIDToUse state, to avoid having the "local" state to chainID 10 while the
+	 ** user's chainID is 1 which would result in displaying the tokens for chain 1 instead of 10.
+	 *********************************************************************************************/
+	useEffect((): void => {
+		set_tokensToUse(listTokensWithBalance(options.chainID));
+		set_allTokensToUse(listTokens(options.chainID));
+	}, [listTokensWithBalance, options.chainID, listTokens]);
+
+	/**********************************************************************************************
+	 ** Callback function that is called when the user click the button to open the curtain. Two
+	 ** arguments are expected, the first one is the callback function that should be called when
+	 ** the user selects a token, and the second one is the chainID for which the tokens should be
+	 ** displayed.
+	 ** The chainID is optional, if it is not provided, the chainID from the useWeb3 hook will be
+	 ** used.
+	 *********************************************************************************************/
+	const onOpenCurtain: TBalancesCurtainContextProps['onOpenCurtain'] = useCallback(
+		(callbackFn, _options): void => {
+			if (_options?.chainID) {
+				set_tokensToUse(listTokensWithBalance(_options.chainID));
+				set_allTokensToUse(listTokens(_options.chainID));
+				set_options(_options);
+			}
+			set_currentCallbackFunction(() => callbackFn);
+			set_shouldOpenCurtain(true);
+		},
+		[listTokensWithBalance, listTokens]
+	);
 
 	/**********************************************************************************************
 	 ** Context value that is passed to all children of this component.
@@ -218,15 +429,12 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const contextValue = useDeepCompareMemo(
 		(): TBalancesCurtainContextProps => ({
 			shouldOpenCurtain,
-			tokensWithBalance,
+			tokensWithBalance: tokensToUse,
 			isLoading,
-			onOpenCurtain: (callbackFn): void => {
-				set_currentCallbackFunction(() => callbackFn);
-				set_shouldOpenCurtain(true);
-			},
+			onOpenCurtain,
 			onCloseCurtain: (): void => set_shouldOpenCurtain(false)
 		}),
-		[isLoading, shouldOpenCurtain, tokensWithBalance]
+		[isLoading, shouldOpenCurtain, tokensToUse, onOpenCurtain]
 	);
 
 	return (
@@ -234,11 +442,16 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 			{props.children}
 			<BalancesCurtain
 				isOpen={shouldOpenCurtain}
-				tokensWithBalance={tokensWithBalance}
+				tokensWithBalance={tokensToUse}
+				allTokens={allTokensToUse}
 				isLoading={isLoading}
-				selectedTokenAddresses={props.selectedTokenAddresses}
+				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}
+				options={{
+					chainID: options.chainID || chainID,
+					withTabs: options.withTabs || false
+				}}
 			/>
 		</BalancesCurtainContext.Provider>
 	);

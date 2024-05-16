@@ -1,10 +1,11 @@
 'use client';
 
-import {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
+import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {cl, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
+import {cl, toAddress, toSafeAddress, truncateHex} from '@builtbymom/web3/utils';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import {useIsMounted} from '@smolHooks/useIsMounted';
 import {TextTruncate} from '@lib/common/TextTruncate';
@@ -141,6 +142,7 @@ export function AddressBookEntryAddress(props: {
 		</div>
 	);
 }
+
 export function AddressBookEntry(props: {
 	entry: TAddressBookEntry;
 	onSelect: (entry: TAddressBookEntry) => void;
@@ -149,11 +151,11 @@ export function AddressBookEntry(props: {
 	const {chainID} = useChainID();
 	const {updateEntry} = useAddressBook();
 	const {data: ensName} = useEnsName({
-		chainId: 1,
+		chainId: mainnet.id,
 		address: toAddress(props.entry.address)
 	});
 	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
-		chainId: 1,
+		chainId: mainnet.id,
 		name: ensName || props.entry.ens,
 		query: {
 			enabled: Boolean(ensName || props.entry.ens)
@@ -199,6 +201,52 @@ export function AddressBookEntry(props: {
 						}}
 					/>
 				</div>
+			</div>
+		</div>
+	);
+}
+
+/**************************************************************************************************
+ ** The AddressEntry component is a wrapper around the AddressBookEntryAddress component only based
+ ** on the provided address. It's used to abstract the logic of fetching the ENS name and avatar
+ ** from the component that uses it.
+ *************************************************************************************************/
+export function AddressEntry(props: {address: TAddress}): ReactElement {
+	const {getCachedEntry} = useAddressBook();
+	const {data: ensName} = useEnsName({
+		chainId: mainnet.id,
+		address: toAddress(props.address)
+	});
+	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
+		chainId: mainnet.id,
+		name: ensName || '',
+		query: {
+			enabled: Boolean(ensName)
+		}
+	});
+	const cached = useMemo(
+		() => getCachedEntry({address: props.address, label: ensName || truncateHex(props.address, 5)}),
+		[ensName, getCachedEntry, props.address]
+	);
+
+	return (
+		<div
+			role={'button'}
+			className={cl(
+				'mb-2 flex flex-row items-center justify-between rounded-lg p-4 w-full group',
+				'bg-neutral-200'
+			)}>
+			<div className={'relative flex w-full items-center gap-2'}>
+				<Avatar
+					isLoading={isLoadingAvatar}
+					address={toAddress(props.address)}
+					label={ensName ? ensName : cached?.label || truncateHex(props.address, 5)}
+					src={avatar}
+				/>
+				<AddressBookEntryAddress
+					address={toAddress(props.address)}
+					ens={ensName ? ensName : cached?.label || truncateHex(props.address, 5)}
+				/>
 			</div>
 		</div>
 	);

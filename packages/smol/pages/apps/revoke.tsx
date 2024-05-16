@@ -6,14 +6,9 @@ import {AllowancesContextApp} from '@smolSections/Revoke/useAllowances';
 export default function RevokePage(): ReactElement {
 	return (
 		<AllowancesContextApp>
-			{({configuration}) => (
-				<BalancesCurtainContextApp
-					selectedTokenAddresses={
-						configuration.tokenToCheck?.address ? [configuration.tokenToCheck?.address] : []
-					}>
-					<Revoke />
-				</BalancesCurtainContextApp>
-			)}
+			<BalancesCurtainContextApp selectedTokens={[]}>
+				<Revoke />
+			</BalancesCurtainContextApp>
 		</AllowancesContextApp>
 	);
 }

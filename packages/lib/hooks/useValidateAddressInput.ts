@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {mainnet} from 'viem/chains';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {getEnsName} from '@wagmi/core';
+import {getEnsAddress, getEnsName} from '@wagmi/core';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
@@ -16,7 +16,7 @@ export function useValidateAddressInput(): {
 	const [isCheckingValidity, set_isCheckingValidity] = useState<boolean>(false);
 
 	const validate = async (signal: AbortSignal | undefined, input: string): Promise<TInputAddressLike> => {
-		if (input === '') {
+		if (!input || input === '') {
 			return defaultInputAddressLike;
 		}
 
@@ -57,6 +57,30 @@ export function useValidateAddressInput(): {
 			return {
 				address: toAddress(input),
 				label: ensName || toAddress(input),
+				error: undefined,
+				isValid: true,
+				source: 'typed'
+			};
+		}
+
+		/******************************************************************************************
+		 ** Check if the input is an ENS and handle it by checking if it resolves to an address
+		 *****************************************************************************************/
+		if (input.endsWith('.eth')) {
+			if (signal?.aborted) {
+				throw new Error('Aborted!');
+			}
+			set_isCheckingValidity(true);
+			const ensAddress = await getEnsAddress(retrieveConfig(), {name: input, chainId: mainnet.id});
+
+			if (signal?.aborted) {
+				throw new Error('Aborted!');
+			}
+			set_isCheckingValidity(false);
+
+			return {
+				address: toAddress(ensAddress),
+				label: input || toAddress(ensAddress),
 				error: undefined,
 				isValid: true,
 				source: 'typed'

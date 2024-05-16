@@ -103,7 +103,6 @@ module.exports = phase =>
 				PROJECT_SLUG: 'smoldapp',
 				JSON_RPC_URL: {
 					1: process.env.RPC_URL_MAINNET,
-					5: process.env.RPC_URL_GOERLI,
 					10: process.env.RPC_URL_OPTIMISM,
 					56: process.env.RPC_URL_BINANCE,
 					97: process.env.RPC_URL_BINANCE_TESTNET,

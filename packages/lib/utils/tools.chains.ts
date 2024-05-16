@@ -6,7 +6,6 @@ import {
 	confluxESpace,
 	fantom,
 	gnosis,
-	goerli,
 	mainnet,
 	metis,
 	optimism,
@@ -37,7 +36,7 @@ export const supportedNetworks: Chain[] = [
 	confluxESpace,
 	isDev && localhost
 ].filter(Boolean);
-export const supportedTestNetworks: Chain[] = [goerli, baseGoerli];
+export const supportedTestNetworks: Chain[] = [baseGoerli];
 
 export type TAppExtendedChain = TExtendedChain & {
 	safeApiUri?: string;

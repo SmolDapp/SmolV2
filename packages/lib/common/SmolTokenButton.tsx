@@ -22,8 +22,11 @@ export function SmolTokenButton(props: {
 			return '';
 		}
 		const formatedBalance = formatAmount(props.token.balance.normalized, 0, 6);
-		if (Number(formatedBalance) <= 0) {
+		if (Number(formatedBalance) < 0) {
 			return '< 0.000001';
+		}
+		if (Number(formatedBalance) === 0) {
+			return '0.00';
 		}
 		return formatedBalance;
 	}, [props.token]);
@@ -55,7 +58,11 @@ export function SmolTokenButton(props: {
 			)}
 			disabled={props.isDisabled}>
 			<div className={'flex w-full items-center justify-between'}>
-				<div className={'flex w-full items-start justify-between gap-2'}>
+				<div
+					className={cl(
+						'flex w-full justify-between gap-2',
+						props.token?.address ? 'items-start' : 'items-center'
+					)}>
 					{props.token && isAddress(props.token.address) ? (
 						<ImageWithFallback
 							alt={props.token.symbol}

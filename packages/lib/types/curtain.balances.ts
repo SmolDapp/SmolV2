@@ -1,3 +1,4 @@
+import type {ReactElement} from 'react';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
 
 /**************************************************************************************************
@@ -11,10 +12,11 @@ export type TSelectCallback = (item: TToken) => void;
  *************************************************************************************************/
 export type TWalletLayoutProps = {
 	filteredTokens: TToken[];
-	selectedTokenAddresses?: TAddress[];
+	selectedTokens?: TToken[];
 	isLoading: boolean;
 	onSelect?: TSelectCallback;
 	searchTokenAddress?: TAddress;
+	chainID: number;
 	onOpenChange: (isOpen: boolean) => void;
 };
 
@@ -24,12 +26,21 @@ export type TWalletLayoutProps = {
 export type TBalancesCurtain = {
 	isOpen: boolean;
 	tokensWithBalance: TToken[];
+	allTokens: TToken[];
 	isLoading: boolean;
-	onOpenChange: (isOpen: boolean) => void;
 	onSelect: TSelectCallback | undefined;
-	selectedTokenAddresses?: TAddress[];
+	selectedTokens?: TToken[];
+	onOpenChange: (isOpen: boolean) => void;
+	options: TBalancesCurtainOptions;
 };
 
+/**************************************************************************************************
+ ** The TBalancesCurtainOptions type is used to type the options of the BalancesCurtain component.
+ *************************************************************************************************/
+export type TBalancesCurtainOptions = {
+	chainID?: number;
+	withTabs?: boolean;
+};
 /**************************************************************************************************
  ** The TBalancesCurtainContextProps type is used to type the props of the BalancesCurtainContext
  ** component.
@@ -38,7 +49,7 @@ export type TBalancesCurtainContextProps = {
 	shouldOpenCurtain: boolean;
 	tokensWithBalance: TToken[];
 	isLoading: boolean;
-	onOpenCurtain: (callbackFn: TSelectCallback) => void;
+	onOpenCurtain: (callbackFn: TSelectCallback, options?: TBalancesCurtainOptions) => void;
 	onCloseCurtain: () => void;
 };
 
@@ -47,6 +58,6 @@ export type TBalancesCurtainContextProps = {
  ** BalancesCurtainContextApp context component.
  *************************************************************************************************/
 export type TBalancesCurtainContextAppProps = {
-	children: React.ReactElement;
-	selectedTokenAddresses?: TAddress[];
+	children: ReactElement;
+	selectedTokens?: TToken[];
 };

@@ -12,7 +12,6 @@ import {
 	fantom,
 	fraxtal,
 	gnosis,
-	goerli,
 	linea,
 	mainnet,
 	mantle,
@@ -31,7 +30,6 @@ import type {TAddress, TNDict} from '@builtbymom/web3/types';
 
 export const SAFE_API_URI: {[chainId: number]: string} = {
 	[mainnet.id]: 'https://safe-transaction-mainnet.safe.global',
-	[goerli.id]: 'https://safe-transaction-goerli.safe.global',
 	[optimism.id]: 'https://safe-transaction-optimism.safe.global',
 	[bsc.id]: 'https://safe-transaction-bsc.safe.global',
 	[gnosis.id]: 'https://safe-transaction-gnosis-chain.safe.global',
@@ -55,7 +53,6 @@ export const SAFE_API_URI: {[chainId: number]: string} = {
 
 export const COINGECKO_GAS_COIN_IDS: TNDict<string> = {
 	[mainnet.id]: 'ethereum',
-	[goerli.id]: 'ethereum',
 	[optimism.id]: 'ethereum',
 	[bsc.id]: 'binancecoin',
 	[gnosis.id]: 'xdai',
@@ -103,7 +100,6 @@ export const DISPERSE_CONTRACT_PER_CHAIN: TNDict<TAddress> = {
 
 export const SUPPORTED_MULTICHAINS = [
 	mainnet,
-	goerli, //Testnet
 	optimism,
 	bsc,
 	gnosis,

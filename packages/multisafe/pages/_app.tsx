@@ -1,56 +1,53 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
-import {Rubik, Source_Code_Pro} from 'next/font/google';
-import Head from 'next/head';
+import {SUPPORTED_MULTICHAINS} from 'packages/lib/utils/constants';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
+import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
+import {WithFonts} from '@lib/common/WithFonts';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
 
 import '../style.css';
 
-const rubik = Rubik({
-	weight: ['400', '500', '600', '700'],
-	subsets: ['latin'],
-	display: 'swap',
-	variable: '--rubik-font'
-});
-
-const sourceCodePro = Source_Code_Pro({
-	weight: ['400', '500', '600', '700'],
-	subsets: ['latin'],
-	display: 'swap',
-	variable: '--scp-font'
-});
-function MyApp({Component, ...props}: AppProps): ReactElement {
+function MyApp(props: AppProps): ReactElement {
 	return (
-		<>
-			<Head>
-				<style
-					jsx
-					global>
-					{`
-						html {
-							font-family: ${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily};
-						}
-					`}
-				</style>
-			</Head>
-			<Meta />
+		<WithFonts>
+			<Meta
+				title={'MultiSafe - SmolDapp'}
+				description={'One address, all the chains. Deploy your Safe across multiple chains.'}
+				titleColor={'#000000'}
+				themeColor={'#FFD915'}
+				og={'https://smold.app/og_multisafe.png'}
+				uri={'https://multisafe.app'}
+			/>
 			<WithMom
 				supportedChains={SUPPORTED_MULTICHAINS}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
-					<div className={`${rubik.variable} ${sourceCodePro.variable}`}>
-						<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
-							<Component {...props} />
-						</main>
-					</div>
+					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
+						<Layout
+							{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
+							// menu={
+							// 	[
+							// 		// {
+							// 		// 	href: '/new-safe',
+							// 		// 	label: 'Create a Safe',
+							// 		// 	icon: <IconSquarePlus />
+							// 		// },
+							// 		// {
+							// 		// 	href: '/clone-safe',
+							// 		// 	label: 'Clone a Safe',
+							// 		// 	icon: <IconClone />
+							// 		// }
+							// 	]
+							// }
+						/>
+					</main>
 				</WalletContextApp>
 			</WithMom>
 			<Toaster
@@ -74,7 +71,7 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 				}}
 				position={'top-right'}
 			/>
-		</>
+		</WithFonts>
 	);
 }
 export default MyApp;

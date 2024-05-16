@@ -13,79 +13,6 @@
 	.font-number {
 		@apply font-mono tabular-nums;
 	}
-
-	/***************************************************************************************************
-	** Details and summary nice styles.
-	***************************************************************************************************/
-	details > summary {
-		list-style: none;
-	}
-	details > summary::-webkit-details-marker {
-		display: none;
-	}
-	details {
-		& > summary {
-			@apply px-4 md:px-6 py-6 md:py-8 cursor-pointer flex flex-row items-center justify-between;
-		}
-	}
-
-	/***************************************************************************************************
-	** Loader
-	** Custom style for the loader icon
-	***************************************************************************************************/
-	.loader {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background-color: #fff;
-		box-shadow:
-			16px 0 #fff,
-			-16px 0 #fff;
-		position: relative;
-		animation: flash 1s ease-out infinite alternate;
-	}
-
-	@keyframes flash {
-		0% {
-			background-color: #fff2;
-			box-shadow:
-				12px 0 #fff2,
-				-12px 0 #fff;
-		}
-		50% {
-			background-color: #fff;
-			box-shadow:
-				12px 0 #fff2,
-				-12px 0 #fff2;
-		}
-		100% {
-			background-color: #fff2;
-			box-shadow:
-				12px 0 #fff,
-				-12px 0 #fff2;
-		}
-	}
-}
-
-@keyframes flash {
-	0% {
-		background-color: #aaaaaa;
-		box-shadow:
-			12px 0 #aaaaaa,
-			-12px 0 #000000;
-	}
-	50% {
-		background-color: #000000;
-		box-shadow:
-			12px 0 #aaaaaa,
-			-12px 0 #aaaaaa;
-	}
-	100% {
-		background-color: #aaaaaa;
-		box-shadow:
-			12px 0 #000000,
-			-12px 0 #aaaaaa;
-	}
 }
 
 .box-0 {
@@ -143,58 +70,6 @@
 .tooltip.top .tooltiptextsmall::after {
 	top: 98%;
 	transform: rotate(0deg);
-}
-
-.modal {
-	@apply inline-block overflow-hidden relative z-50 w-full text-left align-bottom transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle md:mb-96 mx-auto md:max-w-4xl bg-transparent;
-}
-.modal-overlay {
-	@apply fixed inset-0 z-10 bg-neutral-900/40 transition-opacity backdrop-blur-[1px];
-}
-.detailsMigrate {
-	@apply bg-neutral-0 flex w-full flex-col justify-center border-t border-b-0 border-neutral-200 transition-colors;
-}
-
-/**************************************************************************************************
-** AppBox is the style used to make the nices animations on the home page feel nice and smooth
-** A custom overwrite is required for dark/light mode
-**************************************************************************************************/
-.appBox {
-	@apply relative flex aspect-video h-full w-full cursor-pointer flex-col items-start border border-neutral-200 p-4 transition-colors rounded-md bg-neutral-0 hover:bg-primary text-neutral-900;
-}
-
-.groupHoverText {
-	&:hover .noHoverContent {
-		@apply opacity-0;
-	}
-	&:hover .withHoverContent {
-		@apply opacity-100;
-	}
-}
-.approvalWizardDivider {
-	& > *:last-child {
-		@apply border-b-0 !mb-0 !pb-0;
-	}
-}
-
-.container {
-	@apply flex flex-row justify-between items-center space-x-10 relative max-w-xs;
-	& > dt {
-		@apply bg-primary z-10 pr-2;
-	}
-	& > dd {
-		@apply bg-primary z-10 pl-2 font-number whitespace-nowrap;
-	}
-}
-.filler {
-	@apply w-3/4 border-b-2 border-dashed border-neutral-0 absolute inset-0 h-full;
-	top: calc(-50% + 1px);
-}
-
-.svg-fit {
-	& > svg {
-		@apply w-full h-full;
-	}
 }
 
 .addr > span {

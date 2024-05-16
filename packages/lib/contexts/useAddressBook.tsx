@@ -1,6 +1,7 @@
 'use client';
 
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import assert from 'assert';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -10,6 +11,7 @@ import {useMountEffect} from '@react-hookz/web';
 import {AddressBookCurtain} from '@lib/common/Curtains/AddressBookCurtain';
 import {AddressSelectorCurtain} from '@lib/common/Curtains/AddressSelectorCurtain';
 import {slugify} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {TAddress} from '@builtbymom/web3/types';
@@ -45,6 +47,7 @@ const defaultProps: TAddressBookProps = {
 
 const AddressBookContext = createContext<TAddressBookProps>(defaultProps);
 export const WithAddressBook = ({children}: {children: React.ReactElement}): React.ReactElement => {
+	const plausible = usePlausible();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [cachedEntries, set_cachedEntries] = useState<TAddressBookEntry[]>([]);
 	const [entryNonce, set_entryNonce] = useState<number>(0);
@@ -164,6 +167,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 					};
 					mergedFields.chains = [...new Set(mergedFields.chains)].filter(chain => chain !== 0);
 					update({...mergedFields, slugifiedLabel: slugify(mergedFields.label)});
+					plausible(PLAUSIBLE_EVENTS.AB_UPDATE_ENTRY);
 					set_entryNonce(nonce => nonce + 1);
 				} else {
 					assert(isAddress(entry.address));
@@ -181,12 +185,13 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 						isHidden: false
 					});
 					set_entryNonce(nonce => nonce + 1);
+					plausible(PLAUSIBLE_EVENTS.AB_ADD_ENTRY);
 				}
 			} catch {
 				// Do nothing
 			}
 		},
-		[add, getEntry, update, safeChainID]
+		[getEntry, update, plausible, safeChainID, add]
 	);
 
 	/**************************************************************************
@@ -222,6 +227,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 					mergedFields.chains = [...new Set(mergedFields.chains)].filter(chain => chain !== 0);
 					update({...mergedFields, slugifiedLabel: slugify(mergedFields.label)});
 					set_entryNonce(nonce => nonce + 1);
+					plausible(PLAUSIBLE_EVENTS.AB_UPDATE_ENTRY);
 				} else {
 					assert(isAddress(entry.address));
 					const chains = entry.chains || [];
@@ -238,12 +244,13 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 						isHidden: false
 					});
 					set_entryNonce(nonce => nonce + 1);
+					plausible(PLAUSIBLE_EVENTS.AB_ADD_ENTRY);
 				}
 			} catch {
 				// Do nothing
 			}
 		},
-		[add, getEntry, safeChainID, update]
+		[add, getEntry, plausible, safeChainID, update]
 	);
 
 	/**************************************************************************
@@ -255,6 +262,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 			try {
 				const existingEntry = await getEntry({address: address});
 				if (existingEntry) {
+					plausible(PLAUSIBLE_EVENTS.AB_DELETE_ENTRY);
 					update({...existingEntry, isHidden: true});
 					set_entryNonce(nonce => nonce + 1);
 				}
@@ -262,7 +270,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 				// Do nothing
 			}
 		},
-		[getEntry, update]
+		[getEntry, plausible, update]
 	);
 
 	/**************************************************************************
@@ -324,6 +332,20 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 		isFavorite: false
 	});
 
+	/**********************************************************************************************
+	 ** OnOpenCurtain is a callback function that can be used to open the AddressSelectorCurtain.
+	 ** It will also set the onSelect callback function that will be called when an address is
+	 ** selected.
+	 **********************************************************************************************/
+	const onOpenCurtain = useCallback(
+		(callbackFn: TSelectCallback): void => {
+			plausible(PLAUSIBLE_EVENTS.OPEN_AB_CURTAIN);
+			set_currentCallbackFunction(() => callbackFn);
+			set_shouldOpenCurtain(true);
+		},
+		[plausible]
+	);
+
 	/**************************************************************************
 	 * Context value that is passed to all children of this component.
 	 *************************************************************************/
@@ -342,10 +364,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 			dispatchConfiguration: dispatch,
 			curtainStatus,
 			set_curtainStatus,
-			onOpenCurtain: (callbackFn): void => {
-				set_currentCallbackFunction(() => callbackFn);
-				set_shouldOpenCurtain(true);
-			},
+			onOpenCurtain,
 			onCloseCurtain: (): void => set_shouldOpenCurtain(false)
 		}),
 		[
@@ -359,7 +378,8 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 			deleteEntry,
 			bumpEntryInteractions,
 			selectedEntry,
-			curtainStatus
+			curtainStatus,
+			onOpenCurtain
 		]
 	);
 

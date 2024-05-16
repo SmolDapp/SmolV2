@@ -1,10 +1,12 @@
 import {cloneElement, Fragment, type ReactElement} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {usePlausible} from 'next-plausible';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, isZeroAddress} from '@builtbymom/web3/utils';
 import {useIsMounted} from '@smolHooks/useIsMounted';
 import {LinkOrDiv} from '@lib/common/LinkOrDiv';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 export type TSideMenuItem = {
 	href: string;
@@ -85,27 +87,30 @@ function LogOutButton(): ReactElement {
 	);
 }
 
-export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}): ReactElement {
+export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void}): ReactElement {
+	const plausible = usePlausible();
 	const pathname = usePathname();
 
 	return (
 		<div className={'scrollable scrollbar-show h-full pt-4'}>
 			<section className={'flex h-full flex-col justify-between'}>
 				<ul className={'grid gap-2 pb-8'}>
-					{props.menu.map(({href, label, icon, isDisabled}) => (
+					{(props.menu || []).map(({href, label, icon, isDisabled}) => (
 						<NavItem
 							key={href}
 							href={href}
 							label={label}
 							icon={icon}
 							isDisabled={isDisabled}
-							isSelected={pathname.startsWith(href)}
+							isSelected={pathname?.startsWith(href)}
 							onClick={props.onClose}
 						/>
 					))}
 				</ul>
 				<div className={'mt-auto px-4'}>
-					<Link href={'https://dump.services/'}>
+					<Link
+						onClick={() => plausible(PLAUSIBLE_EVENTS.NAVIGATE_TO_DUMP_SERVICES)}
+						href={'https://dump.services/'}>
 						<div
 							className={
 								'bg-neutral-0 group relative mb-2 flex w-full flex-col rounded-lg border border-neutral-400 p-2 opacity-60 transition-opacity hover:opacity-100'
@@ -135,7 +140,9 @@ export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}
 							</span>
 						</div>
 					</Link>
-					<Link href={'https://multisafe.app/'}>
+					<Link
+						onClick={() => plausible(PLAUSIBLE_EVENTS.NAVIGATE_TO_MULTISAFE)}
+						href={'https://multisafe.app/'}>
 						<div
 							className={
 								'bg-neutral-0 group relative flex w-full flex-col rounded-lg border border-neutral-400 p-2 opacity-60 transition-opacity hover:opacity-100'
@@ -170,12 +177,14 @@ export function SideMenuNav(props: {menu: TSideMenuItem[]; onClose?: () => void}
 					<div className={'text-xxs flex justify-between pb-2 pt-6 text-neutral-600'}>
 						<div className={'flex gap-4'}>
 							<Link
+								onClick={() => plausible(PLAUSIBLE_EVENTS.NAVIGATE_TO_GITHUB)}
 								className={'transition-colors hover:text-neutral-900'}
 								href={'https://github.com/SmolDapp'}
 								target={'_blank'}>
 								{'GitHub'}
 							</Link>
 							<Link
+								onClick={() => plausible(PLAUSIBLE_EVENTS.NAVIGATE_TO_TWITTER)}
 								className={'transition-colors hover:text-neutral-900'}
 								href={'https://twitter.com/smoldapp'}
 								target={'_blank'}>

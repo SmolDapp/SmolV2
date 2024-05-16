@@ -22,11 +22,11 @@ export function CoinBalance(): ReactElement {
 		);
 	}
 	return (
-		<div>
+		<div className={'truncate'}>
 			<small>{currentChain.symbol || 'ETH'}</small>
-			<strong>
+			<strong className={'truncate'}>
 				<Counter
-					className={'text-base leading-8'}
+					className={'truncate text-base leading-8'}
 					value={Number(balance?.formatted || 0)}
 					decimals={6}
 				/>

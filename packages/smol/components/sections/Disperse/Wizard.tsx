@@ -27,6 +27,7 @@ import {Button} from '@lib/primitives/Button';
 import {disperseERC20, disperseETH} from '@lib/utils/actions';
 import {DISPERSE_CONTRACT_PER_CHAIN} from '@lib/utils/constants';
 import {notifyDisperse} from '@lib/utils/notifier';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 
 import {ExportConfigurationButton} from '.';
@@ -153,7 +154,7 @@ const useConfirmDisperse = ({
 					slugifiedLabel: slugify(address)
 				});
 			});
-			plausible('disperse', {
+			plausible(PLAUSIBLE_EVENTS.DISPERSE_TOKENS, {
 				props: {
 					disperseChainID: safeChainID,
 					tokenToDisperse: configuration.tokenToSend?.address,
@@ -425,7 +426,7 @@ export function DisperseWizard(): ReactElement {
 				ctaLabel={'Close'}
 				downloadConfigButton={
 					<ExportConfigurationButton
-						className={'w-full'}
+						className={'!h-10 w-full'}
 						title={'Export Config'}
 					/>
 				}

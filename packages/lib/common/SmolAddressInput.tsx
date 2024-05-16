@@ -33,6 +33,12 @@ export function SmolAddressInput({
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
 
+	useEffect(() => {
+		if (value.address && value.source === 'autoPopulate') {
+			actions.execute(value.address);
+		}
+	}, [actions, value.address, value.source]);
+
 	const onChange = (input: string): void => {
 		actions.abort();
 		onSetValue({label: input});
@@ -55,11 +61,11 @@ export function SmolAddressInput({
 		if (isFocused) {
 			return 'border-neutral-600';
 		}
-		if (value.isValid === false) {
+		if (value.isValid === false && value.label && value.address) {
 			return 'border-red';
 		}
 		return 'border-neutral-400';
-	}, [isFocused, value.isValid]);
+	}, [isFocused, value.address, value.isValid, value.label]);
 
 	useEffect(() => {
 		if (!result) {
@@ -83,7 +89,7 @@ export function SmolAddressInput({
 	}, [value.label, value.isValid, isFocused, isCheckingValidity]);
 
 	return (
-		<div className={'group relative size-full rounded-[8px]'}>
+		<div className={'group relative size-full rounded-lg'}>
 			<label
 				className={cl(
 					'h-20 z-20 relative',
@@ -178,6 +184,7 @@ export function SmolAddressInput({
 									<IconAppAddressBook className={'size-4 text-neutral-600'} />
 								) : (
 									<AvatarWrapper
+										key={value.address}
 										address={toAddress(value.address)}
 										sizeClassname={'h-8 w-8 min-w-8'}
 									/>

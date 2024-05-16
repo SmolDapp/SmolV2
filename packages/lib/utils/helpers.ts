@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 
-import {formatAmount, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {formatAmount, ZERO_ADDRESS, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/Inputs';
@@ -40,4 +40,23 @@ export function getNewInput(): TTokenAmountInputElement {
 		status: 'none',
 		UUID: crypto.randomUUID()
 	};
+}
+
+/******************************************************************************
+ ** Truncate a hash to a given size.
+ *****************************************************************************/
+export function truncateHexTx(hash: string | undefined, size: number): string {
+	if (hash !== undefined) {
+		if (size === 0) {
+			return hash;
+		}
+		if (hash.length <= size * 2 + 4) {
+			return hash;
+		}
+		return `0x${hash.slice(2, size + 2)}...${hash.slice(-size)}`;
+	}
+	if (size === 0) {
+		return ZERO_ADDRESS;
+	}
+	return `0x${ZERO_ADDRESS.slice(2, size)}...${ZERO_ADDRESS.slice(-size)}`;
 }
