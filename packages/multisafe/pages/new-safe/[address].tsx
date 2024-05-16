@@ -167,7 +167,7 @@ function Safe(): ReactElement {
 	);
 }
 
-export default function MultisafeWrapper(): ReactElement {
+export default function MultisafeDeployNewWrapper(): ReactElement {
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -175,9 +175,9 @@ export default function MultisafeWrapper(): ReactElement {
 	);
 }
 
-MultisafeWrapper.AppName = 'Your safe, your rules';
-MultisafeWrapper.AppDescription = 'This is your safe, deploy if everywhere for 4.20$ per network!';
-MultisafeWrapper.AppInfo = (
+MultisafeDeployNewWrapper.AppName = 'Your safe, your rules';
+MultisafeDeployNewWrapper.AppDescription = 'This is your safe, deploy if everywhere for 4.20$ per network!';
+MultisafeDeployNewWrapper.AppInfo = (
 	<>
 		<p>{'Well, basically, it’s… your wallet. '}</p>
 		<p>{'You can see your tokens. '}</p>

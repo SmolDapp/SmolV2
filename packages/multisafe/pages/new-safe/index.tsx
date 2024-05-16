@@ -515,7 +515,7 @@ function Safe(): ReactElement {
 	);
 }
 
-export default function MultisafeWrapper(): ReactElement {
+export default function MultisafeNewWrapper(): ReactElement {
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -523,10 +523,10 @@ export default function MultisafeWrapper(): ReactElement {
 	);
 }
 
-MultisafeWrapper.AppName = 'One new Safe, coming right up.';
-MultisafeWrapper.AppDescription =
+MultisafeNewWrapper.AppName = 'One new Safe, coming right up.';
+MultisafeNewWrapper.AppDescription =
 	'Your Safe needs owners. Let us know the other addresses or ENS you want to be in charge of your Safe alongside you.';
-MultisafeWrapper.AppInfo = (
+MultisafeNewWrapper.AppInfo = (
 	<>
 		<p>{'Well, basically, it’s… your wallet. '}</p>
 		<p>{'You can see your tokens. '}</p>

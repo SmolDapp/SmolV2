@@ -266,7 +266,7 @@ function Safe(): ReactElement {
 	);
 }
 
-export default function MultisafeWrapper(): ReactElement {
+export default function MultisafeCloneWrapper(): ReactElement {
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -274,8 +274,8 @@ export default function MultisafeWrapper(): ReactElement {
 	);
 }
 
-MultisafeWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
-MultisafeWrapper.AppInfo = (
+MultisafeCloneWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
+MultisafeCloneWrapper.AppInfo = (
 	<>
 		<p>{'Well, basically, it’s… your wallet. '}</p>
 		<p>{'You can see your tokens. '}</p>
