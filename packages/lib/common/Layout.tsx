@@ -7,9 +7,7 @@ import {SideMenuMobile} from '@lib/common/SideMenu/SideMenuMobile';
 import {WithAddressBook} from '@lib/contexts/useAddressBook';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
-import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
-import type {NextRouter} from 'next/router';
 import type {TSideMenuItem} from './SideMenu/SideMenuNav';
 
 type TAppProp = {
@@ -17,7 +15,6 @@ type TAppProp = {
 	description: string;
 	children: ReactNode;
 	info: string;
-	action?: ReactNode;
 };
 function App(props: TAppProp): ReactElement {
 	return (
@@ -48,7 +45,6 @@ function App(props: TAppProp): ReactElement {
 						</h1>
 						<p className={'pt-2 text-base text-neutral-600 md:pt-1'}>{props.description}</p>
 					</div>
-					{props.action ? <div className={'mt-3'}>{props.action}</div> : null}
 				</div>
 				{props.children}
 			</section>
@@ -56,19 +52,16 @@ function App(props: TAppProp): ReactElement {
 	);
 }
 
-type TComponent = NextComponentType & {
-	AppName: string;
-	AppDescription: string;
-	AppInfo: string;
-	getLayout?: (p: ReactElement, router: NextRouter) => ReactElement;
-	getAction: () => ReactElement;
-};
+// type TComponent = NextComponentType & {
+// 	AppName: string;
+// 	AppDescription: string;
+// 	AppInfo: string;
+// };
 export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
-	const appName = (Component as TComponent).AppName || 'App';
-	const appDescription = (Component as TComponent).AppDescription || '';
-	const appAction = (Component as TComponent).getAction || (() => null);
-	const appInfo = (Component as TComponent).AppInfo || '';
+	// const appName = (Component as TComponent).AppName || 'App';
+	// const appDescription = (Component as TComponent).AppDescription || '';
+	// const appInfo = (Component as TComponent).AppInfo || '';
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
@@ -89,11 +82,10 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 					<div className={'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'}>
 						<WithAddressBook>
 							<App
-								key={appName}
-								title={appName}
-								description={appDescription}
-								action={appAction()}
-								info={appInfo}>
+								key={router.pathname}
+								title={'appName'}
+								description={'appDescription'}
+								info={'appInfo'}>
 								<AnimatePresence>
 									<motion.div
 										key={router.route}
