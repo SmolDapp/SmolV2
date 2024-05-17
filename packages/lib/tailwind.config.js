@@ -69,7 +69,8 @@ module.exports = {
 				intermediate: ['18px', '24px'],
 				lg: ['20px', '32px'],
 				xl: ['24px', '32px'],
-				'3xl': ['32px', '40px']
+				'3xl': ['32px', '40px'],
+				'4xl': ['40px', '48px']
 			},
 			gridTemplateColumns: {
 				root: 'repeat(30, minmax(0, 1fr))'

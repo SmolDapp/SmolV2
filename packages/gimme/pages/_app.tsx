@@ -33,11 +33,9 @@ function MyApp(props: AppProps): ReactElement {
 				]}>
 				<VaultsContextApp>
 					<WalletContextApp>
-						<div>
-							<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
-								<Layout {...props} />
-							</main>
-						</div>
+						<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
+							<Layout {...props} />
+						</main>
 					</WalletContextApp>
 				</VaultsContextApp>
 			</WithMom>

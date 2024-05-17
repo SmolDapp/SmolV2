@@ -17,8 +17,7 @@ const TOP_NAV = [
 	},
 	{
 		href: '/portfolio',
-		label: 'Portfolio',
-		isDisabled: true
+		label: 'Portfolio'
 	},
 	{
 		href: '/about',
@@ -72,6 +71,7 @@ export default function Layout(props: AppProps): ReactElement {
 			<App>
 				<AnimatePresence>
 					<motion.div
+						className={'flex w-full justify-center'}
 						initial={{scale: 0.9, opacity: 0}}
 						animate={{scale: 1, opacity: 1}}
 						transition={{
