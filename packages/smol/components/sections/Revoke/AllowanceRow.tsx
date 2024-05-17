@@ -4,7 +4,8 @@ import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
 import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {usePrices} from '@builtbymom/web3/hooks/usePrices';
+import {toAddress, truncateHex, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -16,8 +17,8 @@ type TAllowanceRowProps = {
 };
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
-	const {args, blockNumber} = allowance;
-
+	const {args, transactionHash} = allowance;
+	const {safeChainID} = useChainID();
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
@@ -25,10 +26,25 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 		return getTokenAmount(allowance.decimals, allowance.args.value as bigint);
 	}, [allowance]);
 
-	const {safeChainID} = useChainID();
+	const {data: price} = usePrices({
+		tokens: [
+			{
+				...allowance,
+				value: 1,
+				balance: zeroNormalizedBN,
+				name: allowance.name!,
+				symbol: allowance.symbol!,
+				decimals: allowance.decimals!,
+				chainID: allowance.chainID!
+			}
+		],
+		chainId: safeChainID
+	});
+
+	console.log(price);
 
 	return (
-		<tr key={blockNumber}>
+		<tr key={transactionHash}>
 			<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
 				<div className={'flex'}>
 					<div>

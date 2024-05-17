@@ -18,7 +18,7 @@ export const RevokeWizard = (): ReactElement => {
 	const {provider} = useWeb3();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
 	const {chainID, safeChainID} = useChainID();
-	const {dispatchConfiguration, configuration} = useAllowances();
+	const {dispatchConfiguration, configuration, allowances} = useAllowances();
 
 	const revokeTokenAllowance = useCallback(
 		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
@@ -44,7 +44,7 @@ export const RevokeWizard = (): ReactElement => {
 
 	return (
 		<>
-			<AllowancesFilters />
+			{allowances?.length ? <AllowancesFilters /> : null}
 			<AllowancesTable revoke={revokeTokenAllowance} />
 
 			<ErrorModal

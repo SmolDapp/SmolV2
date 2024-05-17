@@ -1,4 +1,5 @@
-import {formatUnits, parseUnits} from 'viem';
+import {parseUnits} from 'viem';
+import {toNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TAllowance, TAllowances} from '@lib/types/Revoke';
 
@@ -35,7 +36,7 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
  **********************************************/
 
 export const getTokenAmount = (decimals?: number, amountInBigint?: bigint): string => {
-	return formatUnits(amountInBigint ?? BigInt(0), decimals || 0);
+	return toNormalizedBN(amountInBigint ?? 0n, decimals || 0).display;
 };
 
 /********************************************************************************************

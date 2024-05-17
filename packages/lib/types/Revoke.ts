@@ -12,6 +12,7 @@ export type TAllowance = {
 		value: string | number | bigint | undefined;
 	};
 	blockNumber: bigint;
+	transactionHash: TAddress;
 };
 export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
 export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
@@ -29,6 +30,7 @@ export type TExpandedAllowance = TAllowance & {
 	symbol?: string;
 	decimals?: number;
 	chainID?: number;
+	balanceOf?: number;
 };
 
 // Edit when multiple select added
@@ -64,20 +66,22 @@ export type TRevokeActions =
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
 	| {type: 'SET_FILTER'; payload: TAllowancesFilters};
 
-/******************************************************************************************
- * The TApproveEventEntry type definition is used in useRevoke context to get allowances
- * for provided token list.
- * The properties are:
- * address: TAddress - Address of a token that is approved
- * chainID: number - Chain ID in which is approve exists
- * owner: TAddress - Owner of tokens that are approved
- * sender: TAddress - Address that has access to approved tokens
- * value: bigint - Amount of approved tokens
- * blockNumber: bigint - The number of the block
- * name?: string - Name of a token that is approved
- * symbol?: string - Symbol of a token that is approved
- * decimals?: number - Decimals of a token that is approved
- ******************************************************************************************/
+/**********************************************************************************************
+ ** The TApproveEventEntry type definition is used in useRevoke context to get allowances
+ ** for provided token list.
+ ** The properties are:
+ ** id?: number - Id for storing approve event in DB
+ ** address: TAddress - Address of a token that is approved
+ ** chainID: number - Chain ID in which is approve exists
+ ** owner: TAddress - Owner of tokens that are approved
+ ** sender: TAddress - Address that has access to approved tokens
+ ** value: bigint - Amount of approved tokens
+ ** blockNumber: bigint - The number of the block
+ **	transactionHash: TAddress - uniqe hash of allowance
+ ** name?: string - Name of a token that is approved
+ ** symbol?: string - Symbol of a token that is approved
+ ** decimals?: number - Decimals of a token that is approved
+ *********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
 	address: TAddress;
@@ -86,19 +90,22 @@ export type TApproveEventEntry = {
 	sender: TAddress;
 	value: bigint;
 	blockNumber: bigint;
-	name?: string;
+	transactionHash: TAddress;
 	symbol?: string;
 	decimals?: number;
+	balanceOf?: number;
+	name?: string;
 };
 
-/******************************************************************************************
- * The TApproveEventChainSyncEntry type definition is used in useRevoke context to be able
- * to merge allowances by block number.
- * The properties are:
- * chainID: number - Chain ID in which is sync happends
- * address: TAddress - Address of a user
- * blockNumber: number - The Number of a last approve event block
- ******************************************************************************************/
+/**********************************************************************************************
+ ** The TApproveEventChainSyncEntry type definition is used in useRevoke context to be able
+ ** to merge allowances by block number.
+ ** The properties are:
+ ** id?: number - Id for storing approve event in DB
+ ** chainID: number - Chain ID in which is sync happends
+ ** address: TAddress - Address of a user
+ ** blockNumber: number - The Number of a last approve event block
+ *********************************************************************************************/
 export type TApproveEventChainSyncEntry = {
 	id?: number;
 	chainID: number;

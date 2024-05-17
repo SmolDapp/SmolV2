@@ -6,8 +6,6 @@ import {AssetFilterDropdown} from './AssetFilterDropdown';
 import {SpenderFilterDropdown} from './SpenderFilterDropdown';
 import {useAllowances} from './useAllowances';
 
-// WIP- filters
-
 export const AllowancesFilters = (): ReactElement | null => {
 	const {dispatchConfiguration, configuration, allowances} = useAllowances();
 
@@ -36,7 +34,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.address,
 							symbol: item.symbol,
-							blockHash: item.blockNumber,
+							transactionHash: item.transactionHash,
 							displayName: item.symbol,
 							args: item.args
 						};
@@ -55,7 +53,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.args.sender,
 							symbol: item.symbol,
-							blockHash: item.blockNumber,
+							transactionHash: item.transactionHash,
 							displayName: item.args.sender,
 							args: item.args
 						};
@@ -94,7 +92,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'Limited'}</p>
 				</button>
 
-				{/* <button
+				<button
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
@@ -119,8 +117,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 						'flex items-center rounded-md bg-neutral-200',
 						configuration.allowancesFilters.withBalance.filter === 'without-balance' ? 'bg-neutral-400' : ''
 					)}>
-					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'Wthout balance'}</p>
-				</button> */}
+					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'Without balance'}</p>
+				</button>
 			</div>
 		</div>
 	);
