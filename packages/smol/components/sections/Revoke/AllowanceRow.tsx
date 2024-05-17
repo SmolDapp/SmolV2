@@ -3,9 +3,7 @@ import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
 import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {toAddress, truncateHex, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {toAddress, truncateHex} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -18,30 +16,12 @@ type TAllowanceRowProps = {
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
 	const {args, transactionHash} = allowance;
-	const {safeChainID} = useChainID();
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
 		}
 		return getTokenAmount(allowance.decimals, allowance.args.value as bigint);
 	}, [allowance]);
-
-	const {data: price} = usePrices({
-		tokens: [
-			{
-				...allowance,
-				value: 1,
-				balance: zeroNormalizedBN,
-				name: allowance.name!,
-				symbol: allowance.symbol!,
-				decimals: allowance.decimals!,
-				chainID: allowance.chainID!
-			}
-		],
-		chainId: safeChainID
-	});
-
-	console.log(price);
 
 	return (
 		<tr key={transactionHash}>
@@ -51,8 +31,8 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 						<ImageWithFallback
 							alt={allowance.symbol ?? ''}
 							unoptimized
-							src={`${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${allowance.address}/logo-32.png`}
-							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${safeChainID}/${allowance.address}/logo-32.png`}
+							src={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
+							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
 							quality={90}
 							width={40}
 							height={40}

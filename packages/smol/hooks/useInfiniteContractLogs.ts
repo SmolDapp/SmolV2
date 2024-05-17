@@ -24,7 +24,7 @@ type TPageParam = {
  ** parsedApprovalEvent corresponds to the event we want to listen with our useInfiniteApprovalLogs
  ** hook. This event is the Approval event from the ERC20 standard.
  *************************************************************************************************/
-const parsedApprovalEvent = parseAbiItem(
+export const parsedApprovalEvent = parseAbiItem(
 	'event Approval(address indexed owner, address indexed sender, uint256 value)'
 );
 

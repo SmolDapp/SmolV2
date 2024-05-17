@@ -18,7 +18,7 @@ export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
 export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
 
 export type TRevokeConfiguration = {
-	tokenToCheck: TToken | undefined;
+	tokenToCheck: string | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
 	unlimitedFilter?: TUnlimitedFilter;
@@ -43,6 +43,7 @@ export type TRevokeContext = {
 	isDoneWithInitialFetch: boolean;
 	filteredAllowances: TExpandedAllowance[] | null | undefined;
 	isLoading: boolean;
+	fetchTokenToSearch: () => void;
 };
 
 export type TAllowancesFilters = {
@@ -61,7 +62,7 @@ export type TAllowancesFilters = {
 };
 
 export type TRevokeActions =
-	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
+	| {type: 'SET_TOKEN_TO_CHECK'; payload: string | undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
 	| {type: 'SET_FILTER'; payload: TAllowancesFilters};

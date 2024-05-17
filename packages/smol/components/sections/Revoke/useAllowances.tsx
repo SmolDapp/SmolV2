@@ -19,9 +19,9 @@ import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isZeroAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
+import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
 import {readContracts} from '@wagmi/core';
 
 import type {ReactElement} from 'react';
@@ -53,7 +53,8 @@ const defaultProps: TRevokeContext = {
 	},
 	dispatchConfiguration: (): void => undefined,
 	isDoneWithInitialFetch: false,
-	isLoading: false
+	isLoading: false,
+	fetchTokenToSearch: () => undefined
 };
 
 const configurationReducer = (state: TRevokeConfiguration, action: TRevokeActions): TRevokeConfiguration => {
@@ -192,14 +193,12 @@ export const RevokeContextApp = (props: {
 		const arr = Object.values(currentNetworkTokenList)
 			.map(item => item.address)
 			.slice(0, 2);
-		arr.push('0x6b175474e89094c44da98b954eedeac495271d0f');
-		arr.push('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+		// arr.push('0x6b175474e89094c44da98b954eedeac495271d0f');
+		// arr.push('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
 		arr.push('0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063');
 		arr.push('0xda10009cbd5d07dd0cecc66161fc93d7c9000da1');
 		return arr;
 	}, [currentNetworkTokenList]);
-
-	console.log(currentNetworkTokenList);
 
 	/**********************************************************************************************
 	 ** The allowances vary across different chains, necessitating us to reset the current state
@@ -316,6 +315,18 @@ export const RevokeContextApp = (props: {
 		owner: toAddress(address),
 		pageSize: 1_000_000n
 	});
+
+	const fetchTokenToSearch = useCallback(async () => {
+		const res = await getClient(chainID).getLogs({
+			address: [toAddress(configuration.tokenToCheck)],
+			event: parsedApprovalEvent,
+			args: {
+				owner: address
+			},
+			fromBlock: 8_928_158n
+		});
+		set_approveEvents(res as TAllowances);
+	}, [address, chainID, configuration.tokenToCheck]);
 
 	/**********************************************************************************************
 	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
@@ -489,9 +500,17 @@ export const RevokeContextApp = (props: {
 			dispatchConfiguration: dispatch,
 			configuration,
 			isDoneWithInitialFetch,
-			isLoading
+			isLoading,
+			fetchTokenToSearch
 		}),
-		[chainFilteredAllowances, filteredAllowances, configuration, isDoneWithInitialFetch, isLoading]
+		[
+			chainFilteredAllowances,
+			filteredAllowances,
+			fetchTokenToSearch,
+			configuration,
+			isDoneWithInitialFetch,
+			isLoading
+		]
 	);
 
 	return (

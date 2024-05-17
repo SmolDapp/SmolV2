@@ -8,6 +8,7 @@ import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 
 import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
+import {RevokeTokeninput} from './RevokeTokeninput';
 import {useAllowances} from './useAllowances';
 
 import type {TTokenAllowance} from 'packages/lib/types/Revoke';
@@ -44,6 +45,7 @@ export const RevokeWizard = (): ReactElement => {
 
 	return (
 		<>
+			<RevokeTokeninput />
 			{allowances?.length ? <AllowancesFilters /> : null}
 			<AllowancesTable revoke={revokeTokenAllowance} />
 
