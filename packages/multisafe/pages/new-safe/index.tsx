@@ -536,4 +536,24 @@ MultisafeNewWrapper.AppInfo = (
 	</>
 );
 
-export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
+// address, owners, threshold, singleton, salt
+
+// export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
+type TPageProps = {
+	address: string;
+	owners: string[];
+	threshold: number;
+	singleton: string;
+	salt: string;
+};
+export const getServerSideProps: GetServerSideProps<TPageProps> = async ({params}) => {
+	return {
+		props: {
+			address: params?.address as string,
+			owners: (params?.owners as string).split('_'),
+			threshold: parseInt(params?.threshold as string, 10),
+			singleton: params?.singleton as string,
+			salt: params?.salt as string
+		}
+	};
+};

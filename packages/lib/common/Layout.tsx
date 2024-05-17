@@ -7,6 +7,7 @@ import {SideMenuMobile} from '@lib/common/SideMenu/SideMenuMobile';
 import {WithAddressBook} from '@lib/contexts/useAddressBook';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
+import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
 import type {TSideMenuItem} from './SideMenu/SideMenuNav';
 
@@ -52,16 +53,16 @@ function App(props: TAppProp): ReactElement {
 	);
 }
 
-// type TComponent = NextComponentType & {
-// 	AppName: string;
-// 	AppDescription: string;
-// 	AppInfo: string;
-// };
+type TComponent = NextComponentType & {
+	AppName: string;
+	AppDescription: string;
+	AppInfo: string;
+};
 export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
-	// const appName = (Component as TComponent).AppName || 'App';
-	// const appDescription = (Component as TComponent).AppDescription || '';
-	// const appInfo = (Component as TComponent).AppInfo || '';
+	const appName = (Component as TComponent).AppName || 'App';
+	const appDescription = (Component as TComponent).AppDescription || '';
+	const appInfo = (Component as TComponent).AppInfo || '';
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
@@ -83,9 +84,9 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 						<WithAddressBook>
 							<App
 								key={router.pathname}
-								title={'appName'}
-								description={'appDescription'}
-								info={'appInfo'}>
+								title={appName}
+								description={appDescription}
+								info={appInfo}>
 								<AnimatePresence>
 									<motion.div
 										key={router.route}
