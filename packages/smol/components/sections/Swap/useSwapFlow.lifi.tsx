@@ -440,8 +440,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				contractAddress: toAddress(tokenToSpend),
 				spenderAddress: toAddress(spender),
 				amount: toBigInt(amount),
-				statusHandler
+				statusHandler,
+				shouldDisplaySuccessToast: false
 			});
+			toast.success('Your tokens have been approved! You can now swap them!');
 			return result.isSuccessful;
 		},
 		[configuration.input.token, configuration.output.token, currentTxRequest, provider]
