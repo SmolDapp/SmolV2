@@ -4,7 +4,7 @@ import {toNormalizedBN} from '@builtbymom/web3/utils';
 import type {TAllowance, TAllowances} from '@lib/types/Revoke';
 
 export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
-	return events.filter(item => item.args.value !== BigInt(0) && item.args.value);
+	return events.filter(item => (item.args.value as bigint) > BigInt(0));
 };
 
 /******************************************************

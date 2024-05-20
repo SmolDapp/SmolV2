@@ -1,6 +1,7 @@
 import {type ReactElement, useMemo} from 'react';
 import {IconPlus} from 'packages/lib/icons/IconPlus';
 import {cl} from '@builtbymom/web3/utils';
+import IconRefresh from '@multisafeIcons/IconRefresh';
 
 import {AssetFilterDropdown} from './AssetFilterDropdown';
 import {SpenderFilterDropdown} from './SpenderFilterDropdown';
@@ -27,7 +28,12 @@ export const AllowancesFilters = (): ReactElement | null => {
 
 	return (
 		<div className={'flex flex-col'}>
-			<div className={'mr-4 py-2 text-xs text-neutral-600 transition-colors '}>{'Filters'}</div>
+			<div className={'mr-4 flex  py-2'}>
+				<p className={'mr-2 text-xs text-neutral-600 '}>{'Filters'}</p>
+				<button onClick={() => dispatchConfiguration({type: 'RESET_FILTER'})}>
+					<IconRefresh className={'size-3 text-neutral-600 transition-colors hover:text-neutral-900'} />
+				</button>
+			</div>
 			<div className={'flex gap-x-3'}>
 				<AssetFilterDropdown
 					allOptions={uniqueAllowancesByToken.map(item => {
@@ -41,7 +47,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 					})}>
 					<div
 						onClick={() => {}}
-						className={'flex items-center rounded-md bg-neutral-200'}>
+						className={cl(
+							'flex items-center rounded-md bg-neutral-200',
+							configuration.allowancesFilters.asset.filter.length ? 'bg-neutral-400' : ''
+						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
 							<IconPlus className={'size-3'} />
 							<p className={'text-xs leading-4'}>{'Asset'}</p>
@@ -58,7 +67,11 @@ export const AllowancesFilters = (): ReactElement | null => {
 							args: item.args
 						};
 					})}>
-					<div className={'flex items-center rounded-md bg-neutral-200'}>
+					<div
+						className={cl(
+							'flex items-center rounded-md bg-neutral-200',
+							configuration.allowancesFilters.spender.filter.length ? 'bg-neutral-400' : ''
+						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
 							<IconPlus className={'size-3'} />
 							<p className={'text-xs leading-4'}>{' Spender'}</p>

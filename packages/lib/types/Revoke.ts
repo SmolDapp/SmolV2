@@ -13,6 +13,7 @@ export type TAllowance = {
 	};
 	blockNumber: bigint;
 	transactionHash: TAddress;
+	chainID: number;
 };
 export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
 export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
@@ -21,7 +22,6 @@ export type TRevokeConfiguration = {
 	tokenToCheck: string | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
-	unlimitedFilter?: TUnlimitedFilter;
 	allowancesFilters: TAllowancesFilters;
 };
 
@@ -29,7 +29,6 @@ export type TExpandedAllowance = TAllowance & {
 	name?: string;
 	symbol?: string;
 	decimals?: number;
-	chainID?: number;
 	balanceOf?: number;
 };
 
@@ -65,7 +64,8 @@ export type TRevokeActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: string | undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
-	| {type: 'SET_FILTER'; payload: TAllowancesFilters};
+	| {type: 'SET_FILTER'; payload: TAllowancesFilters}
+	| {type: 'RESET_FILTER'};
 
 /**********************************************************************************************
  ** The TApproveEventEntry type definition is used in useRevoke context to get allowances

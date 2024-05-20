@@ -12,16 +12,16 @@ import {isDev} from 'packages/lib/utils/constants';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
-import {erc20Abi as abi} from 'viem';
+import {erc20Abi as abi, isAddressEqual} from 'viem';
 import {useReadContracts} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isZeroAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
+import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {readContracts} from '@wagmi/core';
 
 import type {ReactElement} from 'react';
@@ -67,6 +67,8 @@ const configurationReducer = (state: TRevokeConfiguration, action: TRevokeAction
 			return {...state, tokensToCheck: action.payload ? [...action.payload] : []};
 		case 'SET_TOKEN_TO_REVOKE':
 			return {...state, tokenToRevoke: action.payload};
+		case 'RESET_FILTER':
+			return {...state, allowancesFilters: initialFilters};
 	}
 };
 
@@ -78,9 +80,9 @@ export const RevokeContextApp = (props: {
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
 	const [allowances, set_allowances] = useState<TAllowances | null>(null);
-	const [expandedAllowances, set_expandedAllowances] = useState<TExpandedAllowance[]>([]);
 	const {chainID, safeChainID} = useChainID();
-	const {currentNetworkTokenList} = useTokenList();
+	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
+
 	const [entryNonce, set_entryNonce] = useState<number>(0);
 	const [chainSyncNonce, set_chainSyncNonce] = useState<number>(0);
 	const [cachedApproveEvents, set_cachedApproveEvents] = useState<TApproveEventEntry[]>([]);
@@ -98,13 +100,11 @@ export const RevokeContextApp = (props: {
 	 ** 'currentChainSyncEntry' is entry with current chainID and adderss of user
 	 *********************************************************************************************/
 	const currentChainSyncEntry = useMemo(() => {
-		if (!cachedChainSync) {
+		if (!cachedChainSync || !address) {
 			return;
 		}
 
-		const currentItem = cachedChainSync.find(item => item.address === address && item.chainID === safeChainID);
-
-		return currentItem;
+		return cachedChainSync.find(item => isAddressEqual(item.address, address) && item.chainID === safeChainID);
 	}, [address, cachedChainSync, safeChainID]);
 
 	/**********************************************************************************************
@@ -113,20 +113,24 @@ export const RevokeContextApp = (props: {
 	const addApproveEventEntry = useCallback(
 		async (entry: TApproveEventEntry): Promise<void> => {
 			try {
-				if (currentChainSyncEntry) {
-					const duplicateAllowace = cachedApproveEvents.find(
-						item => item.address === entry.address && item.sender === entry.sender
-					);
-
-					duplicateAllowace?.id && deleteByID(duplicateAllowace?.id);
-					add(entry);
-					set_entryNonce(nonce => nonce + 1);
+				if (!currentChainSyncEntry) {
+					return;
 				}
+				const duplicateAllowace = cachedApproveEvents.find(
+					item => isAddressEqual(item.address, entry.address) && isAddressEqual(item.sender, entry.sender)
+				);
+
+				if (duplicateAllowace?.id) {
+					deleteByID(duplicateAllowace?.id);
+				}
+				add(entry);
+				set_entryNonce(nonce => nonce + 1);
 			} catch {
 				// Do nothing
 			}
 		},
-		[add, cachedApproveEvents, currentChainSyncEntry, deleteByID]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[currentChainSyncEntry]
 	);
 
 	/**********************************************************************************************
@@ -190,15 +194,10 @@ export const RevokeContextApp = (props: {
 	 ** data for all tokens listed.
 	 *********************************************************************************************/
 	const tokenAddresses = useMemo(() => {
-		const arr = Object.values(currentNetworkTokenList)
-			.map(item => item.address)
-			.slice(0, 2);
-		// arr.push('0x6b175474e89094c44da98b954eedeac495271d0f');
-		// arr.push('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
-		arr.push('0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063');
-		arr.push('0xda10009cbd5d07dd0cecc66161fc93d7c9000da1');
-		return arr;
-	}, [currentNetworkTokenList]);
+		const arr = listTokensWithBalance(currentChainSyncEntry?.chainID).map(item => item.address);
+
+		return isTokensLoading ? [] : arr;
+	}, [currentChainSyncEntry?.chainID, isTokensLoading, listTokensWithBalance]);
 
 	/**********************************************************************************************
 	 ** The allowances vary across different chains, necessitating us to reset the current state
@@ -213,7 +212,7 @@ export const RevokeContextApp = (props: {
 			return;
 		}
 
-		addChainSyncEntry({address, chainID: isDev ? chainID : safeChainID, blockNumber: 8_928_158n});
+		addChainSyncEntry({address, chainID: isDev ? chainID : safeChainID, blockNumber: 0n});
 		set_entryNonce(nonce => nonce + 1);
 		set_chainSyncNonce(nonce => nonce + 1);
 	}, [cachedChainSync, address, addChainSyncEntry, chainID, safeChainID]);
@@ -250,7 +249,8 @@ export const RevokeContextApp = (props: {
 	 *********************************************************************************************/
 	const filteredAllowances = useDeepCompareMemo(() => {
 		const filters = configuration.allowancesFilters;
-		return chainFilteredAllowances?.filter(item => {
+
+		const filteredAllowances = chainFilteredAllowances?.filter(item => {
 			if (filters.unlimited.filter === 'unlimited') {
 				if (!isUnlimited(item.args.value as bigint)) {
 					return false;
@@ -285,6 +285,8 @@ export const RevokeContextApp = (props: {
 
 			return true;
 		});
+
+		return filteredAllowances;
 	}, [configuration.allowancesFilters, chainFilteredAllowances]);
 
 	/**********************************************************************************************
@@ -311,7 +313,7 @@ export const RevokeContextApp = (props: {
 	const {data, isDoneWithInitialFetch} = useInfiniteApprovalLogs({
 		chainID: isDev ? chainID : safeChainID,
 		addresses: tokenAddresses,
-		startBlock: currentChainSyncEntry?.blockNumber || 8_928_158n,
+		startBlock: currentChainSyncEntry?.blockNumber || 0n,
 		owner: toAddress(address),
 		pageSize: 1_000_000n
 	});
@@ -323,10 +325,26 @@ export const RevokeContextApp = (props: {
 			args: {
 				owner: address
 			},
-			fromBlock: 8_928_158n
+			fromBlock: 0n,
+			toBlock: currentChainSyncEntry?.blockNumber
 		});
-		set_approveEvents(res as TAllowances);
-	}, [address, chainID, configuration.tokenToCheck]);
+
+		const commonResult = await getClient(chainID).getLogs({
+			address: [...cachedApproveEvents.map(item => item.address), toAddress(configuration.tokenToCheck)],
+			event: parsedApprovalEvent,
+			args: {
+				owner: address
+			},
+			fromBlock: currentChainSyncEntry?.blockNumber
+		});
+
+		const arroveEvents = [...res, ...commonResult].map(item => {
+			return {...item, chainID: safeChainID};
+		});
+
+		set_approveEvents(arroveEvents as TAllowances);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [configuration.tokenToCheck]);
 
 	/**********************************************************************************************
 	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
@@ -335,9 +353,13 @@ export const RevokeContextApp = (props: {
 	 *********************************************************************************************/
 	useEffect((): void => {
 		if (data) {
-			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances);
+			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => {
+				return {...item, chainID: safeChainID};
+			});
+
 			set_approveEvents(filteredEvents);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data]);
 
 	/**********************************************************************************************
@@ -364,7 +386,7 @@ export const RevokeContextApp = (props: {
 
 		set_allowances(filterNotEmptyEvents(_allowances));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [`${approveEvents}`, allAllowances]);
+	}, [`${approveEvents}`, `${allAllowances}`]);
 
 	/**********************************************************************************************
 	 ** Here, we obtain distinctive tokens based on their token addresses to avoid making
@@ -373,20 +395,21 @@ export const RevokeContextApp = (props: {
 	const uniqueTokenAddresses = useMemo(() => {
 		const allowanceAddresses = allowances?.map(allowance => allowance.address);
 		return [...new Set(allowanceAddresses)];
-	}, [allowances]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [`${allowances}`]);
 
 	/**********************************************************************************************
 	 ** When we fetch allowances, they don't have enough information in them, such as name, symbol
 	 ** and decimals. Here we take only unique tokens from all allowances and make a query.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		if (!uniqueTokenAddresses || !allowances || !isDoneWithInitialFetch) {
+		if (!uniqueTokenAddresses || !allowances || !safeChainID) {
 			return;
 		}
 
 		const calls = [];
 		for (const token of uniqueTokenAddresses) {
-			const from = {abi, address: toAddress(token), chainId: isDev ? chainID : safeChainID};
+			const from = {abi, address: toAddress(token), chainId: safeChainID};
 			calls.push({...from, functionName: 'symbol'});
 			calls.push({...from, functionName: 'decimals'});
 			if (!isZeroAddress(address)) {
@@ -424,6 +447,7 @@ export const RevokeContextApp = (props: {
 				name: name as string
 			};
 		}
+
 		const _expandedAllowances: TExpandedAllowance[] = [];
 
 		/******************************************************************************************
@@ -435,36 +459,38 @@ export const RevokeContextApp = (props: {
 				args: allowance.args,
 				blockNumber: allowance.blockNumber,
 				transactionHash: allowance.transactionHash,
-				symbol: dictionary[allowance.address].symbol,
-				decimals: dictionary[allowance.address].decimals,
+				symbol: dictionary[allowance.address]?.symbol,
+				decimals: dictionary[allowance.address]?.decimals,
 				balanceOf: toNormalizedBN(
-					dictionary[allowance.address].balanceOf,
-					dictionary[allowance.address].decimals
-				).normalized,
-				name: dictionary[allowance.address].name
+					dictionary[allowance.address]?.balanceOf,
+					dictionary[allowance.address]?.decimals
+				)?.normalized,
+				name: dictionary[allowance.address]?.name,
+				chainID: allowance.chainID
 			});
 		}
 
-		set_expandedAllowances(_expandedAllowances);
-	}, [uniqueTokenAddresses, allowances, isDoneWithInitialFetch, chainID, safeChainID, address]);
+		addAllToDB(_expandedAllowances);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [allowances, safeChainID, address, `${uniqueTokenAddresses}`]);
 
 	/**********************************************************************************************
 	 ** When we have our allowances ready to be stored in DB, we chech if there're some allowances
 	 ** is array and store them one by one in DB.
 	 *********************************************************************************************/
-	useAsyncTrigger(async () => {
-		if (expandedAllowances.length < 1 || !address) {
+	const addAllToDB = async (allowances: TExpandedAllowance[]): Promise<void> => {
+		if (allowances.length < 1 || !isDoneWithInitialFetch) {
 			return;
 		}
 
-		for (const allowance of expandedAllowances) {
+		for (const allowance of allowances) {
 			addApproveEventEntry({
 				address: allowance.address,
 				blockNumber: allowance.blockNumber,
 				transactionHash: allowance.transactionHash,
 				symbol: allowance.symbol,
 				decimals: allowance.decimals,
-				chainID: safeChainID,
+				chainID: allowance.chainID,
 				owner: allowance.args.owner,
 				sender: allowance.args.sender,
 				value: allowance.args.value as bigint,
@@ -472,8 +498,7 @@ export const RevokeContextApp = (props: {
 				name: allowance.name
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [expandedAllowances.length]);
+	};
 
 	/**********************************************************************************************
 	 ** After storing allowances to DB, we update chain-sync entry according to latest allowance
@@ -483,15 +508,15 @@ export const RevokeContextApp = (props: {
 		if (!address) {
 			return;
 		}
-		const lastAllowanceBlockNumber = cachedApproveEvents[cachedApproveEvents.length - 1]?.blockNumber;
+		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
 		updateChainSyncEntry({
 			address,
-			chainID: chainID,
+			chainID: safeChainID,
 			blockNumber: lastAllowanceBlockNumber
 		});
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [cachedApproveEvents.length, safeChainID]);
+	}, [chainFilteredAllowances.length]);
 
 	const contextValue = useDeepCompareMemo(
 		(): TRevokeContext => ({
