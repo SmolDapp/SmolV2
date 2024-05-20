@@ -4,6 +4,9 @@
 	"workspaces": [
 		"packages/*"
 	],
+	"engines": {
+		"node": "20.x"
+	},
 	"scripts": {
 		"prepare": "husky install",
 		"prettier-format": "prettier --config .prettierrc ./packages/**/**/*.{json,js,ts,tsx,css,md} --write",
