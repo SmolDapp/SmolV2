@@ -31,13 +31,13 @@ function MyApp(props: AppProps): ReactElement {
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
 				]}>
-				<VaultsContextApp>
-					<WalletContextApp>
+				<WalletContextApp>
+					<VaultsContextApp>
 						<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
 							<Layout {...props} />
 						</main>
-					</WalletContextApp>
-				</VaultsContextApp>
+					</VaultsContextApp>
+				</WalletContextApp>
 			</WithMom>
 			<Toaster
 				toastOptions={{
