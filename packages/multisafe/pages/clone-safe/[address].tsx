@@ -16,7 +16,6 @@ import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
 import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
-import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -278,6 +277,11 @@ function Safe(): ReactElement {
 }
 
 export default function MultisafeClonableWrapper(): ReactElement {
+	const router = useRouter();
+	if (!router.isReady) {
+		return <Fragment />;
+	}
+
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -296,4 +300,3 @@ MultisafeClonableWrapper.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;

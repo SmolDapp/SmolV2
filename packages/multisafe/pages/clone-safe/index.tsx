@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {Fragment, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress, truncateHex, ZERO_ADDRESS} from '@builtbymom/web3/utils';
@@ -15,7 +15,6 @@ import {Button} from '@lib/primitives/Button';
 import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
-import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 import type {GetTransactionReturnType, Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -40,6 +39,7 @@ const defaultExistingSafeArgs: TExistingSafeArgs = {
 	address: ZERO_ADDRESS,
 	salt: 0n
 };
+
 function Safe(): ReactElement {
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -267,6 +267,11 @@ function Safe(): ReactElement {
 }
 
 export default function MultisafeCloneWrapper(): ReactElement {
+	const router = useRouter();
+	if (!router.isReady) {
+		return <Fragment />;
+	}
+
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -285,4 +290,3 @@ MultisafeCloneWrapper.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;

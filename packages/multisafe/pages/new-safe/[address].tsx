@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {Fragment, useMemo, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {mainnet} from 'viem/chains';
@@ -14,7 +14,6 @@ import {IconEdit} from '@lib/icons/IconEdit';
 import {Button} from '@lib/primitives/Button';
 import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 
-import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 
 function Safe(): ReactElement {
@@ -168,6 +167,11 @@ function Safe(): ReactElement {
 }
 
 export default function MultisafeDeployNewWrapper(): ReactElement {
+	const router = useRouter();
+	if (!router.isReady) {
+		return <Fragment />;
+	}
+
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -186,4 +190,3 @@ MultisafeDeployNewWrapper.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;

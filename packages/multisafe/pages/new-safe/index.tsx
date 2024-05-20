@@ -20,7 +20,6 @@ import {IconDoc} from '@lib/icons/IconDoc';
 import {IconFire} from '@lib/icons/IconFire';
 import {Button} from '@lib/primitives/Button';
 
-import type {GetServerSideProps} from 'next';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -516,6 +515,11 @@ function Safe(): ReactElement {
 }
 
 export default function MultisafeNewWrapper(): ReactElement {
+	const router = useRouter();
+	if (!router.isReady) {
+		return <Fragment />;
+	}
+
 	return (
 		<MultisafeContextApp>
 			<Safe />
@@ -535,25 +539,3 @@ MultisafeNewWrapper.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-
-// address, owners, threshold, singleton, salt
-
-// export const getServerSideProps = (async () => ({props: {}})) satisfies GetServerSideProps;
-type TPageProps = {
-	address: string;
-	owners: string[];
-	threshold: number;
-	singleton: string;
-	salt: string;
-};
-export const getServerSideProps: GetServerSideProps<TPageProps> = async ({params}) => {
-	return {
-		props: {
-			address: params?.address as string,
-			owners: (params?.owners as string).split('_'),
-			threshold: parseInt(params?.threshold as string, 10),
-			singleton: params?.singleton as string,
-			salt: params?.salt as string
-		}
-	};
-};

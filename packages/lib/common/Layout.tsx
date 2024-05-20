@@ -17,7 +17,7 @@ type TAppProp = {
 	children: ReactNode;
 	info: string;
 };
-function App(props: TAppProp): ReactElement {
+export function App(props: TAppProp): ReactElement {
 	return (
 		<div>
 			<div className={'flex w-full justify-end'}>
