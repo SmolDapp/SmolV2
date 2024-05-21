@@ -145,8 +145,9 @@ export function SendWizard(): ReactElement {
 	 *********************************************************************************************/
 	const onHandleApprove = useCallback(async (): Promise<void> => {
 		await approveSolverSpender(set_approveStatus);
-		refreshSolverAllowance();
-	}, [approveSolverSpender, refreshSolverAllowance]);
+		await refreshSolverAllowance();
+		await performSolverSwap(set_swapStatus);
+	}, [approveSolverSpender, performSolverSwap, refreshSolverAllowance]);
 
 	const isSendButtonDisabled =
 		configuration.input.normalizedBigAmount.raw === toBigInt(0) || !configuration.input.isValid || !isValid;
@@ -168,7 +169,7 @@ export function SendWizard(): ReactElement {
 						isBusy={approveStatus.pending}
 						isDisabled={isSendButtonDisabled}
 						onClick={onHandleApprove}>
-						<b>{'Approve'}</b>
+						<b>{'Approve and swap'}</b>
 					</Button>
 				)}
 				<div>
