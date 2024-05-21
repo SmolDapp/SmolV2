@@ -164,7 +164,7 @@ export const RevokeContextApp = (props: {
 				addChainSync({...entry, id: Date.now()});
 				set_chainSyncNonce(nonce => nonce + 1);
 			} catch (error) {
-				//Do nothing
+				console.log('lol', error);
 			}
 		},
 		[addChainSync, getAllChainSync]
@@ -422,9 +422,8 @@ export const RevokeContextApp = (props: {
 	 ** Here, we obtain distinctive tokens based on their token addresses to avoid making
 	 ** additional requests for the same tokens.
 	 *********************************************************************************************/
-	const uniqueTokenAddresses = useMemo(() => {
-		const allowanceAddresses = allowances?.map(allowance => allowance.address);
-		return [...new Set(allowanceAddresses)];
+	const uniqueAllowancesByToken = useMemo(() => {
+		return [...new Map(allowances?.map(item => [item.address, item])).values()];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [`${allowances}`]);
 
@@ -433,13 +432,13 @@ export const RevokeContextApp = (props: {
 	 ** and decimals. Here we take only unique tokens from all allowances and make a query.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		if (!uniqueTokenAddresses || !allowances || !safeChainID) {
+		if (!uniqueAllowancesByToken || !allowances || !safeChainID) {
 			return;
 		}
 
 		const calls = [];
-		for (const token of uniqueTokenAddresses) {
-			const from = {abi, address: toAddress(token), chainId: safeChainID};
+		for (const token of uniqueAllowancesByToken) {
+			const from = {abi, address: toAddress(token.address), chainId: token.chainID};
 			calls.push({...from, functionName: 'symbol'});
 			calls.push({...from, functionName: 'decimals'});
 			if (!isZeroAddress(address)) {
@@ -462,15 +461,14 @@ export const RevokeContextApp = (props: {
 		 ** Once we have an array of those additional fields, we form a dictionary
 		 ** with key of an address and additional fields as a value.
 		 *****************************************************************************************/
-		for (let i = 0; i < uniqueTokenAddresses.length; i++) {
+		for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
 			const itterator = i * 4;
-			const address = uniqueTokenAddresses[i];
 			const symbol = data[itterator].result;
 			const decimals = data[itterator + 1].result;
 			const balanceOf = data[itterator + 2].result;
 			const name = data[itterator + 3].result;
 
-			dictionary[address] = {
+			dictionary[uniqueAllowancesByToken[i].address] = {
 				symbol: symbol as string,
 				decimals: decimals as number,
 				balanceOf: balanceOf as bigint,
@@ -503,7 +501,7 @@ export const RevokeContextApp = (props: {
 
 		addAllToDB(_expandedAllowances);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [allowances, safeChainID, address, `${uniqueTokenAddresses}`]);
+	}, [`${uniqueAllowancesByToken}`]);
 
 	/**********************************************************************************************
 	 ** When we have our allowances ready to be stored in DB, we chech if there're some allowances

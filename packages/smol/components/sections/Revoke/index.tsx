@@ -3,6 +3,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
+import {IconPlus} from '@lib/icons/IconPlus';
 import {Button} from '@lib/primitives/Button';
 import {isDev} from '@lib/utils/constants';
 
@@ -52,7 +53,8 @@ export function Revoke(): ReactElement {
 							dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected})
 						)
 					}>
-					{'+ Add token'}
+					<IconPlus className={'mr-2 size-3'} />
+					{'Add token'}
 				</Button>
 			) : null}
 			{allowances?.length ? <AllowancesFilters /> : null}
