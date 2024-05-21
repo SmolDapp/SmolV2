@@ -145,7 +145,7 @@ export function Portfolio(): ReactNode {
 	}, [blockNumber, refetch]);
 
 	return (
-		<div className={'w-full max-w-[848px] rounded-2xl bg-white p-8 shadow-xl'}>
+		<div className={'w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl'}>
 			<div className={'font-medium'}>
 				<p className={'mb-2 text-xs'}>{'Total Deposited'}</p>
 				<p className={'text-4xl'}>
@@ -157,37 +157,37 @@ export function Portfolio(): ReactNode {
 					/>
 				</p>
 			</div>
-			<div className={'mt-12'}>
-				<div className={'mb-4 mr-4 flex items-center justify-between'}>
-					<p className={'min-w-[260px] text-xs font-medium'}>{'Your Opportunities'}</p>
-					<div className={'flex text-xs text-neutral-600'}>
-						<div
+			<div className={'flex w-full flex-col'}>
+				<div className={'mb-4 mt-12 grid w-full grid-cols-12 border-neutral-200 pr-4 text-xs'}>
+					<p className={'col-span-5 flex flex-row items-center justify-between font-medium'}>
+						{'Your Opportunities'}
+					</p>
+					<div className={'col-span-7 grid grid-cols-8 gap-x-7 text-neutral-600'}>
+						<button
 							className={
-								'flex cursor-pointer items-center justify-end gap-1 transition-colors hover:text-neutral-700'
+								'col-span-2 flex flex-row items-center justify-end transition-colors hover:text-neutral-800'
 							}>
 							{'APY'}
 							<IconChevronPlain />
-						</div>
-
-						<div
+						</button>
+						<button
 							className={
-								'flex w-full min-w-[160px] cursor-pointer items-center justify-end gap-1 transition-colors hover:text-neutral-700'
+								'col-span-2 flex items-center justify-end transition-colors hover:text-neutral-800'
 							}>
 							{'You have'}
 							<IconChevronPlain />
-						</div>
-						<div
+						</button>
+						<button
 							className={
-								'flex min-w-[120px] cursor-pointer items-center justify-end gap-1 transition-colors hover:text-neutral-700'
+								'col-span-2 flex flex-row items-center justify-end transition-colors hover:text-neutral-800'
 							}>
 							{'Annual Yield'}
 							<IconChevronPlain />
-						</div>
-						<div className={'flex w-full min-w-[140px] items-center justify-end gap-1 '}>
-							{'Withdraw/Deposit'}
-						</div>
+						</button>
+						<div className={'col-span-2 flex flex-row items-center justify-end'}>{'Withdraw/Deposit'}</div>
 					</div>
 				</div>
+
 				{getLayout()}
 			</div>
 		</div>

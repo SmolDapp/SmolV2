@@ -29,6 +29,8 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	const {vaults: rawVaults, isLoading: isLoadingVaults} = useFetchYearnVaults([chainID]);
 	const {listTokensWithBalance, isLoading: isLoadingBalance} = useTokensWithBalance();
 
+	// const {getBalance} = useWallet();
+
 	const userVaults = useMemo(() => {
 		const result: TDict<TYDaemonVault> = {};
 		const tokensWithBalance = listTokensWithBalance(chainID);
@@ -39,6 +41,18 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 				result[vault.address] = vault;
 			}
 		});
+
+		// for (const vaultAddress in rawVaults) {
+		// 	const hasBalance =
+		// 		getBalance({address: rawVaults[vaultAddress].address, chainID: rawVaults[vaultAddress].chainID}).raw >
+		// 		0n;
+		// 	const hasStakingBalance =
+		// 		getBalance({address: rawVaults[vaultAddress].staking.address, chainID: rawVaults[vaultAddress].chainID})
+		// 			.raw > 0n;
+		// 	if (hasBalance || hasStakingBalance) {
+		// 		result[vaultAddress] = rawVaults[vaultAddress];
+		// 	}
+		// }
 		return result;
 	}, [chainID, listTokensWithBalance, rawVaults]);
 

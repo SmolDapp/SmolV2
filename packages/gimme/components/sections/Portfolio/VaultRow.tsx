@@ -21,8 +21,8 @@ export function VaultRow({
 	const tokenNetworkString = `${vault.token.symbol} on ${vaultChainName}`.toLocaleUpperCase();
 
 	return (
-		<div className={'flex justify-between rounded-md border border-neutral-400 p-6'}>
-			<div className={'flex min-w-[236px] items-center gap-4'}>
+		<div className={'grid w-full grid-cols-12 justify-between rounded-md border border-neutral-400 p-6'}>
+			<div className={'col-span-5 flex min-w-[236px] items-center gap-4'}>
 				<ImageWithFallback
 					alt={vault.token.symbol}
 					unoptimized
@@ -39,13 +39,13 @@ export function VaultRow({
 					</div>
 				</div>
 			</div>
-			<div className={'flex items-center'}>
-				<div className={'w-full'}>
-					<div className={'bg-primary mb-4 flex w-full rounded-md p-1 text-xs font-bold'}>
+			<div className={'col-span-7 grid grid-cols-8 gap-x-7'}>
+				<div className={'group col-span-2 flex flex-row items-center justify-end'}>
+					<div className={'bg-primary mb-4 flex rounded-md p-1 text-xs font-bold'}>
 						{`APY ${formatTAmount({value: vault.apr.netAPR, decimals: vault.decimals, symbol: 'percent'})}`}
 					</div>
 				</div>
-				<div className={'flex w-full  min-w-[160px] flex-col items-end'}>
+				<div className={'group col-span-2 flex flex-col items-end'}>
 					<p className={'font-bold'}>
 						<Counter
 							value={balance.normalized}
@@ -57,12 +57,12 @@ export function VaultRow({
 						{price?.normalized ? formatCounterValue(balance.normalized, price?.normalized) : 'N/A'}
 					</p>
 				</div>
-				<div className={'mb-4 flex  w-full min-w-[120px] justify-end'}>
+				<div className={'group col-span-2 mb-4 flex flex-row items-center justify-end'}>
 					<p className={'font-bold'}>
 						{`+${formatCounterValue(percentOf(balance.normalized, vault.apr.netAPR * 100), price?.normalized || 0)}`}
 					</p>
 				</div>
-				<div className={'flex w-full min-w-[136px] justify-end gap-2'}>
+				<div className={'group col-span-2 flex flex-row items-center justify-end gap-2'}>
 					<Link href={`/earn?tokenAddress=${vault.address}`}>
 						<button
 							className={
