@@ -27,10 +27,7 @@ function MyApp(props: AppProps): ReactElement {
 			/>
 			<WithMom
 				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={[
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
-				]}>
+				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/yearn.json']}>
 				<WalletContextApp>
 					<VaultsContextApp>
 						<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
