@@ -41,7 +41,7 @@ export function VaultRow({
 			<div className={'flex items-center'}>
 				<div className={'w-full'}>
 					<div className={'bg-primary mb-4 flex w-full rounded-md p-1 text-xs font-bold'}>
-						{`APR ${formatTAmount({value: vault.apr.netAPR, decimals: vault.decimals, symbol: 'percent'})}`}
+						{`APY ${formatTAmount({value: vault.apr.netAPR, decimals: vault.decimals, symbol: 'percent'})}`}
 					</div>
 				</div>
 

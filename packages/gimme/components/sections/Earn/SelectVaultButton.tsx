@@ -72,7 +72,7 @@ export function SelectOpportunityButton({
 									</p>
 								</div>
 								<div className={'bg-primary max-w-22 w-full rounded-md p-1 text-xs font-bold'}>
-									{`APR ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
+									{`APY ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
 								</div>
 								<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
 							</>
@@ -80,7 +80,7 @@ export function SelectOpportunityButton({
 							<div className={'flex size-full flex-col items-center'}>
 								<p className={'font-bold'}>{'Select Opportunity'}</p>
 								<p className={'text-xs'}>
-									{`Earn up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APR`}
+									{`Earn up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
 								</p>
 							</div>
 						)}
