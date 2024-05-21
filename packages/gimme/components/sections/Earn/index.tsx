@@ -4,7 +4,7 @@ import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {isAddress, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
@@ -18,7 +18,7 @@ import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVa
 
 export function Earn(): ReactElement {
 	const router = useRouter();
-	const {chainID} = useChainID();
+	const {chainID} = useWeb3();
 
 	const {getToken} = useWallet();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
