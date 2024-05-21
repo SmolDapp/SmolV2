@@ -24,6 +24,29 @@ export const AssetFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const assetFilter = configuration.allowancesFilters.asset.filter;
 
+	const onCheckedChange = (option: TFilterAllowance): void => {
+		if (!assetFilter?.some(item => item === option.address)) {
+			dispatchConfiguration({
+				type: 'SET_FILTER',
+				payload: {
+					...configuration.allowancesFilters,
+					asset: {
+						filter: [...(assetFilter ?? []), option.address]
+					}
+				}
+			});
+		} else {
+			const filteredOptions = assetFilter.filter(item => item !== option.address);
+			dispatchConfiguration({
+				type: 'SET_FILTER',
+				payload: {
+					...configuration.allowancesFilters,
+					asset: {filter: filteredOptions}
+				}
+			});
+		}
+	};
+
 	return (
 		<DropdownMenu.Root modal>
 			<DropdownMenu.Trigger>{children}</DropdownMenu.Trigger>
@@ -37,28 +60,7 @@ export const AssetFilterDropdown = (props: {
 					<DropdownMenuCheckboxItem
 						key={option.transactionHash}
 						checked={assetFilter?.some(item => item === option.address)}
-						onCheckedChange={() => {
-							if (!assetFilter?.some(item => item === option.address)) {
-								dispatchConfiguration({
-									type: 'SET_FILTER',
-									payload: {
-										...configuration.allowancesFilters,
-										asset: {
-											filter: [...(assetFilter ?? []), option.address]
-										}
-									}
-								});
-							} else {
-								const filteredOptions = assetFilter.filter(item => item !== option.address);
-								dispatchConfiguration({
-									type: 'SET_FILTER',
-									payload: {
-										...configuration.allowancesFilters,
-										asset: {filter: filteredOptions}
-									}
-								});
-							}
-						}}>
+						onCheckedChange={() => onCheckedChange(option)}>
 						{option.symbol}
 					</DropdownMenuCheckboxItem>
 				))}

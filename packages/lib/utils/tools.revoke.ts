@@ -12,7 +12,6 @@ export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
  * based on their blockNumber to obtain the most recent
  * ones and filter out those with null values.
  *******************************************************/
-
 export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowances => {
 	const senderMap = approvalEvents.reduce((map: {[key: string]: TAllowance}, obj: TAllowance) => {
 		if (obj.args.sender in map) {
@@ -34,7 +33,6 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
  * Utility that helps us to convert token amount
  * from bigint to human readable number
  **********************************************/
-
 export const getTokenAmount = (decimals?: number, amountInBigint?: bigint): string => {
 	return toNormalizedBN(amountInBigint ?? 0n, decimals || 0).display;
 };
@@ -45,7 +43,6 @@ export const getTokenAmount = (decimals?: number, amountInBigint?: bigint): stri
  * the unlimited allowance diminishes. Hence, we must recognize an "unlimited" allowance as
  * a very large yet variable quantity.
  *********************************************************************************************/
-
 export const isUnlimited = (value: bigint): boolean => {
 	return (value as bigint) > parseUnits('115', 74);
 };

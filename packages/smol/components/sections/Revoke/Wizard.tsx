@@ -6,7 +6,7 @@ import {useAllowances} from './useAllowances';
 
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 
-export const RevokeWizard = (props: {
+type TRevokeWizardProps = {
 	revokeStatus: {
 		none: boolean;
 		pending: boolean;
@@ -21,7 +21,9 @@ export const RevokeWizard = (props: {
 			error: boolean;
 		}>
 	>;
-}): ReactElement => {
+};
+
+export const RevokeWizard = (props: TRevokeWizardProps): ReactElement => {
 	const {dispatchConfiguration, configuration} = useAllowances();
 
 	return (

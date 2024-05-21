@@ -25,6 +25,29 @@ export const SpenderFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const spenderFilter = configuration.allowancesFilters.spender.filter;
 
+	const onCheckedChange = (option: TFilterAllowance): void => {
+		if (!spenderFilter?.some(item => item === option.args.sender)) {
+			dispatchConfiguration({
+				type: 'SET_FILTER',
+				payload: {
+					...configuration.allowancesFilters,
+					spender: {
+						filter: [...(spenderFilter ?? []), option.args.sender]
+					}
+				}
+			});
+		} else {
+			const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
+			dispatchConfiguration({
+				type: 'SET_FILTER',
+				payload: {
+					...configuration.allowancesFilters,
+					spender: {filter: filteredOptions}
+				}
+			});
+		}
+	};
+
 	return (
 		<DropdownMenu.Root modal>
 			<DropdownMenu.Trigger>{children}</DropdownMenu.Trigger>
@@ -38,28 +61,7 @@ export const SpenderFilterDropdown = (props: {
 					<DropdownMenuCheckboxItem
 						key={option.symbol}
 						checked={spenderFilter?.some(item => item === option.args.sender)}
-						onCheckedChange={() => {
-							if (!spenderFilter?.some(item => item === option.args.sender)) {
-								dispatchConfiguration({
-									type: 'SET_FILTER',
-									payload: {
-										...configuration.allowancesFilters,
-										spender: {
-											filter: [...(spenderFilter ?? []), option.args.sender]
-										}
-									}
-								});
-							} else {
-								const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
-								dispatchConfiguration({
-									type: 'SET_FILTER',
-									payload: {
-										...configuration.allowancesFilters,
-										spender: {filter: filteredOptions}
-									}
-								});
-							}
-						}}>
+						onCheckedChange={() => onCheckedChange(option)}>
 						{truncateHex(option.args.sender, 7)}
 					</DropdownMenuCheckboxItem>
 				))}
