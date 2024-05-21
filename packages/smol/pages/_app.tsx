@@ -9,7 +9,14 @@ import {WithPopularTokens} from '@smolContexts/usePopularTokens';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
+import {
+	IconAppAddressBook,
+	IconAppDisperse,
+	IconAppEarn,
+	IconAppSend,
+	IconAppStream,
+	IconAppSwap
+} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconWallet} from '@lib/icons/IconWallet';
@@ -30,6 +37,11 @@ const MENU = [
 		href: '/apps/disperse',
 		label: 'Disperse',
 		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/swap',
+		label: 'Swap',
+		icon: <IconAppSwap />
 	},
 	{
 		href: '/apps/earn',

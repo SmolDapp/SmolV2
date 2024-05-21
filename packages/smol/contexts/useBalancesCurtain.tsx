@@ -2,7 +2,6 @@
 
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {IconGears} from 'lib/icons/IconGears';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {CurtainContent} from 'lib/primitives/Curtain';
@@ -20,12 +19,12 @@ import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {usePopularTokens} from './usePopularTokens';
 
-import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {
@@ -36,6 +35,7 @@ import type {
 	TSelectCallback,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
+import type {TPrice} from '@lib/utils/types/types';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,
