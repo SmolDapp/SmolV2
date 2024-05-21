@@ -168,11 +168,19 @@ export function Portfolio(): ReactNode {
 							{'APY'}
 							<IconChevronPlain />
 						</div>
+
 						<div
 							className={
 								'flex w-full min-w-[160px] cursor-pointer items-center justify-end gap-1 transition-colors hover:text-neutral-700'
 							}>
-							{'Earned'}
+							{'You have'}
+							<IconChevronPlain />
+						</div>
+						<div
+							className={
+								'flex min-w-[120px] cursor-pointer items-center justify-end gap-1 transition-colors hover:text-neutral-700'
+							}>
+							{'Annual Yield'}
 							<IconChevronPlain />
 						</div>
 						<div className={'flex w-full min-w-[140px] items-center justify-end gap-1 '}>
