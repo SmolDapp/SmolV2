@@ -34,7 +34,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 					<IconRefresh className={'size-3 text-neutral-600 transition-colors hover:text-neutral-900'} />
 				</button>
 			</div>
-			<div className={'flex gap-x-3'}>
+			<div className={'mb-6 grid grid-cols-3 gap-3 md:flex md:gap-y-3'}>
 				<AssetFilterDropdown
 					allOptions={uniqueAllowancesByToken.map(item => {
 						return {
@@ -46,9 +46,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 						};
 					})}>
 					<div
-						onClick={() => {}}
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200',
+							'flex items-center rounded-md bg-neutral-200 h-12 md:h-8 font-medium md:font-normal  justify-center',
 							configuration.allowancesFilters.asset.filter.length ? 'bg-neutral-400' : ''
 						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
@@ -69,7 +68,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 					})}>
 					<div
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200',
+							'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+							'md:h-8 md:font-normal',
 							configuration.allowancesFilters.spender.filter.length ? 'bg-neutral-400' : ''
 						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
@@ -82,11 +82,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: {...configuration.allowancesFilters, unlimited: {filter: 'unlimited'}}
+							payload: configuration.allowancesFilters.unlimited.filter
+								? {...configuration.allowancesFilters, unlimited: {filter: null}}
+								: {...configuration.allowancesFilters, unlimited: {filter: 'unlimited'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200',
+						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.unlimited.filter === 'unlimited' ? 'bg-neutral-400' : ''
 					)}>
 					<p className={'px-3 py-2 text-xs leading-4'}>{'Unlimited'}</p>
@@ -95,11 +98,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: {...configuration.allowancesFilters, unlimited: {filter: 'limited'}}
+							payload: configuration.allowancesFilters.unlimited.filter
+								? {...configuration.allowancesFilters, unlimited: {filter: null}}
+								: {...configuration.allowancesFilters, unlimited: {filter: 'limited'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200',
+						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.unlimited.filter === 'limited' ? 'bg-neutral-400' : ''
 					)}>
 					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'Limited'}</p>
@@ -109,11 +115,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: {...configuration.allowancesFilters, withBalance: {filter: 'with-balance'}}
+							payload: configuration.allowancesFilters.withBalance.filter
+								? {...configuration.allowancesFilters, withBalance: {filter: null}}
+								: {...configuration.allowancesFilters, withBalance: {filter: 'with-balance'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200',
+						'flex items-center rounded-md bg-neutral-200  justify-center h-12 font-medium ',
+						'md:h-8 md:font-normal',
 						configuration.allowancesFilters?.withBalance.filter === 'with-balance' ? 'bg-neutral-400' : ''
 					)}>
 					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'With balance'}</p>
@@ -123,11 +132,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: {...configuration.allowancesFilters, withBalance: {filter: 'without-balance'}}
+							payload: configuration.allowancesFilters.withBalance.filter
+								? {...configuration.allowancesFilters, withBalance: {filter: null}}
+								: {...configuration.allowancesFilters, withBalance: {filter: 'without-balance'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200',
+						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium',
+						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.withBalance.filter === 'without-balance' ? 'bg-neutral-400' : ''
 					)}>
 					<p className={'flex items-center rounded-md px-3 py-2 text-xs leading-4'}>{'Without balance'}</p>

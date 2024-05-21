@@ -33,7 +33,6 @@ export type TExpandedAllowance = TAllowance & {
 	balanceOf?: number;
 };
 
-// Edit when multiple select added
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
 
 export type TRevokeContext = {

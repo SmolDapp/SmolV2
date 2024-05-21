@@ -2,6 +2,7 @@ import {type ReactElement, useMemo, useState} from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {IconSpinner} from 'packages/lib/icons/IconSpinner';
 
+import {AllowanceItem} from './AllowanceItem';
 import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
@@ -28,7 +29,6 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 	 ** are sorted ether asc or desc order. If sortings are not selected
 	 ** we return allowances in the initial timestamp order
 	 *********************************************************************************************/
-
 	const sortedAllowances = useMemo(() => {
 		if (sort.sortBy === 'amount') {
 			return allowances?.toSorted((a, b) =>
@@ -59,100 +59,112 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 		<>
 			{(!allowances || allowances.length === 0) && !isFetchingData ? (
 				<div className={'mt-10 flex w-full justify-center'}>
-					<p>{'No allowances'}</p>
+					<p>{'Nothing to revoke!'}</p>
 				</div>
 			) : (
-				<table
-					className={
-						'mt-6 w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400'
-					}>
-					{!isFetchingData && (
-						<thead className={'bg-gray-50 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'}>
-							<tr>
-								<th className={' font-light text-neutral-500'}>
-									<button
-										onClick={() =>
-											set_sort(prev => {
-												return {
-													...sort,
-													sortBy: 'token',
-													asc: prev.sortBy === 'token' ? !prev.asc : prev.asc
-												};
-											})
-										}
-										className={'flex items-center'}>
-										<p>{'Asset'}</p>
-										{sort.sortBy === 'token' && !sort.asc ? (
-											<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-										) : sort.sortBy === 'token' && sort.asc ? (
-											<IconChevronPlain className={'ml-1 size-4'} />
-										) : (
-											<IconChevronPlain className={'ml-1 size-4'} />
-										)}
-									</button>
-								</th>
-								<th className={'flex justify-end font-light text-neutral-500'}>
-									<button
-										onClick={() =>
-											set_sort(prev => {
-												return {
-													...sort,
-													sortBy: 'amount',
-													asc: prev.sortBy === 'amount' ? !prev.asc : prev.asc
-												};
-											})
-										}
-										className={'flex items-center'}>
-										<p>{'Amount'}</p>
-										{sort.sortBy === 'amount' && !sort.asc ? (
-											<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-										) : sort.sortBy === 'amount' && sort.asc ? (
-											<IconChevronPlain className={'ml-1 size-4'} />
-										) : (
-											<IconChevronPlain className={'ml-1 size-4'} />
-										)}
-									</button>
-								</th>
-								<th className={'px-6 font-light text-neutral-500'}>
-									<div className={'flex justify-end'}>
+				<>
+					<table
+						className={
+							'mt-6 hidden w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 md:table md:w-full rtl:text-right dark:text-gray-400'
+						}>
+						{!isFetchingData && (
+							<thead
+								className={
+									'w-full bg-gray-50 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'
+								}>
+								<tr>
+									<th className={' font-light text-neutral-500'}>
 										<button
 											onClick={() =>
 												set_sort(prev => {
 													return {
 														...sort,
-														sortBy: 'spender',
-														asc: prev.sortBy === 'spender' ? !prev.asc : prev.asc
+														sortBy: 'token',
+														asc: prev.sortBy === 'token' ? !prev.asc : prev.asc
 													};
 												})
 											}
-											className={'flex items-center justify-end'}>
-											<p>{'Spender'}</p>
-											{sort.sortBy === 'spender' && !sort.asc ? (
+											className={'flex items-center'}>
+											<p>{'Asset'}</p>
+											{sort.sortBy === 'token' && !sort.asc ? (
 												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-											) : sort.sortBy === 'spender' && sort.asc ? (
+											) : sort.sortBy === 'token' && sort.asc ? (
 												<IconChevronPlain className={'ml-1 size-4'} />
 											) : (
 												<IconChevronPlain className={'ml-1 size-4'} />
 											)}
 										</button>
-									</div>
-								</th>
-								<th className={'px-6 font-medium'}></th>
-							</tr>
-						</thead>
-					)}
-					<tbody
-						suppressHydrationWarning
-						className={'w-full'}>
-						{sortedAllowances?.map(item => (
-							<AllowanceRow
-								key={item.transactionHash}
-								allowance={item}
+									</th>
+									<th className={'flex justify-end font-light text-neutral-500'}>
+										<button
+											onClick={() =>
+												set_sort(prev => {
+													return {
+														...sort,
+														sortBy: 'amount',
+														asc: prev.sortBy === 'amount' ? !prev.asc : prev.asc
+													};
+												})
+											}
+											className={'flex items-center'}>
+											<p>{'Amount'}</p>
+											{sort.sortBy === 'amount' && !sort.asc ? (
+												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+											) : sort.sortBy === 'amount' && sort.asc ? (
+												<IconChevronPlain className={'ml-1 size-4'} />
+											) : (
+												<IconChevronPlain className={'ml-1 size-4'} />
+											)}
+										</button>
+									</th>
+									<th className={'px-6 font-light text-neutral-500'}>
+										<div className={'flex justify-end'}>
+											<button
+												onClick={() =>
+													set_sort(prev => {
+														return {
+															...sort,
+															sortBy: 'spender',
+															asc: prev.sortBy === 'spender' ? !prev.asc : prev.asc
+														};
+													})
+												}
+												className={'flex items-center justify-end'}>
+												<p>{'Spender'}</p>
+												{sort.sortBy === 'spender' && !sort.asc ? (
+													<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+												) : sort.sortBy === 'spender' && sort.asc ? (
+													<IconChevronPlain className={'ml-1 size-4'} />
+												) : (
+													<IconChevronPlain className={'ml-1 size-4'} />
+												)}
+											</button>
+										</div>
+									</th>
+									<th className={'px-6 font-medium'}></th>
+								</tr>
+							</thead>
+						)}
+						<tbody
+							suppressHydrationWarning
+							className={'w-full'}>
+							{sortedAllowances?.map(item => (
+								<AllowanceRow
+									allowance={item}
+									revoke={revoke}
+								/>
+							))}
+						</tbody>
+					</table>
+					<div className={'flex flex-col gap-y-2 md:hidden'}>
+						{allowances?.map(item => (
+							<AllowanceItem
 								revoke={revoke}
+								allowance={item}
 							/>
 						))}
-					</tbody>
-				</table>
+					</div>
+				</>
 			)}
 			{isFetchingData && (
 				<div className={'mt-10 flex items-center justify-center'}>
