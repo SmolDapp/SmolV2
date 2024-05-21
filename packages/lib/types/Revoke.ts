@@ -14,12 +14,13 @@ export type TAllowance = {
 	blockNumber: bigint;
 	transactionHash: TAddress;
 	chainID: number;
+	logIndex: number;
 };
 export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
 export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
 
 export type TRevokeConfiguration = {
-	tokenToCheck: string | undefined;
+	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
 	tokenToRevoke?: TTokenAllowance | undefined;
 	allowancesFilters: TAllowancesFilters;
@@ -61,7 +62,7 @@ export type TAllowancesFilters = {
 };
 
 export type TRevokeActions =
-	| {type: 'SET_TOKEN_TO_CHECK'; payload: string | undefined}
+	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
 	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
 	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
 	| {type: 'SET_FILTER'; payload: TAllowancesFilters}
@@ -78,10 +79,12 @@ export type TRevokeActions =
  ** sender: TAddress - Address that has access to approved tokens
  ** value: bigint - Amount of approved tokens
  ** blockNumber: bigint - The number of the block
+ ** logIndex: number - integer of the log index position in the block
  **	transactionHash: TAddress - uniqe hash of allowance
  ** name?: string - Name of a token that is approved
  ** symbol?: string - Symbol of a token that is approved
  ** decimals?: number - Decimals of a token that is approved
+ ** balanceOf?: number - Balance of a token that is apporved
  *********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
@@ -91,6 +94,7 @@ export type TApproveEventEntry = {
 	sender: TAddress;
 	value: bigint;
 	blockNumber: bigint;
+	logIndex: number;
 	transactionHash: TAddress;
 	symbol?: string;
 	decimals?: number;

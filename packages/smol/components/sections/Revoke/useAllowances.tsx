@@ -117,16 +117,30 @@ export const RevokeContextApp = (props: {
 					return;
 				}
 				const duplicateAllowace = cachedApproveEvents.find(
-					item => isAddressEqual(item.address, entry.address) && isAddressEqual(item.sender, entry.sender)
+					item =>
+						isAddressEqual(item.address, entry.address) &&
+						isAddressEqual(item.sender, entry.sender) &&
+						item.logIndex === entry.logIndex
+				);
+				if (duplicateAllowace) {
+					return;
+				}
+
+				const deprecateAllowance = cachedApproveEvents.find(
+					item =>
+						isAddressEqual(item.address, entry.address) &&
+						isAddressEqual(item.sender, entry.sender) &&
+						entry.logIndex > item.logIndex
 				);
 
-				if (duplicateAllowace?.id) {
-					deleteByID(duplicateAllowace?.id);
+				if (deprecateAllowance) {
+					deleteByID(deprecateAllowance.id);
+					set_entryNonce(nonce => nonce + 1);
 				}
 				add(entry);
 				set_entryNonce(nonce => nonce + 1);
-			} catch {
-				// Do nothing
+			} catch (error) {
+				//Do nothing
 			}
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,15 +152,22 @@ export const RevokeContextApp = (props: {
 	 *********************************************************************************************/
 	const addChainSyncEntry = useCallback(
 		async (entry: TApproveEventChainSyncEntry): Promise<void> => {
-			address;
 			try {
+				const chainSyncEntries = await getAllChainSync();
+				const duplicateEntry = chainSyncEntries.find(
+					item => isAddressEqual(item.address, entry.address) && item.chainID === entry.chainID
+				);
+
+				if (duplicateEntry) {
+					return;
+				}
 				addChainSync({...entry, id: Date.now()});
 				set_chainSyncNonce(nonce => nonce + 1);
-			} catch {
-				// Do nothing
+			} catch (error) {
+				//Do nothing
 			}
 		},
-		[addChainSync, address]
+		[addChainSync, getAllChainSync]
 	);
 
 	/**********************************************************************************************
@@ -194,9 +215,7 @@ export const RevokeContextApp = (props: {
 	 ** data for all tokens listed.
 	 *********************************************************************************************/
 	const tokenAddresses = useMemo(() => {
-		const arr = listTokensWithBalance(currentChainSyncEntry?.chainID).map(item => item.address);
-
-		return isTokensLoading ? [] : arr;
+		return isTokensLoading ? [] : listTokensWithBalance(currentChainSyncEntry?.chainID).map(item => item.address);
 	}, [currentChainSyncEntry?.chainID, isTokensLoading, listTokensWithBalance]);
 
 	/**********************************************************************************************
@@ -235,11 +254,12 @@ export const RevokeContextApp = (props: {
 		}
 
 		const filteredAllowances = _formatedAllowances.filter(
-			item => item.args.owner === address && item?.chainID === safeChainID
+			item => item.args.owner === address && item.chainID === safeChainID
 		);
 
 		return filteredAllowances;
-	}, [address, cachedApproveEvents, safeChainID]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [address, `${cachedApproveEvents}`, safeChainID]);
 
 	/**********************************************************************************************
 	 ** We sequentially apply filters to the allowances based on the provided filter object. First,
@@ -250,7 +270,7 @@ export const RevokeContextApp = (props: {
 	const filteredAllowances = useDeepCompareMemo(() => {
 		const filters = configuration.allowancesFilters;
 
-		const filteredAllowances = chainFilteredAllowances?.filter(item => {
+		return chainFilteredAllowances?.filter(item => {
 			if (filters.unlimited.filter === 'unlimited') {
 				if (!isUnlimited(item.args.value as bigint)) {
 					return false;
@@ -285,8 +305,6 @@ export const RevokeContextApp = (props: {
 
 			return true;
 		});
-
-		return filteredAllowances;
 	}, [configuration.allowancesFilters, chainFilteredAllowances]);
 
 	/**********************************************************************************************
@@ -318,9 +336,13 @@ export const RevokeContextApp = (props: {
 		pageSize: 1_000_000n
 	});
 
+	/**********************************************************************************************
+	 ** Separate function to fetch approve events for additional tokenToCheck.
+	 *********************************************************************************************/
+
 	const fetchTokenToSearch = useCallback(async () => {
 		const res = await getClient(chainID).getLogs({
-			address: [toAddress(configuration.tokenToCheck)],
+			address: [toAddress(configuration.tokenToCheck?.address)],
 			event: parsedApprovalEvent,
 			args: {
 				owner: address
@@ -330,7 +352,7 @@ export const RevokeContextApp = (props: {
 		});
 
 		const commonResult = await getClient(chainID).getLogs({
-			address: [...cachedApproveEvents.map(item => item.address), toAddress(configuration.tokenToCheck)],
+			address: [...cachedApproveEvents.map(item => item.address), toAddress(configuration.tokenToCheck?.address)],
 			event: parsedApprovalEvent,
 			args: {
 				owner: address
@@ -345,6 +367,14 @@ export const RevokeContextApp = (props: {
 		set_approveEvents(arroveEvents as TAllowances);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [configuration.tokenToCheck]);
+
+	/**********************************************************************************************
+	 ** Simple useEffect to trigger fetch, when new token selected
+	 *********************************************************************************************/
+	useEffect(() => {
+		configuration.tokenToCheck;
+		fetchTokenToSearch();
+	}, [configuration.tokenToCheck, fetchTokenToSearch]);
 
 	/**********************************************************************************************
 	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
@@ -466,7 +496,8 @@ export const RevokeContextApp = (props: {
 					dictionary[allowance.address]?.decimals
 				)?.normalized,
 				name: dictionary[allowance.address]?.name,
-				chainID: allowance.chainID
+				chainID: allowance.chainID,
+				logIndex: allowance.logIndex
 			});
 		}
 
@@ -495,7 +526,8 @@ export const RevokeContextApp = (props: {
 				sender: allowance.args.sender,
 				value: allowance.args.value as bigint,
 				balanceOf: allowance.balanceOf,
-				name: allowance.name
+				name: allowance.name,
+				logIndex: allowance.logIndex
 			});
 		}
 	};

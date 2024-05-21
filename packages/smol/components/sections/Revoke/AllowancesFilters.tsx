@@ -28,7 +28,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 
 	return (
 		<div className={'flex flex-col'}>
-			<div className={'mr-4 flex  py-2'}>
+			<div className={'mr-4 flex  pb-2 pt-4'}>
 				<p className={'mr-2 text-xs text-neutral-600 '}>{'Filters'}</p>
 				<button onClick={() => dispatchConfiguration({type: 'RESET_FILTER'})}>
 					<IconRefresh className={'size-3 text-neutral-600 transition-colors hover:text-neutral-900'} />

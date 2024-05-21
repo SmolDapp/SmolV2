@@ -1,14 +1,24 @@
 import {Fragment, type ReactElement} from 'react';
+import {isZeroAddress} from '@builtbymom/web3/utils';
 import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
 import {Revoke} from '@smolSections/Revoke';
 import {RevokeContextApp} from '@smolSections/Revoke/useAllowances';
 
+import type {TToken} from '@builtbymom/web3/types';
+
 export default function RevokePage(): ReactElement {
 	return (
 		<RevokeContextApp>
-			<BalancesCurtainContextApp selectedTokens={[]}>
-				<Revoke />
-			</BalancesCurtainContextApp>
+			{({configuration}) => (
+				<BalancesCurtainContextApp
+					selectedTokens={
+						!isZeroAddress(configuration.tokenToCheck?.address)
+							? [configuration.tokenToCheck as TToken]
+							: []
+					}>
+					<Revoke />
+				</BalancesCurtainContextApp>
+			)}
 		</RevokeContextApp>
 	);
 }

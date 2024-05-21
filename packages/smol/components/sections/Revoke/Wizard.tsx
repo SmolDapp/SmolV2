@@ -1,58 +1,35 @@
-import {useCallback, useState} from 'react';
 import {ErrorModal} from 'packages/lib/common/ErrorModal';
 import {SuccessModal} from 'packages/lib/common/SuccessModal';
-import {isDev} from 'packages/lib/utils/constants';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
+import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 
-import {AllowancesFilters} from './AllowancesFilters';
-import {AllowancesTable} from './AllowancesTable';
-import {RevokeTokeninput} from './RevokeTokeninput';
 import {useAllowances} from './useAllowances';
 
-import type {TTokenAllowance} from 'packages/lib/types/Revoke';
-import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types';
+import type {Dispatch, ReactElement, SetStateAction} from 'react';
 
-export const RevokeWizard = (): ReactElement => {
-	const {provider} = useWeb3();
-	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
-	const {chainID, safeChainID} = useChainID();
-	const {dispatchConfiguration, configuration, allowances} = useAllowances();
-
-	const revokeTokenAllowance = useCallback(
-		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
-			dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: {...tokenToRevoke, spender}});
-			if (!tokenToRevoke) {
-				return;
-			}
-			approveERC20({
-				contractAddress: tokenToRevoke.address,
-				chainID: isDev ? chainID : safeChainID,
-				connector: provider,
-				spenderAddress: spender,
-				amount: 0n,
-				statusHandler: set_revokeStatus
-			}).then(result => {
-				if (result.isSuccessful) {
-					set_revokeStatus({...defaultTxStatus, success: true});
-				}
-			});
-		},
-		[chainID, dispatchConfiguration, provider, safeChainID]
-	);
+export const RevokeWizard = (props: {
+	revokeStatus: {
+		none: boolean;
+		pending: boolean;
+		success: boolean;
+		error: boolean;
+	};
+	set_revokeStatus: Dispatch<
+		SetStateAction<{
+			none: boolean;
+			pending: boolean;
+			success: boolean;
+			error: boolean;
+		}>
+	>;
+}): ReactElement => {
+	const {dispatchConfiguration, configuration} = useAllowances();
 
 	return (
 		<>
-			<RevokeTokeninput />
-			{allowances?.length ? <AllowancesFilters /> : null}
-			<AllowancesTable revoke={revokeTokenAllowance} />
-
 			<ErrorModal
-				isOpen={revokeStatus.error}
+				isOpen={props.revokeStatus.error}
 				onClose={(): void => {
-					set_revokeStatus(defaultTxStatus);
+					props.set_revokeStatus(defaultTxStatus);
 					dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: undefined});
 				}}
 				title={'Error'}
@@ -61,9 +38,9 @@ export const RevokeWizard = (): ReactElement => {
 			/>
 
 			<SuccessModal
-				isOpen={revokeStatus.success}
+				isOpen={props.revokeStatus.success}
 				onClose={(): void => {
-					set_revokeStatus(defaultTxStatus);
+					props.set_revokeStatus(defaultTxStatus);
 					dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: undefined});
 				}}
 				title={'It looks like a success!'}

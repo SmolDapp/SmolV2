@@ -43,7 +43,7 @@ const smolIDBConfig: IndexedDBConfig = {
 			name: 'approve-events-chain-sync',
 			id: {keyPath: 'id', autoIncrement: false},
 			indices: [
-				{name: 'chainID', keyPath: 'chainID', options: {unique: true}},
+				{name: 'chainID', keyPath: 'chainID'},
 				{name: 'address', keyPath: 'address'},
 				{name: 'blockNumber', keyPath: 'blockNumber'}
 			]

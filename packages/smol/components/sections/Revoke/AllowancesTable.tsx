@@ -23,11 +23,11 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 
 	const [sort, set_sort] = useState<TSortType>({sortBy: null, asc: true});
 
-	/****************************************************************
-	 * Sorting allowances by amount, spender and token. All of them
-	 * are sorted ether asc or desc order. If sortings are not selected
-	 * we return allowances in the initial timestamp order
-	 ****************************************************************/
+	/**********************************************************************************************
+	 ** Sorting allowances by amount, spender and token. All of them
+	 ** are sorted ether asc or desc order. If sortings are not selected
+	 ** we return allowances in the initial timestamp order
+	 *********************************************************************************************/
 
 	const sortedAllowances = useMemo(() => {
 		if (sort.sortBy === 'amount') {
