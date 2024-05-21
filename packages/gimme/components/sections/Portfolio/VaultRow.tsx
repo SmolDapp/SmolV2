@@ -19,7 +19,7 @@ export function VaultRow({
 }): ReactElement {
 	const vaultChainName = supportedNetworks.find(network => network.id === vault.chainID)?.name;
 	const tokenNetworkString = `${vault.token.symbol} on ${vaultChainName}`.toLocaleUpperCase();
-	console.log(vault.apr.netAPR);
+
 	return (
 		<div className={'flex justify-between rounded-md border border-neutral-400 p-6'}>
 			<div className={'flex min-w-[236px] items-center gap-4'}>
