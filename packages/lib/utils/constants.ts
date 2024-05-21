@@ -26,7 +26,25 @@ import {
 } from 'viem/chains';
 import {toAddress} from '@builtbymom/web3/utils';
 
+import type {Chain} from 'viem/chains';
 import type {TAddress, TNDict} from '@builtbymom/web3/types';
+
+export const LIFI_SUPPORTED_NETWORKS: TNDict<Chain & {isSupported: boolean}> = {
+	[mainnet.id]: {...mainnet, isSupported: true},
+	[arbitrum.id]: {...arbitrum, isSupported: true},
+	[optimism.id]: {...optimism, isSupported: true},
+	[polygon.id]: {...polygon, isSupported: true},
+	[base.id]: {...base, isSupported: true},
+	[bsc.id]: {...bsc, isSupported: true},
+	[zkSync.id]: {...zkSync, isSupported: true},
+	[linea.id]: {...linea, isSupported: true},
+	[gnosis.id]: {...gnosis, isSupported: true},
+	[avalanche.id]: {...avalanche, isSupported: true},
+	[polygonZkEvm.id]: {...polygonZkEvm, isSupported: true},
+	[metis.id]: {...metis, isSupported: true},
+	[scroll.id]: {...scroll, isSupported: true},
+	[mode.id]: {...mode, isSupported: true}
+};
 
 export const SAFE_API_URI: {[chainId: number]: string} = {
 	[mainnet.id]: 'https://safe-transaction-mainnet.safe.global',

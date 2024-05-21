@@ -29,6 +29,7 @@ import {DISPERSE_CONTRACT_PER_CHAIN} from '@lib/utils/constants';
 import {notifyDisperse} from '@lib/utils/notifier';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
+import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
@@ -423,6 +424,7 @@ export function DisperseWizard(): ReactElement {
 			<SuccessModal
 				title={'It looks like a success!'}
 				content={`Successfully dispersed ${configuration.tokenToSend?.name} to ${configuration.inputs.length} receivers!`}
+				twitterShareContent={TWEETER_SHARE_CONTENT.DISPERSE}
 				ctaLabel={'Close'}
 				downloadConfigButton={
 					<ExportConfigurationButton

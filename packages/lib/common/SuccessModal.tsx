@@ -1,11 +1,11 @@
 import {Fragment, useMemo, useState} from 'react';
 import Confetti from 'react-dom-confetti';
 import Link from 'next/link';
-import {IconCheck} from 'lib/icons/IconCheck';
-import {Button} from 'lib/primitives/Button';
 import {cl} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, DialogTitle, Transition, TransitionChild} from '@headlessui/react';
 import {useUpdateEffect} from '@react-hookz/web';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {Button} from '@lib/primitives/Button';
 
 import type {ReactElement} from 'react';
 
@@ -16,15 +16,17 @@ type TSuccessModal = {
 	content: ReactElement | string;
 	ctaLabel: string;
 	downloadConfigButton?: JSX.Element;
+	twitterShareContent?: string;
 };
 function SuccessModal(props: TSuccessModal): ReactElement {
 	const [shouldTriggerConfettis, set_shouldTriggerConfettis] = useState(false);
 
 	const tweetURL = useMemo(() => {
-		const content =
-			'Something%20something%20something%2C%20%40smoldapp%20is%20awesome%2C%20something%20something%0A%0A';
-		return `http://twitter.com/share?text=${content}&url=https://smold.app`;
-	}, []);
+		if (props.twitterShareContent) {
+			return `http://twitter.com/share?text=${props.twitterShareContent}&url=https://smold.app`;
+		}
+		return '';
+	}, [props.twitterShareContent]);
 
 	useUpdateEffect((): void => {
 		if (props.isOpen) {
@@ -91,7 +93,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 								<div className={'flex flex-col items-center justify-center gap-2 py-6 text-center'}>
 									{props.downloadConfigButton}
 									<div className={'grid grid-cols-2 gap-4'}>
-										<div className={'hidden'}>
+										<div className={cl(props.twitterShareContent ? '' : 'hidden')}>
 											<Link
 												href={tweetURL}
 												target={'_blank'}>
@@ -103,7 +105,10 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 											</Link>
 										</div>
 										<Button
-											className={'col-span-2 !h-10 w-full'}
+											className={cl(
+												'!h-10 w-full',
+												props.twitterShareContent ? 'col-span-1' : 'col-span-2'
+											)}
 											onClick={props.onClose}>
 											{props.ctaLabel}
 										</Button>
