@@ -526,6 +526,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 						outputAmount: configuration.output.normalizedBigAmount.display,
 						slippage: configuration.slippageTolerance,
 						order: configuration.order,
+						isBridging: fromChainID !== toChainID,
 						txHash
 					}
 				});
