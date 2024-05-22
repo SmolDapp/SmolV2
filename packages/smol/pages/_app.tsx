@@ -5,11 +5,18 @@ import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
-import {WithPopularTokens} from '@smolContexts/usePopularTokens';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
-import {IconAppAddressBook, IconAppDisperse, IconAppEarn, IconAppSend, IconAppStream} from '@lib/icons/IconApps';
+import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
+import {
+	IconAppAddressBook,
+	IconAppDisperse,
+	IconAppEarn,
+	IconAppSend,
+	IconAppStream,
+	IconAppSwap
+} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconWallet} from '@lib/icons/IconWallet';
@@ -30,6 +37,11 @@ const MENU = [
 		href: '/apps/disperse',
 		label: 'Disperse',
 		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/swap',
+		label: 'Swap',
+		icon: <IconAppSwap />
 	},
 	{
 		href: '/apps/earn',

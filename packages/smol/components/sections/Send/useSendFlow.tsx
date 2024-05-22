@@ -54,48 +54,47 @@ const defaultProps: TSend = {
 	dispatchConfiguration: (): void => undefined
 };
 
+const configurationReducer = (state: TSendConfiguration, action: TSendActions): TSendConfiguration => {
+	switch (action.type) {
+		case 'SET_RECEIVER':
+			return {...state, receiver: {...state.receiver, ...action.payload}};
+		case 'ADD_INPUT':
+			return {
+				...state,
+				inputs: [...state.inputs, action.payload ? action.payload : getNewInput()]
+			};
+		case 'REMOVE_INPUT':
+			return {
+				...state,
+				inputs: state.inputs.filter(input => input.UUID !== action.payload.UUID)
+			};
+		case 'REMOVE_SUCCESFUL_INPUTS':
+			return {
+				...state,
+				inputs: state.inputs
+					.filter(input => input.status !== 'success')
+					.map(input => ({...input, status: 'none'}))
+			};
+
+		case 'SET_VALUE': {
+			return {
+				...state,
+				inputs: state.inputs.map(input =>
+					input.UUID === action.payload.UUID
+						? {
+								...input,
+								...action.payload
+							}
+						: input
+				)
+			};
+		}
+		case 'RESET':
+			return {receiver: defaultInputAddressLike, inputs: [getNewInput()]};
+	}
+};
 const SendContext = createContext<TSend>(defaultProps);
 export const SendContextApp = ({children}: {children: TOptionalRenderProps<TSend, ReactElement>}): ReactElement => {
-	const configurationReducer = (state: TSendConfiguration, action: TSendActions): TSendConfiguration => {
-		switch (action.type) {
-			case 'SET_RECEIVER':
-				return {...state, receiver: {...state.receiver, ...action.payload}};
-			case 'ADD_INPUT':
-				return {
-					...state,
-					inputs: [...state.inputs, action.payload ? action.payload : getNewInput()]
-				};
-			case 'REMOVE_INPUT':
-				return {
-					...state,
-					inputs: state.inputs.filter(input => input.UUID !== action.payload.UUID)
-				};
-			case 'REMOVE_SUCCESFUL_INPUTS':
-				return {
-					...state,
-					inputs: state.inputs
-						.filter(input => input.status !== 'success')
-						.map(input => ({...input, status: 'none'}))
-				};
-
-			case 'SET_VALUE': {
-				return {
-					...state,
-					inputs: state.inputs.map(input =>
-						input.UUID === action.payload.UUID
-							? {
-									...input,
-									...action.payload
-								}
-							: input
-					)
-				};
-			}
-			case 'RESET':
-				return {receiver: defaultInputAddressLike, inputs: [getNewInput()]};
-		}
-	};
-
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 
 	const contextValue = useMemo(

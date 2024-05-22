@@ -18,5 +18,20 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export function WithFonts({children}: {children: ReactNode}): ReactElement {
-	return <div style={{fontFamily: `${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily}`}}>{children}</div>;
+	return (
+		<div style={{fontFamily: `${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily}`}}>
+			<style
+				jsx
+				global>
+				{`
+					:root {
+						--rubik-font: ${rubik.style.fontFamily};
+						--scp-font: ${sourceCodePro.style.fontFamily};
+					}
+				`}
+			</style>
+
+			{children}
+		</div>
+	);
 }

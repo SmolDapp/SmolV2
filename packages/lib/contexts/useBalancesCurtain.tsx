@@ -1,11 +1,7 @@
 'use client';
 
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {IconGears} from 'lib/icons/IconGears';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {CurtainContent} from 'lib/primitives/Curtain';
-import {IconAppSwap} from 'packages/lib/icons/IconApps';
+import {usePlausible} from 'next-plausible';
 import {isAddressEqual} from 'viem';
 import useSWR from 'swr';
 import {LayoutGroup, motion} from 'framer-motion';
@@ -20,11 +16,15 @@ import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {usePopularTokens} from '@lib/contexts/usePopularTokens';
+import {IconAppSwap} from '@lib/icons/IconApps';
+import {IconGears} from '@lib/icons/IconGears';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {CurtainContent} from '@lib/primitives/Curtain';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
-import {usePopularTokens} from './usePopularTokens';
-
-import type {TPrice} from 'lib/utils/types/types';
 import type {ReactElement, ReactNode} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {
@@ -35,6 +35,7 @@ import type {
 	TSelectCallback,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
+import type {TPrice} from '@lib/utils/types/types';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,
@@ -210,9 +211,10 @@ function TokenListSelectorLayout(): ReactNode {
  ** tokens the user has in their wallet and a search bar to filter them.
  *************************************************************************************************/
 function BalancesCurtain(props: TBalancesCurtain): ReactElement {
+	const plausible = usePlausible();
+	const {address} = useWeb3();
 	const [searchValue, set_searchValue] = useState('');
 	const [tab, set_tab] = useState(0);
-	const {address} = useWeb3();
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -220,10 +222,11 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	 *********************************************************************************************/
 	useEffect((): void => {
 		if (props.isOpen) {
+			plausible(PLAUSIBLE_EVENTS.OPEN_TOKEN_SELECTOR_CURTAIN);
 			set_searchValue('');
 			set_tab(0);
 		}
-	}, [props.isOpen]);
+	}, [props.isOpen, plausible]);
 
 	/**********************************************************************************************
 	 ** When user searches for a specific address, not present in the token list,
@@ -296,11 +299,11 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<div className={'flex items-center gap-x-3'}>
-							<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+							<h3 className={'mr-2 font-bold'}>{'Your Wallet'}</h3>
 							<button
 								onClick={props.onRefresh}
 								className={'text-neutral-600 hover:text-neutral-900'}>
-								<IconAppSwap className={'size-4'} />
+								<IconAppSwap className={'size-3'} />
 							</button>
 						</div>
 						<CloseCurtainButton />
