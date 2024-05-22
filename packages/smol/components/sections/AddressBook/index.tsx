@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useDropzone} from 'react-dropzone';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import {LayoutGroup, motion} from 'framer-motion';
 import {cl, toAddress} from '@builtbymom/web3/utils';
 import {AddressBookEntry} from '@lib/common/AddressBookEntry';
+import {UploadFileModal} from '@lib/common/UploadFileModal';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {IconAppAddressBook} from '@lib/icons/IconApps';
 import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
@@ -14,11 +14,8 @@ import {TextInput} from '@lib/primitives/TextInput';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import type {ReactElement} from 'react';
-import type {DropzoneInputProps} from 'react-dropzone';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAddressBookEntry} from '@lib/types/AddressBook';
-
-type TInputProps = <T extends DropzoneInputProps>(props?: T | undefined) => T;
 
 function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}): ReactElement {
 	return (
@@ -34,11 +31,49 @@ function AddContactButton(props: {onOpenCurtain: VoidFunction; label?: string}):
 	);
 }
 
-function ImportContactsButton(props: {className?: string; files: Blob[]; getInputProps: TInputProps}): ReactElement {
+function ImportContactsButton(props: {className?: string}): ReactElement {
 	const plausible = usePlausible();
 	const {addEntry} = useAddressBook();
+	const [isOpen, set_isOpen] = useState<boolean>(false);
 
-	const handleFileUpload = (files: Blob[]): void => {
+	const [files, set_files] = useState<Blob[] | undefined>(undefined);
+
+	const onDrop = useCallback((acceptedFiles: Blob[]) => {
+		set_files(acceptedFiles);
+	}, []);
+
+	const {listEntries} = useAddressBook();
+
+	const downloadEntries = useCallback(async () => {
+		const entries = await listEntries();
+		const clonedEntries = structuredClone(entries);
+		//Remove id and ens from the entries
+		const entriesWithoutId = clonedEntries
+			.filter(entry => !entry.isHidden)
+			.map(entry => {
+				const {id, ens, slugifiedLabel, numberOfInteractions, tags, isHidden, ...rest} = entry;
+				id;
+				ens;
+				slugifiedLabel;
+				numberOfInteractions;
+				tags;
+				isHidden;
+				return rest;
+			});
+		const csv = Papa.unparse(entriesWithoutId, {header: true});
+		const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		const name = `smol-address-book-${new Date().toISOString().split('T')[0]}.csv`;
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', name);
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}, [listEntries]);
+
+	const handleFileUpload = (files?: Blob[]): void => {
 		if (!files) {
 			return;
 		}
@@ -118,39 +153,53 @@ function ImportContactsButton(props: {className?: string; files: Blob[]; getInpu
 			}
 		};
 		reader.readAsBinaryString(file);
+
+		set_isOpen(false);
 	};
 
 	useEffect(() => {
-		if (!props.files) {
+		if (!files) {
 			return;
 		}
-		handleFileUpload(props.files);
+		handleFileUpload(files);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [props.files]);
+	}, [files]);
 
 	return (
 		<button
-			onClick={() => {
-				plausible(PLAUSIBLE_EVENTS.AB_IMPORT_CONTACTS);
-				document.querySelector<HTMLInputElement>('#file-upload')?.click();
-			}}
+			onClick={() => set_isOpen(true)}
 			className={cl(
 				props.className,
 				'rounded-lg p-2 text-xs flex flex-row items-center relative overflow-hidden',
 				'bg-neutral-300 text-neutral-900 transition-colors hover:bg-neutral-400'
 			)}>
-			<input
-				{...props.getInputProps()}
-				id={'file-upload'}
-				tabIndex={-1}
-				className={'absolute inset-0 !cursor-pointer opacity-0'}
-				type={'file'}
-				accept={'.csv'}
-				onClick={event => event.stopPropagation()}
-				onChange={e => handleFileUpload(e.target.files as unknown as Blob[])}
-			/>
 			<IconImport className={'mr-2 size-3 text-neutral-900'} />
 			{'Import Contacts'}
+			<UploadFileModal
+				isOpen={isOpen}
+				onClose={(): void => set_isOpen(false)}
+				onBrowse={() => {
+					plausible(PLAUSIBLE_EVENTS.AB_IMPORT_CONTACTS);
+					document.querySelector<HTMLInputElement>('#file-upload')?.click();
+				}}
+				title={'Upload addresses'}
+				description={
+					<div className={'text-md'}>
+						<p>{'Upload a CSV with existing addresses to add them to your Smol address book. '}</p>{' '}
+						<p>
+							{'Download the '}
+							<button
+								onClick={downloadEntries}
+								className={'underline'}>
+								{'template'}
+							</button>
+							{' for correct formatting.'}
+						</p>
+					</div>
+				}
+				handleUpload={handleFileUpload}
+				onDrop={onDrop}
+			/>
 		</button>
 	);
 }
@@ -200,28 +249,17 @@ function ExportContactsButton(): ReactElement {
 	);
 }
 
-function AddressBookActions(props: {
-	onOpenCurtain: VoidFunction;
-	files: Blob[];
-	getInputProps: TInputProps;
-}): ReactElement {
+function AddressBookActions(props: {onOpenCurtain: VoidFunction}): ReactElement {
 	return (
 		<div className={'flex flex-row space-x-2'}>
 			<AddContactButton onOpenCurtain={props.onOpenCurtain} />
-			<ImportContactsButton
-				getInputProps={props.getInputProps}
-				files={props.files}
-			/>
+			<ImportContactsButton />
 			<ExportContactsButton />
 		</div>
 	);
 }
 
-function EmptyAddressBook(props: {
-	onOpenCurtain: VoidFunction;
-	files: Blob[];
-	getInputProps: TInputProps;
-}): ReactElement {
+function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 	return (
 		<div className={'flex w-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
 			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
@@ -242,11 +280,7 @@ function EmptyAddressBook(props: {
 				</p>
 				<div className={'flex flex-row gap-x-2 pt-6'}>
 					<AddContactButton onOpenCurtain={props.onOpenCurtain} />
-					<ImportContactsButton
-						getInputProps={props.getInputProps}
-						files={props.files}
-						className={'!bg-neutral-0'}
-					/>
+					<ImportContactsButton className={'!bg-neutral-0'} />
 				</div>
 			</div>
 		</div>
@@ -274,12 +308,6 @@ export function AddressBook(): ReactElement {
 			);
 	}, [listCachedEntries, searchValue]);
 
-	const [files, set_files] = useState<Blob[] | undefined>(undefined);
-
-	const onDrop = useCallback((acceptedFiles: Blob[]) => {
-		set_files(acceptedFiles);
-	}, []);
-	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop, noClick: true});
 	/**************************************************************************
 	 * Memo function that sorts the entries in the address book, with the
 	 * following priority:
@@ -302,25 +330,15 @@ export function AddressBook(): ReactElement {
 	const hasNoFilteredEntry = entries.length === 0;
 
 	return (
-		<div className={cl('max-w-108', isDragActive ? 'border border-red' : '')}>
+		<div className={'max-w-108'}>
 			{hasNoEntries ? (
 				<div className={'w-444 md:h-content md:min-h-content'}>
-					<EmptyAddressBook
-						getInputProps={getInputProps}
-						files={files as Blob[]}
-						onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})}
-					/>
+					<EmptyAddressBook onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})} />
 				</div>
 			) : (
-				<div
-					className={'w-444'}
-					{...getRootProps()}>
+				<div className={'w-444'}>
 					<div className={'my-4 grid gap-4'}>
-						<AddressBookActions
-							getInputProps={getInputProps}
-							files={files as Blob[]}
-							onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})}
-						/>
+						<AddressBookActions onOpenCurtain={() => set_curtainStatus({isOpen: true, isEditing: true})} />
 						<TextInput
 							placeholder={'Search ...'}
 							value={searchValue}
