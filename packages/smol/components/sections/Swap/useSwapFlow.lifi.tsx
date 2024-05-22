@@ -600,6 +600,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 							outputAmount: configuration.output.normalizedBigAmount.display,
 							slippage: configuration.slippageTolerance,
 							order: configuration.order,
+							isBridging: fromChainID !== toChainID,
 							txHash
 						}
 					});
@@ -615,11 +616,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 								message={'Fancy, your swap is complete!'}
 							/>
 						),
-						{position: 'bottom-right', duration: Infinity, id: toastID}
+						{position: 'bottom-right', duration: 1000, id: toastID}
 					);
 					statusHandler({...defaultTxStatus, success: true, data: result});
 					await new Promise(resolve => setTimeout(resolve, 1000));
-					toast.dismiss(toastID);
 					resetState();
 				} else {
 					plausible(PLAUSIBLE_EVENTS.SWAP_REVERTED, {
@@ -636,13 +636,15 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 						}
 					});
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
-					toast.dismiss(toastID);
 				}
+				toast.dismiss(toastID);
+				toast.dismiss();
 				return result.status === 'DONE';
 			} catch (error) {
 				console.warn(error);
 				statusHandler({...defaultTxStatus, error: true});
 				set_currentError(`The transaction failed with the following error: ${(error as any).details}`);
+				toast.dismiss();
 				return false;
 			}
 		},
