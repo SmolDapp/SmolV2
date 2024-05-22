@@ -8,8 +8,6 @@ import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
-import {IconClone} from '@lib/icons/IconClone';
-import IconSquarePlus from '@lib/icons/IconSquarePlus';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -34,18 +32,20 @@ function MyApp(props: AppProps): ReactElement {
 					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
 						<Layout
 							{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
-							menu={[
-								{
-									href: '/new-safe',
-									label: 'Create a Safe',
-									icon: <IconSquarePlus />
-								},
-								{
-									href: '/clone-safe',
-									label: 'Clone a Safe',
-									icon: <IconClone />
-								}
-							]}
+							// menu={
+							// 	[
+							// 		// {
+							// 		// 	href: '/new-safe',
+							// 		// 	label: 'Create a Safe',
+							// 		// 	icon: <IconSquarePlus />
+							// 		// },
+							// 		// {
+							// 		// 	href: '/clone-safe',
+							// 		// 	label: 'Clone a Safe',
+							// 		// 	icon: <IconClone />
+							// 		// }
+							// 	]
+							// }
 						/>
 					</main>
 				</WalletContextApp>

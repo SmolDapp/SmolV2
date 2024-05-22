@@ -58,7 +58,7 @@ type TComponent = NextComponentType & {
 	getLayout: (p: ReactElement, router: NextRouter) => ReactElement;
 	getAction: () => ReactElement;
 };
-export default function Layout(props: AppProps & {menu: TSideMenuItem[]}): ReactElement {
+export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 	const appName = (Component as TComponent).AppName || 'App';
@@ -92,6 +92,7 @@ export default function Layout(props: AppProps & {menu: TSideMenuItem[]}): React
 								info={appInfo}>
 								<AnimatePresence>
 									<motion.div
+										key={router.route}
 										initial={{scale: 0.9, opacity: 0}}
 										animate={{scale: 1, opacity: 1}}
 										transition={{

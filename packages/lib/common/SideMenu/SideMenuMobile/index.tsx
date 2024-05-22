@@ -53,7 +53,7 @@ function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {
 	);
 }
 
-export function SideMenuMobile(props: {menu: TSideMenuItem[]}): ReactElement {
+export function SideMenuMobile(props: {menu?: TSideMenuItem[]}): ReactElement {
 	const [isOpen, set_isOpen] = useState(false);
 	const isMounted = useIsMounted();
 

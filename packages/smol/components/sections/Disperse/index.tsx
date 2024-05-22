@@ -8,13 +8,14 @@ import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {SmolTokenSelector} from '@smolDesignSystem/SmolTokenSelector';
 import {useDownloadFile} from '@smolHooks/useDownloadFile';
+import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconFile} from '@lib/icons/IconFile';
 import {IconImport} from '@lib/icons/IconImport';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -47,6 +48,7 @@ function ImportConfigurationButton({
 	files?: Blob[];
 	getInputProps: TInputProps;
 }): ReactElement {
+	const plausible = usePlausible();
 	const {dispatchConfiguration} = useDisperse();
 	const {chainID: safeChainID} = useWeb3();
 	const {validate: validateAddress} = useValidateAddressInput();
@@ -169,7 +171,10 @@ function ImportConfigurationButton({
 
 	return (
 		<Button
-			onClick={() => document.querySelector<HTMLInputElement>('#file-upload')?.click()}
+			onClick={() => {
+				plausible(PLAUSIBLE_EVENTS.DISPERSE_IMPORT_CONFIG);
+				document.querySelector<HTMLInputElement>('#file-upload')?.click();
+			}}
 			className={'!h-8 py-1.5 !text-xs'}>
 			<input
 				{...getInputProps()}
@@ -195,7 +200,7 @@ export function ExportConfigurationButton({
 	const plausible = usePlausible();
 
 	const downloadConfiguration = useCallback(async () => {
-		plausible('download configuration');
+		plausible(PLAUSIBLE_EVENTS.DISPERSE_DOWNLOAD_CONFIG);
 		const receiverEntries = configuration.inputs
 			.map((input, index) => ({
 				tokenAddress: index === 0 ? configuration.tokenToSend?.address : '',
@@ -277,7 +282,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 
 	/** Add initial inputs */
 	useEffect(() => {
-		if (!hasInitialInputs) {
+		if (!hasInitialInputs && configuration.inputs.length === 0) {
 			onAddReceivers(2);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -298,7 +303,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 					className={'!h-8 !text-xs'}
 					variant={'light'}
 					onClick={() => {
-						plausible('download template');
+						plausible(PLAUSIBLE_EVENTS.DISPERSE_DOWNLOAD_TEMPLATE);
 						downloadTemplate();
 					}}>
 					<IconFile className={'mr-2 size-3'} />
@@ -322,7 +327,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 					/>
 				))}
 			</div>
-			<div className={'my-4'}>
+			<div className={'mb-4'}>
 				<button
 					className={
 						'rounded-lg bg-neutral-200 px-5 py-2 text-xs text-neutral-700 transition-colors hover:bg-neutral-300'
