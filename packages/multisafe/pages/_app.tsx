@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Toaster} from 'react-hot-toast';
-import {SUPPORTED_MULTICHAINS} from 'packages/lib/utils/constants';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import Layout from '@lib/common/Layout';
@@ -8,6 +7,7 @@ import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -15,6 +15,10 @@ import type {ReactElement} from 'react';
 import '../style.css';
 
 function MyApp(props: AppProps): ReactElement {
+	const supportedNetworks = useMemo(() => {
+		return Object.values(CHAINS).filter(e => e.isMultisafeSupported);
+	}, []);
+
 	return (
 		<WithFonts>
 			<Meta
@@ -26,7 +30,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://multisafe.app'}
 			/>
 			<WithMom
-				supportedChains={SUPPORTED_MULTICHAINS}
+				supportedChains={supportedNetworks}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
 					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>

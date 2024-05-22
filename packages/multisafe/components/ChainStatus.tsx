@@ -19,7 +19,7 @@ import {
 import {generateArgInitializers} from '@multisafeUtils/utils';
 import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {Button} from '@lib/primitives/Button';
-import {COINGECKO_GAS_COIN_IDS, DISPERSE_CONTRACT_PER_CHAIN, SAFE_API_URI} from '@lib/utils/constants';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import DISPERSE_ABI from '../utils/abi/disperse.abi';
 import GNOSIS_SAFE_PROXY_FACTORY from '../utils/abi/gnosisSafeProxyFactory.abi';
@@ -64,7 +64,7 @@ function ChainStatus({
 	singleton
 }: TChainStatusArgs): ReactElement {
 	const {chainCoinPrices} = useSafeCreator();
-	const gasCoinID = COINGECKO_GAS_COIN_IDS?.[chain.id] || 'ethereum';
+	const gasCoinID = CHAINS?.[chain.id]?.coingeckoGasCoinID || 'ethereum';
 	const coinPrice = chainCoinPrices?.[gasCoinID]?.usd;
 	const {provider, address, chainID} = useWeb3();
 	const [isDeployedOnThatChain, set_isDeployedOnThatChain] = useState(false);
@@ -222,7 +222,7 @@ function ChainStatus({
 			const signletonToUse = singleton || SINGLETON_L2;
 			const argInitializers = generateArgInitializers(owners, threshold);
 			const callDataDisperseEth = {
-				target: DISPERSE_CONTRACT_PER_CHAIN[chain.id],
+				target: CHAINS[chain.id].disperseAddress,
 				value: fee,
 				allowFailure: false,
 				callData: encodeFunctionData({
@@ -288,7 +288,7 @@ function ChainStatus({
 					{'Deployed'}
 				</Button>
 				<Link
-					href={`${SAFE_API_URI[chain.id]}${safeAddress}`}
+					href={`${CHAINS[chain.id].safeAPIURI || ''}${safeAddress}`}
 					target={'_blank'}>
 					<Button className={'hidden !h-8 md:block'}>
 						<IconLinkOut className={'size-4 !text-black'} />
