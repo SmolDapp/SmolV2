@@ -1,6 +1,6 @@
 import {createContext, memo, useContext, useMemo} from 'react';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {toAddress} from '@builtbymom/web3/utils';
 import {useFetchYearnVaults} from '@yearn-finance/web-lib/hooks/useFetchYearnVaults';
 
 import type {ReactElement} from 'react';
@@ -25,36 +25,34 @@ const VaultsContext = createContext<TVaultsContext>({
 });
 
 export const VaultsContextApp = memo(function VaultsContextApp({children}: {children: ReactElement}): ReactElement {
-	const {chainID} = useChainID();
-	const {vaults: rawVaults, isLoading: isLoadingVaults} = useFetchYearnVaults([chainID]);
-	const {listTokensWithBalance, isLoading: isLoadingBalance} = useTokensWithBalance();
-
-	// const {getBalance} = useWallet();
+	const {vaults: rawVaults, isLoading: isLoadingVaults} = useFetchYearnVaults();
+	const {balances, isLoading: isLoadingBalance, getBalance} = useWallet();
 
 	const userVaults = useMemo(() => {
 		const result: TDict<TYDaemonVault> = {};
-		const tokensWithBalance = listTokensWithBalance(chainID);
+		for (const [networkID, eachNetwork] of Object.entries(balances)) {
+			for (const eachToken of Object.values(eachNetwork)) {
+				const vault = rawVaults[toAddress(eachToken.address)];
+				if (!vault) {
+					continue;
+				}
 
-		tokensWithBalance.forEach(token => {
-			const vault = rawVaults[token.address];
-			if (vault) {
-				result[vault.address] = vault;
+				let totalBalance = 0n;
+				const balance = getBalance({address: eachToken.address, chainID: Number(networkID)});
+				totalBalance += balance.raw;
+
+				if (vault.staking.available) {
+					const stakingBalance = getBalance({address: vault.staking.address, chainID: Number(networkID)});
+					totalBalance += stakingBalance.raw;
+				}
+
+				if (totalBalance > 0n) {
+					result[vault.address] = vault;
+				}
 			}
-		});
-
-		// for (const vaultAddress in rawVaults) {
-		// 	const hasBalance =
-		// 		getBalance({address: rawVaults[vaultAddress].address, chainID: rawVaults[vaultAddress].chainID}).raw >
-		// 		0n;
-		// 	const hasStakingBalance =
-		// 		getBalance({address: rawVaults[vaultAddress].staking.address, chainID: rawVaults[vaultAddress].chainID})
-		// 			.raw > 0n;
-		// 	if (hasBalance || hasStakingBalance) {
-		// 		result[vaultAddress] = rawVaults[vaultAddress];
-		// 	}
-		// }
+		}
 		return result;
-	}, [chainID, listTokensWithBalance, rawVaults]);
+	}, [balances, getBalance, rawVaults]);
 
 	return (
 		<VaultsContext.Provider

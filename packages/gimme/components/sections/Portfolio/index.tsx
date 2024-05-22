@@ -35,7 +35,6 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 
 export function Portfolio(): ReactNode {
 	const {userVaults, userVaultsArray, isLoadingUserVaults} = useVaults();
-
 	const {address, chainID} = useWeb3();
 	const [balances, set_balances] = useState<TDict<TNormalizedBN>>({});
 	const {data: blockNumber} = useBlockNumber({watch: true});

@@ -3,12 +3,12 @@ import {Toaster} from 'react-hot-toast';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {arbitrum, base, mainnet, optimism, polygon} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import Layout from '@gimmeDesignSystem/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
-import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import {VaultsContextApp} from '../contexts/useVaults';
 
@@ -29,7 +29,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
+				supportedChains={[mainnet, polygon, optimism, base, arbitrum, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/yearn-min.json']}>
 				<WalletContextApp>
 					<VaultsContextApp>
