@@ -28,8 +28,8 @@ export const QRCodeElement = (): ReactElement | null => {
 			</div>
 
 			<QRModal
-				title={'Scan QR-code'}
-				content={'Just scan this QR-code to get your account address'}
+				title={'Get your address'}
+				content={'Scan the QR code to get your wallet address'}
 				isOpen={isOpen}
 				onClose={(): void => set_isOpen(false)}
 				address={address}>

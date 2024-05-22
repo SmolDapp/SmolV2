@@ -1,10 +1,13 @@
-import {Fragment, type ReactElement, useState} from 'react';
+import {Fragment, type ReactElement} from 'react';
+import toast from 'react-hot-toast';
+import {toAddress} from '@builtbymom/web3/utils';
 import {cl} from '@builtbymom/web3/utils/cl';
-import {Dialog, Transition} from '@headlessui/react';
+import {Dialog, DialogPanel, DialogTitle, Transition, TransitionChild} from '@headlessui/react';
+import {IconClone} from '@lib/icons/IconClone';
+
+import {IconCross} from '../icons/IconCross';
 
 import type {TAddress} from '@builtbymom/web3/types';
-import {IconCross} from '../icons/IconCross';
-import {IconClone} from '../icons/IconClone';
 
 type TQRModalProps = {
 	isOpen: boolean;
@@ -16,21 +19,20 @@ type TQRModalProps = {
 };
 
 const QRModal = (props: TQRModalProps): ReactElement => {
-	const [isCopied, set_isCopied] = useState<boolean>(false);
 	const onCopyAddress = async (): Promise<void> => {
 		await navigator.clipboard.writeText(props.address);
-		set_isCopied(true);
-		setTimeout(() => set_isCopied(false), 2000);
+		toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
 	};
+
 	return (
-		<Transition.Root
+		<Transition
 			show={props.isOpen}
 			as={Fragment}>
 			<Dialog
 				as={'div'}
 				className={'relative z-[1000]'}
 				onClose={props.onClose}>
-				<Transition.Child
+				<TransitionChild
 					as={Fragment}
 					enter={'ease-out duration-300'}
 					enterFrom={'opacity-0'}
@@ -39,14 +41,14 @@ const QRModal = (props: TQRModalProps): ReactElement => {
 					leaveFrom={'opacity-100'}
 					leaveTo={'opacity-0'}>
 					<div className={'fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity'} />
-				</Transition.Child>
+				</TransitionChild>
 
 				<div className={'fixed inset-0 z-[1001] overflow-y-auto'}>
 					<div
 						className={
 							'flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'
 						}>
-						<Transition.Child
+						<TransitionChild
 							as={Fragment}
 							enter={'ease-out duration-300'}
 							enterFrom={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}
@@ -54,7 +56,7 @@ const QRModal = (props: TQRModalProps): ReactElement => {
 							leave={'ease-in duration-200'}
 							leaveFrom={'opacity-100 translate-y-0 sm:scale-100'}
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
-							<Dialog.Panel
+							<DialogPanel
 								className={cl(
 									'relative overflow-hidden flex max-w-2xl flex-col items-center justify-center rounded-md !bg-neutral-200 !p-10 transition-all',
 									'sm:my-8 sm:w-full md:max-w-2xl sm:max-w-lg'
@@ -68,13 +70,13 @@ const QRModal = (props: TQRModalProps): ReactElement => {
 											onClick={props.onClose}>
 											<IconCross className={'size-4'} />
 										</button>
-										<Dialog.Title
+										<DialogTitle
 											as={'h3'}
 											className={
 												'text-primary-900 mx-2 text-xl font-bold leading-6 md:mx-4 md:text-3xl'
 											}>
 											{props.title}
-										</Dialog.Title>
+										</DialogTitle>
 
 										<div className={'mt-3 md:mt-6'}>
 											<p className={'mb-10 text-neutral-900/80'}>{props.content}</p>
@@ -82,34 +84,30 @@ const QRModal = (props: TQRModalProps): ReactElement => {
 										</div>
 									</div>
 								</div>
-								<div
-									className={
-										'flex w-[200px] flex-col items-center justify-center gap-2 pt-10 text-center md:flex-row'
-									}>
-									<div className={'m-0 flex flex-col items-center md:mr-20 md:items-start'}>
-										<p className={'md:text-md mb-1 text-sm text-neutral-600'}>{'Wallet address'}</p>
-										<p className={'md:text-md text-xs text-neutral-900 sm:text-sm'}>
-											{props.address}
+								<div className={'flex flex-col gap-2 pt-10'}>
+									<div className={'m-0 flex flex-col items-center'}>
+										<p className={'mb-1 text-xs text-neutral-600 md:text-base'}>
+											{'Wallet address'}
 										</p>
+										<button
+											className={cl(
+												'text-xs flex items-center mt-1',
+												'text-neutral-900 transition-colors'
+											)}
+											onClick={onCopyAddress}>
+											<p className={'md:text-md mr-1 text-xs text-neutral-900 sm:text-sm'}>
+												{props.address}
+											</p>
+											<IconClone className={'size-3 md:size-4'} />
+										</button>
 									</div>
-									<button
-										className={cl(
-											'rounded-lg p-2 text-xs flex flex-row items-center',
-											'bg-primary text-neutral-900 transition-colors hover:bg-primaryHover '
-										)}
-										onClick={onCopyAddress}>
-										<IconClone className={'size-3'} />
-										<p className={'ml-2 whitespace-nowrap text-xs'}>
-											{isCopied ? 'Copied!' : 'Copy  address'}
-										</p>
-									</button>
 								</div>
-							</Dialog.Panel>
-						</Transition.Child>
+							</DialogPanel>
+						</TransitionChild>
 					</div>
 				</div>
 			</Dialog>
-		</Transition.Root>
+		</Transition>
 	);
 };
 
