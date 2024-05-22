@@ -1,9 +1,9 @@
 import React, {Fragment} from 'react';
 import {isZeroAddress} from '@builtbymom/web3/utils';
-import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
 import Disperse from '@smolSections/Disperse/index';
 import {DisperseContextApp} from '@smolSections/Disperse/useDisperse';
 import {DisperseQueryManagement} from '@smolSections/Disperse/useDisperseQuery';
+import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';

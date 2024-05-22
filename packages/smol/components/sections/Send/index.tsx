@@ -1,9 +1,9 @@
 import {useCallback, useEffect, useRef} from 'react';
 import {usePlausible} from 'next-plausible';
-import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl} from '@builtbymom/web3/utils';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconCross} from '@lib/icons/IconCross';

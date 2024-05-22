@@ -1,6 +1,6 @@
 import {cl, isAddress} from '@builtbymom/web3/utils';
-import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {IconWallet} from '@lib/icons/IconWallet';
 

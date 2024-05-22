@@ -9,7 +9,7 @@ import {TextTruncate} from '@lib/common/TextTruncate';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {handleLowAmount} from '@lib/utils/helpers';
 
-import {SmolTokenSelectorButton} from '../../smol/components/designSystem/SmolTokenSelectorButton';
+import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';

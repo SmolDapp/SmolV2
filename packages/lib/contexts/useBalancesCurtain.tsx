@@ -2,9 +2,6 @@
 
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {IconGears} from 'lib/icons/IconGears';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import useSWR from 'swr';
 import {LayoutGroup, motion} from 'framer-motion';
@@ -21,6 +18,9 @@ import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {IconGears} from '@lib/icons/IconGears';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {CurtainContent} from '@lib/primitives/Curtain';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {usePopularTokens} from './usePopularTokens';
