@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
-import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
 import {Send} from '@smolSections/Send';
 import {SendContextApp} from '@smolSections/Send/useSendFlow';
 import {SendQueryManagement} from '@smolSections/Send/useSendQuery';
+import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';
 

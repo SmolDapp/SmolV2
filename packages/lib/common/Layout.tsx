@@ -92,6 +92,7 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 								info={appInfo}>
 								<AnimatePresence>
 									<motion.div
+										key={router.route}
 										initial={{scale: 0.9, opacity: 0}}
 										animate={{scale: 1, opacity: 1}}
 										transition={{
