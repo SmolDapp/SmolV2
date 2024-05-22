@@ -1,11 +1,10 @@
 import axios from 'axios';
-import {getClient, getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {CHAINS, supportedNetworks} from '@lib/utils/tools.chains';
 import {assertFulfilled} from '@lib/utils/types/assertType';
 
 import type {GetBytecodeReturnType} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAppExtendedChain} from '@lib/utils/tools.chains';
 
 export type TInputAddressLike = {
 	address: TAddress | undefined;
@@ -27,7 +26,7 @@ export async function getBytecodeAsync(networkId: number, address: TAddress): Pr
 }
 
 async function getIsGnosisAddress(chainId: number, address: TAddress): Promise<boolean> {
-	const safeAPI = (getNetwork(chainId) as TAppExtendedChain).safeApiUri;
+	const safeAPI = CHAINS[chainId]?.safeAPIURI || '';
 
 	if (safeAPI) {
 		try {
