@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import {BalancesCurtainContextApp} from 'packages/lib/contexts/useBalancesCurtain';
 import {isZeroAddress} from '@builtbymom/web3/utils';
 import {Earn} from '@gimmmeSections/Earn';
@@ -21,9 +21,5 @@ function EarnPage(): ReactElement {
 		</EarnContextApp>
 	);
 }
-
-EarnPage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};
 
 export default EarnPage;

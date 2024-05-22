@@ -1,15 +1,25 @@
-import React from 'react';
+import {type ReactElement} from 'react';
+import {BalancesCurtainContextApp} from 'packages/lib/contexts/useBalancesCurtain';
+import {isZeroAddress} from '@builtbymom/web3/utils';
+import {Earn} from '@gimmmeSections/Earn';
+import {EarnContextApp} from '@gimmmeSections/Earn/useEarnFlow';
 
-import type {ReactElement} from 'react';
+import type {TToken} from '@builtbymom/web3/types';
 
-function Home(): ReactElement {
+function EarnPage(): ReactElement {
 	return (
-		<section className={'mx-auto grid w-full max-w-6xl'}>
-			<h1>{'Hello'}</h1>
-		</section>
+		<EarnContextApp>
+			{({configuration}) => (
+				<BalancesCurtainContextApp
+					appearAs={'modal'}
+					selectedTokens={
+						!isZeroAddress(configuration.asset.token?.address) ? [configuration.asset.token as TToken] : []
+					}>
+					<Earn />
+				</BalancesCurtainContextApp>
+			)}
+		</EarnContextApp>
 	);
 }
 
-export default function Wrapper(): ReactElement {
-	return <Home />;
-}
+export default EarnPage;
