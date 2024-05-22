@@ -52,7 +52,7 @@ module.exports = phase =>
 				1337: 'http://localhost:8080',
 				42161: process.env.RPC_URL_ARBITRUM
 			},
-			YDAEMON_BASE_URI: process.env.YDAEMON_BASE_URI,
+			YDAEMON_BASE_URI: process.env.YDAEMON_BASE_URI || 'https://ydaemon.yearn.fi',
 			ALCHEMY_KEY: process.env.ALCHEMY_KEY,
 			INFURA_KEY: process.env.INFURA_KEY,
 			WALLETCONNECT_PROJECT_ID: process.env.WALLETCONNECT_PROJECT_ID,
