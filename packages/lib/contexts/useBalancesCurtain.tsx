@@ -18,12 +18,11 @@ import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {usePopularTokens} from '@lib/contexts/usePopularTokens';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {CurtainContent} from '@lib/primitives/Curtain';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-
-import {usePopularTokens} from './usePopularTokens';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
