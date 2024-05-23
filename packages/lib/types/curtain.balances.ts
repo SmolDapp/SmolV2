@@ -61,3 +61,17 @@ export type TBalancesCurtainContextAppProps = {
 	children: ReactElement;
 	selectedTokens?: TToken[];
 };
+
+/**************************************************************************************************
+ ** The TBalancesCurtainContextAppProps type is used to type the props of the
+ ** BalancesCurtainContextApp context component.
+ *************************************************************************************************/
+export type TTokenListSummary = {
+	lists: {
+		URI: string;
+		decription: string;
+		logoURI: string;
+		name: string;
+		tokenCount: number;
+	}[];
+};
