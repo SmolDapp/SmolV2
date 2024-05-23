@@ -1,4 +1,5 @@
 'use client';
+import {type ReactElement, useCallback} from 'react';
 import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
@@ -9,8 +10,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {useAllowances} from './useAllowances';
 
-import type {ReactElement} from 'react';
-import type {TFilterAllowance} from './AssetFilterDropdown';
+import type {TFilterAllowance} from '@lib/types/Revoke';
 
 export const SpenderFilterDropdown = (props: {
 	children: React.ReactElement;
@@ -20,28 +20,31 @@ export const SpenderFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const spenderFilter = configuration.allowancesFilters.spender.filter;
 
-	const onCheckedChange = (option: TFilterAllowance): void => {
-		if (!spenderFilter?.some(item => item === option.args.sender)) {
-			dispatchConfiguration({
-				type: 'SET_FILTER',
-				payload: {
-					...configuration.allowancesFilters,
-					spender: {
-						filter: [...(spenderFilter ?? []), option.args.sender]
+	const onCheckedChange = useCallback(
+		(option: TFilterAllowance): void => {
+			if (!spenderFilter?.some(item => item === option.args.sender)) {
+				dispatchConfiguration({
+					type: 'SET_FILTER',
+					payload: {
+						...configuration.allowancesFilters,
+						spender: {
+							filter: [...(spenderFilter ?? []), option.args.sender]
+						}
 					}
-				}
-			});
-		} else {
-			const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
-			dispatchConfiguration({
-				type: 'SET_FILTER',
-				payload: {
-					...configuration.allowancesFilters,
-					spender: {filter: filteredOptions}
-				}
-			});
-		}
-	};
+				});
+			} else {
+				const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
+				dispatchConfiguration({
+					type: 'SET_FILTER',
+					payload: {
+						...configuration.allowancesFilters,
+						spender: {filter: filteredOptions}
+					}
+				});
+			}
+		},
+		[configuration.allowancesFilters, dispatchConfiguration, spenderFilter]
+	);
 
 	return (
 		<DropdownMenu.Root modal>

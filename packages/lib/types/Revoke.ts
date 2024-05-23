@@ -1,4 +1,4 @@
-import type {Dispatch} from 'react';
+import type {Dispatch, SetStateAction} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
@@ -146,4 +146,43 @@ export type TApproveEventChainSyncEntry = {
 	chainID: number;
 	address: TAddress;
 	blockNumber: bigint;
+};
+
+/**************************************************************************************************
+ **TAllowanceItemProps type of props for a single Allowance item in UI.
+ ************************************************************************************************/
+export type TAllowanceItemProps = {
+	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
+	allowance: TExpandedAllowance;
+};
+
+/**************************************************************************************************
+ **TRevokeSortType is a type for sorting allowances in the UI.
+ ************************************************************************************************/
+export type TRevokeSort = {
+	sortBy: TRevokeSortBy;
+	asc: boolean;
+};
+
+export type TRevokeSortBy = 'spender' | 'amount' | 'token' | null;
+
+export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
+	displayName?: TAddress | string;
+};
+
+export type TRevokeWizardProps = {
+	revokeStatus: {
+		none: boolean;
+		pending: boolean;
+		success: boolean;
+		error: boolean;
+	};
+	set_revokeStatus: Dispatch<
+		SetStateAction<{
+			none: boolean;
+			pending: boolean;
+			success: boolean;
+			error: boolean;
+		}>
+	>;
 };

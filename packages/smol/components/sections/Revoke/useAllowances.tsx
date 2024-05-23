@@ -75,8 +75,8 @@ export const RevokeContextApp = (props: {
 }): ReactElement => {
 	const {address} = useWeb3();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
-	const [approveEvents, set_approveEvents] = useState<TAllowances | null>(null);
-	const [allowances, set_allowances] = useState<TAllowances | null>(null);
+	const [approveEvents, set_approveEvents] = useState<TAllowances | undefined>(undefined);
+	const [allowances, set_allowances] = useState<TAllowances | undefined>(undefined);
 	const {chainID, safeChainID} = useChainID();
 	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
 
@@ -158,7 +158,7 @@ export const RevokeContextApp = (props: {
 				if (duplicateEntry) {
 					return;
 				}
-				addChainSync({...entry, id: Date.now()});
+				addChainSync(entry);
 				set_chainSyncNonce(nonce => nonce + 1);
 			} catch {
 				// Do nothing

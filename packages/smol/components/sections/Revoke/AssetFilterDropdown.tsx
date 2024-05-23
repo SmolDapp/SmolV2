@@ -1,4 +1,5 @@
 'use client';
+import {type ReactElement, useCallback} from 'react';
 import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
@@ -8,13 +9,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {useAllowances} from './useAllowances';
 
-import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types';
-import type {TExpandedAllowance} from '@lib/types/Revoke';
-
-export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
-	displayName?: TAddress | string;
-};
+import type {TFilterAllowance} from '@lib/types/Revoke';
 
 export const AssetFilterDropdown = (props: {
 	children: React.ReactElement;
@@ -24,28 +19,31 @@ export const AssetFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const assetFilter = configuration.allowancesFilters.asset.filter;
 
-	const onCheckedChange = (option: TFilterAllowance): void => {
-		if (!assetFilter?.some(item => item === option.address)) {
-			dispatchConfiguration({
-				type: 'SET_FILTER',
-				payload: {
-					...configuration.allowancesFilters,
-					asset: {
-						filter: [...(assetFilter ?? []), option.address]
+	const onCheckedChange = useCallback(
+		(option: TFilterAllowance): void => {
+			if (!assetFilter?.some(item => item === option.address)) {
+				dispatchConfiguration({
+					type: 'SET_FILTER',
+					payload: {
+						...configuration.allowancesFilters,
+						asset: {
+							filter: [...(assetFilter ?? []), option.address]
+						}
 					}
-				}
-			});
-		} else {
-			const filteredOptions = assetFilter.filter(item => item !== option.address);
-			dispatchConfiguration({
-				type: 'SET_FILTER',
-				payload: {
-					...configuration.allowancesFilters,
-					asset: {filter: filteredOptions}
-				}
-			});
-		}
-	};
+				});
+			} else {
+				const filteredOptions = assetFilter.filter(item => item !== option.address);
+				dispatchConfiguration({
+					type: 'SET_FILTER',
+					payload: {
+						...configuration.allowancesFilters,
+						asset: {filter: filteredOptions}
+					}
+				});
+			}
+		},
+		[assetFilter, configuration.allowancesFilters, dispatchConfiguration]
+	);
 
 	return (
 		<DropdownMenu.Root modal>

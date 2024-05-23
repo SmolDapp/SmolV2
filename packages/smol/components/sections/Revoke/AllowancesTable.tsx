@@ -1,5 +1,4 @@
-import {type ReactElement, useMemo, useState} from 'react';
-import React from 'react';
+import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {IconSpinner} from 'packages/lib/icons/IconSpinner';
 import {cl} from '@builtbymom/web3/utils';
@@ -9,29 +8,28 @@ import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TTokenAllowance} from '@lib/types/Revoke';
+import type {TRevokeSort, TRevokeSortBy, TTokenAllowance} from '@lib/types/Revoke';
 
 type TAllowancesTableProps = {
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 };
 
-type TSortType = {
-	sortBy: 'spender' | 'amount' | 'token' | null;
-	asc: boolean;
-};
-
 export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading;
+	const hasNothingToRevoke = (!allowances || allowances.length === 0) && !isFetchingData;
 
-	const [sort, set_sort] = useState<TSortType>({sortBy: null, asc: true});
+	const [sort, set_sort] = useState<TRevokeSort>({sortBy: null, asc: true});
 
 	/**********************************************************************************************
-	 ** Sorting allowances by amount, spender and token. All of them
-	 ** are sorted ether asc or desc order. If sortings are not selected
-	 ** we return allowances in the initial timestamp order
+	 ** Sorting allowances by amount, spender and token. All of them are sorted ether asc or desc
+	 ** order. If sortings are not selected we return allowances in the initial timestamp order.
 	 *********************************************************************************************/
 	const sortedAllowances = useMemo(() => {
+		if (!allowances) {
+			return;
+		}
+
 		if (sort.sortBy === 'amount') {
 			return allowances?.toSorted((a, b) =>
 				sort.asc ? (a.args.value! > b.args.value! ? -1 : 1) : a.args.value! < b.args.value! ? -1 : 1
@@ -57,98 +55,79 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 		return allowances;
 	}, [allowances, sort.asc, sort.sortBy]);
 
+	const onSetSort = useCallback(
+		(sortBy: TRevokeSortBy) => {
+			set_sort(prev => {
+				return {
+					...sort,
+					sortBy,
+					asc: prev.sortBy === sortBy ? !prev.asc : prev.asc
+				};
+			});
+		},
+		[sort]
+	);
+
+	const getIconPlain = useCallback(
+		(sortBy: TRevokeSortBy) => {
+			return sort.sortBy === sortBy && !sort.asc ? (
+				<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
+			) : sort.sortBy === sortBy && sort.asc ? (
+				<IconChevronPlain className={'ml-1 size-4'} />
+			) : (
+				<IconChevronPlain className={'ml-1 size-4'} />
+			);
+		},
+		[sort.asc, sort.sortBy]
+	);
+
 	return (
 		<>
-			{(!allowances || allowances.length === 0) && !isFetchingData ? (
-				<div className={'mt-10 flex w-full justify-center'}>
+			{hasNothingToRevoke ? (
+				<div className={'flex w-full justify-center'}>
 					<p>{'Nothing to revoke!'}</p>
 				</div>
 			) : (
 				<>
 					<table
 						className={
-							'mt-6 hidden w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 md:table md:w-full rtl:text-right dark:text-gray-400'
+							'hidden w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 md:table md:w-full rtl:text-right dark:text-gray-400'
 						}>
 						{!isFetchingData && (
-							<thead
-								className={
-									'w-full bg-gray-50 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-400'
-								}>
+							<thead className={'w-full text-xs'}>
 								<tr>
-									<th className={' font-light text-neutral-500'}>
+									<th className={'font-light text-neutral-500'}>
 										<button
-											onClick={() =>
-												set_sort(prev => {
-													return {
-														...sort,
-														sortBy: 'token',
-														asc: prev.sortBy === 'token' ? !prev.asc : prev.asc
-													};
-												})
-											}
+											onClick={() => onSetSort('token')}
 											className={cl(
 												'flex items-center',
 												sort.sortBy === 'token' ? 'text-neutral-800' : ''
 											)}>
 											<p>{'Asset'}</p>
-											{sort.sortBy === 'token' && !sort.asc ? (
-												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-											) : sort.sortBy === 'token' && sort.asc ? (
-												<IconChevronPlain className={'ml-1 size-4'} />
-											) : (
-												<IconChevronPlain className={'ml-1 size-4'} />
-											)}
+											{getIconPlain('token')}
 										</button>
 									</th>
 									<th className={'flex justify-end font-light text-neutral-500'}>
 										<button
-											onClick={() =>
-												set_sort(prev => {
-													return {
-														...sort,
-														sortBy: 'amount',
-														asc: prev.sortBy === 'amount' ? !prev.asc : prev.asc
-													};
-												})
-											}
+											onClick={() => onSetSort('amount')}
 											className={cl(
-												'flex items-center',
+												'flex items-center text-neutral-600',
 												sort.sortBy === 'amount' ? 'text-neutral-800' : ''
 											)}>
 											<p>{'Amount'}</p>
-											{sort.sortBy === 'amount' && !sort.asc ? (
-												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-											) : sort.sortBy === 'amount' && sort.asc ? (
-												<IconChevronPlain className={'ml-1 size-4'} />
-											) : (
-												<IconChevronPlain className={'ml-1 size-4'} />
-											)}
+											{getIconPlain('amount')}
 										</button>
 									</th>
 									<th className={'px-6 font-light text-neutral-500'}>
 										<div className={'flex justify-end'}>
 											<button
-												onClick={() =>
-													set_sort(prev => {
-														return {
-															...sort,
-															sortBy: 'spender',
-															asc: prev.sortBy === 'spender' ? !prev.asc : prev.asc
-														};
-													})
-												}
+												onClick={() => onSetSort('spender')}
 												className={cl(
 													'flex items-center justify-end',
 													sort.sortBy === 'spender' ? 'text-neutral-800' : ''
 												)}>
 												<p>{'Spender'}</p>
-												{sort.sortBy === 'spender' && !sort.asc ? (
-													<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
-												) : sort.sortBy === 'spender' && sort.asc ? (
-													<IconChevronPlain className={'ml-1 size-4'} />
-												) : (
-													<IconChevronPlain className={'ml-1 size-4'} />
-												)}
+												{getIconPlain('spender')}
 											</button>
 										</div>
 									</th>
@@ -161,7 +140,6 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 							className={'w-full'}>
 							{sortedAllowances?.map(item => (
 								<AllowanceRow
-									key={`${item.blockNumber}-${item.logIndex}`}
 									allowance={item}
 									revoke={revoke}
 								/>
@@ -171,7 +149,6 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 					<div className={'flex flex-col gap-y-2 md:hidden'}>
 						{allowances?.map(item => (
 							<AllowanceItem
-								key={`${item.blockNumber}-${item.logIndex}`}
 								revoke={revoke}
 								allowance={item}
 							/>

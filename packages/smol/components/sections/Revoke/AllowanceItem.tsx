@@ -1,19 +1,15 @@
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useCallback, useMemo} from 'react';
 import React from 'react';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
 import {isUnlimited} from '@lib/utils/tools.revoke';
 
-import type {TAddress} from '@builtbymom/web3/types';
-import type {TExpandedAllowance, TTokenAllowance} from '@lib/types/Revoke';
-
-type TAllowanceItemProps = {
-	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
-	allowance: TExpandedAllowance;
-};
+import type {TAllowanceItemProps} from '@lib/types/Revoke';
 
 export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
+	// Convert value to usd
 	const valueAtRisk = null;
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
@@ -21,6 +17,28 @@ export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactEl
 		}
 		return toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
 	}, [allowance]);
+
+	const onRevoke = useCallback(() => {
+		revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
+	}, [allowance.address, allowance.args.sender, allowance.symbol, revoke]);
+
+	const {getToken} = useTokenList();
+
+	/**********************************************************************************************
+	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
+	 ** information and what we have in the token list, we will try to find the correct icon source
+	 *********************************************************************************************/
+	const tokenIcon = useMemo(() => {
+		if (!allowance) {
+			return '/placeholder.png';
+		}
+		const tokenFromList = getToken({chainID: allowance.chainID, address: allowance.address});
+		if (tokenFromList?.logoURI) {
+			return tokenFromList.logoURI;
+		}
+		return `${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`;
+	}, [allowance, getToken]);
+
 	return (
 		<div className={'rounded-lg border border-neutral-400 p-4'}>
 			<div className={'flex'}>
@@ -29,8 +47,7 @@ export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactEl
 						<ImageWithFallback
 							alt={allowance.symbol ?? ''}
 							unoptimized
-							src={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
-							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
+							src={tokenIcon}
 							quality={90}
 							width={40}
 							height={40}
@@ -60,9 +77,7 @@ export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactEl
 					<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
 				</div>
 				<Button
-					onClick={() =>
-						revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender)
-					}
+					onClick={onRevoke}
 					className={'mt-4 !h-8 w-full text-sm font-bold'}>
 					{'Revoke'}
 				</Button>

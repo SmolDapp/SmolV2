@@ -19,40 +19,36 @@ export function Revoke(): ReactElement {
 	const {chainID, safeChainID} = useChainID();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
 	const {onOpenCurtain} = useBalancesCurtain();
-
 	const {provider} = useWeb3();
 	const {dispatchConfiguration, allowances} = useAllowances();
 	const revokeTokenAllowance = useCallback(
-		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
-			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
+		async (tokenToRevoke: TTokenAllowance, spender: TAddress): Promise<void> => {
 			if (!tokenToRevoke) {
 				return;
 			}
-			approveERC20({
+			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
+			await approveERC20({
 				contractAddress: tokenToRevoke.address,
 				chainID: isDev ? chainID : safeChainID,
 				connector: provider,
 				spenderAddress: spender,
 				amount: 0n,
 				statusHandler: set_revokeStatus
-			}).then(result => {
-				if (result.isSuccessful) {
-					set_revokeStatus({...defaultTxStatus, success: true});
-				}
 			});
 		},
 		[chainID, dispatchConfiguration, provider, safeChainID]
 	);
+
+	const handleOpenCurtain = (): void => {
+		onOpenCurtain(selected => dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected}));
+	};
+
 	return (
 		<div className={'w-full'}>
 			{allowances?.length ? (
 				<Button
 					className={'!h-10'}
-					onClick={() =>
-						onOpenCurtain(selected =>
-							dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected})
-						)
-					}>
+					onClick={handleOpenCurtain}>
 					<IconPlus className={'mr-2 size-3'} />
 					{'Add token'}
 				</Button>

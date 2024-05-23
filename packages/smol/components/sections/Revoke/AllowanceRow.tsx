@@ -1,26 +1,49 @@
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
 import {isUnlimited} from 'packages/lib/utils/tools.revoke';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {toAddress, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TExpandedAllowance, TTokenAllowance} from '@lib/types/Revoke';
+import type {TAllowanceItemProps} from '@lib/types/Revoke';
 
-type TAllowanceRowProps = {
-	allowance: TExpandedAllowance;
-	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
-};
+export const AllowanceRow = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
+	const {getToken} = useTokenList();
 
-export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
 		}
 		return toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
 	}, [allowance]);
+
+	/**********************************************************************************************
+	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
+	 ** information and what we have in the token list, we will try to find the correct icon source
+	 *********************************************************************************************/
+	const tokenIcon = useMemo(() => {
+		if (!allowance) {
+			return '/placeholder.png';
+		}
+		const tokenFromList = getToken({chainID: allowance.chainID, address: allowance.address});
+		if (tokenFromList?.logoURI) {
+			return tokenFromList.logoURI;
+		}
+		return `${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`;
+	}, [allowance, getToken]);
+
+	const onCopyAddress = useCallback((e: React.MouseEvent<HTMLButtonElement>, address: TAddress) => {
+		e.stopPropagation();
+		navigator.clipboard.writeText(toAddress(address));
+		toast.success(`Address copied to clipboard: ${toAddress(address)}`);
+	}, []);
+
+	const onRevoke = useCallback(() => {
+		revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
+	}, [allowance.address, allowance.args.sender, allowance.symbol, revoke]);
 
 	return (
 		<tr>
@@ -30,8 +53,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 						<ImageWithFallback
 							alt={allowance.symbol ?? ''}
 							unoptimized
-							src={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
-							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`}
+							src={tokenIcon}
 							quality={90}
 							width={40}
 							height={40}
@@ -44,11 +66,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 							className={
 								'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
 							}
-							onClick={e => {
-								e.stopPropagation();
-								navigator.clipboard.writeText(toAddress(allowance.address));
-								toast.success(`Address copied to clipboard: ${toAddress(allowance.address)}`);
-							}}>
+							onClick={e => onCopyAddress(e, allowance.address)}>
 							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
 								{truncateHex(allowance.address, 5)}
 							</p>
@@ -69,13 +87,8 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 								className={
 									'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
 								}
-								onClick={e => {
-									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(allowance.args.sender));
-									toast.success(`Address copied to clipboard: ${toAddress(allowance.args.sender)}`);
-								}}>
+								onClick={e => onCopyAddress(e, allowance.args.sender)}>
 								<p className={'mb-[-2px] text-xs hover:underline'}>
-									{' '}
 									{truncateHex(allowance.args.sender, 5)}
 								</p>
 							</button>
@@ -85,9 +98,7 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 			</td>
 			<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
 				<Button
-					onClick={() =>
-						revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender)
-					}
+					onClick={onRevoke}
 					className={'!h-8 font-bold'}>
 					<p className={'text-xs font-bold leading-6'}>{'Revoke'}</p>
 				</Button>
