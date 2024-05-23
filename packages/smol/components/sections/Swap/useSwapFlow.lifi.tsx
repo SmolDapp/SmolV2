@@ -520,8 +520,9 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				await estimateGas(retrieveConfig(), txParams);
 			} catch (error) {
 				console.warn(error);
+				type TError = {details: string};
 				statusHandler({...defaultTxStatus, error: true});
-				set_currentError(`The simulation failed with the following error: ${(error as any).details}`);
+				set_currentError(`The transaction failed with the following error: ${(error as TError).details}`);
 				return false;
 			}
 
@@ -549,8 +550,9 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				}
 			} catch (error) {
 				console.warn(error);
+				type TError = {details: string};
 				statusHandler({...defaultTxStatus, error: true});
-				set_currentError(`The transaction failed with the following error: ${(error as any).details}`);
+				set_currentError(`The transaction failed with the following error: ${(error as TError).details}`);
 				return false;
 			}
 
@@ -631,8 +633,9 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				return result.status === 'DONE';
 			} catch (error) {
 				console.warn(error);
+				type TError = {details: string};
 				statusHandler({...defaultTxStatus, error: true});
-				set_currentError(`The transaction failed with the following error: ${(error as any).details}`);
+				set_currentError(`The transaction failed with the following error: ${(error as TError).details}`);
 				toast.dismiss();
 				return false;
 			}
