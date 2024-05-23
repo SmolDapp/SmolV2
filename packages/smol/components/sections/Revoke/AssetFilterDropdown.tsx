@@ -12,7 +12,7 @@ import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TExpandedAllowance} from '@lib/types/Revoke';
 
-export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'transactionHash' | 'address' | 'args'> & {
+export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
 };
 
@@ -58,7 +58,7 @@ export const AssetFilterDropdown = (props: {
 
 				{allOptions?.map(option => (
 					<DropdownMenuCheckboxItem
-						key={option.transactionHash}
+						key={`${option.address}-${option.chainID}`}
 						checked={assetFilter?.some(item => item === option.address)}
 						onCheckedChange={() => onCheckedChange(option)}>
 						{option.symbol}

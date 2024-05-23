@@ -10,10 +10,10 @@ import {useAllowances} from './useAllowances';
 export const AllowancesFilters = (): ReactElement | null => {
 	const {dispatchConfiguration, configuration, allowances} = useAllowances();
 
-	/****************************************************************
+	/**********************************************************************************************
 	 * Here we get non-repetitive tokens by token address and sender
 	 * and form new arrays to have filters for original arrays
-	 ****************************************************************/
+	 *********************************************************************************************/
 	const uniqueAllowancesByToken = useMemo(() => {
 		return [...new Map(allowances?.map(item => [item.address, item])).values()];
 	}, [allowances]);
@@ -40,14 +40,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.address,
 							symbol: item.symbol,
-							transactionHash: item.transactionHash,
+							chainID: item.chainID,
 							displayName: item.symbol,
 							args: item.args
 						};
 					})}>
 					<div
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200 h-12 md:h-8 font-medium md:font-normal  justify-center',
+							'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 h-12 md:h-8 font-medium md:font-normal  justify-center',
 							configuration.allowancesFilters.asset.filter.length ? 'bg-neutral-400' : ''
 						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
@@ -61,14 +61,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 						return {
 							address: item.args.sender,
 							symbol: item.symbol,
-							transactionHash: item.transactionHash,
+							chainID: item.chainID,
 							displayName: item.args.sender,
 							args: item.args
 						};
 					})}>
 					<div
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+							'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
 							'md:h-8 md:font-normal',
 							configuration.allowancesFilters.spender.filter.length ? 'bg-neutral-400' : ''
 						)}>
@@ -82,13 +82,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: configuration.allowancesFilters.unlimited.filter
-								? {...configuration.allowancesFilters, unlimited: {filter: null}}
-								: {...configuration.allowancesFilters, unlimited: {filter: 'unlimited'}}
+							payload:
+								configuration.allowancesFilters.unlimited.filter === 'unlimited'
+									? {...configuration.allowancesFilters, unlimited: {filter: undefined}}
+									: {...configuration.allowancesFilters, unlimited: {filter: 'unlimited'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
 						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.unlimited.filter === 'unlimited' ? 'bg-neutral-400' : ''
 					)}>
@@ -98,13 +99,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: configuration.allowancesFilters.unlimited.filter
-								? {...configuration.allowancesFilters, unlimited: {filter: null}}
-								: {...configuration.allowancesFilters, unlimited: {filter: 'limited'}}
+							payload:
+								configuration.allowancesFilters.unlimited.filter === 'limited'
+									? {...configuration.allowancesFilters, unlimited: {filter: undefined}}
+									: {...configuration.allowancesFilters, unlimited: {filter: 'limited'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
+						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
 						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.unlimited.filter === 'limited' ? 'bg-neutral-400' : ''
 					)}>
@@ -115,13 +117,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: configuration.allowancesFilters.withBalance.filter
-								? {...configuration.allowancesFilters, withBalance: {filter: null}}
-								: {...configuration.allowancesFilters, withBalance: {filter: 'with-balance'}}
+							payload:
+								configuration.allowancesFilters.withBalance.filter === 'with-balance'
+									? {...configuration.allowancesFilters, withBalance: {filter: undefined}}
+									: {...configuration.allowancesFilters, withBalance: {filter: 'with-balance'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200  justify-center h-12 font-medium ',
+						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
 						'md:h-8 md:font-normal',
 						configuration.allowancesFilters?.withBalance.filter === 'with-balance' ? 'bg-neutral-400' : ''
 					)}>
@@ -132,13 +135,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 					onClick={() =>
 						dispatchConfiguration({
 							type: 'SET_FILTER',
-							payload: configuration.allowancesFilters.withBalance.filter
-								? {...configuration.allowancesFilters, withBalance: {filter: null}}
-								: {...configuration.allowancesFilters, withBalance: {filter: 'without-balance'}}
+							payload:
+								configuration.allowancesFilters.withBalance.filter === 'without-balance'
+									? {...configuration.allowancesFilters, withBalance: {filter: undefined}}
+									: {...configuration.allowancesFilters, withBalance: {filter: 'without-balance'}}
 						})
 					}
 					className={cl(
-						'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium',
+						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium',
 						'md:h-8 md:font-normal',
 						configuration.allowancesFilters.withBalance.filter === 'without-balance' ? 'bg-neutral-400' : ''
 					)}>

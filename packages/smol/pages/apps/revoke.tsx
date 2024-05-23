@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import {isZeroAddress} from '@builtbymom/web3/utils';
 import {Revoke} from '@smolSections/Revoke';
 import {RevokeContextApp} from '@smolSections/Revoke/useAllowances';
@@ -30,7 +30,3 @@ RevokePage.AppInfo = (
 		<p>{'Revoke your allowances'}</p>
 	</>
 );
-
-RevokePage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};

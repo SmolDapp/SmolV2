@@ -2,8 +2,8 @@ import {useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
-import {getTokenAmount, isUnlimited} from 'packages/lib/utils/tools.revoke';
-import {toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {isUnlimited} from 'packages/lib/utils/tools.revoke';
+import {toAddress, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
@@ -15,16 +15,15 @@ type TAllowanceRowProps = {
 };
 
 export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElement => {
-	const {args, transactionHash} = allowance;
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
 		}
-		return getTokenAmount(allowance.decimals, allowance.args.value as bigint);
+		return toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
 	}, [allowance]);
 
 	return (
-		<tr key={transactionHash}>
+		<tr>
 			<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
 				<div className={'flex'}>
 					<div>
@@ -72,10 +71,13 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceRowProps): ReactElem
 								}
 								onClick={e => {
 									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(args.sender));
-									toast.success(`Address copied to clipboard: ${toAddress(args.sender)}`);
+									navigator.clipboard.writeText(toAddress(allowance.args.sender));
+									toast.success(`Address copied to clipboard: ${toAddress(allowance.args.sender)}`);
 								}}>
-								<p className={'mb-[-2px] text-xs hover:underline'}> {truncateHex(args.sender, 5)}</p>
+								<p className={'mb-[-2px] text-xs hover:underline'}>
+									{' '}
+									{truncateHex(allowance.args.sender, 5)}
+								</p>
 							</button>
 						</div>
 					</div>

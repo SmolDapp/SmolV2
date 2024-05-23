@@ -1,6 +1,8 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import React from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {IconSpinner} from 'packages/lib/icons/IconSpinner';
+import {cl} from '@builtbymom/web3/utils';
 
 import {AllowanceItem} from './AllowanceItem';
 import {AllowanceRow} from './AllowanceRow';
@@ -84,7 +86,10 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 													};
 												})
 											}
-											className={'flex items-center'}>
+											className={cl(
+												'flex items-center',
+												sort.sortBy === 'token' ? 'text-neutral-800' : ''
+											)}>
 											<p>{'Asset'}</p>
 											{sort.sortBy === 'token' && !sort.asc ? (
 												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
@@ -106,7 +111,10 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 													};
 												})
 											}
-											className={'flex items-center'}>
+											className={cl(
+												'flex items-center',
+												sort.sortBy === 'amount' ? 'text-neutral-800' : ''
+											)}>
 											<p>{'Amount'}</p>
 											{sort.sortBy === 'amount' && !sort.asc ? (
 												<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
@@ -129,7 +137,10 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 														};
 													})
 												}
-												className={'flex items-center justify-end'}>
+												className={cl(
+													'flex items-center justify-end',
+													sort.sortBy === 'spender' ? 'text-neutral-800' : ''
+												)}>
 												<p>{'Spender'}</p>
 												{sort.sortBy === 'spender' && !sort.asc ? (
 													<IconChevronPlain className={'ml-1 size-4 rotate-180'} />
@@ -150,6 +161,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 							className={'w-full'}>
 							{sortedAllowances?.map(item => (
 								<AllowanceRow
+									key={`${item.blockNumber}-${item.logIndex}`}
 									allowance={item}
 									revoke={revoke}
 								/>
@@ -159,6 +171,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 					<div className={'flex flex-col gap-y-2 md:hidden'}>
 						{allowances?.map(item => (
 							<AllowanceItem
+								key={`${item.blockNumber}-${item.logIndex}`}
 								revoke={revoke}
 								allowance={item}
 							/>

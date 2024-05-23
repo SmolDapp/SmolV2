@@ -32,7 +32,7 @@ export const RevokeWizard = (props: TRevokeWizardProps): ReactElement => {
 				isOpen={props.revokeStatus.error}
 				onClose={(): void => {
 					props.set_revokeStatus(defaultTxStatus);
-					dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: undefined});
+					dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: undefined});
 				}}
 				title={'Error'}
 				content={'An error occured while revoking  your token, please try again.'}
@@ -43,7 +43,7 @@ export const RevokeWizard = (props: TRevokeWizardProps): ReactElement => {
 				isOpen={props.revokeStatus.success}
 				onClose={(): void => {
 					props.set_revokeStatus(defaultTxStatus);
-					dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: undefined});
+					dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: undefined});
 				}}
 				title={'It looks like a success!'}
 				content={`${configuration.tokenToRevoke?.name} token has successfully revoked on ${configuration.tokenToRevoke?.spender} contract`}

@@ -4,6 +4,16 @@ import type {TAddress} from '@builtbymom/web3/types/address';
 
 export type TAllowances = TAllowance[];
 
+/**************************************************************************************************
+ ** TAllowance is type for allowances to revoke.
+ ** address: TAddress;
+ ** owner: The owner of allowance.
+ ** sender: The address of a contract that has allowance to spend tokens.
+ ** value: The amount of tokens that contract has allowance to.
+ ** blockNumber: Number of the block where approve has been made.
+ ** chainID: ID of the chain where approve has been made.
+ ** logIndex: Sequence number of the log.
+ ************************************************************************************************/
 export type TAllowance = {
 	address: TAddress;
 	args: {
@@ -12,13 +22,15 @@ export type TAllowance = {
 		value: string | number | bigint | undefined;
 	};
 	blockNumber: bigint;
-	transactionHash: TAddress;
 	chainID: number;
 	logIndex: number;
 };
-export type TUnlimitedFilter = 'unlimited' | 'limited' | null;
-export type TWithBalanceFilter = 'with-balance' | 'without-balance' | null;
+export type TUnlimitedFilter = 'unlimited' | 'limited' | undefined;
+export type TWithBalanceFilter = 'with-balance' | 'without-balance' | undefined;
 
+/**************************************************************************************************
+ ** TRevokeConfiguration contains all the necessary information to perform a revoke operation.
+ ************************************************************************************************/
 export type TRevokeConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
@@ -26,25 +38,39 @@ export type TRevokeConfiguration = {
 	allowancesFilters: TAllowancesFilters;
 };
 
+/**************************************************************************************************
+ ** TExpandedAllowance is expanded TAllowances type with additional token info.
+ ************************************************************************************************/
 export type TExpandedAllowance = TAllowance & {
-	name?: string;
-	symbol?: string;
-	decimals?: number;
-	balanceOf?: number;
+	name: string;
+	symbol: string;
+	decimals: number;
+	balanceOf: number;
 };
 
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
 
+/**************************************************************************************************
+ ** TRevokeContext is the context that hepls us to work with allowances.
+ ** - allowances: Actual allowances with all required info.
+ ** - configuration: The configuration of the revoke configuration.
+ ** - dispatchConfiguration: The dispatcher of the revoke configuration.
+ ** - isDoneWithInitialFetch: The flag that informate us if initial fetch is done.
+ ** - filteredAllowances: Filtered allowances that are shown in UI.
+ ** - isLoading: The flag that shows if allowances are still loading.
+ ************************************************************************************************/
 export type TRevokeContext = {
-	allowances: TExpandedAllowance[] | null | undefined;
+	allowances: TExpandedAllowance[] | undefined;
 	configuration: TRevokeConfiguration;
 	dispatchConfiguration: Dispatch<TRevokeActions>;
 	isDoneWithInitialFetch: boolean;
-	filteredAllowances: TExpandedAllowance[] | null | undefined;
+	filteredAllowances: TExpandedAllowance[] | undefined;
 	isLoading: boolean;
-	fetchTokenToSearch: () => void;
 };
 
+/**************************************************************************************************
+ ** TAllowancesFilters is type for all filters you can apply to allowances on the revoke page.
+ ************************************************************************************************/
 export type TAllowancesFilters = {
 	unlimited: {
 		filter: TUnlimitedFilter;
@@ -60,14 +86,20 @@ export type TAllowancesFilters = {
 	};
 };
 
+/**************************************************************************************************
+ ** TRevokeActions
+ ** SET_TOKEN_TO_CHECK: Sets token to have allowances for.
+ ** SET_ALLOWANCE_TO_REVOKE: Sets allowance to be revoke.
+ ** SET_FILTER: Sets filters to filter allowances in UI.
+ ** RESET_FILTER: Resets all filter
+ *************************************************************************************************/
 export type TRevokeActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
-	| {type: 'SET_TOKENS_TO_CHECK'; payload: TTokenAllowance[] | undefined}
-	| {type: 'SET_TOKEN_TO_REVOKE'; payload: TTokenAllowance | undefined}
+	| {type: 'SET_ALLOWANCE_TO_REVOKE'; payload: TTokenAllowance | undefined}
 	| {type: 'SET_FILTER'; payload: TAllowancesFilters}
 	| {type: 'RESET_FILTER'};
 
-/**********************************************************************************************
+/**************************************************************************************************
  ** The TApproveEventEntry type definition is used in useRevoke context to get allowances
  ** for provided token list.
  ** The properties are:
@@ -80,10 +112,10 @@ export type TRevokeActions =
  ** blockNumber: bigint - The number of the block
  ** logIndex: number - integer of the log index position in the block
  **	transactionHash: TAddress - uniqe hash of allowance
- ** name?: string - Name of a token that is approved
- ** symbol?: string - Symbol of a token that is approved
- ** decimals?: number - Decimals of a token that is approved
- ** balanceOf?: number - Balance of a token that is apporved
+ ** name: string - Name of a token that is approved
+ ** symbol: string - Symbol of a token that is approved
+ ** decimals: number - Decimals of a token that is approved
+ ** balanceOf: number - Balance of a token that is apporved
  *********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
@@ -94,14 +126,13 @@ export type TApproveEventEntry = {
 	value: bigint;
 	blockNumber: bigint;
 	logIndex: number;
-	transactionHash: TAddress;
-	symbol?: string;
-	decimals?: number;
-	balanceOf?: number;
-	name?: string;
+	symbol: string;
+	decimals: number;
+	balanceOf: number;
+	name: string;
 };
 
-/**********************************************************************************************
+/**************************************************************************************************
  ** The TApproveEventChainSyncEntry type definition is used in useRevoke context to be able
  ** to merge allowances by block number.
  ** The properties are:

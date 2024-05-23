@@ -9,13 +9,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {useAllowances} from './useAllowances';
 
-import type {TExpandedAllowance} from 'packages/lib/types/Revoke';
 import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types';
-
-export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'address' | 'args'> & {
-	displayName?: TAddress | string;
-};
+import type {TFilterAllowance} from './AssetFilterDropdown';
 
 export const SpenderFilterDropdown = (props: {
 	children: React.ReactElement;
@@ -59,7 +54,7 @@ export const SpenderFilterDropdown = (props: {
 
 				{allOptions?.map(option => (
 					<DropdownMenuCheckboxItem
-						key={option.symbol}
+						key={`${option.address}-${option.chainID}`}
 						checked={spenderFilter?.some(item => item === option.args.sender)}
 						onCheckedChange={() => onCheckedChange(option)}>
 						{truncateHex(option.args.sender, 7)}

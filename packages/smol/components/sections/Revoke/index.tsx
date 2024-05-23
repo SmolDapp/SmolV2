@@ -24,7 +24,7 @@ export function Revoke(): ReactElement {
 	const {dispatchConfiguration, allowances} = useAllowances();
 	const revokeTokenAllowance = useCallback(
 		(tokenToRevoke: TTokenAllowance, spender: TAddress): void => {
-			dispatchConfiguration({type: 'SET_TOKEN_TO_REVOKE', payload: {...tokenToRevoke, spender}});
+			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
 			if (!tokenToRevoke) {
 				return;
 			}
