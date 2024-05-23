@@ -400,36 +400,48 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	);
 
 	/**********************************************************************************************
+	 ** canProceedWithAllowanceFlow checks if the user can proceed with the allowance flow. It will
+	 ** check if the current transaction request, input token, and output token are valid. It will
+	 ** also check if the input amount is greater than 0 and if the input token is not an ETH token
+	 ** or the zero address.
+	 ** If all these conditions are met, it will return true meaning we can either retrieve the
+	 ** allowance or proceed allowance request.
+	 *********************************************************************************************/
+	const canProceedWithAllowanceFlow = useMemo((): boolean => {
+		if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
+			return false;
+		}
+
+		if (toBigInt(currentTxRequest.action.fromAmount) === 0n) {
+			return false;
+		}
+
+		const tokenToSpend = currentTxRequest.action.fromToken.address;
+		if (isEthAddress(tokenToSpend) || isZeroAddress(tokenToSpend)) {
+			return false;
+		}
+		return true;
+	}, [configuration.input.token, configuration.output.token, currentTxRequest]);
+
+	/**********************************************************************************************
 	 ** hasSolverAllowance checks if the user has enough allowance to perform the swap. It will
 	 ** check the allowance of the input token to the contract that will perform the swap, contract
 	 ** which is provided by the Portals API.
 	 *********************************************************************************************/
 	const hasSolverAllowance = useCallback(async (): Promise<boolean> => {
-		if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
-			return false;
-		}
-
-		const fromChainID = currentTxRequest.action.fromChainId;
-		const spender = currentTxRequest.estimate.approvalAddress;
-		const tokenToSpend = currentTxRequest.action.fromToken.address;
-		const amount = currentTxRequest.action.fromAmount;
-
-		if (toBigInt(amount) === 0n) {
-			return false;
-		}
-		if (isEthAddress(tokenToSpend) || isZeroAddress(tokenToSpend)) {
-			return true;
+		if (!currentTxRequest || !canProceedWithAllowanceFlow) {
+			return isEthAddress(currentTxRequest?.action.fromToken.address);
 		}
 
 		const allowance = await allowanceOf({
 			connector: provider,
-			chainID: fromChainID,
-			tokenAddress: toAddress(tokenToSpend),
-			spenderAddress: toAddress(spender)
+			chainID: currentTxRequest.action.fromChainId,
+			tokenAddress: toAddress(currentTxRequest.action.fromToken.address),
+			spenderAddress: toAddress(currentTxRequest.estimate.approvalAddress)
 		});
 
-		return allowance >= toBigInt(amount);
-	}, [configuration.input.token, configuration.output.token, currentTxRequest, provider]);
+		return allowance >= toBigInt(currentTxRequest.action.fromAmount);
+	}, [canProceedWithAllowanceFlow, currentTxRequest, provider]);
 
 	/**********************************************************************************************
 	 ** approveSolverSpender will approve the contract that will perform the swap to spend the
@@ -438,34 +450,23 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	 *********************************************************************************************/
 	const approveSolverSpender = useCallback(
 		async (statusHandler: Dispatch<SetStateAction<TTxStatus>>): Promise<boolean> => {
-			if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
+			if (!currentTxRequest || !canProceedWithAllowanceFlow) {
 				return false;
-			}
-
-			const fromChainID = currentTxRequest.action.fromChainId;
-			const spender = currentTxRequest.estimate.approvalAddress;
-			const tokenToSpend = currentTxRequest.action.fromToken.address;
-			const amount = currentTxRequest.action.fromAmount;
-			if (toBigInt(amount) === 0n) {
-				return false;
-			}
-			if (isEthAddress(tokenToSpend) || isZeroAddress(tokenToSpend)) {
-				return true;
 			}
 
 			const result = await approveERC20({
 				connector: provider,
-				chainID: fromChainID,
-				contractAddress: toAddress(tokenToSpend),
-				spenderAddress: toAddress(spender),
-				amount: toBigInt(amount),
+				chainID: currentTxRequest.action.fromChainId,
+				contractAddress: toAddress(currentTxRequest.action.fromToken.address),
+				spenderAddress: toAddress(currentTxRequest.estimate.approvalAddress),
+				amount: toBigInt(currentTxRequest.action.fromAmount),
 				statusHandler,
 				shouldDisplaySuccessToast: false
 			});
 			toast.success('Your tokens have been approved! You can now swap them!');
 			return result.isSuccessful;
 		},
-		[configuration.input.token, configuration.output.token, currentTxRequest, provider]
+		[canProceedWithAllowanceFlow, currentTxRequest, provider]
 	);
 
 	/**********************************************************************************************
