@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 import ChainStatus from '@multisafe/components/ChainStatus';
 import {AddressLike} from '@multisafeCommons/AddressLike';
 import {Renderable} from '@multisafeCommons/Renderable';
 import IconRefresh from '@multisafeIcons/IconRefresh';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from '@multisafeUtils/constants';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
+import {CHAINS} from '@lib/utils/tools.chains.ts';
 
 import type {ReactElement} from 'react';
 import type {TNewSafe} from '@multisafe/components/4.ViewNewSafe';
@@ -29,6 +29,9 @@ function PossibleSafe({
 	onGenerate
 }: TPossibleSafe): ReactElement {
 	const {address, owners, threshold, salt} = possibleSafe as TNewSafe;
+	const supportedNetworks = useMemo(() => {
+		return Object.values(CHAINS).filter(e => e.isMultisafeSupported);
+	}, []);
 
 	return (
 		<div className={'p-4 pt-0 md:p-6 md:pt-0'}>
@@ -122,28 +125,29 @@ function PossibleSafe({
 								shouldRender={!!address}
 								fallback={<span className={'text-neutral-600'}>{'-'}</span>}>
 								<div className={'mt-1 grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4'}>
-									{SUPPORTED_MULTICHAINS.filter(
-										(chain): boolean => ![5, 324, 1337, 84531].includes(chain.id)
-									).map(
-										(chain): ReactElement => (
-											<ChainStatus
-												key={chain.id}
-												chain={chain}
-												safeAddress={toAddress(address)}
-												owners={owners || []}
-												threshold={threshold || 0}
-												singleton={possibleSafe?.singleton}
-												salt={salt || 0n}
-											/>
-										)
-									)}
+									{supportedNetworks
+										.filter((chain): boolean => ![5, 324, 1337, 84531].includes(chain.id))
+										.map(
+											(chain): ReactElement => (
+												<ChainStatus
+													key={chain.id}
+													chain={chain}
+													safeAddress={toAddress(address)}
+													owners={owners || []}
+													threshold={threshold || 0}
+													singleton={possibleSafe?.singleton}
+													salt={salt || 0n}
+												/>
+											)
+										)}
 								</div>
 								{shouldUseTestnets && (
 									<div
 										className={
 											'mt-6 grid grid-cols-2 gap-2 border-t border-neutral-100 pt-6 md:grid-cols-3 md:gap-4'
 										}>
-										{SUPPORTED_MULTICHAINS.filter((chain): boolean => ![324].includes(chain.id))
+										{supportedNetworks
+											.filter((chain): boolean => ![324].includes(chain.id))
 											.filter((chain): boolean => [5, 1337, 84531].includes(chain.id))
 											.map(
 												(chain): ReactElement => (

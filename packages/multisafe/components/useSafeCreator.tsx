@@ -5,7 +5,7 @@ import {baseFetcher} from '@builtbymom/web3/utils';
 import {HEADER_HEIGHT} from '@multisafeUtils/constants';
 import {scrollToTargetAdjusted} from '@multisafeUtils/utils';
 import {useUpdateEffect} from '@react-hookz/web';
-import {COINGECKO_GAS_COIN_IDS} from '@lib/utils/constants';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {Dispatch, SetStateAction} from 'react';
 import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
@@ -45,7 +45,7 @@ export const SafeCreatorContextApp = ({children}: {children: React.ReactElement}
 	const [currentStep, set_currentStep] = useState<Step>(Step.FLOW);
 	const [selectedFlow, set_selectedFlow] = useState<'NONE' | 'EXISTING' | 'NEW'>('NONE');
 	const {data: chainCoinPrices} = useSWR<TPriceFromGecko>(
-		`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(COINGECKO_GAS_COIN_IDS)}&vs_currencies=usd`,
+		`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(CHAINS).map(e => e.coingeckoGasCoinID)}&vs_currencies=usd`,
 		baseFetcher,
 		{refreshInterval: 10_000}
 	);

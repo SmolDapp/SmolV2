@@ -25,9 +25,9 @@ import {SuccessModal} from '@lib/common/SuccessModal';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {Button} from '@lib/primitives/Button';
 import {disperseERC20, disperseETH} from '@lib/utils/actions';
-import {DISPERSE_CONTRACT_PER_CHAIN} from '@lib/utils/constants';
 import {notifyDisperse} from '@lib/utils/notifier';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {CHAINS} from '@lib/utils/tools.chains';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
@@ -68,7 +68,7 @@ const useApproveDisperse = ({
 	const {data: allowance = 0n, refetch} = useReadContract({
 		abi: erc20Abi,
 		functionName: 'allowance',
-		args: [toAddress(address), DISPERSE_CONTRACT_PER_CHAIN[safeChainID]],
+		args: [toAddress(address), CHAINS[safeChainID].disperseAddress],
 		address: toAddress(configuration.tokenToSend?.address),
 		query: {
 			enabled:
@@ -86,7 +86,7 @@ const useApproveDisperse = ({
 			connector: provider,
 			chainID: chainID,
 			contractAddress: toAddress(configuration.tokenToSend?.address),
-			spenderAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
+			spenderAddress: CHAINS[safeChainID].disperseAddress,
 			amount: totalToDisperse,
 			statusHandler: set_approvalStatus
 		}).then(result => {
@@ -265,7 +265,7 @@ const useConfirmDisperse = ({
 			disperseETH({
 				connector: provider,
 				chainID: chainID,
-				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
+				contractAddress: CHAINS[safeChainID].disperseAddress,
 				receivers: disperseAddresses,
 				amounts: disperseAmount
 			}).then(result => {
@@ -278,7 +278,7 @@ const useConfirmDisperse = ({
 			disperseERC20({
 				connector: provider,
 				chainID: chainID,
-				contractAddress: DISPERSE_CONTRACT_PER_CHAIN[safeChainID],
+				contractAddress: CHAINS[safeChainID].disperseAddress,
 				tokenToDisperse: toAddress(configuration.tokenToSend?.address),
 				receivers: disperseAddresses,
 				amounts: disperseAmount

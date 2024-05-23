@@ -1,8 +1,8 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {fromHex, type Hex} from 'viem';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
-import {getClient, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import ChainStatus from '@multisafe/components/ChainStatus';
 import AddressInput, {defaultInputAddressLike} from '@multisafeCommons/AddressInput';
 import {PopoverSettings} from '@multisafeCommons/PopoverSettings';
@@ -20,11 +20,10 @@ import {
 } from '@multisafeUtils/constants';
 import {getTransaction} from '@wagmi/core';
 import {Button} from '@lib/primitives/Button';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAppExtendedChain} from '@lib/utils/tools.chains';
 import type {TInputAddressLike} from '@multisafeCommons/AddressInput';
 import type {GetTransactionReturnType} from '@wagmi/core';
 
@@ -44,17 +43,20 @@ function ViewClonableSafe(): ReactElement {
 	const [existingSafeArgs, set_existingSafeArgs] = useState<
 		TExistingSafeArgs | {error: string; isLoading: boolean} | undefined
 	>(undefined);
+	const supportedNetworks = useMemo(() => {
+		return Object.values(CHAINS).filter(e => e.isMultisafeSupported);
+	}, []);
 
 	const retrieveSafeTxHash = useCallback(
 		async (address: TAddress): Promise<{hash: Hex; chainID: number} | undefined> => {
-			for (const chain of SUPPORTED_MULTICHAINS) {
+			for (const chain of supportedNetworks) {
 				try {
 					const publicClient = getClient(chain.id);
 					const byteCode = await publicClient.getBytecode({address});
 					if (byteCode) {
 						let txHash: Hex | null = '0x0';
 
-						const safeAPI = (getNetwork(chain.id) as TAppExtendedChain).safeApiUri;
+						const safeAPI = CHAINS[chain.id]?.safeAPIURI || '';
 						if (safeAPI) {
 							try {
 								const {data: creationData} = await axios.get(
@@ -95,7 +97,7 @@ function ViewClonableSafe(): ReactElement {
 			}
 			return undefined;
 		},
-		[]
+		[supportedNetworks]
 	);
 
 	const decodeArgInitializers = useCallback(
@@ -212,28 +214,29 @@ function ViewClonableSafe(): ReactElement {
 								shouldRender={!!safeArgs?.address}
 								fallback={<span className={'text-neutral-600'}>{'-'}</span>}>
 								<div className={'mt-1 grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4'}>
-									{SUPPORTED_MULTICHAINS.filter(
-										(chain): boolean => ![5, 324, 1337, 84531].includes(chain.id)
-									).map(
-										(chain): ReactElement => (
-											<ChainStatus
-												key={chain.id}
-												chain={chain}
-												safeAddress={toAddress(safeArgs?.address)}
-												owners={safeArgs?.owners || []}
-												threshold={safeArgs?.threshold || 0}
-												singleton={safeArgs?.singleton}
-												salt={safeArgs?.salt || 0n}
-											/>
-										)
-									)}
+									{supportedNetworks
+										.filter((chain): boolean => ![5, 324, 1337, 84531].includes(chain.id))
+										.map(
+											(chain): ReactElement => (
+												<ChainStatus
+													key={chain.id}
+													chain={chain}
+													safeAddress={toAddress(safeArgs?.address)}
+													owners={safeArgs?.owners || []}
+													threshold={safeArgs?.threshold || 0}
+													singleton={safeArgs?.singleton}
+													salt={safeArgs?.salt || 0n}
+												/>
+											)
+										)}
 								</div>
 								{shouldUseTestnets && (
 									<div
 										className={
 											'mt-6 grid grid-cols-2 gap-2 border-t border-neutral-100 pt-6 md:grid-cols-3 md:gap-4'
 										}>
-										{SUPPORTED_MULTICHAINS.filter((chain): boolean => ![324].includes(chain.id))
+										{supportedNetworks
+											.filter((chain): boolean => ![324].includes(chain.id))
 											.filter((chain): boolean => [5, 1337, 84531].includes(chain.id))
 											.map(
 												(chain): ReactElement => (
