@@ -8,7 +8,7 @@ import {useIsMounted} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkInputSelector(props: {
 	value: number;
@@ -18,7 +18,6 @@ export function NetworkInputSelector(props: {
 	const plausible = usePlausible();
 	const isMounted = useIsMounted();
 	const safeChainID = toSafeChainID(props.value, Number(process.env.BASE_CHAINID));
-	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 	/**********************************************************************************************
 	 ** networkToUse will be the list of networks to use. If the user has provided a list of

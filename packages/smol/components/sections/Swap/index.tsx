@@ -1,18 +1,18 @@
 import {type ReactElement, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {LIFI_SUPPORTED_NETWORKS} from 'packages/lib/utils/constants';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue, isZeroAddress} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {SmolTokenAmountInput, useValidateAmountInput} from '@smolDesignSystem/SmolTokenAmountInput';
-import {SmolTokenSelectorButton} from '@smolDesignSystem/SmolTokenSelectorButton';
 import {formatSeconds} from '@smolHooks/useTimer';
 import {NetworkInputSelector} from '@lib/common/NetworkSelector/Input';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
+import {SmolTokenSelectorButton} from '@lib/common/SmolTokenSelectorButton';
 import {TextTruncate} from '@lib/common/TextTruncate';
+import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
@@ -20,6 +20,7 @@ import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {CHAINS} from '@lib/utils/tools.chains.ts';
 
 import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
@@ -193,11 +194,11 @@ export function Swap(): ReactElement {
 
 	/**********************************************************************************************
 	 ** The swapSupportedNetworks constant is used to filter the supported networks from the
-	 ** LIFI_SUPPORTED_NETWORKS object. It filters the supported networks based on the isSupported
+	 ** CHAINS object. It filters the supported networks based on the isSupported
 	 ** property.
 	 *********************************************************************************************/
 	const swapSupportedNetworks = useMemo(() => {
-		const allSupportedNetworks = Object.values(LIFI_SUPPORTED_NETWORKS).filter(network => network.isSupported);
+		const allSupportedNetworks = Object.values(CHAINS).filter(network => network.isLifiSwapSupported);
 		return allSupportedNetworks;
 	}, []);
 

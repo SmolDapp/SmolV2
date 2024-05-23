@@ -8,8 +8,7 @@ import {useIsMounted} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
-import {isDev} from '@lib/utils/constants';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkPopoverSelector(): ReactElement {
 	const isMounted = useIsMounted();

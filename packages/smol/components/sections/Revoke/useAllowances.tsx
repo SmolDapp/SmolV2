@@ -8,7 +8,6 @@ import {
 	type TRevokeConfiguration,
 	type TRevokeContext
 } from 'packages/lib/types/Revoke';
-import {isDev} from 'packages/lib/utils/constants';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimited} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
@@ -23,6 +22,7 @@ import {useDeepCompareMemo} from '@react-hookz/web';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {readContracts} from '@wagmi/core';
+import {isDev} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types/address';

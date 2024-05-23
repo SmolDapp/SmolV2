@@ -1,8 +1,8 @@
 import {Fragment, type ReactElement} from 'react';
 import {isZeroAddress} from '@builtbymom/web3/utils';
-import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
 import {Revoke} from '@smolSections/Revoke';
 import {RevokeContextApp} from '@smolSections/Revoke/useAllowances';
+import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {TToken} from '@builtbymom/web3/types';
 

@@ -1,6 +1,8 @@
+import {useMemo} from 'react';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl, isAddress} from '@builtbymom/web3/utils';
-import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {IconWallet} from '@lib/icons/IconWallet';
 
@@ -13,6 +15,25 @@ export function SmolTokenSelectorButton(props: {
 	shouldUseCurtainWithTabs?: boolean;
 }): JSX.Element {
 	const {onOpenCurtain} = useBalancesCurtain();
+	const {getToken} = useTokenList();
+
+	/**********************************************************************************************
+	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
+	 ** information and what we have in the token list, we will try to find the correct icon source
+	 *********************************************************************************************/
+	const tokenIcon = useMemo(() => {
+		if (!props.token) {
+			return '/placeholder.png';
+		}
+		if (props.token?.logoURI) {
+			return props.token.logoURI;
+		}
+		const tokenFromList = getToken({chainID: props.token.chainID, address: props.token.address});
+		if (tokenFromList?.logoURI) {
+			return tokenFromList.logoURI;
+		}
+		return `${process.env.SMOL_ASSETS_URL}/token/${props.token.chainID}/${props.token.address}/logo-32.png`;
+	}, [getToken, props.token]);
 
 	return (
 		<button
@@ -32,10 +53,7 @@ export function SmolTokenSelectorButton(props: {
 						<ImageWithFallback
 							alt={props.token.symbol}
 							unoptimized
-							src={
-								props.token?.logoURI ||
-								`${process.env.SMOL_ASSETS_URL}/token/${props.token.chainID}/${props.token.address}/logo-32.png`
-							}
+							src={tokenIcon}
 							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${props.token.chainID}/${props.token.address}/logo-32.png`}
 							quality={90}
 							width={32}

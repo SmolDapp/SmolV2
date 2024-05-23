@@ -4,11 +4,11 @@ import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
-import {IndexedDB} from '@smolContexts/useIndexedDB';
-import {WithPopularTokens} from '@smolContexts/usePopularTokens';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
+import {IndexedDB} from '@lib/contexts/useIndexedDB';
+import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
