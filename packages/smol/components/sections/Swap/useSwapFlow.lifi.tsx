@@ -36,7 +36,7 @@ import {SwapCurtain} from './SettingsCurtain';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
-import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TChainTokens, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import type {TTokenAmountInputElement} from '@lib/types/Inputs';
 import type {TSwapActions, TSwapConfiguration, TSwapContext} from '@lib/utils/types/app.swap';
@@ -208,6 +208,37 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	const quoteAbortController = useRef<AbortController>(new AbortController());
 
 	/**********************************************************************************************
+	 ** The getPlausibleProps function will return the plausible properties for the current swap.
+	 ** This is used to send events to Plausible in a consistent way.
+	 *********************************************************************************************/
+	const getPlausibleProps = useCallback(
+		(args: {out: TNormalizedBN; estimate?: TLifiQuoteResponse['estimate']; txHash?: Hex}) => {
+			return {
+				inputChainID: configuration.input.token?.chainID,
+				inputAmount: configuration.input.normalizedBigAmount.display,
+				inputToken: configuration.input.token?.symbol,
+				outputChainID: configuration.output.token?.chainID,
+				outputToken: configuration.output.token?.symbol,
+				outputAmount: args.out.display,
+				slippage: configuration.slippageTolerance,
+				order: configuration.order,
+				isBridging: configuration.input.token?.chainID !== configuration.output.token?.chainID,
+				estimate: args.estimate,
+				txHash: args.txHash
+			};
+		},
+		[
+			configuration.input.normalizedBigAmount.display,
+			configuration.input.token?.chainID,
+			configuration.input.token?.symbol,
+			configuration.order,
+			configuration.output.token?.chainID,
+			configuration.output.token?.symbol,
+			configuration.slippageTolerance
+		]
+	);
+
+	/**********************************************************************************************
 	 ** The resetState function will reset the state of the context. It will set the fetching state
 	 ** to false, the current transaction request to undefined, the current error to undefined, and
 	 ** it will reset the configuration to its default values.
@@ -268,19 +299,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			set_isFetchingQuote(false);
 			set_currentTxRequest(result);
 			set_currentError(undefined);
-			plausible(PLAUSIBLE_EVENTS.SWAP_GET_QUOTE, {
-				props: {
-					inputChainID: configuration.input.token?.chainID,
-					inputAmount: configuration.input.normalizedBigAmount.display,
-					inputToken: configuration.input.token?.symbol,
-					outputChainID: configuration.output.token?.chainID,
-					outputToken: configuration.output.token?.symbol,
-					outputAmount: out.display,
-					slippage: configuration.slippageTolerance,
-					order: configuration.order,
-					estimate: result.estimate
-				}
-			});
+			plausible(PLAUSIBLE_EVENTS.SWAP_GET_QUOTE, {props: getPlausibleProps({out, estimate: result.estimate})});
 			dispatch({
 				type: 'SET_OUTPUT_VALUE',
 				payload: {
@@ -300,7 +319,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				}
 			});
 		},
-		[configuration.input, configuration.order, configuration.output, configuration.slippageTolerance, plausible]
+		[configuration.input, configuration.output, getPlausibleProps, plausible]
 	);
 	const retrieveExpectedOut = useAsyncTriggerWithArgs(
 		async (force = false): Promise<void> => {
@@ -517,18 +536,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				 ** send the event.
 				 *********************************************************************************/
 				plausible(PLAUSIBLE_EVENTS.SWAP_EXECUTED, {
-					props: {
-						inputChainID: configuration.input.token?.chainID,
-						inputAmount: configuration.input.normalizedBigAmount.display,
-						inputToken: configuration.input.token?.symbol,
-						outputChainID: configuration.output.token?.chainID,
-						outputToken: configuration.output.token?.symbol,
-						outputAmount: configuration.output.normalizedBigAmount.display,
-						slippage: configuration.slippageTolerance,
-						order: configuration.order,
-						isBridging: fromChainID !== toChainID,
-						txHash
-					}
+					props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
 				});
 				const receipt = await waitForTransactionReceipt(retrieveConfig(), {
 					chainId: currentTxRequest.transactionRequest.chainId,
@@ -592,18 +600,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
 				if (result.status === 'DONE') {
 					plausible(PLAUSIBLE_EVENTS.SWAP_CONFIRMED, {
-						props: {
-							inputChainID: configuration.input.token?.chainID,
-							inputAmount: configuration.input.normalizedBigAmount.display,
-							inputToken: configuration.input.token?.symbol,
-							outputChainID: configuration.output.token?.chainID,
-							outputToken: configuration.output.token?.symbol,
-							outputAmount: configuration.output.normalizedBigAmount.display,
-							slippage: configuration.slippageTolerance,
-							order: configuration.order,
-							isBridging: fromChainID !== toChainID,
-							txHash
-						}
+						props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
 					});
 					toast.custom(
 						t => (
@@ -624,17 +621,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					resetState();
 				} else {
 					plausible(PLAUSIBLE_EVENTS.SWAP_REVERTED, {
-						props: {
-							inputChainID: configuration.input.token?.chainID,
-							inputAmount: configuration.input.normalizedBigAmount.display,
-							inputToken: configuration.input.token?.symbol,
-							outputChainID: configuration.output.token?.chainID,
-							outputToken: configuration.output.token?.symbol,
-							outputAmount: configuration.output.normalizedBigAmount.display,
-							slippage: configuration.slippageTolerance,
-							order: configuration.order,
-							txHash
-						}
+						props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
 					});
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
 				}
@@ -650,13 +637,11 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			}
 		},
 		[
-			configuration.input.normalizedBigAmount.display,
 			configuration.input.token,
-			configuration.order,
-			configuration.output.normalizedBigAmount.display,
+			configuration.output.normalizedBigAmount,
 			configuration.output.token,
-			configuration.slippageTolerance,
 			currentTxRequest,
+			getPlausibleProps,
 			onRefreshSolverBalances,
 			plausible,
 			provider,
