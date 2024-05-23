@@ -3,6 +3,8 @@ import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {toAddress} from '@builtbymom/web3/utils';
 import {useFetchYearnVaults} from '@yearn-finance/web-lib/hooks/useFetchYearnVaults';
 
+import {useStakingTokens} from '../hooks/useStakingTokens';
+
 import type {ReactElement} from 'react';
 import type {TDict} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
@@ -28,6 +30,8 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	const {vaults: rawVaults, isLoading: isLoadingVaults} = useFetchYearnVaults();
 	const {balances, isLoading: isLoadingBalance, getBalance} = useWallet();
 
+	const {getStakingTokenBalance} = useStakingTokens(rawVaults);
+
 	const userVaults = useMemo(() => {
 		const result: TDict<TYDaemonVault> = {};
 		for (const [networkID, eachNetwork] of Object.entries(balances)) {
@@ -42,7 +46,10 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 				totalBalance += balance.raw;
 
 				if (vault.staking.available) {
-					const stakingBalance = getBalance({address: vault.staking.address, chainID: Number(networkID)});
+					const stakingBalance = getStakingTokenBalance({
+						address: vault.staking.address,
+						chainID: Number(networkID)
+					});
 					totalBalance += stakingBalance.raw;
 				}
 
@@ -52,7 +59,7 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 			}
 		}
 		return result;
-	}, [balances, getBalance, rawVaults]);
+	}, [balances, getBalance, getStakingTokenBalance, rawVaults]);
 
 	return (
 		<VaultsContext.Provider

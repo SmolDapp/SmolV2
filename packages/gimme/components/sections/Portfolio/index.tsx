@@ -1,5 +1,6 @@
 import {type ReactElement, type ReactNode, useEffect, useMemo, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -62,9 +63,19 @@ export function Portfolio(): ReactNode {
 		}
 
 		for (const vault of userVaultsArray) {
-			const common = {abi: VAULT_V3_ABI, address: toAddress(vault.address), chainId: vault.chainID};
-			calls.push({...common, functionName: 'balanceOf', args: [toAddress(address)]});
-			calls.push({...common, functionName: 'pricePerShare'});
+			calls.push({
+				abi: vault.staking.available ? erc20Abi : VAULT_V3_ABI,
+				address: toAddress(vault.staking.available ? vault.staking.address : vault.address),
+				chainId: vault.chainID,
+				functionName: 'balanceOf',
+				args: [toAddress(address)]
+			});
+			calls.push({
+				abi: VAULT_V3_ABI,
+				address: toAddress(vault.address),
+				chainId: vault.chainID,
+				functionName: 'pricePerShare'
+			});
 		}
 
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -79,8 +90,8 @@ export function Portfolio(): ReactNode {
 			const iterator = i * 2;
 			const {address} = userVaultsArray[i];
 
-			const balanceOf = data[iterator].result as bigint;
-			const pricePerShare = data[iterator + 1].result as bigint;
+			const balanceOf = (data[iterator].result || 0n) as bigint;
+			const pricePerShare = (data[iterator + 1].result || 0n) as bigint;
 
 			result[address] = toNormalizedBN(
 				(balanceOf * pricePerShare) / toBigInt(10 ** userVaultsArray[i].decimals),
