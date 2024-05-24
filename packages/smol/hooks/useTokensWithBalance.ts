@@ -8,15 +8,16 @@ import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
-import type {TDict, TNDict, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TDict, TNDict, TToken} from '@builtbymom/web3/types';
 
 export function useTokensWithBalance(): {
 	listTokensWithBalance: (chainID?: number) => TToken[];
 	listTokens: (chainID?: number) => TToken[];
 	isLoading: boolean;
+	onRefresh: () => Promise<TChainTokens>;
 } {
 	const {chainID} = useWeb3();
-	const {balances, getBalance, isLoading} = useWallet();
+	const {balances, getBalance, isLoading, onRefresh} = useWallet();
 	const [allTokens, set_allTokens] = useState<TNDict<TDict<TToken>>>({});
 	const {tokenLists, isCustomToken} = useTokenList();
 
@@ -122,5 +123,5 @@ export function useTokensWithBalance(): {
 		[allTokens, getBalance, currentIdentifier, chainID]
 	);
 
-	return {listTokensWithBalance, listTokens, isLoading};
+	return {listTokensWithBalance, listTokens, isLoading, onRefresh};
 }
