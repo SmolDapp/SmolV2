@@ -1,11 +1,10 @@
-import {Fragment, type ReactElement} from 'react';
+import {Fragment, type ReactElement, useCallback} from 'react';
 import toast from 'react-hot-toast';
 import {toAddress} from '@builtbymom/web3/utils';
 import {cl} from '@builtbymom/web3/utils/cl';
 import {Dialog, DialogPanel, DialogTitle, Transition, TransitionChild} from '@headlessui/react';
 import {IconClone} from '@lib/icons/IconClone';
-
-import {IconCross} from '../icons/IconCross';
+import {IconCross} from '@lib/icons/IconCross';
 
 import type {TAddress} from '@builtbymom/web3/types';
 
@@ -19,10 +18,10 @@ type TQRModalProps = {
 };
 
 const QRModal = (props: TQRModalProps): ReactElement => {
-	const onCopyAddress = async (): Promise<void> => {
+	const onCopyAddress = useCallback(async (): Promise<void> => {
 		await navigator.clipboard.writeText(props.address);
 		toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-	};
+	}, [props.address]);
 
 	return (
 		<Transition
