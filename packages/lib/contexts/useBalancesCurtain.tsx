@@ -19,6 +19,7 @@ import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {usePopularTokens} from '@lib/contexts/usePopularTokens';
+import {IconAppSwap} from '@lib/icons/IconApps';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {CurtainContent} from '@lib/primitives/Curtain';
@@ -32,6 +33,7 @@ import type {
 	TBalancesCurtainContextProps,
 	TBalancesCurtainOptions,
 	TSelectCallback,
+	TTokenListSummary,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
 import type {TPrice} from '@lib/utils/types/types';
@@ -136,16 +138,16 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
  *************************************************************************************************/
 function TokenListSelectorLayout(): ReactNode {
 	const {listsURI, onChangeListsURI} = usePopularTokens();
-	const {data} = useSWR('https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json', baseFetcher);
+	const {data} = useSWR<TTokenListSummary>(
+		'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json',
+		baseFetcher
+	);
 
 	const relevantData = useMemo(() => {
-		const lists = ((data as any)?.lists || []) as {
-			URI: string;
-			decription: string;
-			logoURI: string;
-			name: string;
-			tokenCount: number;
-		}[];
+		if (!data) {
+			return [];
+		}
+		const {lists} = data;
 		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
 		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
 		return filteredLists;
@@ -297,7 +299,14 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+						<div className={'flex items-center gap-x-3'}>
+							<h3 className={'mr-2 font-bold'}>{'Your Wallet'}</h3>
+							<button
+								onClick={props.onRefresh}
+								className={'text-neutral-600 hover:text-neutral-900'}>
+								<IconAppSwap className={'size-3'} />
+							</button>
+						</div>
 						<CloseCurtainButton />
 					</div>
 					<div className={'flex h-full flex-col gap-4'}>
@@ -375,7 +384,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoading, onRefresh} = useTokensWithBalance();
 	const {listTokens} = usePopularTokens();
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
@@ -441,6 +450,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 			{props.children}
 			<BalancesCurtain
 				isOpen={shouldOpenCurtain}
+				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
 				allTokens={allTokensToUse}
 				isLoading={isLoading}
