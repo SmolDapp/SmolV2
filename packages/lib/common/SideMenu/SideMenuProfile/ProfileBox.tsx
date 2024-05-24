@@ -4,6 +4,8 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {AddressBookEntryAddress} from '@lib/common/AddressBookEntry';
 import {Avatar} from '@lib/common/Avatar';
 
+import {QRCodeElement} from './QRCode';
+
 export function ProfileBox(): ReactElement {
 	const {address, ens} = useWeb3();
 	const {isConnecting} = useAccount();
@@ -24,6 +26,7 @@ export function ProfileBox(): ReactElement {
 				address={address}
 				ens={ens}
 			/>
+			<QRCodeElement />
 		</div>
 	);
 }
