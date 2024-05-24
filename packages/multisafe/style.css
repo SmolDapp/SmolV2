@@ -26,12 +26,7 @@
 	--color-red-900: 0 100% 45%;
 	--color-red-300: 0 100% 95%;
 	--color-red-200: 0 100% 90%;
-
-	.toast {
-		@apply rounded-lg border-0 bg-primary flex items-start justify-between p-2 text-sm min-w-[300px] max-w-[600px];
-	}
 }
-
 body {
 	@apply text-neutral-900;
 }
@@ -55,7 +50,7 @@ small {
 ** Overwritting the defaults to match our needs
 **************************************************************************/
 * {
-	@apply scroll-smooth font-sans;
+	@apply scroll-smooth;
 }
 input::placeholder {
 	@apply text-neutral-600 not-italic;
@@ -106,24 +101,6 @@ label[aria-invalid='true'] {
 ** correctly. Aka theses class should be possible to overwrite by adding an
 ** extra tailwind class
 **************************************************************************/
-.flex-center {
-	@apply flex justify-center items-center;
-}
-.rounded-default {
-	@apply rounded-md;
-}
-.rounded-b-default {
-	@apply rounded-b-md;
-}
-.rounded-t-default {
-	@apply rounded-t-md;
-}
-.rounded-l-default {
-	@apply rounded-l-md;
-}
-.rounded-r-default {
-	@apply rounded-r-md;
-}
 
 .smol--input-wrapper {
 	@apply flex h-10 w-full items-center rounded-md border border-neutral-400 bg-neutral-0 p-2 transition-colors;
@@ -150,46 +127,8 @@ select.smol--input {
 /* 🔵 - Yearn Finance ******************************************************
 ** Shorthand for some group of style used across the application
 ***************************************************************************/
-.flex-row-center {
-	@apply flex flex-row items-center;
-}
-.flex-row-start {
-	@apply flex flex-row items-start;
-}
-.flex-col-start {
-	@apply flex flex-col items-start;
-}
-.flex-col-full {
-	@apply flex flex-col w-full h-full;
-}
 .max-w-6xl {
 	@apply max-w-[1232px] px-4;
-}
-
-/* 🔵 - Yearn Finance ******************************************************
-** NsProgress is used to display the loading indicator. All of theses
-** styles are required to make it visible
-**************************************************************************/
-.nprogress-custom-parent {
-	@apply overflow-hidden relative;
-}
-.nprogress-custom-parent #nprogress .spinner {
-	@apply absolute;
-}
-.nprogress-custom-parent #nprogress .bar {
-	@apply absolute;
-}
-#nprogress {
-	@apply pointer-events-none;
-}
-#nprogress .bar {
-	@apply bg-neutral-900 fixed top-0 left-0 w-full h-1 z-[1031];
-}
-#nprogress .spinner {
-	@apply block fixed z-[1031] top-4 right-4;
-}
-#nprogress .spinner-icon {
-	@apply hidden;
 }
 
 /* 🔵 - Yearn Finance ******************************************************
@@ -203,21 +142,6 @@ select.smol--input {
 	scrollbar-width: none; /* Firefox */
 }
 
-/* 🔵 - Yearn Finance ******************************************************
-** Some custom css for the components
-**************************************************************************/
-.img-gradient::after {
-	content: '';
-	background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
-	@apply absolute inset-0 w-full h-full;
-}
-
-.tab {
-	@apply font-normal text-neutral-600 transition-colors hover:text-neutral-900 cursor-pointer border-b-2 border-transparent pb-4 z-20;
-	&[aria-selected='true'] {
-		@apply font-bold text-neutral-900 border-neutral-900;
-	}
-}
 .hover-fix::before {
 	display: block;
 	content: attr(title);
@@ -298,64 +222,6 @@ select:focus {
 	.font-number {
 		@apply font-mono tabular-nums;
 	}
-
-	/* 🔵 - Yearn Finance ******************************************************************************
-	** Loader
-	** Custom style for the loader icon
-	***************************************************************************************************/
-	.loader {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background-color: #fff;
-		box-shadow:
-			16px 0 #fff,
-			-16px 0 #fff;
-		position: relative;
-		animation: flash 1s ease-out infinite alternate;
-	}
-
-	@keyframes flash {
-		0% {
-			background-color: #fff2;
-			box-shadow:
-				12px 0 #fff2,
-				-12px 0 #fff;
-		}
-		50% {
-			background-color: #fff;
-			box-shadow:
-				12px 0 #fff2,
-				-12px 0 #fff2;
-		}
-		100% {
-			background-color: #fff2;
-			box-shadow:
-				12px 0 #fff,
-				-12px 0 #fff2;
-		}
-	}
-}
-
-@keyframes flash {
-	0% {
-		background-color: #aaaaaa;
-		box-shadow:
-			12px 0 #aaaaaa,
-			-12px 0 #000000;
-	}
-	50% {
-		background-color: #000000;
-		box-shadow:
-			12px 0 #aaaaaa,
-			-12px 0 #aaaaaa;
-	}
-	100% {
-		background-color: #aaaaaa;
-		box-shadow:
-			12px 0 #000000,
-			-12px 0 #aaaaaa;
-	}
 }
 
 .box-0 {
@@ -419,63 +285,6 @@ select:focus {
 .tooltip.top .tooltiptextsmall::after {
 	top: 98%;
 	transform: rotate(0deg);
-}
-
-.modal {
-	@apply inline-block overflow-hidden relative z-50 w-full text-left align-bottom transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle md:mb-96 mx-auto md:max-w-4xl bg-transparent;
-}
-.modal-overlay {
-	@apply fixed inset-0 z-10 bg-neutral-900/40 transition-opacity backdrop-blur-[1px];
-}
-.detailsMigrate {
-	@apply bg-neutral-0 flex w-full flex-col justify-center border-t border-b-0 border-neutral-200 transition-colors;
-}
-
-/**************************************************************************************************
-** AppBox is the style used to make the nices animations on the home page feel nice and smooth
-** A custom overwrite is required for dark/light mode
-**************************************************************************************************/
-.appBox {
-	@apply relative flex aspect-video h-full w-full cursor-pointer flex-col items-start border border-neutral-200 p-4 transition-colors rounded-md bg-neutral-0 hover:bg-neutral-500 hover:text-neutral-0;
-}
-
-/**************************************************************************************************
-** The WordWrapper css is used for the animation with the text in the header. This animation require
-** letters to be splitted and a custom css is required to make it work.
-***************************************************************************************************/
-.patternSVG {
-	@apply absolute inset-0 -z-10 h-full w-full stroke-neutral-500/10 [mask-image:radial-gradient(100%_100%_at_top_right,black,transparent)];
-}
-.patternSVGSquares {
-	@apply overflow-visible fill-neutral-200/20;
-}
-.groupHoverText {
-	&:hover .noHoverContent {
-		@apply opacity-0;
-	}
-	&:hover .withHoverContent {
-		@apply opacity-100;
-	}
-}
-.approvalWizardDivider {
-	& > *:last-child {
-		@apply border-b-0 !mb-0 !pb-0;
-	}
-}
-
-.bg-black {
-	background: linear-gradient(84.14deg, #1e243e, #1b2037);
-}
-
-.filler {
-	@apply w-3/4 border-b-2 border-dashed border-neutral-0 absolute inset-0 h-full;
-	top: calc(-50% + 1px);
-}
-
-.svg-fit {
-	& > svg {
-		@apply w-full h-full;
-	}
 }
 
 .addr > span {
