@@ -6,16 +6,63 @@ import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
+import {
+	IconAppAddressBook,
+	IconAppDisperse,
+	IconAppEarn,
+	IconAppSend,
+	IconAppStream,
+	IconAppSwap
+} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
-import {IconClone} from '@lib/icons/IconClone';
-import IconSquarePlus from '@lib/icons/IconSquarePlus';
+import {IconWallet} from '@lib/icons/IconWallet';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
 
 import '../style.css';
+
+const MENU = [
+	{
+		href: '/apps/send',
+		label: 'Send',
+		icon: <IconAppSend />
+	},
+	{
+		href: '/apps/disperse',
+		label: 'Disperse',
+		icon: <IconAppDisperse />
+	},
+	{
+		href: '/apps/swap',
+		label: 'Swap',
+		icon: <IconAppSwap />
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
+	},
+	{
+		href: '/apps/address-book',
+		label: 'Address Book',
+		icon: <IconAppAddressBook />
+	},
+	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	}
+];
 
 function MyApp(props: AppProps): ReactElement {
 	const supportedNetworks = useMemo(() => {
@@ -43,16 +90,17 @@ function MyApp(props: AppProps): ReactElement {
 							<Layout
 								{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
 								menu={[
-									{
-										href: '/new-safe',
-										label: 'Create a Safe',
-										icon: <IconSquarePlus />
-									},
-									{
-										href: '/clone-safe',
-										label: 'Clone a Safe',
-										icon: <IconClone />
-									}
+									...MENU
+									// {
+									// 	href: '/new-safe',
+									// 	label: 'Create a Safe',
+									// 	icon: <IconSquarePlus />
+									// },
+									// {
+									// 	href: '/clone-safe',
+									// 	label: 'Clone a Safe',
+									// 	icon: <IconClone />
+									// }
 								]}
 							/>
 						</main>
