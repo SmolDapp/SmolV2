@@ -146,7 +146,7 @@ export function SmolAddressInput({
 	}, [value.label, value.isValid, isFocused, isCheckingValidity]);
 
 	return (
-		<div className={cl(isSplitted ? 'flex flex-row gap-2 mt-1' : undefined)}>
+		<div className={cl(isSplitted ? 'flex flex-row gap-2 mt-1' : 'w-full')}>
 			{isSplitted && (
 				<SquareAddressAvatarButton
 					address={toAddress(value.address)}
