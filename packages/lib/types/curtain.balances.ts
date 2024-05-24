@@ -1,5 +1,5 @@
 import type {ReactElement} from 'react';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
 
 /**************************************************************************************************
  ** The TSelectCallback type is an helper type used to type the callback function that is called
@@ -25,6 +25,7 @@ export type TWalletLayoutProps = {
  *************************************************************************************************/
 export type TBalancesCurtain = {
 	isOpen: boolean;
+	onRefresh: () => Promise<TChainTokens>;
 	tokensWithBalance: TToken[];
 	allTokens: TToken[];
 	isLoading: boolean;
