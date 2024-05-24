@@ -1,10 +1,10 @@
-import {Fragment, type ReactElement, useState} from 'react';
+import {type ReactElement, useState} from 'react';
 import Image from 'next/image';
 import {QRModal} from 'packages/lib/common/QRModal';
 import {IconQRCode} from 'packages/lib/icons/IconQRCode';
 import QRCode from 'qrcode';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {isZeroAddress} from '@builtbymom/web3/utils';
+import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
 
 export const QRCodeElement = (): ReactElement | null => {
 	const [qrcode, set_qrcode] = useState<string>('');
@@ -16,12 +16,16 @@ export const QRCodeElement = (): ReactElement | null => {
 		QRCode.toDataURL(address?.toString() || '').then(set_qrcode);
 	};
 
-	if (!isZeroAddress(address) || !address) {
+	const onClose = (): void => {
+		set_isOpen(false);
+	};
+
+	if (isZeroAddress(address)) {
 		return null;
 	}
 
 	return (
-		<Fragment>
+		<>
 			<div
 				className={'flex items-center justify-center'}
 				role={'button'}
@@ -33,8 +37,8 @@ export const QRCodeElement = (): ReactElement | null => {
 				title={'Get your address'}
 				content={'Scan the QR code to get your wallet address'}
 				isOpen={isOpen}
-				onClose={(): void => set_isOpen(false)}
-				address={address}>
+				onClose={onClose}
+				address={toAddress(address)}>
 				<Image
 					src={qrcode}
 					alt={'qr-code'}
@@ -42,6 +46,6 @@ export const QRCodeElement = (): ReactElement | null => {
 					height={256}
 				/>
 			</QRModal>
-		</Fragment>
+		</>
 	);
 };
