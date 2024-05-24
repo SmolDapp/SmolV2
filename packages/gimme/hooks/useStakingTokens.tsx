@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
-import {isAddress} from '@builtbymom/web3/utils';
+import {isAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
@@ -22,9 +22,12 @@ export function useStakingTokens(vaults: TDict<TYDaemonVault>): {
 
 	const getStakingTokenBalance = useCallback(
 		({address, chainID}: {address: TAddress; chainID: number}): TNormalizedBN => {
+			if (isLoading || !balances[chainID]) {
+				return zeroNormalizedBN;
+			}
 			return balances[chainID][address].balance;
 		},
-		[balances]
+		[balances, isLoading]
 	);
 	return {stakingTokens, getStakingTokenBalance, isLoading};
 }

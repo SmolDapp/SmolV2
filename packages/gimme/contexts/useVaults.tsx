@@ -1,19 +1,19 @@
 import {createContext, memo, useContext, useMemo} from 'react';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {toAddress} from '@builtbymom/web3/utils';
+import {toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useFetchYearnVaults} from '@yearn-finance/web-lib/hooks/useFetchYearnVaults';
 
 import {useStakingTokens} from '../hooks/useStakingTokens';
 
 import type {ReactElement} from 'react';
-import type {TDict} from '@builtbymom/web3/types';
+import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TVaultsContext = {
 	vaults: TYDaemonVault[];
 	userVaultsArray: TYDaemonVault[];
-
 	userVaults: TDict<TYDaemonVault>;
+	getStakingTokenBalance: (value: {address: TAddress; chainID: number}) => TNormalizedBN;
 	isLoadingVaults: boolean;
 	isLoadingUserVaults: boolean;
 };
@@ -22,6 +22,7 @@ const VaultsContext = createContext<TVaultsContext>({
 	vaults: [],
 	userVaultsArray: [],
 	userVaults: {},
+	getStakingTokenBalance: (): TNormalizedBN => zeroNormalizedBN,
 	isLoadingVaults: false,
 	isLoadingUserVaults: false
 });
@@ -67,6 +68,7 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 				vaults: Object.values(rawVaults),
 				userVaults,
 				userVaultsArray: Object.values(userVaults),
+				getStakingTokenBalance,
 				isLoadingVaults,
 				isLoadingUserVaults: isLoadingVaults || isLoadingBalance
 			}}>

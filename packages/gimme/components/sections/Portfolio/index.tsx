@@ -5,16 +5,19 @@ import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {type TDict, type TNormalizedBN} from '@builtbymom/web3/types';
+import {type TDict, type TNormalizedBN, type TSortDirection} from '@builtbymom/web3/types';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {Counter} from '@gimmeDesignSystem/Counter';
 import {readContracts} from '@wagmi/core';
-import IconChevronPlain from '@lib/icons/IconChevronPlain';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
+import {useSortedVaults} from './useSortedVaults';
 import {VaultRow} from './VaultRow';
+import {VaultsListHead} from './VaultsListHead';
+
+import type {TPossibleSortBy} from './useSortedVaults';
 
 function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 	return (
@@ -53,6 +56,12 @@ export function Portfolio(): ReactNode {
 		})),
 		chainId: chainID
 	});
+
+	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(
+		userVaultsArray,
+		vaultTokenPrices,
+		balances
+	);
 
 	const refetch = useAsyncTrigger(async (): Promise<void> => {
 		blockNumber;
@@ -138,7 +147,7 @@ export function Portfolio(): ReactNode {
 
 		return (
 			<div className={'flex flex-col gap-2'}>
-				{userVaultsArray.map(vault => (
+				{sortedVaults.map(vault => (
 					<VaultRow
 						key={vault.address}
 						vault={vault}
@@ -168,36 +177,20 @@ export function Portfolio(): ReactNode {
 				</p>
 			</div>
 			<div className={'flex w-full flex-col'}>
-				<div className={'mb-4 mt-12 grid w-full grid-cols-12 border-neutral-200 pr-4 text-xs'}>
-					<p className={'col-span-5 flex flex-row items-center justify-between font-medium'}>
-						{'Your Opportunities'}
-					</p>
-					<div className={'col-span-7 grid grid-cols-8 gap-x-7 text-neutral-600'}>
-						<button
-							className={
-								'col-span-2 flex flex-row items-center justify-end transition-colors hover:text-neutral-800'
-							}>
-							{'APY'}
-							<IconChevronPlain />
-						</button>
-						<button
-							className={
-								'col-span-2 flex items-center justify-end transition-colors hover:text-neutral-800'
-							}>
-							{'You have'}
-							<IconChevronPlain />
-						</button>
-						<button
-							className={
-								'col-span-2 flex flex-row items-center justify-end transition-colors hover:text-neutral-800'
-							}>
-							{'Annual Yield'}
-							<IconChevronPlain />
-						</button>
-						<div className={'col-span-2 flex flex-row items-center justify-end'}>{'Withdraw/Deposit'}</div>
-					</div>
-				</div>
-
+				<VaultsListHead
+					title={'Your Opportunities'}
+					sortBy={sortBy}
+					sortDirection={sortDirection}
+					onSort={(newSortBy: string, newSortDirection: string): void => {
+						onChangeSort(newSortDirection as TSortDirection, newSortBy as TPossibleSortBy);
+					}}
+					items={[
+						{value: 'apy', label: 'APY', isSortable: true},
+						{value: 'savings', label: 'Savings', isSortable: true},
+						{value: 'yield', label: 'Annual Yield', isSortable: true},
+						{value: 'actions', label: 'Widtraw/Deposit', isSortable: false}
+					]}
+				/>
 				{getLayout()}
 			</div>
 		</div>
