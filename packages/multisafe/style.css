@@ -26,6 +26,10 @@
 	--color-red-900: 0 100% 45%;
 	--color-red-300: 0 100% 95%;
 	--color-red-200: 0 100% 90%;
+
+	.toast {
+		@apply rounded-lg border-0 bg-primary flex items-start justify-between p-2 text-sm min-w-[300px] max-w-[600px];
+	}
 }
 
 body {
@@ -208,16 +212,6 @@ select.smol--input {
 	@apply absolute inset-0 w-full h-full;
 }
 
-.mobile-nav-item {
-	@apply flex flex-col items-start justify-between rounded-md bg-neutral-100;
-	& > p {
-		@apply p-2 text-base font-bold text-neutral-900;
-	}
-}
-.mobile-nav-item {
-	@apply rounded-none border-b border-neutral-300 bg-neutral-100/60;
-}
-
 .tab {
 	@apply font-normal text-neutral-600 transition-colors hover:text-neutral-900 cursor-pointer border-b-2 border-transparent pb-4 z-20;
 	&[aria-selected='true'] {
@@ -303,21 +297,6 @@ select:focus {
 
 	.font-number {
 		@apply font-mono tabular-nums;
-	}
-
-	/* 🔵 - Yearn Finance ******************************************************************************
-	** Details and summary nice styles.
-	***************************************************************************************************/
-	details > summary {
-		list-style: none;
-	}
-	details > summary::-webkit-details-marker {
-		display: none;
-	}
-	details {
-		& > summary {
-			@apply px-4 md:px-6 py-6 md:py-8 cursor-pointer flex flex-row items-center justify-between;
-		}
 	}
 
 	/* 🔵 - Yearn Finance ******************************************************************************
@@ -514,10 +493,4 @@ select:focus {
 	border-radius: 0px;
 	background-color: rgba(0, 0, 0, 0.3);
 	-webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.3);
-}
-
-:root {
-	.toast {
-		@apply rounded-lg border-0 bg-primary flex items-start justify-between p-2 text-sm min-w-[300px] max-w-[600px];
-	}
 }

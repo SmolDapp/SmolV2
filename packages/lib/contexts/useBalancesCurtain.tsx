@@ -33,6 +33,7 @@ import type {
 	TBalancesCurtainContextProps,
 	TBalancesCurtainOptions,
 	TSelectCallback,
+	TTokenListSummary,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
 import type {TPrice} from '@lib/utils/types/types';
@@ -137,16 +138,16 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
  *************************************************************************************************/
 function TokenListSelectorLayout(): ReactNode {
 	const {listsURI, onChangeListsURI} = usePopularTokens();
-	const {data} = useSWR('https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json', baseFetcher);
+	const {data} = useSWR<TTokenListSummary>(
+		'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json',
+		baseFetcher
+	);
 
 	const relevantData = useMemo(() => {
-		const lists = ((data as any)?.lists || []) as {
-			URI: string;
-			decription: string;
-			logoURI: string;
-			name: string;
-			tokenCount: number;
-		}[];
+		if (!data) {
+			return [];
+		}
+		const {lists} = data;
 		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
 		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
 		return filteredLists;
