@@ -36,7 +36,7 @@ export const QRCodeElement = (): ReactElement | null => {
 				className={'flex items-center justify-center'}
 				role={'button'}
 				onClick={generate}>
-				<IconQRCode className={'size-6'} />
+				<IconQRCode className={'size-5 text-neutral-500 transition-colors hover:text-neutral-900'} />
 			</div>
 
 			<QRModal
