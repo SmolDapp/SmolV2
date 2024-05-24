@@ -288,7 +288,7 @@ function ChainStatus({
 					<p className={'text-sm'}>{'Deployed'}</p>
 				</Button>
 				<Link
-					href={`${CHAINS[chain.id].safeAPIURI || ''}${safeAddress}`}
+					href={`${CHAINS[chain.id].safeAPIURI || ''}/${safeAddress}`}
 					target={'_blank'}>
 					<Button className={'block !h-8'}>
 						<IconLinkOut className={'size-4 !text-black'} />
