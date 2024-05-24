@@ -9,6 +9,9 @@ import {isUnlimited} from '@lib/utils/tools.revoke';
 import type {TAllowanceItemProps} from '@lib/types/Revoke';
 
 export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
+	/**********************************************************************************************
+	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
+	 *********************************************************************************************/
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
@@ -16,6 +19,9 @@ export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactEl
 		return toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
 	}, [allowance]);
 
+	/**********************************************************************************************
+	 ** This function calls revoke function and lets us to revoke the allowance.
+	 *********************************************************************************************/
 	const onRevoke = useCallback(() => {
 		revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
 	}, [allowance.address, allowance.args.sender, allowance.symbol, revoke]);
