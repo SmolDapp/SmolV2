@@ -21,6 +21,11 @@ export function Revoke(): ReactElement {
 	const {onOpenCurtain} = useBalancesCurtain();
 	const {provider} = useWeb3();
 	const {dispatchConfiguration, allowances} = useAllowances();
+
+	/**********************************************************************************************
+	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
+	 ** allowance.
+	 *********************************************************************************************/
 	const revokeTokenAllowance = useCallback(
 		async (tokenToRevoke: TTokenAllowance, spender: TAddress): Promise<void> => {
 			if (!tokenToRevoke) {
@@ -39,6 +44,9 @@ export function Revoke(): ReactElement {
 		[chainID, dispatchConfiguration, provider, safeChainID]
 	);
 
+	/**********************************************************************************************
+	 ** This function opens curtain to choose extra tokens to check.
+	 *********************************************************************************************/
 	const handleOpenCurtain = (): void => {
 		onOpenCurtain(selected => dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected}));
 	};

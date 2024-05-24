@@ -13,6 +13,9 @@ import type {TAllowanceItemProps} from '@lib/types/Revoke';
 export const AllowanceRow = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
 	const {getToken} = useTokenList();
 
+	/**********************************************************************************************
+	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
+	 *********************************************************************************************/
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
@@ -35,12 +38,18 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceItemProps): ReactEle
 		return `${process.env.SMOL_ASSETS_URL}/token/${allowance.chainID}/${allowance.address}/logo-32.png`;
 	}, [allowance, getToken]);
 
+	/**********************************************************************************************
+	 ** This function lets us to copy the address to the clipboard and show the info toast.
+	 *********************************************************************************************/
 	const onCopyAddress = useCallback((e: React.MouseEvent<HTMLButtonElement>, address: TAddress) => {
 		e.stopPropagation();
 		navigator.clipboard.writeText(toAddress(address));
 		toast.success(`Address copied to clipboard: ${toAddress(address)}`);
 	}, []);
 
+	/**********************************************************************************************
+	 ** This function calls revoke function and lets us to revoke the allowance.
+	 *********************************************************************************************/
 	const onRevoke = useCallback(() => {
 		revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
 	}, [allowance.address, allowance.args.sender, allowance.symbol, revoke]);

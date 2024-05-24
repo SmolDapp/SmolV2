@@ -24,6 +24,9 @@ export const AllowancesFilters = (): ReactElement | null => {
 		return [...new Map(allowances?.map(item => [item.args.sender, item])).values()];
 	}, [allowances]);
 
+	/**********************************************************************************************
+	 ** This is an array of all unique allowances with only required for spender filter fields.
+	 *********************************************************************************************/
 	const allSpenderOptions = useMemo(() => {
 		return uniqueAllowancesBySpender.map(item => {
 			return {
@@ -36,6 +39,9 @@ export const AllowancesFilters = (): ReactElement | null => {
 		});
 	}, [uniqueAllowancesBySpender]);
 
+	/**********************************************************************************************
+	 ** This is an array of all unique allowances with only required for token filter fields.
+	 *********************************************************************************************/
 	const allTokenOptions = useMemo(() => {
 		return uniqueAllowancesByToken.map(item => {
 			return {
@@ -48,6 +54,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 		});
 	}, [uniqueAllowancesByToken]);
 
+	/**********************************************************************************************
+	 ** This function sets unlimited filter. If we click on filter button, when it's already
+	 ** set up, it will change it to undefined, to reset the filter.
+	 *********************************************************************************************/
 	const onDispatchUnlimitedFilter = useCallback(
 		(filter: TUnlimitedFilter) => {
 			dispatchConfiguration({
@@ -61,6 +71,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 		[configuration.allowancesFilters, dispatchConfiguration]
 	);
 
+	/**********************************************************************************************
+	 ** This function sets with-balance filter. If we click on filter button, when it's already
+	 ** set up, it will change it to undefined, to reset the filter.
+	 *********************************************************************************************/
 	const onDispatchWithBalanceFilter = useCallback(
 		(filter: TWithBalanceFilter) => {
 			dispatchConfiguration({
@@ -74,6 +88,9 @@ export const AllowancesFilters = (): ReactElement | null => {
 		[configuration.allowancesFilters, dispatchConfiguration]
 	);
 
+	/**********************************************************************************************
+	 ** This function resets all filters for allowances.
+	 *********************************************************************************************/
 	const onResetFilters = (): void => dispatchConfiguration({type: 'RESET_FILTER'});
 
 	if (!allowances) {

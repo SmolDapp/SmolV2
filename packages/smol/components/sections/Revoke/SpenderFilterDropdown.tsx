@@ -20,6 +20,10 @@ export const SpenderFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const spenderFilter = configuration.allowancesFilters.spender.filter;
 
+	/**********************************************************************************************
+	 ** This function changes options to checked or unchecked to be able to filter allowances
+	 ** by spender.
+	 *********************************************************************************************/
 	const onCheckedChange = useCallback(
 		(option: TFilterAllowance): void => {
 			if (!spenderFilter?.some(item => item === option.args.sender)) {

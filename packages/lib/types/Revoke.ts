@@ -1,6 +1,7 @@
-import type {Dispatch, SetStateAction} from 'react';
+import type {Dispatch} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
+import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 
 export type TAllowances = TAllowance[];
 
@@ -13,7 +14,7 @@ export type TAllowances = TAllowance[];
  ** blockNumber: Number of the block where approve has been made.
  ** chainID: ID of the chain where approve has been made.
  ** logIndex: Sequence number of the log.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TAllowance = {
 	address: TAddress;
 	args: {
@@ -30,7 +31,7 @@ export type TWithBalanceFilter = 'with-balance' | 'without-balance' | undefined;
 
 /**************************************************************************************************
  ** TRevokeConfiguration contains all the necessary information to perform a revoke operation.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TRevokeConfiguration = {
 	tokenToCheck: TToken | undefined;
 	tokensToCheck: TTokenAllowance[] | undefined;
@@ -40,7 +41,7 @@ export type TRevokeConfiguration = {
 
 /**************************************************************************************************
  ** TExpandedAllowance is expanded TAllowances type with additional token info.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TExpandedAllowance = TAllowance & {
 	name: string;
 	symbol: string;
@@ -58,7 +59,7 @@ export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spend
  ** - isDoneWithInitialFetch: The flag that informate us if initial fetch is done.
  ** - filteredAllowances: Filtered allowances that are shown in UI.
  ** - isLoading: The flag that shows if allowances are still loading.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TRevokeContext = {
 	allowances: TExpandedAllowance[] | undefined;
 	configuration: TRevokeConfiguration;
@@ -70,7 +71,7 @@ export type TRevokeContext = {
 
 /**************************************************************************************************
  ** TAllowancesFilters is type for all filters you can apply to allowances on the revoke page.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TAllowancesFilters = {
 	unlimited: {
 		filter: TUnlimitedFilter;
@@ -92,7 +93,7 @@ export type TAllowancesFilters = {
  ** SET_ALLOWANCE_TO_REVOKE: Sets allowance to be revoke.
  ** SET_FILTER: Sets filters to filter allowances in UI.
  ** RESET_FILTER: Resets all filter
- *************************************************************************************************/
+ **************************************************************************************************/
 export type TRevokeActions =
 	| {type: 'SET_TOKEN_TO_CHECK'; payload: TToken | undefined}
 	| {type: 'SET_ALLOWANCE_TO_REVOKE'; payload: TTokenAllowance | undefined}
@@ -116,7 +117,7 @@ export type TRevokeActions =
  ** symbol: string - Symbol of a token that is approved
  ** decimals: number - Decimals of a token that is approved
  ** balanceOf: number - Balance of a token that is apporved
- *********************************************************************************************/
+ **********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
 	address: TAddress;
@@ -140,7 +141,7 @@ export type TApproveEventEntry = {
  ** chainID: number - Chain ID in which is sync happends
  ** address: TAddress - Address of a user
  ** blockNumber: number - The Number of a last approve event block
- *********************************************************************************************/
+ **********************************************************************************************/
 export type TApproveEventChainSyncEntry = {
 	id?: number;
 	chainID: number;
@@ -150,7 +151,7 @@ export type TApproveEventChainSyncEntry = {
 
 /**************************************************************************************************
  **TAllowanceItemProps type of props for a single Allowance item in UI.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TAllowanceItemProps = {
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 	allowance: TExpandedAllowance;
@@ -158,31 +159,19 @@ export type TAllowanceItemProps = {
 
 /**************************************************************************************************
  **TRevokeSortType is a type for sorting allowances in the UI.
- ************************************************************************************************/
+ *************************************************************************************************/
 export type TRevokeSort = {
 	sortBy: TRevokeSortBy;
 	asc: boolean;
 };
 
-export type TRevokeSortBy = 'spender' | 'amount' | 'token' | null;
+export type TRevokeSortBy = 'spender' | 'amount' | 'token' | undefined;
 
 export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
 };
 
 export type TRevokeWizardProps = {
-	revokeStatus: {
-		none: boolean;
-		pending: boolean;
-		success: boolean;
-		error: boolean;
-	};
-	set_revokeStatus: Dispatch<
-		SetStateAction<{
-			none: boolean;
-			pending: boolean;
-			success: boolean;
-			error: boolean;
-		}>
-	>;
+	revokeStatus: TTxStatus;
+	set_revokeStatus: (value: TTxStatus) => void;
 };

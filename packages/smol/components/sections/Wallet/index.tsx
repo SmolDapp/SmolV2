@@ -7,10 +7,10 @@ import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
+import {EmptyView} from '@lib/common/EmptyView';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {IconLoader} from '@lib/icons/IconLoader';
-import {IconWallet} from '@lib/icons/IconWallet';
 
 import type {TPrice} from '@lib/utils/types/types';
 
@@ -23,42 +23,6 @@ function WalletListHeader(): ReactElement {
 			</div>
 			<div className={'h-px bg-neutral-400'} />
 		</>
-	);
-}
-
-function EmptyWallet({onConnect}: {onConnect?: () => Promise<void>}): ReactElement {
-	return (
-		<div className={'mt-4 flex size-full h-full flex-col items-center rounded-lg bg-neutral-200 px-11 py-[72px]'}>
-			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
-				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
-					<IconWallet className={'size-20'} />
-				</div>
-			</div>
-			{onConnect ? (
-				<div className={'flex flex-col items-center justify-center'}>
-					<p className={'text-center text-base text-neutral-600'}>
-						{'Get started by connecting your wallet'}
-					</p>
-					<div className={'max-w-23 mt-6 w-full'}>
-						<button
-							onClick={() => {
-								onConnect();
-							}}
-							className={
-								'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'
-							}>
-							{'Connect Wallet'}
-						</button>
-					</div>
-				</div>
-			) : (
-				<p className={'text-center text-base text-neutral-600'}>
-					{
-						"Oh no, we can't find your tokens. You can paste a token address above or... you know... buy some tokens."
-					}
-				</p>
-			)}
-		</div>
 	);
 }
 
@@ -91,7 +55,7 @@ export function Wallet(): ReactElement {
 
 	const walletLayout = useMemo(() => {
 		if (!address) {
-			return <EmptyWallet onConnect={onConnect} />;
+			return <EmptyView onConnect={onConnect} />;
 		}
 		if (isLoading) {
 			return null;
@@ -124,7 +88,7 @@ export function Wallet(): ReactElement {
 			return <p className={'text-center text-xs text-neutral-600'}>{'No tokens found'}</p>;
 		}
 
-		return <EmptyWallet />;
+		return <EmptyView />;
 	}, [
 		addCustomToken,
 		address,

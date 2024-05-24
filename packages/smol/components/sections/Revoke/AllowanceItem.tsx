@@ -9,8 +9,6 @@ import {isUnlimited} from '@lib/utils/tools.revoke';
 import type {TAllowanceItemProps} from '@lib/types/Revoke';
 
 export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
-	// Convert value to usd
-	const valueAtRisk = null;
 	const allowanceAmount = useMemo(() => {
 		if (isUnlimited(allowance.args.value as bigint)) {
 			return 'Unlimited';
@@ -66,12 +64,7 @@ export const AllowanceItem = ({allowance, revoke}: TAllowanceItemProps): ReactEl
 					<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
 					<p>{allowanceAmount}</p>
 				</div>
-				{valueAtRisk ? (
-					<div className={'mt-1 flex w-full items-center justify-between'}>
-						<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
-						<p>{allowance.args.value}</p>
-					</div>
-				) : null}
+
 				<div className={'mt-1 flex w-full items-center justify-between'}>
 					<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
 					<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>

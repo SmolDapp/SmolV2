@@ -24,9 +24,25 @@ export default function RevokePage(): ReactElement {
 }
 
 RevokePage.AppName = 'Revoke';
-RevokePage.AppDescription = 'Revoke allowances from any token';
+RevokePage.AppDescription = 'Take control of your contract approvals with Revoke.';
 RevokePage.AppInfo = (
 	<>
-		<p>{'Revoke your allowances'}</p>
+		<p>
+			{
+				"Revoke lets you see which contracts your wallet has given approvals to, and lets you 'revoke' access to any contracts at will."
+			}
+		</p>
+		<br />
+		<p>{'"Why would I use revoke?"'}</p>
+		<br />
+		<p>{'Maybe you granted access to a dodgy contract and want peace of mind?'}</p>
+		<br />
+		<p>{'Or perhaps you granted a contract permission to spend 10,000 of your tokens instead of 10. '}</p>
+		<br />
+		<p>
+			{
+				'Revoke gives you full transparency to see which contracts have the power to spend from your wallet, and the power to take back control with a simple click (but please note revoking a contract requires a transaction to be signed by your wallet).'
+			}
+		</p>
 	</>
 );

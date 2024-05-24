@@ -16,7 +16,7 @@ import {useReadContracts} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isZeroAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {isAddress, isZeroAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
@@ -95,7 +95,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** Every time user changes chain or wallet address, we add to DB chain-sync entry.
 	 ** 'currentChainSyncEntry' is entry with current chainID and adderss of user
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const currentChainSyncEntry = useMemo(() => {
 		if (!cachedChainSync || !address) {
 			return;
@@ -106,7 +106,7 @@ export const RevokeContextApp = (props: {
 
 	/**********************************************************************************************
 	 ** A callback function that allows us to add entry into approve-events DB
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const addApproveEventEntry = useCallback(
 		async (entry: TApproveEventEntry): Promise<void> => {
 			try {
@@ -146,7 +146,7 @@ export const RevokeContextApp = (props: {
 
 	/**********************************************************************************************
 	 ** A callback function that allows us to add entry into approve-events-chain-sync DB
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const addChainSyncEntry = useCallback(
 		async (entry: TApproveEventChainSyncEntry): Promise<void> => {
 			try {
@@ -169,7 +169,7 @@ export const RevokeContextApp = (props: {
 
 	/**********************************************************************************************
 	 ** A callback function that allows us to update approve-events-chain-sync entry
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const updateChainSyncEntry = useCallback(
 		async (entry: TApproveEventChainSyncEntry) => {
 			try {
@@ -189,7 +189,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** Every time we interact with approve events in DB, we want to immedeatley have up to date
 	 ** data from DB
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		entryNonce;
 		const entriesFromDB = await getAll();
@@ -199,7 +199,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** Every time we interact with chain-sync events in DB, we want to immedeatley have up to
 	 ** date data from DB
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		chainSyncNonce;
 		const entryFromDB = await getAllChainSync();
@@ -210,7 +210,7 @@ export const RevokeContextApp = (props: {
 	 ** We're retrieving an array of addresses from the currentNetworkTokenList, intending to
 	 ** obtain allowances for each address in the list. This process allows us to gather allowance
 	 ** data for all tokens listed.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const tokenAddresses = useMemo(() => {
 		return isTokensLoading ? [] : listTokensWithBalance(currentChainSyncEntry?.chainID).map(item => item.address);
 	}, [currentChainSyncEntry?.chainID, isTokensLoading, listTokensWithBalance]);
@@ -218,7 +218,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** The allowances vary across different chains, necessitating us to reset the current state
 	 ** when the user switches chains or change the address.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		if (
 			!cachedChainSync ||
@@ -236,7 +236,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** In DB we store approve-events for all addresses and ChainIDs. But we need to show to user
 	 ** only those that match their address and chainID
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const chainFilteredAllowances = useMemo(() => {
 		const _formatedAllowances: TExpandedAllowance[] = [];
 		for (const allowance of cachedApproveEvents) {
@@ -263,7 +263,7 @@ export const RevokeContextApp = (props: {
 	 ** we check for the presence of the 'unlimited' filter and apply it. Then, we move on to the
 	 ** 'asset' filter, ensuring the array is not empty before filtering by assets. The same
 	 ** process applies to the 'spender' filter.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const filteredAllowances = useDeepCompareMemo(() => {
 		const filters = configuration.allowancesFilters;
 
@@ -308,7 +308,7 @@ export const RevokeContextApp = (props: {
 	 ** Once we've gathered approval events for the token list, we need to verify if allowances
 	 ** still persist on the chain and haven't been utilized by the contract. To achieve this, we
 	 ** utilize the allowance function on the ERC20 contract.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const {data: allAllowances, isLoading} = useReadContracts({
 		contracts: approveEvents?.map(item => {
 			return {
@@ -324,7 +324,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** We utilize a watcher to consistently obtain the latest approval events for the list of
 	 ** tokens.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const {data, isDoneWithInitialFetch} = useInfiniteApprovalLogs({
 		chainID: isDev ? chainID : safeChainID,
 		addresses: tokenAddresses,
@@ -335,7 +335,7 @@ export const RevokeContextApp = (props: {
 
 	/**********************************************************************************************
 	 ** Separate function to fetch approve events for additional tokenToCheck.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		const res = await getClient(chainID).getLogs({
 			address: [toAddress(configuration.tokenToCheck?.address)],
@@ -374,7 +374,7 @@ export const RevokeContextApp = (props: {
 	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
 	 ** those with a value. Therefore, we arrange them by block number to prioritize the latest
 	 ** ones and filter out those with null values.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useEffect((): void => {
 		if (data) {
 			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => {
@@ -389,7 +389,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** Once we've obtained the actual allowances from the blockchain, we proceed to update the
 	 ** existing array of allowances and remove any empty allowances from it.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async (): Promise<void> => {
 		if (!approveEvents || !allAllowances) {
 			return;
@@ -415,7 +415,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** Here, we obtain distinctive tokens based on their token addresses to avoid making
 	 ** additional requests for the same tokens.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const uniqueAllowancesByToken = useMemo(() => {
 		return [...new Map(allowances?.map(item => [item.address, item])).values()];
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -424,9 +424,9 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** When we fetch allowances, they don't have enough information in them, such as name, symbol
 	 ** and decimals. Here we take only unique tokens from all allowances and make a query.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		if (!uniqueAllowancesByToken || !allowances || !safeChainID) {
+		if (!uniqueAllowancesByToken || !allowances || !safeChainID || !isAddress(address)) {
 			return;
 		}
 
@@ -454,7 +454,7 @@ export const RevokeContextApp = (props: {
 		/******************************************************************************************
 		 ** Once we have an array of those additional fields, we form a dictionary
 		 ** with key of an address and additional fields as a value.
-		 ****************************************************************************************/
+		 *****************************************************************************************/
 		for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
 			const itterator = i * 4;
 			const symbol = data[itterator].result;
@@ -474,7 +474,7 @@ export const RevokeContextApp = (props: {
 
 		/******************************************************************************************
 		 ** Here we're expanding allowances array using the dictionary
-		 ****************************************************************************************/
+		 *****************************************************************************************/
 		for (const allowance of allowances) {
 			_expandedAllowances.push({
 				address: allowance.address,
@@ -499,7 +499,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** When we have our allowances ready to be stored in DB, we chech if there're some allowances
 	 ** is array and store them one by one in DB.
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	const addAllToDB = async (allowances: TExpandedAllowance[]): Promise<void> => {
 		if (allowances.length < 1 || !isDoneWithInitialFetch) {
 			return;
@@ -525,7 +525,7 @@ export const RevokeContextApp = (props: {
 	/**********************************************************************************************
 	 ** After storing allowances to DB, we update chain-sync entry according to latest allowance
 	 ** blockNumber
-	 ********************************************************************************************/
+	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
 		if (!address) {
 			return;

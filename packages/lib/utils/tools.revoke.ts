@@ -7,10 +7,9 @@ export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
 };
 
 /**************************************************************************************************
- ** This utility assists us in sorting approval events
- ** based on their blockNumber to obtain the most recent
- ** ones and filter out those with null values.
- ************************************************************************************************/
+ ** This utility assists us in sorting approval events based on their blockNumber to obtain the
+ ** most recent ones and filter out those with null values.
+ *************************************************************************************************/
 export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowances => {
 	const senderMap = approvalEvents.reduce((map: {[key: string]: TAllowance}, obj: TAllowance) => {
 		if (obj.args.sender in map) {
@@ -33,7 +32,7 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
  ** they are assigned the maximum value of uint256. However, as the contract utilizes tokens,
  ** the unlimited allowance diminishes. Hence, we must recognize an "unlimited" allowance as
  ** a very large yet variable quantity.
- ************************************************************************************************/
+ *************************************************************************************************/
 export const isUnlimited = (value: bigint): boolean => {
 	return (value as bigint) > parseUnits('115', 74);
 };

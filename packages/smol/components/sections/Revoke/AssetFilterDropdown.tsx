@@ -19,6 +19,10 @@ export const AssetFilterDropdown = (props: {
 	const {children, allOptions} = props;
 	const assetFilter = configuration.allowancesFilters.asset.filter;
 
+	/**********************************************************************************************
+	 ** This function changes options to checked or unchecked to be able to filter allowances
+	 ** by token.
+	 *********************************************************************************************/
 	const onCheckedChange = useCallback(
 		(option: TFilterAllowance): void => {
 			if (!assetFilter?.some(item => item === option.address)) {
