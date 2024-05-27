@@ -2,26 +2,52 @@ import {useCallback, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
 import {Button} from 'packages/lib/primitives/Button';
-import {isUnlimited} from 'packages/lib/utils/tools.revoke';
+import {isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {toAddress, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
+import {formatAmount, formatTAmount, toAddress, toBigInt, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAllowanceItemProps} from '@lib/types/Revoke';
 
-export const AllowanceRow = ({allowance, revoke}: TAllowanceItemProps): ReactElement => {
+export const AllowanceRow = ({allowance, revoke, price}: TAllowanceItemProps): ReactElement => {
 	const {getToken} = useTokenList();
 
 	/**********************************************************************************************
 	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
 	 *********************************************************************************************/
 	const allowanceAmount = useMemo(() => {
-		if (isUnlimited(allowance.args.value as bigint)) {
+		if (isUnlimitedBN(allowance.args.value as bigint)) {
 			return 'Unlimited';
 		}
-		return toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
+
+		const value = toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized;
+		return formatTAmount({value, decimals: allowance.decimals});
 	}, [allowance]);
+
+	/**********************************************************************************************
+	 ** The tokenAmountInUSD memoized value contains the string representation of the token amount
+	 ** in USD. If the token balance is zero, it will display 'N/A'.
+	 *********************************************************************************************/
+	const tokenAmountInUSD = useMemo(() => {
+		if (!allowance) {
+			return 'N/A';
+		}
+		if (toBigInt(price?.raw) === 0n) {
+			return 'N/A';
+		}
+
+		if (allowanceAmount === 'Unlimited') {
+			return 'unlimited';
+		}
+		const value =
+			allowanceAmount !== 'Unlimited'
+				? toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized *
+					(price?.normalized || 0)
+				: 0;
+		const formatedValue = formatAmount(value, 2);
+		return `$${formatedValue}`;
+	}, [allowance, allowanceAmount, price]);
 
 	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
@@ -84,8 +110,9 @@ export const AllowanceRow = ({allowance, revoke}: TAllowanceItemProps): ReactEle
 				</div>
 			</td>
 			<td className={'p-y-6 max-w-[80px] border-y border-neutral-400'}>
-				<div className={'flex w-full justify-end'}>
+				<div className={'flex w-full flex-col items-end justify-end'}>
 					<p className={'h-full truncate text-right text-base leading-6'}>{allowanceAmount}</p>
+					<p className={'text-xs text-neutral-600'}>{tokenAmountInUSD}</p>
 				</div>
 			</td>
 			<td className={'max-w-32 border-y border-neutral-400 p-6'}>

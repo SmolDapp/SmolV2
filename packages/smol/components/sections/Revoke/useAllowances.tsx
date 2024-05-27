@@ -9,7 +9,7 @@ import {
 	type TRevokeContext
 } from 'packages/lib/types/Revoke';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimited} from 'packages/lib/utils/tools.revoke';
+import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {erc20Abi as abi, isAddressEqual} from 'viem';
 import {useReadContracts} from 'wagmi';
@@ -269,21 +269,21 @@ export const RevokeContextApp = (props: {
 
 		return chainFilteredAllowances?.filter(item => {
 			if (filters.unlimited.filter === 'unlimited') {
-				if (!isUnlimited(item.args.value as bigint)) {
+				if (!isUnlimitedBN(item.args.value as bigint)) {
 					return false;
 				}
 			} else if (filters.unlimited.filter === 'limited') {
-				if (isUnlimited(item.args.value as bigint)) {
+				if (isUnlimitedBN(item.args.value as bigint)) {
 					return false;
 				}
 			}
 
 			if (filters.withBalance.filter === 'with-balance') {
-				if (item.balanceOf && item.balanceOf === 0) {
+				if (item.balanceOf && item.balanceOf.normalized === 0) {
 					return false;
 				}
 			} else if (filters.withBalance.filter === 'without-balance') {
-				if (item.balanceOf && item.balanceOf > 0) {
+				if (item.balanceOf && item.balanceOf.normalized > 0) {
 					return false;
 				}
 			}
@@ -485,7 +485,7 @@ export const RevokeContextApp = (props: {
 				balanceOf: toNormalizedBN(
 					dictionary[allowance.address]?.balanceOf,
 					dictionary[allowance.address]?.decimals
-				)?.normalized,
+				),
 				name: dictionary[allowance.address]?.name,
 				chainID: allowance.chainID,
 				logIndex: allowance.logIndex

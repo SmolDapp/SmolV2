@@ -1,7 +1,7 @@
 import {type ReactElement, type ReactNode, useCallback, useMemo, useState} from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {cl, isAddress} from '@builtbymom/web3/utils';
+import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {EmptyView} from '@lib/common/EmptyView';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 
@@ -9,14 +9,9 @@ import {AllowanceItem} from './AllowanceItem';
 import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
-import type {TAddress} from '@builtbymom/web3/types';
-import type {TRevokeSort, TRevokeSortBy, TTokenAllowance} from '@lib/types/Revoke';
+import type {TAllowancesTableProps, TRevokeSort, TRevokeSortBy} from '@lib/types/Revoke';
 
-type TAllowancesTableProps = {
-	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
-};
-
-export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement => {
+export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading;
 	const hasNothingToRevoke = (!allowances || allowances.length === 0) && !isFetchingData;
@@ -127,7 +122,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 									<button
 										onClick={() => onSetSort('token')}
 										className={cl(
-											'flex items-center',
+											'flex items-center hover:text-neutral-800',
 											sort.sortBy === 'token' ? 'text-neutral-800' : ''
 										)}>
 										<p>{'Asset'}</p>
@@ -138,7 +133,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 									<button
 										onClick={() => onSetSort('amount')}
 										className={cl(
-											'flex items-center text-neutral-600',
+											'flex items-center  hover:text-neutral-800',
 											sort.sortBy === 'amount' ? 'text-neutral-800' : ''
 										)}>
 										<p>{'Amount'}</p>
@@ -150,7 +145,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 										<button
 											onClick={() => onSetSort('spender')}
 											className={cl(
-												'flex items-center justify-end',
+												'flex items-center hover:text-neutral-800 justify-end',
 												sort.sortBy === 'spender' ? 'text-neutral-800' : ''
 											)}>
 											<p>{'Spender'}</p>
@@ -170,6 +165,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 									key={`${item.blockNumber}-${item.logIndex}`}
 									allowance={item}
 									revoke={revoke}
+									price={prices?.[toAddress(item.address)]}
 								/>
 							))}
 						</tbody>
@@ -180,6 +176,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 								key={`${item.blockNumber}-${item.logIndex}`}
 								revoke={revoke}
 								allowance={item}
+								price={prices?.[toAddress(item.address)]}
 							/>
 						))}
 					</div>
@@ -200,6 +197,7 @@ export const AllowancesTable = ({revoke}: TAllowancesTableProps): ReactElement =
 		isFetchingData,
 		onConnect,
 		onSetSort,
+		prices,
 		revoke,
 		sort.sortBy,
 		sortedAllowances

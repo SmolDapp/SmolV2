@@ -1,5 +1,5 @@
 import type {Dispatch} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
+import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 
@@ -46,7 +46,7 @@ export type TExpandedAllowance = TAllowance & {
 	name: string;
 	symbol: string;
 	decimals: number;
-	balanceOf: number;
+	balanceOf: TNormalizedBN;
 };
 
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
@@ -129,7 +129,7 @@ export type TApproveEventEntry = {
 	logIndex: number;
 	symbol: string;
 	decimals: number;
-	balanceOf: number;
+	balanceOf: TNormalizedBN;
 	name: string;
 };
 
@@ -155,6 +155,7 @@ export type TApproveEventChainSyncEntry = {
 export type TAllowanceItemProps = {
 	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 	allowance: TExpandedAllowance;
+	price?: TNormalizedBN;
 };
 
 /**************************************************************************************************
@@ -162,7 +163,7 @@ export type TAllowanceItemProps = {
  *************************************************************************************************/
 export type TRevokeSort = {
 	sortBy: TRevokeSortBy;
-	asc: boolean;
+	asc: boolean | undefined;
 };
 
 export type TRevokeSortBy = 'spender' | 'amount' | 'token' | undefined;
@@ -171,7 +172,18 @@ export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | '
 	displayName?: TAddress | string;
 };
 
+/**************************************************************************************************
+ ** The TRevokeWizardProps type is used to type the props of the Revoke Wizard component.
+ *************************************************************************************************/
 export type TRevokeWizardProps = {
 	revokeStatus: TTxStatus;
 	set_revokeStatus: (value: TTxStatus) => void;
+};
+
+/**************************************************************************************************
+ ** The TAllowancesTableProps type is used to type the props of the AllowancesTable component.
+ *************************************************************************************************/
+export type TAllowancesTableProps = {
+	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
+	prices?: {[key: TAddress]: TNormalizedBN};
 };
