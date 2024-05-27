@@ -41,7 +41,8 @@ module.exports = {
 			},
 			height: {
 				content: '656px',
-				app: 'calc(100dvh - 80px)'
+				app: 'calc(100dvh - 80px)',
+				108: '432px'
 			},
 			minHeight: {
 				content: '656px',

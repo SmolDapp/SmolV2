@@ -283,7 +283,7 @@ function BalancesCurtainWrapper(props: {
 										/>
 									</button>
 								</div>
-								<div className={'w-full'}>{props.children}</div>
+								<div className={'h-108 w-full'}>{props.children}</div>
 							</DialogPanel>
 						</TransitionChild>
 					</div>
@@ -430,7 +430,11 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 				) : null}
 
 				{tab === 0 || tab === 1 ? (
-					<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
+					<div
+						className={cl(
+							'scrollable flex flex-col items-center gap-2',
+							props.options.appearAs !== 'modal' ? 'mb-2 pb-2' : ''
+						)}>
 						<WalletLayout
 							filteredTokens={filteredTokens}
 							selectedTokens={props.selectedTokens}
