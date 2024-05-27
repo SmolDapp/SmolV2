@@ -1,10 +1,10 @@
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {IconQuestionMark} from 'lib/icons/IconQuestionMark';
+import {type ReactElement} from 'react';
 import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
 import {useEarnFlow} from './useEarnFlow';
 
-import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
@@ -29,17 +29,20 @@ export function Vault({
 	vault,
 	price,
 	onSelect,
-	onClose
+	onClose,
+	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
 	price: TNormalizedBN | undefined;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
+	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
 	const {token, chainID, name, apr} = vault;
 
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
+
 	return (
 		<div
 			className={
@@ -59,7 +62,7 @@ export function Vault({
 					width={32}
 					height={32}
 				/>
-				<div className={'flex flex-col items-start gap-0.5'}>
+				<div className={'flex flex-col items-start gap-0.5 text-left'}>
 					<p>{name}</p>
 					<div className={'flex items-start gap-1'}>
 						<p className={'text-xs text-[#AF9300]'}>
@@ -76,7 +79,10 @@ export function Vault({
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
 				<VaultRisk value={'medium'} />
-				<button className={'ml-4'}>
+				<button
+					className={'ml-4'}
+					onMouseEnter={() => onChangeVaultInfo(vault)}
+					onMouseLeave={() => onChangeVaultInfo(undefined)}>
 					<IconQuestionMark className={'size-6 text-neutral-600'} />
 				</button>
 			</div>
