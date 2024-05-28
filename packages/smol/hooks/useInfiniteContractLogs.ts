@@ -134,10 +134,7 @@ export function useInfiniteApprovalLogs({
 	 *********************************************************************************************/
 	useEffect(() => {
 		if (!query.isFetching && query.hasNextPage) {
-			setTimeout(() => {
-				query.fetchNextPage();
-			}, 1000);
-			// query.fetchNextPage();
+			query.fetchNextPage();
 		}
 		if (!query.hasNextPage && !isDoneWithInitialFetch && endBlock !== undefined && query.isFetched) {
 			set_isDoneWithInitialFetch(true);
