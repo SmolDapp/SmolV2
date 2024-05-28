@@ -6,7 +6,7 @@ import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
 
 const smolIDBConfig: IndexedDBConfig = {
 	databaseName: 'smol',
-	version: 3,
+	version: 5,
 	stores: [
 		{
 			name: 'address-book',
@@ -26,17 +26,18 @@ const smolIDBConfig: IndexedDBConfig = {
 			name: 'approve-events',
 			id: {keyPath: 'id', autoIncrement: true},
 			indices: [
+				{name: 'UID', keyPath: 'UID', options: {unique: true}}, //Special UID for the event: chainID + address + spender + blockNumber + logIndex
 				{name: 'address', keyPath: 'address'},
+				{name: 'balanceOf', keyPath: 'balanceOf'},
+				{name: 'blockNumber', keyPath: 'blockNumber'},
 				{name: 'chainID', keyPath: 'chainID'},
+				{name: 'decimals', keyPath: 'decimals'},
+				{name: 'logIndex', keyPath: 'logIndex'},
+				{name: 'name', keyPath: 'name'},
 				{name: 'owner', keyPath: 'owner'},
 				{name: 'sender', keyPath: 'sender'},
-				{name: 'value', keyPath: 'value'},
-				{name: 'blockHash', keyPath: 'blockHash'},
-				{name: 'blockNumber', keyPath: 'blockNumber'},
-				{name: 'transactionHash', keyPath: 'transactionHash'},
-				{name: 'name', keyPath: 'name'},
 				{name: 'symbol', keyPath: 'symbol'},
-				{name: 'decimals', keyPath: 'decimals'}
+				{name: 'value', keyPath: 'value'}
 			]
 		},
 		{

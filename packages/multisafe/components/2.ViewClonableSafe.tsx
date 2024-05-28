@@ -143,7 +143,6 @@ function ViewClonableSafe(): ReactElement {
 			if (result) {
 				const {hash, chainID} = result;
 				if (!hash) {
-					console.warn(hash);
 					return set_existingSafeArgs({error: 'No safe found at this address', isLoading: false});
 				}
 				const tx = await getTransaction(retrieveConfig(), {hash, chainId: chainID});

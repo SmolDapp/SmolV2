@@ -12,6 +12,7 @@ import {createUniqueID} from '@lib/utils/tools.identifiers';
 import type {AxiosResponse} from 'axios';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {TDict, TNDict, TToken, TTokenList} from '@builtbymom/web3/types';
+import {isDev} from '@lib/utils/tools.chains';
 
 type TPopularTokensProps = {
 	listsURI: string[];
@@ -88,11 +89,7 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 			 ** If we are in development mode, we also want to add the token to our list, but only
 			 ** if the token's chainID is 1 (Ethereum).
 			 *************************************************************************************/
-			if (
-				process.env.NODE_ENV === 'development' &&
-				Boolean(process.env.SHOULD_USE_FORKNET) &&
-				eachToken.chainId === 1
-			) {
+			if (isDev && eachToken.chainId === 1) {
 				if (!tokenListTokens[1337]) {
 					tokenListTokens[1337] = {};
 				}
