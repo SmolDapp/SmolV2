@@ -10,7 +10,7 @@
 		"export": "tsc && next build && next export -o ipfs"
 	},
 	"dependencies": {
-		"lib": "workspace:lib",
+		"lib": "workspace:*",
 		"@tanem/react-nprogress": "^5.0.51"
 	}
 }
