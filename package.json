@@ -51,7 +51,7 @@
 		"vaul": "^0.9.1",
 		"viem": "^2.13.1",
 		"wagmi": "^2.9.7",
-		"web3-eth-abi": "4.2.2",
+		"web3-eth-abi": "1.10.0",
 		"xxhashjs": "^0.2.2"
 	},
 	"devDependencies": {
@@ -72,7 +72,7 @@
 		"eslint-plugin-react-hooks": "^4.6.2",
 		"eslint-plugin-simple-import-sort": "^12.1.0",
 		"eslint-plugin-tailwindcss": "^3.17.0",
-		"eslint-plugin-unused-imports": "^4.0.0",
+		"eslint-plugin-unused-imports": "3.2.0",
 		"@typescript-eslint/eslint-plugin": "^7.11.0",
 		"@typescript-eslint/parser": "^7.11.0",
 		"typescript": "^5.4.5",

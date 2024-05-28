@@ -88,7 +88,7 @@ function MyApp(props: AppProps): ReactElement {
 			/>
 			<IndexedDB>
 				<WithMom
-					supportedChains={[...supportedNetworks, localhost]}
+					supportedChains={[...supportedNetworks, localhost] as any[]}
 					tokenLists={[
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'

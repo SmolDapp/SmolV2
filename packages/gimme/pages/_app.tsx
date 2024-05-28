@@ -27,7 +27,7 @@ function MyApp({Component, ...props}: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[mainnet, localhost]}
+				supportedChains={[mainnet, localhost] as any[]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
 					<div>

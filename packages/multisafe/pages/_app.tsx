@@ -30,7 +30,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://multisafe.app'}
 			/>
 			<WithMom
-				supportedChains={supportedNetworks}
+				supportedChains={supportedNetworks as any[]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/1/tokenlistooor.json']}>
 				<WalletContextApp>
 					<main className={'relative mx-auto mb-0 flex min-h-screen w-full flex-col'}>
