@@ -1,16 +1,17 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {type TAllowances} from 'packages/lib/types/Revoke';
 import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
 import {erc20Abi as abi} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {decodeAsBigInt, toAddress} from '@builtbymom/web3/utils';
+import {decodeAsBigInt, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
-import {getBlockNumber, readContracts} from '@wagmi/core';
+import {getBlockNumber, readContracts, serialize} from '@wagmi/core';
 import {isDev} from '@lib/utils/tools.chains';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import type {Log} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types/address';
@@ -32,6 +33,7 @@ function useHistoricalAllowances(props: {
 	const [allowances, set_allowances] = useState<TAllowances | undefined>(undefined);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | undefined>(undefined);
 	const [isLoadingAllowances, set_isLoadingAllowances] = useState<boolean>(false);
+	const currentIdentifier = useRef<string | undefined>();
 
 	/**********************************************************************************************
 	 ** We utilize a watcher to consistently obtain the latest approval events for the list of
@@ -42,16 +44,25 @@ function useHistoricalAllowances(props: {
 		addresses: props.tokenAddresses,
 		startBlock: props.fromBlock || 0n,
 		owner: toAddress(address),
-		pageSize: 1_000_000n
+		pageSize: 1_000_000n,
+		enabled: Boolean(toBigInt(props.fromBlock) >= 0n)
 	});
 
 	/**********************************************************************************************
 	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
 	 ** those with a value. Therefore, we arrange them by block number to prioritize the latest
 	 ** ones and filter out those with null values.
+	 ** Once thing to note is that we are using a ref to store the current identifier. This is
+	 ** because we want to avoid re-processing the data if it hasn't changed, which can cause
+	 ** unnecessary/infinite re-renders.
 	 *********************************************************************************************/
 	useEffect((): void => {
-		console.log('LOOPeee');
+		const identifier = createUniqueID(serialize(data));
+		if (currentIdentifier.current === identifier) {
+			return;
+		}
+		currentIdentifier.current = identifier;
+
 		if (data) {
 			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => ({...item, chainID}));
 			set_approveEvents(filteredEvents);

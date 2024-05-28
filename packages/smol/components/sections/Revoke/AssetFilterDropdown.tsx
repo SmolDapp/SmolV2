@@ -50,7 +50,6 @@ export const AssetFilterDropdown = (props: {
 	);
 
 	const allOptions = useMemo(() => {
-		console.log('RENDER');
 		return props.allOptions?.map(option => (
 			<DropdownMenuCheckboxItem
 				key={`${option.address}-${option.chainID}`}

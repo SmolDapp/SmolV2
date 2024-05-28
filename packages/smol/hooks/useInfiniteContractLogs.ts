@@ -15,6 +15,7 @@ type TUseContractLogsProps = {
 	addresses: TAddress | TAddress[];
 	startBlock: bigint;
 	pageSize: bigint;
+	enabled: boolean;
 };
 
 type TPageParam = {
@@ -42,7 +43,14 @@ export const parsedApprovalEvent = parseAbiItem(
  **
  ** @dev This hook is dynamic and the returned value will mutate with the new logs.
  *************************************************************************************************/
-export function useInfiniteApprovalLogs({chainID, addresses, owner, startBlock, pageSize}: TUseContractLogsProps): {
+export function useInfiniteApprovalLogs({
+	chainID,
+	addresses,
+	owner,
+	startBlock,
+	pageSize,
+	enabled
+}: TUseContractLogsProps): {
 	data: Log[] | [];
 	fromBlock: bigint | undefined;
 	toBlock: bigint | undefined;
@@ -117,7 +125,7 @@ export function useInfiniteApprovalLogs({chainID, addresses, owner, startBlock, 
 			};
 		},
 		staleTime: Number.POSITIVE_INFINITY,
-		enabled: !isZeroAddress(owner) && addresses.length > 0
+		enabled: !isZeroAddress(owner) && addresses.length > 0 && enabled
 	});
 
 	/**********************************************************************************************
