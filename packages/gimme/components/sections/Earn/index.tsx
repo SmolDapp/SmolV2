@@ -95,10 +95,24 @@ export function Earn(): ReactElement {
 		};
 	});
 
+	const onClearAsset = useCallback(() => {
+		dispatchConfiguration({
+			type: 'SET_ASSET',
+			payload: {token: undefined}
+		});
+	}, [dispatchConfiguration]);
+
 	return (
 		<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>
 			<div className={'w-full'}>
-				<p className={'mb-2 text-xs font-medium'}>{'Asset'}</p>
+				<div className={'mb-1 flex items-center justify-between text-xs font-medium'}>
+					<p>{'Asset'}</p>
+					<button
+						onClick={onClearAsset}
+						className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
+						{'Clear asset'}
+					</button>
+				</div>
 				<SmolTokenAmountInput
 					onSetValue={onSetAsset}
 					value={configuration.asset}

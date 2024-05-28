@@ -69,13 +69,13 @@ export function SelectVault({
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
 							<DialogPanel
 								className={cl(
-									'relative overflow-hidden h-full flex  flex-col items-center justify-center rounded-md !bg-white !px-2 !pt-2 !pb-6 transition-all',
+									'relative overflow-hidden h-full flex flex-col items-center justify-center rounded-md !bg-white !px-2 !pt-2 !pb-6 transition-all',
 									'shadow-lg',
 									'col-span-7 row-span-2 row-start-3',
 									'lg:col-span-3 lg:col-start-3',
 									'md:col-span-5 md:col-start-2 md:row-start-2 md:row-span-2'
 								)}>
-								<div className={'flex w-full justify-between p-4'}>
+								<div className={'flex w-full justify-between px-4 pb-2 pt-4'}>
 									<p className={'font-bold'}>{'Stables Opportunities'}</p>
 									<button
 										className={'group'}
@@ -87,6 +87,11 @@ export function SelectVault({
 										/>
 									</button>
 								</div>
+								<p className={'w-full px-4 pb-4 pt-2 text-left text-neutral-600'}>
+									{configuration.asset.token?.address
+										? "Here's the list of Opportunities that are linked to the selected asset. You can clear the asset to see all the Opportunities"
+										: "Here's all the Opportunites, room for choosing!"}
+								</p>
 								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
 									{filteredVaults.map(vault => (
 										<Vault
