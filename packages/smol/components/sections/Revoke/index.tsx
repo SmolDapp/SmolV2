@@ -112,22 +112,19 @@ export function Revoke(): ReactElement {
 
 	return (
 		<div className={'w-full'}>
-			{allowances?.length ? (
-				<Button
-					className={'!h-10'}
-					onClick={handleOpenCurtain}>
-					<IconPlus className={'mr-2 size-3'} />
-					{'Add token'}
-				</Button>
-			) : null}
+			<Button
+				className={'!h-10'}
+				onClick={handleOpenCurtain}>
+				<IconPlus className={'mr-2 size-3'} />
+				{'Add token'}
+			</Button>
 
-			{totalValueAtRist && Boolean(allowances?.length) && (
-				<div className={'mt-6 w-min'}>
-					<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
-					<p className={'text-[40px] font-semibold text-neutral-900'}>{totalValueAtRist}</p>
-				</div>
-			)}
-			{allowances?.length ? <AllowancesFilters /> : null}
+			<div className={'mt-6 w-min'}>
+				<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
+				<p className={'text-[40px] font-semibold text-neutral-900'}>{totalValueAtRist}</p>
+			</div>
+
+			<AllowancesFilters />
 			<AllowancesTable
 				prices={prices}
 				revoke={revokeTokenAllowance}

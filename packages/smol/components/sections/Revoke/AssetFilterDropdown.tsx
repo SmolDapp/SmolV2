@@ -5,7 +5,9 @@ import {
 	DropdownMenuContent,
 	DropdownMenuSeparator
 } from 'packages/lib/primitives/DropdownMenu';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 
 import {useAllowances} from './useAllowances';
 
@@ -18,6 +20,8 @@ export const AssetFilterDropdown = (props: {
 	const {dispatchConfiguration, configuration} = useAllowances();
 	const {children} = props;
 	const assetFilter = useMemo(() => configuration.allowancesFilters.asset.filter, [configuration.allowancesFilters]);
+
+	const {getToken} = useTokenList();
 
 	/**********************************************************************************************
 	 ** This function changes options to checked or unchecked to be able to filter allowances
@@ -50,15 +54,30 @@ export const AssetFilterDropdown = (props: {
 	);
 
 	const allOptions = useMemo(() => {
-		return props.allOptions?.map(option => (
-			<DropdownMenuCheckboxItem
-				key={`${option.address}-${option.chainID}`}
-				checked={assetFilter?.some(item => item === option.address)}
-				onCheckedChange={() => onCheckedChange(option)}>
-				{option.symbol}
-			</DropdownMenuCheckboxItem>
-		));
-	}, [assetFilter, onCheckedChange, props.allOptions]);
+		return props.allOptions?.map(option => {
+			const tokenFromList = getToken({chainID: option.chainID, address: option.address});
+
+			return (
+				<DropdownMenuCheckboxItem
+					key={`${option.address}-${option.chainID}`}
+					checked={assetFilter?.some(item => item === option.address)}
+					onCheckedChange={() => onCheckedChange(option)}>
+					<ImageWithFallback
+						alt={option.symbol}
+						unoptimized
+						src={
+							tokenFromList?.logoURI ||
+							`${process.env.SMOL_ASSETS_URL}/token/${option.chainID}/${option.address}/logo-32.png`
+						}
+						quality={90}
+						width={14}
+						height={14}
+					/>
+					<p className={'ml-1'}>{option.symbol}</p>
+				</DropdownMenuCheckboxItem>
+			);
+		});
+	}, [assetFilter, getToken, onCheckedChange, props.allOptions]);
 
 	return (
 		<DropdownMenu.Root modal>

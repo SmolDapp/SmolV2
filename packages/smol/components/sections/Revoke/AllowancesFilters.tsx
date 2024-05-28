@@ -45,7 +45,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 	const allTokenOptions = useMemo(() => {
 		return uniqueAllowancesByToken.map(item => {
 			return {
-				address: item.args.sender,
+				address: item.address,
 				symbol: item.symbol,
 				chainID: item.chainID,
 				displayName: item.symbol,
