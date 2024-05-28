@@ -47,7 +47,12 @@ const useApproveDeposit = ({
 	 **************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (!configuration.asset.token || !configuration.opportunity || !provider) {
+			if (
+				!configuration.asset.token ||
+				!configuration.opportunity ||
+				!provider ||
+				configuration.asset.token.chainID !== safeChainID
+			) {
 				return zeroNormalizedBN;
 			}
 

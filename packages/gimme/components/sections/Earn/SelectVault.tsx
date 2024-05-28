@@ -117,11 +117,7 @@ export function SelectVault({
 										{vaultInfo.name}
 										{' Info'}
 									</p>
-									<p className={'mb-4 text-left text-neutral-600 lg:mb-8'}>
-										{'Supplies and borrows DAI on Compound Finance simultaneously to earn COMP.'}
-										{'Flashmints are used to mint DAI from MakerDAO to flashlend and fold the'}
-										{'position, boosting the APY.'}
-									</p>
+									<p className={'mb-4 text-left text-neutral-600 lg:mb-8'}>{vaultInfo.description}</p>
 									<p className={'mb-4 font-bold text-neutral-600 lg:mb-8'}>{'Low Risk'}</p>
 									<div className={'flex flex-col items-start text-neutral-600'}>
 										<p className={'font-bold'}>{'APY'}</p>

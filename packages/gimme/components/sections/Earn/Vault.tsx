@@ -1,11 +1,15 @@
-import {type ReactElement} from 'react';
-import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
+import {type ReactElement, useCallback} from 'react';
+import {useAccount, useSwitchChain} from 'wagmi';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {cl, formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 function VaultRisk({value}: {value: 'low' | 'medium' | 'high'}): ReactElement {
@@ -38,26 +42,82 @@ export function Vault({
 	onClose: () => void;
 	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
 }): ReactElement {
-	const {configuration} = useEarnFlow();
-	const {token, chainID, name, apr} = vault;
+	const {configuration, dispatchConfiguration} = useEarnFlow();
+	const {token, name, apr} = vault;
+	const {validate} = useValidateAmountInput();
+	const {getBalance} = useWallet();
+	const {onConnect, address, chainID} = useWeb3();
+	const {switchChainAsync} = useSwitchChain();
+	const {connector} = useAccount();
 
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
+
+	const onSelectVault = useCallback(async () => {
+		if (!address) {
+			onConnect();
+		}
+
+		if (vault.chainID !== chainID) {
+			await switchChainAsync({connector, chainId: vault.chainID});
+		}
+
+		onSelect(vault);
+		onClose();
+
+		await new Promise(resolve => setTimeout(resolve, 500)); // sleep
+
+		if (configuration.asset.token?.address !== vault.token.address) {
+			const balance = getBalance({
+				address: toAddress(vault.token.address),
+				chainID: vault.chainID
+			});
+			const vaultToken: TToken = {
+				address: vault.token.address,
+				chainID: vault.chainID,
+				name: vault.token.name,
+				symbol: vault.token.symbol,
+				decimals: vault.token.decimals,
+				balance: balance,
+				value: 0
+			};
+			const validatedAssetInput = validate(balance.normalized ? balance.display : undefined, vaultToken);
+			dispatchConfiguration({type: 'SET_ASSET', payload: validatedAssetInput});
+		}
+	}, [
+		address,
+		chainID,
+		configuration.asset.token?.address,
+		connector,
+		dispatchConfiguration,
+		getBalance,
+		onClose,
+		onConnect,
+		onSelect,
+		switchChainAsync,
+		validate,
+		vault
+	]);
 
 	return (
 		<div
 			className={
 				'flex w-full cursor-pointer justify-between rounded-md px-4 py-3 transition-colors hover:bg-neutral-200'
 			}
-			onClick={() => {
-				onSelect(vault);
-				onClose();
-			}}>
-			<div className={'flex items-center gap-4'}>
+			onClick={onSelectVault}>
+			<div className={'relative flex items-center gap-4'}>
+				<div className={'absolute -left-1 top-0'}>
+					<ImageWithFallback
+						width={16}
+						height={16}
+						alt={vault.chainID.toString()}
+						src={`${process.env.SMOL_ASSETS_URL}/chain/${vault.chainID}/logo-32.png`}
+					/>
+				</div>
 				<ImageWithFallback
 					alt={token.symbol}
 					unoptimized
-					src={`${process.env.SMOL_ASSETS_URL}/token/${chainID}/${token.address}/logo-32.png`}
-					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${chainID}/${token.address}/logo-32.png`}
+					src={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-32.png`}
+					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-32.png`}
 					quality={90}
 					width={32}
 					height={32}

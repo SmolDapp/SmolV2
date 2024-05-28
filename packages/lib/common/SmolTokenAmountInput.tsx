@@ -92,7 +92,7 @@ export function SmolTokenAmountInput({
 			);
 		}
 
-		if (!selectedTokenBalance.normalized) {
+		if (!selectedToken?.address) {
 			return <TextTruncate value={'No token selected'} />;
 		}
 
@@ -123,8 +123,6 @@ export function SmolTokenAmountInput({
 					: formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}
 			</p>
 		);
-
-		// return <p>{formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}</p>;
 	};
 
 	useDeepCompareEffect(() => {

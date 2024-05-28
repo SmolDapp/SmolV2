@@ -26,7 +26,6 @@ export function Earn(): ReactElement {
 
 	const onSetAsset = useCallback(
 		(value: Partial<TTokenAmountInputElement>): void => {
-			console.log(value);
 			dispatchConfiguration({type: 'SET_ASSET', payload: value});
 			if (value.token) {
 				dispatchConfiguration({type: 'SET_OPPORTUNITY', payload: undefined});
@@ -46,7 +45,7 @@ export function Earn(): ReactElement {
 
 	const filteredVaults = useMemo(() => {
 		if (!configuration.asset.token?.address) {
-			return [];
+			return vaults;
 		}
 		return Object.values(vaults).filter(
 			rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address)
