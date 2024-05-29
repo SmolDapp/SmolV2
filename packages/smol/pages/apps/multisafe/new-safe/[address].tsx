@@ -1,23 +1,28 @@
 import React, {Fragment, useMemo, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {mainnet} from 'viem/chains';
 import {cl, toAddress, toBigInt} from '@builtbymom/web3/utils';
+import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import ChainStatus from '@smolSections/Multisafe/ChainStatus';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from '@smolSections/Multisafe/constants';
-import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
+import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
 import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {IconBug} from '@lib/icons/IconBug';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconEdit} from '@lib/icons/IconEdit';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
 
 function Safe(): ReactElement {
 	const router = useRouter();
+	const {onClickFAQ} = useMultisafe();
+	const plausible = usePlausible();
 	const [shouldDisplayDetails, set_shouldDisplayDetails] = useState<boolean>(false);
 	const [shouldUseTestnets, set_shouldUseTestnets] = useState<boolean>(false);
 	const address = toAddress((router.query.address || '') as string);
@@ -45,8 +50,8 @@ function Safe(): ReactElement {
 					className={'!h-8 !text-xs'}
 					variant={'light'}
 					onClick={() => {
-						// plausible('download template');
-						// downloadTemplate();
+						plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
+						onClickFAQ();
 					}}>
 					<IconDoc className={'mr-2 size-3'} />
 					{'View FAQ'}
@@ -180,14 +185,7 @@ export default function MultisafeDeployNewWrapper(): ReactElement {
 	);
 }
 
-MultisafeDeployNewWrapper.AppName = 'Your safe, your rules';
-MultisafeDeployNewWrapper.AppDescription = 'This is your safe, deploy if everywhere for 4.20$ per network!';
-MultisafeDeployNewWrapper.AppInfo = (
-	<>
-		<p>{'Well, basically, it’s… your wallet. '}</p>
-		<p>{'You can see your tokens. '}</p>
-		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-	</>
-);
+MultisafeDeployNewWrapper.AppName = 'Deploy Your Safe';
+MultisafeDeployNewWrapper.AppDescription =
+	'Select the networks where you want your newly created Safe to be deployed and ensure your assets are protected across multiple chains.';
+MultisafeDeployNewWrapper.AppInfo = <MultisafeAppInfo />;

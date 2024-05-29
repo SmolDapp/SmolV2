@@ -1,12 +1,14 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import ChainStatus from '@smolSections/Multisafe/ChainStatus';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from '@smolSections/Multisafe/constants';
-import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
+import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
 import {decodeArgInitializers} from '@smolSections/Multisafe/utils';
 import {getTransaction, type GetTransactionReturnType} from '@wagmi/core';
 import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
@@ -14,6 +16,7 @@ import {IconBug} from '@lib/icons/IconBug';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
@@ -41,6 +44,8 @@ const defaultExistingSafeArgs: TExistingSafeArgs = {
 
 function Safe(): ReactElement {
 	const router = useRouter();
+	const plausible = usePlausible();
+	const {onClickFAQ} = useMultisafe();
 	const [shouldUseTestnets, set_shouldUseTestnets] = useState<boolean>(false);
 	const address = toAddress((router.query.address || '') as string);
 	const [existingSafeArgs, set_existingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
@@ -177,8 +182,8 @@ function Safe(): ReactElement {
 						className={'!h-8 !text-xs'}
 						variant={'light'}
 						onClick={() => {
-							// plausible('download template');
-							// downloadTemplate();
+							plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
+							onClickFAQ();
 						}}>
 						<IconDoc className={'mr-2 size-3'} />
 						{'View FAQ'}
@@ -289,14 +294,7 @@ export default function MultisafeClonableWrapper(): ReactElement {
 	);
 }
 
-MultisafeClonableWrapper.AppName = 'Clone me!';
-MultisafeClonableWrapper.AppDescription = 'This is your safe, deploy if everywhere for 4.20$ per network!';
-MultisafeClonableWrapper.AppInfo = (
-	<>
-		<p>{'Well, basically, it’s… your wallet. '}</p>
-		<p>{'You can see your tokens. '}</p>
-		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-	</>
-);
+MultisafeClonableWrapper.AppName = 'Clone Your Safe!';
+MultisafeClonableWrapper.AppDescription =
+	'Choose the networks for deploying your cloned Safe. Expand your secure asset management to new blockchains effortlessly.';
+MultisafeClonableWrapper.AppInfo = <MultisafeAppInfo />;

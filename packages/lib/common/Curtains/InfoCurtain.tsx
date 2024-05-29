@@ -30,7 +30,7 @@ export function InfoCurtain(props: TCurtainElement): ReactElement {
 	}
 
 	return (
-		<Dialog.Root>
+		<Dialog.Root modal={false}>
 			<Dialog.Trigger
 				onClick={() => plausible(PLAUSIBLE_EVENTS.OPEN_INFO_CURTAIN, {props: {curtainPage: route}})}>
 				{props.trigger}

@@ -4,6 +4,7 @@ import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress, truncateHex, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from '@smolSections/Multisafe/constants';
 import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
 import {createUniqueID, decodeArgInitializers} from '@smolSections/Multisafe/utils';
@@ -280,14 +281,7 @@ export default function MultisafeCloneWrapper(): ReactElement {
 	);
 }
 
-MultisafeCloneWrapper.Title = 'Cloneit';
-MultisafeCloneWrapper.AppDescription = 'A clone, 4.20$ a piece, the cheapest in town.';
-MultisafeCloneWrapper.AppInfo = (
-	<>
-		<p>{'Well, basically, it’s… your wallet. '}</p>
-		<p>{'You can see your tokens. '}</p>
-		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-	</>
-);
+MultisafeCloneWrapper.AppName = 'Clone Your Safe';
+MultisafeCloneWrapper.AppDescription =
+	"Enter an existing Safe address to clone it onto another network. Duplicate your Safe's security and functionality seamlessly.";
+MultisafeCloneWrapper.AppInfo = <MultisafeAppInfo />;

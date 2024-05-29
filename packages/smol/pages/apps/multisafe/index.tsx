@@ -1,5 +1,6 @@
 import React from 'react';
 import {useRouter} from 'next/router';
+import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import CardWithIcon from '@smolSections/Multisafe/CardWithIcon';
 import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
 import {IconClone} from '@lib/icons/IconClone';
@@ -43,12 +44,4 @@ export default function MultisafeWrapper(): ReactElement {
 MultisafeWrapper.AppName = 'MultiSafe';
 MultisafeWrapper.AppDescription =
 	'Make your multi-sig, multi-chain: get the same Safe address on all chains. Wow, fancy!';
-MultisafeWrapper.AppInfo = (
-	<>
-		<p>{'Well, basically, it’s… your wallet. '}</p>
-		<p>{'You can see your tokens. '}</p>
-		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-	</>
-);
+MultisafeWrapper.AppInfo = <MultisafeAppInfo />;

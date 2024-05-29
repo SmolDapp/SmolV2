@@ -1,9 +1,11 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import assert from 'assert';
 import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex} from 'viem';
 import {serialize} from 'wagmi';
 import {cl, isZeroAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
+import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import {ConfigurationStatus} from '@smolSections/Multisafe/ConfigurationStatus';
 import {
 	GNOSIS_SAFE_PROXY_CREATION_CODE,
@@ -15,10 +17,12 @@ import {
 import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
 import {createUniqueID, generateArgInitializers} from '@smolSections/Multisafe/utils';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {IconCross} from '@lib/icons/IconCross';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconFire} from '@lib/icons/IconFire';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
@@ -53,7 +57,8 @@ function SafeOwner(props: {
 
 function Safe(): ReactElement {
 	const router = useRouter();
-	const {threshold, onUpdateThreshold, owners, onAddOwner, onSetOwners, onUpdateOwner, onRemoveOwner} =
+	const plausible = usePlausible();
+	const {threshold, onUpdateThreshold, owners, onAddOwner, onSetOwners, onUpdateOwner, onRemoveOwner, onClickFAQ} =
 		useMultisafe();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 	const shouldCancel = useRef(false);
@@ -230,8 +235,8 @@ function Safe(): ReactElement {
 					className={'!h-8 !text-xs'}
 					variant={'light'}
 					onClick={() => {
-						// plausible('download template');
-						// downloadTemplate();
+						plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
+						onClickFAQ();
 					}}>
 					<IconDoc className={'mr-2 size-3'} />
 					{'View FAQ'}
@@ -371,6 +376,9 @@ function Safe(): ReactElement {
 											onChange={(e): void => {
 												let {value} = e.target;
 												value = value.replaceAll('[^a-fA-F0-9]', '');
+												if (value === '0') {
+													value = '0x';
+												}
 												if (!value || value === '0x' || value === '0X') {
 													onParamChange();
 													set_prefix(undefined);
@@ -384,21 +392,24 @@ function Safe(): ReactElement {
 														set_prefix(undefined);
 													} else if (value.match(/^0x[a-fA-F0-9]{0,6}$/)) {
 														onParamChange();
-														set_prefix(value);
+														set_prefix(value.replace('0x', ''));
 													} else if (
 														value.match(/^[a-fA-F0-9]{0,4}$/) &&
 														!value.startsWith('0x')
 													) {
 														onParamChange();
-														set_prefix(`0x${value}`);
+														set_prefix(value.replace('0x', ''));
 													}
 												}
 											}}
 											placeholder={'0x'}
 											type={'text'}
-											value={prefix}
+											value={`0x${prefix || ''}`}
 											pattern={'^0x[a-fA-F0-9]{0,6}$'}
-											className={'smol--input font-mono font-bold'}
+											className={cl(
+												'smol--input font-mono font-bold',
+												!prefix ? '!text-neutral-600' : ''
+											)}
 										/>
 									</div>
 								</div>
@@ -493,18 +504,11 @@ function Safe(): ReactElement {
 						</Button>
 					</div>
 					{safeAddress && !isLoadingSafes ? (
-						<div className={'box-0 mt-6 grid gap-4 p-4'}>
+						<div className={'box-0 mt-6 grid gap-4 !bg-neutral-200 p-4'}>
 							<div>
 								<p className={'font-medium'}>{'We found a safe for you!'}</p>
 							</div>
-							<div>
-								<small className={'text-neutral-600'}>{'Address'}</small>
-								<p className={'font-number break-all text-sm font-medium'}>{safeAddress}</p>
-							</div>
-							<div>
-								<small className={'text-neutral-600'}>{'Seed'}</small>
-								<p className={'font-number break-all text-sm font-medium'}>{currentSeed.toString()}</p>
-							</div>
+							<ReadonlySmolAddressInput value={safeAddress} />
 							<div>
 								<Button
 									onClick={navigateToDeploy}
@@ -535,13 +539,5 @@ export default function MultisafeNewWrapper(): ReactElement {
 
 MultisafeNewWrapper.AppName = 'One new Safe, coming right up.';
 MultisafeNewWrapper.AppDescription =
-	'Your Safe needs owners. Let us know the other addresses or ENS you want to be in charge of your Safe alongside you.';
-MultisafeNewWrapper.AppInfo = (
-	<>
-		<p>{'Well, basically, it’s… your wallet. '}</p>
-		<p>{'You can see your tokens. '}</p>
-		<p>{'You can switch chains and see your tokens on that chain. '}</p>
-		<p>{'You can switch chains again and see your tokens on that chain too. '}</p>
-		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
-	</>
-);
+	"Choose your Safe's owners, define the threshold, and customize with a prefix or suffix. Create your secure Safe with ease.";
+MultisafeNewWrapper.AppInfo = <MultisafeAppInfo />;
