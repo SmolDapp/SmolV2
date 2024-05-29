@@ -12,7 +12,7 @@ import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconEdit} from '@lib/icons/IconEdit';
 import {Button} from '@lib/primitives/Button';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
 
@@ -25,6 +25,7 @@ function Safe(): ReactElement {
 	const threshold = parseInt(router.query.threshold as string, 10);
 	const salt = toBigInt(router.query.salt as string);
 	const singleton = router.query.singleton == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP;
+	const supportedChains = useMemo(() => Object.values(CHAINS).filter(e => e.isMultisafeSupported), []);
 
 	const linkToEdit = useMemo(() => {
 		const URLQueryParam = new URLSearchParams();
@@ -125,26 +126,26 @@ function Safe(): ReactElement {
 				</div>
 				<div className={'flex flex-col overflow-hidden'}>
 					<div className={'grid grid-cols-1 gap-2'}>
-						{SUPPORTED_MULTICHAINS.filter(
-							(chain): boolean => ![5, 324, 1337, 84531].includes(chain.id)
-						).map(
-							(chain): ReactElement => (
-								<ChainStatus
-									key={chain.id}
-									chain={chain}
-									safeAddress={toAddress(address)}
-									owners={owners || []}
-									threshold={threshold || 0}
-									singleton={singleton}
-									salt={salt || 0n}
-								/>
-							)
-						)}
+						{supportedChains
+							.filter(chain => !chain.testnet)
+							.map(
+								(chain): ReactElement => (
+									<ChainStatus
+										key={chain.id}
+										chain={chain}
+										safeAddress={toAddress(address)}
+										owners={owners || []}
+										threshold={threshold || 0}
+										singleton={singleton}
+										salt={salt || 0n}
+									/>
+								)
+							)}
 					</div>
 					{shouldUseTestnets && (
 						<div className={'mt-6 grid gap-2 border-t border-neutral-100 pt-6'}>
-							{SUPPORTED_MULTICHAINS.filter((chain): boolean => ![324].includes(chain.id))
-								.filter((chain): boolean => [5, 1337, 84531].includes(chain.id))
+							{supportedChains
+								.filter(chain => chain.testnet)
 								.map(
 									(chain): ReactElement => (
 										<ChainStatus

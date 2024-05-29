@@ -1,4 +1,4 @@
-import React, {Fragment, useCallback, useEffect, useState} from 'react';
+import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
 import {useRouter} from 'next/router';
 import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
 import axios from 'axios';
@@ -14,7 +14,6 @@ import {IconBug} from '@lib/icons/IconBug';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
@@ -46,6 +45,7 @@ function Safe(): ReactElement {
 	const address = toAddress((router.query.address || '') as string);
 	const [existingSafeArgs, set_existingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
 	const [isInfoOpen, set_isInfoOpen] = useState<boolean>(false);
+	const supportedChains = useMemo(() => Object.values(CHAINS).filter(e => e.isMultisafeSupported), []);
 
 	/**********************************************************************************************
 	 ** RetrieveSafeTxHash is a function that will try to find the transaction hash that created
@@ -60,7 +60,7 @@ function Safe(): ReactElement {
 	 *********************************************************************************************/
 	const retrieveSafeTxHash = useCallback(
 		async (address: TAddress): Promise<{hash: Hex; chainID: number} | undefined> => {
-			for (const chain of SUPPORTED_MULTICHAINS) {
+			for (const chain of supportedChains) {
 				try {
 					const publicClient = getClient(chain.id);
 					const byteCode = await publicClient.getBytecode({address});
@@ -224,26 +224,26 @@ function Safe(): ReactElement {
 					</div>
 					<div className={'flex flex-col overflow-hidden'}>
 						<div className={'grid grid-cols-1 gap-2'}>
-							{SUPPORTED_MULTICHAINS.filter(
-								(chain): boolean => ![5, 324, 1337, 84531].includes(chain.id)
-							).map(
-								(chain): ReactElement => (
-									<ChainStatus
-										key={chain.id}
-										chain={chain}
-										safeAddress={toAddress(address)}
-										owners={existingSafeArgs?.owners || []}
-										threshold={existingSafeArgs?.threshold || 0}
-										singleton={existingSafeArgs?.singleton}
-										salt={existingSafeArgs?.salt || 0n}
-									/>
-								)
-							)}
+							{supportedChains
+								.filter(chain => !chain.testnet)
+								.map(
+									(chain): ReactElement => (
+										<ChainStatus
+											key={chain.id}
+											chain={chain}
+											safeAddress={toAddress(address)}
+											owners={existingSafeArgs?.owners || []}
+											threshold={existingSafeArgs?.threshold || 0}
+											singleton={existingSafeArgs?.singleton}
+											salt={existingSafeArgs?.salt || 0n}
+										/>
+									)
+								)}
 						</div>
 						{shouldUseTestnets && (
 							<div className={'mt-6 grid gap-2 border-t border-neutral-100 pt-6'}>
-								{SUPPORTED_MULTICHAINS.filter((chain): boolean => ![324].includes(chain.id))
-									.filter((chain): boolean => [5, 1337, 84531].includes(chain.id))
+								{supportedChains
+									.filter(chain => chain.testnet)
 									.map(
 										(chain): ReactElement => (
 											<ChainStatus

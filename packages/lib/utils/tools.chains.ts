@@ -8,6 +8,7 @@ import {
 	avalanche,
 	base,
 	baseGoerli,
+	blast,
 	bsc,
 	celo,
 	confluxESpace,
@@ -220,6 +221,14 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: '',
 		coingeckoGasCoinID: 'conflux-token',
 		disperseAddress: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8')
+	},
+	[blast.id]: {
+		...blast,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: 'https://blast-safe.io/home?safe=',
+		coingeckoGasCoinID: 'ethereum',
+		disperseAddress: toAddress('0x274889F6864Bc0493BfEe3CF292A2A0ba1A76951')
 	}
 };
 

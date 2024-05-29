@@ -1,4 +1,4 @@
-import React, {Fragment, useCallback, useEffect, useRef, useState} from 'react';
+import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
 import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
 import axios from 'axios';
@@ -12,7 +12,6 @@ import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {Warning} from '@lib/common/Warning';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
-import {SUPPORTED_MULTICHAINS} from '@lib/utils/constants';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 import {CHAINS} from '@lib/utils/tools.chains';
 
@@ -47,6 +46,7 @@ function Safe(): ReactElement {
 	const [safe, set_safe] = useState<TInputAddressLike>(defaultInputAddressLike);
 	const [existingSafeArgs, set_existingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
+	const supportedChains = useMemo(() => Object.values(CHAINS).filter(e => e.isMultisafeSupported), []);
 
 	/**********************************************************************************************
 	 ** RetrieveSafeTxHash is a function that will try to find the transaction hash that created
@@ -61,7 +61,7 @@ function Safe(): ReactElement {
 	 *********************************************************************************************/
 	const retrieveSafeTxHash = useCallback(
 		async (address: TAddress): Promise<{hash: Hex; chainID: number} | undefined> => {
-			for (const chain of SUPPORTED_MULTICHAINS) {
+			for (const chain of supportedChains) {
 				try {
 					const publicClient = getClient(chain.id);
 					const byteCode = await publicClient.getBytecode({address});

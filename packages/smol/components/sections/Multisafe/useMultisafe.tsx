@@ -2,8 +2,8 @@
 import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
 import useSWR from 'swr';
 import {baseFetcher, isZeroAddress} from '@builtbymom/web3/utils';
-import {COINGECKO_GAS_COIN_IDS} from '@lib/utils/constants';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
+import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {TAddress, TDict} from '@builtbymom/web3/types';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
@@ -39,7 +39,7 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 		{...defaultInputAddressLike, UUID: crypto.randomUUID()}
 	]);
 	const {data: chainCoinPrices} = useSWR<TPriceFromGecko>(
-		`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(COINGECKO_GAS_COIN_IDS)}&vs_currencies=usd`,
+		`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(CHAINS).map(e => e.coingeckoGasCoinID)}&vs_currencies=usd`,
 		baseFetcher,
 		{refreshInterval: 10_000}
 	);
