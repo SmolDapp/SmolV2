@@ -1,7 +1,6 @@
-import {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
+import {createContext, useCallback, useContext, useReducer, useRef, useState} from 'react';
 import {
 	type TAllowances,
-	type TApproveEventChainSyncEntry,
 	type TApproveEventEntry,
 	type TExpandedAllowance,
 	type TRevokeActions,
@@ -9,20 +8,21 @@ import {
 	type TRevokeContext
 } from 'packages/lib/types/Revoke';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {filterNotEmptyEvents, getLatestNotEmptyEvents, isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
+import {isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {erc20Abi as abi, isAddressEqual} from 'viem';
-import {useReadContracts} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {isAddress, isZeroAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {isAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/useInfiniteContractLogs';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {readContracts, serialize} from '@wagmi/core';
-import {isDev} from '@lib/utils/tools.chains';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
+
+import {useApproveEventsChainSync} from './useApproveEventsChainSync';
+import {useHistoricalAllowances} from './useHistoricalAllowances';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types/address';
@@ -53,8 +53,23 @@ const defaultProps: TRevokeContext = {
 	},
 	dispatchConfiguration: (): void => undefined,
 	isDoneWithInitialFetch: false,
-	isLoading: false
+	isLoading: false,
+	allowanceFetchingFromBlock: 0n,
+	allowanceFetchingToBlock: 0n
 };
+
+/**********************************************************************************************
+ ** Here, we obtain distinctive tokens based on their token addresses to avoid making
+ ** additional requests for the same tokens.
+ *********************************************************************************************/
+function getUniqueAllowancesByToken(allowances: TAllowances | undefined): TAllowances {
+	const noDuplicatedStep0 = [...new Map(allowances?.map(item => [item.address, item])).values()];
+	const noDuplicated = noDuplicatedStep0.filter(
+		(item, index, self) =>
+			index === self.findIndex(t => t.blockNumber === item.blockNumber && t.logIndex === item.logIndex)
+	);
+	return noDuplicated;
+}
 
 const configurationReducer = (state: TRevokeConfiguration, action: TRevokeActions): TRevokeConfiguration => {
 	switch (action.type) {
@@ -75,171 +90,191 @@ export const RevokeContextApp = (props: {
 }): ReactElement => {
 	const {address} = useWeb3();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
-	const [approveEvents, set_approveEvents] = useState<TAllowances | undefined>(undefined);
-	const [allowances, set_allowances] = useState<TAllowances | undefined>(undefined);
 	const {chainID, safeChainID} = useChainID();
 	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
 
-	const [entryNonce, set_entryNonce] = useState<number>(0);
-	const [chainSyncNonce, set_chainSyncNonce] = useState<number>(0);
-	const [cachedApproveEvents, set_cachedApproveEvents] = useState<TApproveEventEntry[]>([]);
-	const [cachedChainSync, set_cachedChainSync] = useState<TApproveEventChainSyncEntry[]>([]);
-
+	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[]>([]);
 	const {getAll, add, deleteByID} = useIndexedDBStore<TApproveEventEntry>('approve-events');
-	const {
-		add: addChainSync,
-		getAll: getAllChainSync,
-		update: updateChainSync
-	} = useIndexedDBStore<TApproveEventChainSyncEntry>('approve-events-chain-sync');
-
-	/**********************************************************************************************
-	 ** Every time user changes chain or wallet address, we add to DB chain-sync entry.
-	 ** 'currentChainSyncEntry' is entry with current chainID and adderss of user
-	 *********************************************************************************************/
-	const currentChainSyncEntry = useMemo(() => {
-		if (!cachedChainSync || !address) {
-			return;
-		}
-
-		return cachedChainSync.find(item => isAddressEqual(item.address, address) && item.chainID === safeChainID);
-	}, [address, cachedChainSync, safeChainID]);
+	const {currentEntry, updateChainSyncEntry} = useApproveEventsChainSync();
+	const currentIdentifier = useRef<string | undefined>();
 
 	/**********************************************************************************************
 	 ** A callback function that allows us to add entry into approve-events DB
 	 *********************************************************************************************/
 	const addApproveEventEntry = useCallback(
-		async (entry: TApproveEventEntry): Promise<void> => {
+		async (entry: TApproveEventEntry) => {
 			try {
-				if (!currentChainSyncEntry) {
-					return;
-				}
-				const duplicateAllowace = cachedApproveEvents.find(
+				const entriesFromDB = await getAll();
+				const duplicateAllowance = entriesFromDB.find(
 					item =>
 						isAddressEqual(item.address, entry.address) &&
 						isAddressEqual(item.sender, entry.sender) &&
+						item.blockNumber === entry.blockNumber &&
 						item.logIndex === entry.logIndex
 				);
-				if (duplicateAllowace) {
+				if (duplicateAllowance) {
 					return;
 				}
 
-				const deprecateAllowance = cachedApproveEvents.find(
+				const deprecateAllowance = entriesFromDB.find(
 					item =>
 						isAddressEqual(item.address, entry.address) &&
 						isAddressEqual(item.sender, entry.sender) &&
+						entry.blockNumber >= item.blockNumber &&
 						entry.logIndex > item.logIndex
 				);
 
 				if (deprecateAllowance) {
-					deleteByID(deprecateAllowance.id);
-					set_entryNonce(nonce => nonce + 1);
+					await deleteByID(deprecateAllowance.id);
 				}
-				add(entry);
-				set_entryNonce(nonce => nonce + 1);
+				await add(entry);
 			} catch (error) {
 				//Do nothing
 			}
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[currentChainSyncEntry]
+		[add, getAll, deleteByID]
 	);
 
 	/**********************************************************************************************
-	 ** A callback function that allows us to add entry into approve-events-chain-sync DB
+	 ** This hook is used to fetch historical allowances for the current address. We pass the
+	 ** tokenAddresses array to the hook to fetch historical allowances for those tokens.
+	 ** We also pass the fromBlock to the hook to fetch historical allowances from that block.
+	 ** The fromBlock is retrieved from the indexDB. By default it will be set to -1, meaning the
+	 ** fetching will not start until the fromBlock is set to a valid block number (aka indexDB is
+	 ** done loading).
 	 *********************************************************************************************/
-	const addChainSyncEntry = useCallback(
-		async (entry: TApproveEventChainSyncEntry): Promise<void> => {
-			try {
-				const chainSyncEntries = await getAllChainSync();
-				const duplicateEntry = chainSyncEntries.find(
-					item => isAddressEqual(item.address, entry.address) && item.chainID === entry.chainID
-				);
-
-				if (duplicateEntry) {
-					return;
-				}
-				addChainSync(entry);
-				set_chainSyncNonce(nonce => nonce + 1);
-			} catch {
-				// Do nothing
-			}
-		},
-		[addChainSync, getAllChainSync]
-	);
+	const {allowances, fromBlock, toBlock, isDoneWithInitialFetch, isLoadingAllowances, getAllowancesForToken} =
+		useHistoricalAllowances({
+			tokenAddresses: isTokensLoading ? [] : listTokensWithBalance(chainID).map(item => item.address),
+			fromBlock: currentEntry ? currentEntry.blockNumber || 0n : -1n
+		});
 
 	/**********************************************************************************************
-	 ** A callback function that allows us to update approve-events-chain-sync entry
-	 *********************************************************************************************/
-	const updateChainSyncEntry = useCallback(
-		async (entry: TApproveEventChainSyncEntry) => {
-			try {
-				if (!currentChainSyncEntry?.id) {
-					return;
-				}
-
-				updateChainSync({...currentChainSyncEntry, blockNumber: entry.blockNumber});
-				set_chainSyncNonce(nonce => nonce + 1);
-			} catch {
-				// Do nothing
-			}
-		},
-		[currentChainSyncEntry, updateChainSync]
-	);
-
-	/**********************************************************************************************
-	 ** Every time we interact with approve events in DB, we want to immedeatley have up to date
-	 ** data from DB
+	 ** This bigass function is used to handle the allowances and process the raw data into a
+	 ** more structured format. This function is triggered by the useAsyncTrigger hook with the
+	 ** above allowances as main dependencies.
+	 ** The identifier pattern is used to ensure that the function is not called multiple times
+	 ** with the same data.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		entryNonce;
-		const entriesFromDB = await getAll();
-		set_cachedApproveEvents(entriesFromDB);
-	}, [entryNonce, getAll]);
-
-	/**********************************************************************************************
-	 ** Every time we interact with chain-sync events in DB, we want to immedeatley have up to
-	 ** date data from DB
-	 *********************************************************************************************/
-	useAsyncTrigger(async () => {
-		chainSyncNonce;
-		const entryFromDB = await getAllChainSync();
-		set_cachedChainSync(entryFromDB);
-	}, [chainSyncNonce, getAllChainSync]);
-
-	/**********************************************************************************************
-	 ** We're retrieving an array of addresses from the currentNetworkTokenList, intending to
-	 ** obtain allowances for each address in the list. This process allows us to gather allowance
-	 ** data for all tokens listed.
-	 *********************************************************************************************/
-	const tokenAddresses = useMemo(() => {
-		return isTokensLoading ? [] : listTokensWithBalance(currentChainSyncEntry?.chainID).map(item => item.address);
-	}, [currentChainSyncEntry?.chainID, isTokensLoading, listTokensWithBalance]);
-
-	/**********************************************************************************************
-	 ** The allowances vary across different chains, necessitating us to reset the current state
-	 ** when the user switches chains or change the address.
-	 *********************************************************************************************/
-	useAsyncTrigger(async () => {
-		if (
-			!cachedChainSync ||
-			cachedChainSync.some(item => item.address === address && item.chainID === safeChainID) ||
-			!address
-		) {
+		if (!allowances || allowances.length < 1 || !safeChainID || !isAddress(address)) {
 			return;
 		}
 
-		addChainSyncEntry({address, chainID: isDev ? chainID : safeChainID, blockNumber: 0n});
-		set_entryNonce(nonce => nonce + 1);
-		set_chainSyncNonce(nonce => nonce + 1);
-	}, [cachedChainSync, address, addChainSyncEntry, chainID, safeChainID]);
+		/******************************************************************************************
+		 ** We are getting a bunch of allowances, we first need to make sure that they are unique.
+		 ** We will call the getUniqueAllowancesByToken function to get the unique allowances.
+		 *****************************************************************************************/
+		const uniqueAllowancesByToken = getUniqueAllowancesByToken(allowances);
+		if (!uniqueAllowancesByToken || uniqueAllowancesByToken.length < 1) {
+			return;
+		}
 
-	/**********************************************************************************************
-	 ** In DB we store approve-events for all addresses and ChainIDs. But we need to show to user
-	 ** only those that match their address and chainID
-	 *********************************************************************************************/
-	const chainFilteredAllowances = useMemo(() => {
+		/******************************************************************************************
+		 ** Now, we can set an unique identifier for the current data set. If the identifier is
+		 ** the same as the previous one, we will return and not process the data again.
+		 ** This will save us some useless computing time
+		 *****************************************************************************************/
+		const identifier = createUniqueID(serialize({allowances, fromBlock, toBlock}));
+		if (currentIdentifier.current === identifier) {
+			return;
+		}
+		currentIdentifier.current = identifier;
+
+		/******************************************************************************************
+		 ** For each tokens in our list, we want to know the symbol, decimals, balanceOf and name.
+		 ** We will form an array of calls to get this information from the blockchain.
+		 **
+		 ** TODO @Karlen9 this can be improved by only fetching tokens onces for the same address
+		 ** and recomputing the structure later
+		 *****************************************************************************************/
+		const calls = [];
+		for (const token of uniqueAllowancesByToken) {
+			const from = {abi, address: toAddress(token.address), chainId: token.chainID};
+			calls.push({...from, functionName: 'symbol'});
+			calls.push({...from, functionName: 'decimals'});
+			calls.push({...from, functionName: 'balanceOf', args: [address]});
+			calls.push({...from, functionName: 'name'});
+		}
+
+		const data = await readContracts(retrieveConfig(), {contracts: calls});
+		const dictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} = {};
+		if (data.length < 4) {
+			// Stop if we don't have enough data
+			return;
+		}
+
+		/******************************************************************************************
+		 ** Once we have an array of those additional fields, we form a dictionary
+		 ** with key of an address and additional fields as a value.
+		 *****************************************************************************************/
+		for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
+			const idx = i * 4;
+			const symbol = data[idx].result;
+			const decimals = data[idx + 1].result;
+			const balanceOf = data[idx + 2].result;
+			const name = data[idx + 3].result;
+			dictionary[uniqueAllowancesByToken[i].address] = {
+				symbol: symbol as string,
+				decimals: decimals as number,
+				balanceOf: balanceOf as bigint,
+				name: name as string
+			};
+		}
+
+		/******************************************************************************************
+		 ** Here we're expanding allowances array using the dictionary, and we are also saving the
+		 ** data in the indexedDB.
+		 *****************************************************************************************/
+		const _expandedAllowances: TExpandedAllowance[] = [];
+		for (const allowance of allowances) {
+			const item = {
+				address: allowance.address,
+				args: allowance.args,
+				blockNumber: allowance.blockNumber,
+				symbol: dictionary[allowance.address]?.symbol,
+				decimals: dictionary[allowance.address]?.decimals,
+				balanceOf: toNormalizedBN(
+					dictionary[allowance.address]?.balanceOf,
+					dictionary[allowance.address]?.decimals
+				),
+				name: dictionary[allowance.address]?.name,
+				chainID: allowance.chainID,
+				logIndex: allowance.logIndex
+			};
+			addApproveEventEntry({
+				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.logIndex}`,
+				address: item.address,
+				blockNumber: item.blockNumber,
+				symbol: item.symbol,
+				decimals: item.decimals,
+				chainID: item.chainID,
+				owner: item.args.owner,
+				sender: item.args.sender,
+				value: item.args.value as bigint,
+				balanceOf: item.balanceOf,
+				name: item.name,
+				logIndex: item.logIndex
+			});
+			_expandedAllowances.push(item);
+		}
+
+		/******************************************************************************************
+		 ** Here, we are dealing with indexDB and making sure it's up to date.
+		 ** - We retrieve all the items we now have in the DB
+		 ** - We look for the last block we checked
+		 ** - We update the chain sync entry so we know we only need to check from this block next
+		 **   time
+		 *****************************************************************************************/
+		const itemsFromDB = await getAll();
+		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
+		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
+
+		/******************************************************************************************
+		 ** And finally, we are formatting the allowances to be displayed in the UI.
+		 *****************************************************************************************/
 		const _formatedAllowances: TExpandedAllowance[] = [];
-		for (const allowance of cachedApproveEvents) {
+		for (const allowance of itemsFromDB) {
 			_formatedAllowances.push({
 				...allowance,
 				args: {
@@ -249,14 +284,21 @@ export const RevokeContextApp = (props: {
 				}
 			});
 		}
-
 		const filteredAllowances = _formatedAllowances.filter(
 			item => item.args.owner === address && item.chainID === safeChainID
 		);
-
-		return filteredAllowances;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [address, `${cachedApproveEvents}`, safeChainID]);
+		set_chainFilteredAllowances(filteredAllowances);
+	}, [
+		addApproveEventEntry,
+		address,
+		allowances,
+		chainFilteredAllowances,
+		fromBlock,
+		getAll,
+		safeChainID,
+		toBlock,
+		updateChainSyncEntry
+	]);
 
 	/**********************************************************************************************
 	 ** We sequentially apply filters to the allowances based on the provided filter object. First,
@@ -305,240 +347,14 @@ export const RevokeContextApp = (props: {
 	}, [configuration.allowancesFilters, chainFilteredAllowances]);
 
 	/**********************************************************************************************
-	 ** Once we've gathered approval events for the token list, we need to verify if allowances
-	 ** still persist on the chain and haven't been utilized by the contract. To achieve this, we
-	 ** utilize the allowance function on the ERC20 contract.
-	 *********************************************************************************************/
-	const {data: allAllowances, isLoading} = useReadContracts({
-		contracts: approveEvents?.map(item => {
-			return {
-				address: item.address,
-				abi,
-				functionName: 'allowance',
-				chainID: chainID,
-				args: [item.args.owner, item.args.sender]
-			};
-		})
-	});
-
-	/**********************************************************************************************
-	 ** We utilize a watcher to consistently obtain the latest approval events for the list of
-	 ** tokens.
-	 *********************************************************************************************/
-	const {data, isDoneWithInitialFetch} = useInfiniteApprovalLogs({
-		chainID: isDev ? chainID : safeChainID,
-		addresses: tokenAddresses,
-		startBlock: currentChainSyncEntry?.blockNumber || 0n,
-		owner: toAddress(address),
-		pageSize: 1_000_000n
-	});
-
-	/**********************************************************************************************
 	 ** Separate function to fetch approve events for additional tokenToCheck.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		const res = await getClient(chainID).getLogs({
-			address: [toAddress(configuration.tokenToCheck?.address)],
-			event: parsedApprovalEvent,
-			args: {
-				owner: address
-			},
-			fromBlock: 0n,
-			toBlock: currentChainSyncEntry?.blockNumber
-		});
-
-		const commonResult = await getClient(chainID).getLogs({
-			address: [...cachedApproveEvents.map(item => item.address), toAddress(configuration.tokenToCheck?.address)],
-			event: parsedApprovalEvent,
-			args: {
-				owner: address
-			},
-			fromBlock: currentChainSyncEntry?.blockNumber
-		});
-
-		const arroveEvents = [...res, ...commonResult].map(item => {
-			return {...item, chainID: safeChainID};
-		});
-
-		set_approveEvents(arroveEvents as TAllowances);
-	}, [
-		address,
-		cachedApproveEvents,
-		chainID,
-		configuration.tokenToCheck?.address,
-		currentChainSyncEntry?.blockNumber,
-		safeChainID
-	]);
-
-	/**********************************************************************************************
-	 ** Once we've gathered all the latest allowances from the blockchain, we aim to utilize only
-	 ** those with a value. Therefore, we arrange them by block number to prioritize the latest
-	 ** ones and filter out those with null values.
-	 *********************************************************************************************/
-	useEffect((): void => {
-		if (data) {
-			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => {
-				return {...item, chainID: safeChainID};
-			});
-
-			set_approveEvents(filteredEvents);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [data]);
-
-	/**********************************************************************************************
-	 ** Once we've obtained the actual allowances from the blockchain, we proceed to update the
-	 ** existing array of allowances and remove any empty allowances from it.
-	 *********************************************************************************************/
-	useAsyncTrigger(async (): Promise<void> => {
-		if (!approveEvents || !allAllowances) {
+		if (!configuration.tokenToCheck || !isAddress(address)) {
 			return;
 		}
-
-		const allAllowancesValues = allAllowances.map(item => item.result);
-
-		const _allowances: TAllowances = [];
-		for (let i = 0; i < approveEvents.length; i++) {
-			_allowances.push({
-				...approveEvents[i],
-				args: {
-					...approveEvents[i].args,
-					value: allAllowancesValues[i]
-				}
-			});
-		}
-
-		set_allowances(filterNotEmptyEvents(_allowances));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [serialize(approveEvents), serialize(allAllowances)]);
-
-	/**********************************************************************************************
-	 ** Here, we obtain distinctive tokens based on their token addresses to avoid making
-	 ** additional requests for the same tokens.
-	 *********************************************************************************************/
-	const uniqueAllowancesByToken = useMemo(() => {
-		return [...new Map(allowances?.map(item => [item.address, item])).values()];
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [serialize(allowances)]);
-
-	/**********************************************************************************************
-	 ** When we fetch allowances, they don't have enough information in them, such as name, symbol
-	 ** and decimals. Here we take only unique tokens from all allowances and make a query.
-	 *********************************************************************************************/
-	useAsyncTrigger(async () => {
-		if (!uniqueAllowancesByToken || !allowances || !safeChainID || !isAddress(address)) {
-			return;
-		}
-
-		const calls = [];
-		for (const token of uniqueAllowancesByToken) {
-			const from = {abi, address: toAddress(token.address), chainId: token.chainID};
-			calls.push({...from, functionName: 'symbol'});
-			calls.push({...from, functionName: 'decimals'});
-			if (!isZeroAddress(address)) {
-				calls.push({...from, functionName: 'balanceOf', args: [address]});
-			}
-			calls.push({...from, functionName: 'name'});
-		}
-
-		const data = await readContracts(retrieveConfig(), {
-			contracts: calls
-		});
-
-		const dictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} = {};
-
-		if (data.length < 4) {
-			return;
-		}
-
-		/******************************************************************************************
-		 ** Once we have an array of those additional fields, we form a dictionary
-		 ** with key of an address and additional fields as a value.
-		 *****************************************************************************************/
-		for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
-			const itterator = i * 4;
-			const symbol = data[itterator].result;
-			const decimals = data[itterator + 1].result;
-			const balanceOf = data[itterator + 2].result;
-			const name = data[itterator + 3].result;
-
-			dictionary[uniqueAllowancesByToken[i].address] = {
-				symbol: symbol as string,
-				decimals: decimals as number,
-				balanceOf: balanceOf as bigint,
-				name: name as string
-			};
-		}
-
-		const _expandedAllowances: TExpandedAllowance[] = [];
-
-		/******************************************************************************************
-		 ** Here we're expanding allowances array using the dictionary
-		 *****************************************************************************************/
-		for (const allowance of allowances) {
-			_expandedAllowances.push({
-				address: allowance.address,
-				args: allowance.args,
-				blockNumber: allowance.blockNumber,
-				symbol: dictionary[allowance.address]?.symbol,
-				decimals: dictionary[allowance.address]?.decimals,
-				balanceOf: toNormalizedBN(
-					dictionary[allowance.address]?.balanceOf,
-					dictionary[allowance.address]?.decimals
-				),
-				name: dictionary[allowance.address]?.name,
-				chainID: allowance.chainID,
-				logIndex: allowance.logIndex
-			});
-		}
-
-		addAllToDB(_expandedAllowances);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [serialize(uniqueAllowancesByToken)]);
-
-	/**********************************************************************************************
-	 ** When we have our allowances ready to be stored in DB, we chech if there're some allowances
-	 ** is array and store them one by one in DB.
-	 *********************************************************************************************/
-	const addAllToDB = async (allowances: TExpandedAllowance[]): Promise<void> => {
-		if (allowances.length < 1 || !isDoneWithInitialFetch) {
-			return;
-		}
-
-		for (const allowance of allowances) {
-			addApproveEventEntry({
-				address: allowance.address,
-				blockNumber: allowance.blockNumber,
-				symbol: allowance.symbol,
-				decimals: allowance.decimals,
-				chainID: allowance.chainID,
-				owner: allowance.args.owner,
-				sender: allowance.args.sender,
-				value: allowance.args.value as bigint,
-				balanceOf: allowance.balanceOf,
-				name: allowance.name,
-				logIndex: allowance.logIndex
-			});
-		}
-	};
-
-	/**********************************************************************************************
-	 ** After storing allowances to DB, we update chain-sync entry according to latest allowance
-	 ** blockNumber
-	 *********************************************************************************************/
-	useAsyncTrigger(async () => {
-		if (!address) {
-			return;
-		}
-		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
-		updateChainSyncEntry({
-			address,
-			chainID: safeChainID,
-			blockNumber: lastAllowanceBlockNumber
-		});
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [serialize(chainFilteredAllowances)]);
+		getAllowancesForToken(toAddress(configuration.tokenToCheck.address), 0n);
+	}, [address, configuration.tokenToCheck, getAllowancesForToken]);
 
 	const contextValue = useDeepCompareMemo(
 		(): TRevokeContext => ({
@@ -547,9 +363,19 @@ export const RevokeContextApp = (props: {
 			dispatchConfiguration: dispatch,
 			configuration,
 			isDoneWithInitialFetch,
-			isLoading
+			isLoading: isLoadingAllowances,
+			allowanceFetchingFromBlock: fromBlock || 0n,
+			allowanceFetchingToBlock: toBlock || 0n
 		}),
-		[chainFilteredAllowances, filteredAllowances, configuration, isDoneWithInitialFetch, isLoading]
+		[
+			chainFilteredAllowances,
+			filteredAllowances,
+			configuration,
+			isDoneWithInitialFetch,
+			isLoadingAllowances,
+			fromBlock,
+			toBlock
+		]
 	);
 
 	return (

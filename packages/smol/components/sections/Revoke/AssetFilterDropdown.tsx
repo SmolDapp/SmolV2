@@ -1,5 +1,5 @@
 'use client';
-import {type ReactElement, useCallback} from 'react';
+import {type ReactElement, useCallback, useMemo} from 'react';
 import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
@@ -16,8 +16,8 @@ export const AssetFilterDropdown = (props: {
 	allOptions: TFilterAllowance[];
 }): ReactElement => {
 	const {dispatchConfiguration, configuration} = useAllowances();
-	const {children, allOptions} = props;
-	const assetFilter = configuration.allowancesFilters.asset.filter;
+	const {children} = props;
+	const assetFilter = useMemo(() => configuration.allowancesFilters.asset.filter, [configuration.allowancesFilters]);
 
 	/**********************************************************************************************
 	 ** This function changes options to checked or unchecked to be able to filter allowances
@@ -49,6 +49,17 @@ export const AssetFilterDropdown = (props: {
 		[assetFilter, configuration.allowancesFilters, dispatchConfiguration]
 	);
 
+	const allOptions = useMemo(() => {
+		return props.allOptions?.map(option => (
+			<DropdownMenuCheckboxItem
+				key={`${option.address}-${option.chainID}`}
+				checked={assetFilter?.some(item => item === option.address)}
+				onCheckedChange={() => onCheckedChange(option)}>
+				{option.symbol}
+			</DropdownMenuCheckboxItem>
+		));
+	}, [assetFilter, onCheckedChange, props.allOptions]);
+
 	return (
 		<DropdownMenu.Root modal>
 			<DropdownMenu.Trigger>{children}</DropdownMenu.Trigger>
@@ -58,14 +69,7 @@ export const AssetFilterDropdown = (props: {
 				</div>
 				<DropdownMenuSeparator className={'my-3'} />
 
-				{allOptions?.map(option => (
-					<DropdownMenuCheckboxItem
-						key={`${option.address}-${option.chainID}`}
-						checked={assetFilter?.some(item => item === option.address)}
-						onCheckedChange={() => onCheckedChange(option)}>
-						{option.symbol}
-					</DropdownMenuCheckboxItem>
-				))}
+				{allOptions}
 			</DropdownMenuContent>
 		</DropdownMenu.Root>
 	);

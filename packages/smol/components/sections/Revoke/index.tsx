@@ -60,9 +60,9 @@ export function Revoke(): ReactElement {
 	const totalValueAtRist = useDeepCompareMemo(() => {
 		if (isLoading) {
 			return (
-				<div className={'mt-2 flex w-full justify-center'}>
+				<span className={'mt-2 flex w-full justify-center'}>
 					<IconSpinner />
-				</div>
+				</span>
 			);
 		}
 		if (!prices) {

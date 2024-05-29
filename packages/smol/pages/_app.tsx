@@ -21,7 +21,7 @@ import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconCross} from '@lib/icons/IconCross';
 import {IconWallet} from '@lib/icons/IconWallet';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -93,10 +93,7 @@ function MyApp(props: AppProps): ReactElement {
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
 					]}>
-					<WalletContextApp
-						shouldWorkOnTestnet={
-							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-						}>
+					<WalletContextApp shouldWorkOnTestnet={isDev}>
 						<WithPopularTokens>
 							<SafeProvider>
 								<PlausibleProvider

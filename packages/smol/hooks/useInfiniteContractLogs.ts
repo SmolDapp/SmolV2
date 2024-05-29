@@ -3,8 +3,10 @@ import {parseAbiItem} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {isZeroAddress} from '@builtbymom/web3/utils';
 import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {useInfiniteQuery} from '@tanstack/react-query';
 
+import type {Log} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
 
 type TUseContractLogsProps = {
@@ -13,6 +15,7 @@ type TUseContractLogsProps = {
 	addresses: TAddress | TAddress[];
 	startBlock: bigint;
 	pageSize: bigint;
+	enabled: boolean;
 };
 
 type TPageParam = {
@@ -45,8 +48,14 @@ export function useInfiniteApprovalLogs({
 	addresses,
 	owner,
 	startBlock,
-	pageSize
-}: TUseContractLogsProps): ReturnType<typeof useInfiniteQuery> & {isDoneWithInitialFetch: boolean} {
+	pageSize,
+	enabled
+}: TUseContractLogsProps): {
+	data: Log[] | [];
+	fromBlock: bigint | undefined;
+	toBlock: bigint | undefined;
+	isDoneWithInitialFetch: boolean;
+} {
 	const {data: endBlock} = useBlockNumber({watch: true, chainId: chainID});
 	const [isDoneWithInitialFetch, set_isDoneWithInitialFetch] = useState(false);
 
@@ -54,7 +63,7 @@ export function useInfiniteApprovalLogs({
 	 ** If we are getting a new chainID, addresses, or owner, we want to reset the
 	 ** isDoneWithInitialFetch flag to false. This will allow us to fetch the logs again.
 	 *********************************************************************************************/
-	useEffect(() => {
+	useDeepCompareEffect(() => {
 		set_isDoneWithInitialFetch(false);
 	}, [chainID, addresses, owner]);
 
@@ -97,9 +106,7 @@ export function useInfiniteApprovalLogs({
 			return getClient(chainID).getLogs({
 				address: addresses,
 				event: parsedApprovalEvent,
-				args: {
-					owner
-				},
+				args: {owner},
 				fromBlock: pageParam.fromBlock,
 				toBlock: pageParam.toBlock
 			});
@@ -109,9 +116,16 @@ export function useInfiniteApprovalLogs({
 			toBlock: startBlock + pageSize - 1n
 		},
 		getNextPageParam: (_lastPage, _allPages, lastPageParam) => hasNextPage(lastPageParam),
-		select: data => data.pages.flat(),
+		select: data => {
+			const numberOfPages = data.pageParams.length;
+			return {
+				items: data.pages.flat(),
+				fromBlock: data.pageParams[numberOfPages - 1]?.fromBlock || 0n,
+				toBlock: endBlock || 0n
+			};
+		},
 		staleTime: Number.POSITIVE_INFINITY,
-		enabled: !isZeroAddress(owner) && addresses.length > 0
+		enabled: !isZeroAddress(owner) && addresses.length > 0 && enabled
 	});
 
 	/**********************************************************************************************
@@ -127,5 +141,10 @@ export function useInfiniteApprovalLogs({
 		}
 	}, [query.isFetching, query.hasNextPage, query, isDoneWithInitialFetch, endBlock]);
 
-	return {...query, isDoneWithInitialFetch};
+	return {
+		data: query.data?.items || [],
+		fromBlock: query.data?.fromBlock,
+		toBlock: query.data?.toBlock,
+		isDoneWithInitialFetch
+	};
 }

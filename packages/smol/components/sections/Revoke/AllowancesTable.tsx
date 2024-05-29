@@ -1,7 +1,7 @@
-import {type ReactElement, type ReactNode, useCallback, useMemo, useState} from 'react';
+import {Fragment, type ReactElement, type ReactNode, useCallback, useMemo, useState} from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {cl, formatAmount, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {EmptyView} from '@lib/common/EmptyView';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 
@@ -10,6 +10,35 @@ import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 
 import type {TAllowancesTableProps, TRevokeSort, TRevokeSortBy} from '@lib/types/Revoke';
+
+function TokenFetchingLoader(): ReactElement {
+	const {isDoneWithInitialFetch, allowanceFetchingFromBlock, allowanceFetchingToBlock} = useAllowances();
+
+	if (isDoneWithInitialFetch) {
+		return <Fragment />;
+	}
+
+	return (
+		<div className={'mt-10 flex flex-col items-center justify-center gap-4'}>
+			<IconSpinner className={'size-6'} />
+			<div className={'relative h-2 w-full overflow-hidden rounded-lg bg-neutral-300'}>
+				<div
+					className={'bg-primary absolute inset-y-0 left-0 size-full'}
+					style={{
+						width: `${(Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock || 1)) * 100}%`,
+						transition: 'width 0.5s',
+						zIndex: 1031
+					}}
+				/>
+			</div>
+			<p className={'text-xs text-neutral-600'}>
+				{allowanceFetchingToBlock === 0n
+					? 'Analyzing past blocks ...'
+					: `Analyzing past blocks ${formatAmount((Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock)) * 100, 2, 2)}%`}
+			</p>
+		</div>
+	);
+}
 
 export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
@@ -102,11 +131,7 @@ export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactE
 		}
 
 		if (isFetchingData) {
-			return (
-				<div className={'mt-10 flex items-center justify-center'}>
-					<IconSpinner className={'size-6'} />
-				</div>
-			);
+			return <TokenFetchingLoader />;
 		}
 
 		if (sortedAllowances && sortedAllowances.length > 0) {

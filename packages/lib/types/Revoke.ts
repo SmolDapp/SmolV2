@@ -67,6 +67,8 @@ export type TRevokeContext = {
 	isDoneWithInitialFetch: boolean;
 	filteredAllowances: TExpandedAllowance[] | undefined;
 	isLoading: boolean;
+	allowanceFetchingFromBlock: bigint;
+	allowanceFetchingToBlock: bigint;
 };
 
 /**************************************************************************************************
@@ -105,6 +107,7 @@ export type TRevokeActions =
  ** for provided token list.
  ** The properties are:
  ** id?: number - Id for storing approve event in DB
+ ** UID: string - UID for storing approve event in DB
  ** address: TAddress - Address of a token that is approved
  ** chainID: number - Chain ID in which is approve exists
  ** owner: TAddress - Owner of tokens that are approved
@@ -120,17 +123,18 @@ export type TRevokeActions =
  **********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
+	UID: string;
 	address: TAddress;
+	balanceOf: TNormalizedBN;
+	blockNumber: bigint;
 	chainID: number;
+	decimals: number;
+	logIndex: number;
+	name: string;
 	owner: TAddress;
 	sender: TAddress;
-	value: bigint;
-	blockNumber: bigint;
-	logIndex: number;
 	symbol: string;
-	decimals: number;
-	balanceOf: TNormalizedBN;
-	name: string;
+	value: bigint;
 };
 
 /**************************************************************************************************

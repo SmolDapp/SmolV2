@@ -3,7 +3,12 @@ import {parseUnits} from 'viem';
 import type {TAllowance, TAllowances} from '@lib/types/Revoke';
 
 export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
-	return events.filter(item => (item.args.value as bigint) > BigInt(0));
+	const nonEmpty = events.filter(item => (item.args.value as bigint) > BigInt(0));
+	const noDuplicate = nonEmpty.filter(
+		(item, index, self) =>
+			self.findIndex(t => `${t.blockNumber}_${t.logIndex}` === `${item.blockNumber}_${item.logIndex}`) === index
+	);
+	return noDuplicate;
 };
 
 /**************************************************************************************************
