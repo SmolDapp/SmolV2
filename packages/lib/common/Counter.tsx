@@ -1,16 +1,20 @@
-import React, {useLayoutEffect, useRef} from 'react';
+import {useLayoutEffect, useRef} from 'react';
 import {animate} from 'framer-motion';
-import {formatAmount} from '@builtbymom/web3/utils';
+import {formatAmount, parseAmount} from '@builtbymom/web3/utils';
 
 import type {ReactElement} from 'react';
 
 export function Counter({
 	value,
 	decimals = 18,
-	className = 'font-number'
+	idealDecimals,
+	decimalsToDisplay,
+	className
 }: {
-	value: number;
-	decimals: number;
+	value: number; // Value to animate
+	decimals: number; // Number of decimals of that token
+	idealDecimals?: number; // Ideal decimals to display
+	decimalsToDisplay?: number[]; // Decimals to display
 	className?: string;
 }): ReactElement {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,14 +27,62 @@ export function Counter({
 			const controls = animate(Number(valueRef.current || 0), value, {
 				duration: 1,
 				onUpdate(value) {
+					let hasBeenSet = false;
 					valueRef.current = value;
-					node.textContent = formatAmount(value.toFixed(decimals), decimals, decimals);
+					if (Number.isNaN(value) || value === 0) {
+						const formatedValue = formatAmount(0, idealDecimals, idealDecimals);
+						node.textContent = formatedValue;
+					} else if (decimalsToDisplay && decimalsToDisplay.length > 0) {
+						const allDecimalsToTests = [...decimalsToDisplay, decimals];
+						if (idealDecimals) {
+							allDecimalsToTests.unshift(idealDecimals);
+						}
+						for (const decimalToDisplay of allDecimalsToTests) {
+							if (decimalToDisplay > decimals) {
+								const formatedValue = formatAmount(value.toFixed(decimals), decimals, decimals);
+								node.textContent = formatedValue;
+								hasBeenSet = true;
+								break;
+							}
+							const formatedValue = formatAmount(
+								value.toFixed(decimals),
+								decimalToDisplay,
+								decimalToDisplay
+							);
+							if (
+								Number.isNaN(parseAmount(formatedValue)) ||
+								formatedValue === 'NaN' ||
+								parseAmount(formatedValue) === 0
+							) {
+								continue;
+							}
+							node.textContent = formatedValue;
+							hasBeenSet = true;
+							break;
+						}
+						if (!hasBeenSet) {
+							if (Number.isNaN(value) || value === 0) {
+								const formatedValue = formatAmount(0, idealDecimals, idealDecimals);
+								node.textContent = formatedValue;
+							} else {
+								const formatedValue = formatAmount(value.toFixed(decimals), decimals, decimals);
+								node.textContent = formatedValue;
+							}
+						}
+					} else {
+						const formatedValue = formatAmount(
+							value.toFixed(decimals),
+							decimals || idealDecimals,
+							decimals || idealDecimals
+						);
+						node.textContent = formatedValue;
+					}
 				}
 			});
 			return () => controls.stop();
 		}
 		return () => undefined;
-	}, [value, decimals]);
+	}, [value, decimals, decimalsToDisplay, idealDecimals]);
 
 	return (
 		<span

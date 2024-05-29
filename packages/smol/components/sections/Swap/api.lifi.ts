@@ -89,7 +89,7 @@ export async function getLifiRoutes(params: {
 		});
 		return {result: result.data};
 	} catch (error) {
-		const err = error as any;
+		const err = error as Error & {response?: {data?: {message: string}}};
 		return {
 			result: undefined,
 			error:

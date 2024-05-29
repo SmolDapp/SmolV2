@@ -23,17 +23,19 @@ import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {usePopularTokens} from '@lib/contexts/usePopularTokens';
+import {IconAppSwap} from '@lib/icons/IconApps';
 import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
 	TBalancesCurtainContextProps,
 	TBalancesCurtainOptions,
 	TSelectCallback,
+	TTokenListSummary,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
 import type {TPrice} from '@lib/utils/types/types';
@@ -138,16 +140,16 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
  *************************************************************************************************/
 function TokenListSelectorLayout(): ReactNode {
 	const {listsURI, onChangeListsURI} = usePopularTokens();
-	const {data} = useSWR('https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json', baseFetcher);
+	const {data} = useSWR<TTokenListSummary>(
+		'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json',
+		baseFetcher
+	);
 
 	const relevantData = useMemo(() => {
-		const lists = ((data as any)?.lists || []) as {
-			URI: string;
-			decription: string;
-			logoURI: string;
-			name: string;
-			tokenCount: number;
-		}[];
+		if (!data) {
+			return [];
+		}
+		const {lists} = data;
 		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
 		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
 		return filteredLists;
@@ -214,6 +216,7 @@ function TokenListSelectorLayout(): ReactNode {
 function BalancesCurtainWrapper(props: {
 	isOpen: boolean;
 	onOpenChange: (isOpen: boolean) => void;
+	onRefresh: () => Promise<TChainTokens>;
 	appearAs: 'modal' | 'curtain';
 	children: ReactNode;
 }): ReactElement {
@@ -227,7 +230,14 @@ function BalancesCurtainWrapper(props: {
 						style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 						className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 						<div className={'mb-4 flex flex-row items-center justify-between'}>
-							<h3 className={'font-bold'}>{'Your Wallet'}</h3>
+							<div className={'flex items-center'}>
+								<h3 className={'mr-2 font-bold'}>{'Your Wallet'}</h3>
+								<button
+									onClick={props.onRefresh}
+									className={'text-neutral-600 hover:text-neutral-900'}>
+									<IconAppSwap className={'size-3'} />
+								</button>
+							</div>
 							<CloseCurtainButton />
 						</div>
 						{props.children}
@@ -380,7 +390,8 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 		<BalancesCurtainWrapper
 			isOpen={props.isOpen}
 			onOpenChange={props.onOpenChange}
-			appearAs={props.options.appearAs || 'curtain'}>
+			appearAs={props.options.appearAs || 'curtain'}
+			onRefresh={props.onRefresh}>
 			<div className={'flex h-full flex-col gap-4'}>
 				<input
 					className={cl(
@@ -458,7 +469,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoading, onRefresh} = useTokensWithBalance();
 	const {listTokens} = usePopularTokens();
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
@@ -525,6 +536,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 			{props.children}
 			<BalancesCurtain
 				isOpen={shouldOpenCurtain}
+				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
 				allTokens={allTokensToUse}
 				isLoading={isLoading}
