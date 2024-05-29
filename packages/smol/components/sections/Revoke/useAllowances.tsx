@@ -1,4 +1,4 @@
-import {createContext, useCallback, useContext, useReducer, useRef, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
 import {
 	type TAllowances,
 	type TApproveEventEntry,
@@ -55,7 +55,8 @@ const defaultProps: TRevokeContext = {
 	isDoneWithInitialFetch: false,
 	isLoading: false,
 	allowanceFetchingFromBlock: 0n,
-	allowanceFetchingToBlock: 0n
+	allowanceFetchingToBlock: 0n,
+	isLoadingInitialDB: false
 };
 
 /**********************************************************************************************
@@ -94,6 +95,7 @@ export const RevokeContextApp = (props: {
 	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
 
 	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[]>([]);
+	const [isLoadingInitialDB, set_isLoadingInitialDB] = useState(true);
 	const {getAll, add, deleteByID} = useIndexedDBStore<TApproveEventEntry>('approve-events');
 	const {currentEntry, updateChainSyncEntry} = useApproveEventsChainSync();
 	const currentIdentifier = useRef<string | undefined>();
@@ -157,7 +159,7 @@ export const RevokeContextApp = (props: {
 	 ** with the same data.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		if (!allowances || allowances.length < 1 || !safeChainID || !isAddress(address)) {
+		if (!allowances || allowances.length < 1 || !safeChainID || !isAddress(address) || !isDoneWithInitialFetch) {
 			return;
 		}
 
@@ -226,8 +228,7 @@ export const RevokeContextApp = (props: {
 		 ** Here we're expanding allowances array using the dictionary, and we are also saving the
 		 ** data in the indexedDB.
 		 *****************************************************************************************/
-		const _expandedAllowances: TExpandedAllowance[] = [];
-		for (const allowance of allowances) {
+		const promises = allowances.map(async allowance => {
 			const item = {
 				address: allowance.address,
 				args: allowance.args,
@@ -242,7 +243,7 @@ export const RevokeContextApp = (props: {
 				chainID: allowance.chainID,
 				logIndex: allowance.logIndex
 			};
-			addApproveEventEntry({
+			return addApproveEventEntry({
 				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.logIndex}`,
 				address: item.address,
 				blockNumber: item.blockNumber,
@@ -256,8 +257,9 @@ export const RevokeContextApp = (props: {
 				name: item.name,
 				logIndex: item.logIndex
 			});
-			_expandedAllowances.push(item);
-		}
+		});
+
+		await Promise.all(promises);
 
 		/******************************************************************************************
 		 ** Here, we are dealing with indexDB and making sure it's up to date.
@@ -269,7 +271,6 @@ export const RevokeContextApp = (props: {
 		const itemsFromDB = await getAll();
 		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
 		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
-
 		/******************************************************************************************
 		 ** And finally, we are formatting the allowances to be displayed in the UI.
 		 *****************************************************************************************/
@@ -285,20 +286,27 @@ export const RevokeContextApp = (props: {
 			});
 		}
 		const filteredAllowances = _formatedAllowances.filter(
-			item => item.args.owner === address && item.chainID === safeChainID
+			item => isAddressEqual(item.args.owner, address) && item.chainID === safeChainID
 		);
 		set_chainFilteredAllowances(filteredAllowances);
+		set_isLoadingInitialDB(false);
 	}, [
-		addApproveEventEntry,
-		address,
 		allowances,
-		chainFilteredAllowances,
-		fromBlock,
-		getAll,
 		safeChainID,
+		address,
+		isDoneWithInitialFetch,
+		fromBlock,
 		toBlock,
-		updateChainSyncEntry
+		getAll,
+		chainFilteredAllowances,
+		updateChainSyncEntry,
+		set_isLoadingInitialDB,
+		addApproveEventEntry
 	]);
+
+	useEffect(() => {
+		set_isLoadingInitialDB(true);
+	}, [chainID]);
 
 	/**********************************************************************************************
 	 ** We sequentially apply filters to the allowances based on the provided filter object. First,
@@ -365,7 +373,8 @@ export const RevokeContextApp = (props: {
 			isDoneWithInitialFetch,
 			isLoading: isLoadingAllowances,
 			allowanceFetchingFromBlock: fromBlock || 0n,
-			allowanceFetchingToBlock: toBlock || 0n
+			allowanceFetchingToBlock: toBlock || 0n,
+			isLoadingInitialDB
 		}),
 		[
 			chainFilteredAllowances,
@@ -374,7 +383,8 @@ export const RevokeContextApp = (props: {
 			isDoneWithInitialFetch,
 			isLoadingAllowances,
 			fromBlock,
-			toBlock
+			toBlock,
+			isLoadingInitialDB
 		]
 	);
 

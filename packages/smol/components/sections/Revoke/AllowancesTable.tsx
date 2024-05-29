@@ -42,9 +42,21 @@ const tableColumns = [
 ];
 
 function TokenFetchingLoader(): ReactElement {
-	const {isDoneWithInitialFetch, allowanceFetchingFromBlock, allowanceFetchingToBlock} = useAllowances();
+	const {isDoneWithInitialFetch, allowanceFetchingFromBlock, allowanceFetchingToBlock, isLoadingInitialDB} =
+		useAllowances();
 
-	if (isDoneWithInitialFetch) {
+	const getMessage = (): string => {
+		if (allowanceFetchingToBlock === 0n) {
+			return 'Analyzing past blocks ...';
+		}
+
+		if (isLoadingInitialDB && isDoneWithInitialFetch) {
+			return 'Double-checking everything...';
+		}
+		return `Analyzing past blocks ${formatAmount((Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock)) * 100, 2, 2)}%`;
+	};
+
+	if (isDoneWithInitialFetch && !isLoadingInitialDB) {
 		return <Fragment />;
 	}
 
@@ -61,18 +73,14 @@ function TokenFetchingLoader(): ReactElement {
 					}}
 				/>
 			</div>
-			<p className={'text-xs text-neutral-600'}>
-				{allowanceFetchingToBlock === 0n
-					? 'Analyzing past blocks ...'
-					: `Analyzing past blocks ${formatAmount((Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock)) * 100, 2, 2)}%`}
-			</p>
+			<p className={'text-xs text-neutral-600'}>{getMessage()}</p>
 		</div>
 	);
 }
 
 export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactElement => {
-	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch} = useAllowances();
-	const isFetchingData = !isDoneWithInitialFetch || isLoading;
+	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
+	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB;
 	const hasNothingToRevoke = (!allowances || allowances.length === 0) && !isFetchingData;
 	const {address, onConnect} = useWeb3();
 

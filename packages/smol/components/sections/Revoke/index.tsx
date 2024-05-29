@@ -2,15 +2,14 @@ import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {formatAmount, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
+import {Counter} from '@lib/common/Counter';
 import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
 import {IconPlus} from '@lib/icons/IconPlus';
-import {IconSpinner} from '@lib/icons/IconSpinner';
 import {Button} from '@lib/primitives/Button';
 import {isDev} from '@lib/utils/tools.chains';
-import {isUnlimitedNumber} from '@lib/utils/tools.revoke';
 
 import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
@@ -57,28 +56,20 @@ export function Revoke(): ReactElement {
 	/**********************************************************************************************
 	 ** We summarize all allowances values multiplied by their prices to get total value at risk.
 	 *********************************************************************************************/
-	const totalValueAtRist = useDeepCompareMemo(() => {
-		if (isLoading) {
-			return (
-				<span className={'mt-2 flex w-full justify-center'}>
-					<IconSpinner />
-				</span>
-			);
-		}
-		if (!prices) {
-			return 'N/A';
+	const totalValueAtRisk = useDeepCompareMemo(() => {
+		if (!prices || isLoading) {
+			return 0;
 		}
 
-		const total = uniqueAllowancesByToken.reduce((acc, curr) => {
-			const val = isUnlimitedNumber(curr.value)
-				? curr.balance.normalized * prices[toAddress(curr.address)].normalized
-				: curr.value * prices[toAddress(curr.address)].normalized;
-			return acc + val;
+		const total = uniqueAllowancesByToken.reduce((sum, curr) => {
+			const amountInUSD =
+				curr.value > curr.balance.normalized
+					? curr.balance.normalized * prices[toAddress(curr.address)].normalized
+					: curr.value * prices[toAddress(curr.address)].normalized;
+			return sum + amountInUSD;
 		}, 0);
 
-		const formattedTotal = formatAmount(total, 2);
-
-		return `$${formattedTotal}`;
+		return total;
 	}, [isLoading, prices, uniqueAllowancesByToken]);
 
 	/**********************************************************************************************
@@ -121,7 +112,13 @@ export function Revoke(): ReactElement {
 
 			<div className={'mt-6 w-min'}>
 				<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
-				<p className={'text-[40px] font-semibold text-neutral-900'}>{totalValueAtRist}</p>
+				<p className={'text-[40px] font-semibold text-neutral-900'}>
+					{'$'}
+					<Counter
+						value={totalValueAtRisk}
+						decimals={2}
+					/>
+				</p>
 			</div>
 
 			<AllowancesFilters />

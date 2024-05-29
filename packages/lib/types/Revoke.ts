@@ -69,6 +69,7 @@ export type TRevokeContext = {
 	isLoading: boolean;
 	allowanceFetchingFromBlock: bigint;
 	allowanceFetchingToBlock: bigint;
+	isLoadingInitialDB?: boolean;
 };
 
 /**************************************************************************************************

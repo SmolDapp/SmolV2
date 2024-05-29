@@ -13,21 +13,23 @@ export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
 
 /**************************************************************************************************
  ** This utility assists us in sorting approval events based on their blockNumber to obtain the
- ** most recent ones and filter out those with null values.
+ ** most recent ones and filter out those with null values. If block numbers are the same, we're
+ ** supposed to compare them by logIndex.
  *************************************************************************************************/
 export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowances => {
-	const senderMap = approvalEvents.reduce((map: {[key: string]: TAllowance}, obj: TAllowance) => {
-		if (obj.args.sender in map) {
-			if (obj.blockNumber > map[obj.args.sender].blockNumber) {
-				map[obj.args.sender] = obj;
-			}
-		} else {
-			map[obj.args.sender] = obj;
+	const filteredEvents = approvalEvents.reduce((acc: {[key: string]: TAllowance}, event: TAllowance) => {
+		const key = `${event.address}-${event.args.sender}`;
+		if (
+			!acc[key] ||
+			event.blockNumber > acc[key].blockNumber ||
+			(event.blockNumber === acc[key].blockNumber && event.logIndex > acc[key].logIndex)
+		) {
+			acc[key] = event;
 		}
-		return map;
+		return acc;
 	}, {});
 
-	const resultArray: TAllowances = filterNotEmptyEvents(Object.values(senderMap));
+	const resultArray: TAllowances = filterNotEmptyEvents(Object.values(filteredEvents));
 
 	return resultArray;
 };
