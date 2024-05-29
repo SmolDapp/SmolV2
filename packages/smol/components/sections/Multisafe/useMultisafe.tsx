@@ -38,8 +38,17 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 	const [owners, set_owners] = useState<TInputAddressLikeWithUUID[]>([
 		{...defaultInputAddressLike, UUID: crypto.randomUUID()}
 	]);
+
+	const uniqueCoingeckoGasCoinIDs = useMemo(() => {
+		const uniques = [];
+		for (const item of Object.values(CHAINS)) {
+			uniques.push(item.coingeckoGasCoinID);
+		}
+		return [...new Set(uniques)].join(',');
+	}, []);
+
 	const {data: chainCoinPrices} = useSWR<TPriceFromGecko>(
-		`https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(CHAINS).map(e => e.coingeckoGasCoinID)}&vs_currencies=usd`,
+		`https://api.coingecko.com/api/v3/simple/price?ids=${uniqueCoingeckoGasCoinIDs}&vs_currencies=usd`,
 		baseFetcher,
 		{refreshInterval: 10_000}
 	);
