@@ -294,7 +294,6 @@ export default function MultisafeClonableWrapper(): ReactElement {
 	);
 }
 
-MultisafeClonableWrapper.AppName = 'Clone Your Safe!';
-MultisafeClonableWrapper.AppDescription =
-	'Choose the networks for deploying your cloned Safe. Expand your secure asset management to new blockchains effortlessly.';
+MultisafeClonableWrapper.AppName = 'Make your Safe a Multisafe';
+MultisafeClonableWrapper.AppDescription = 'Clone your existing Safe and give it the same address on every chain.';
 MultisafeClonableWrapper.AppInfo = <MultisafeAppInfo />;

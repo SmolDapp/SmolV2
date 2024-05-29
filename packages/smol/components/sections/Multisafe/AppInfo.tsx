@@ -22,18 +22,24 @@ function MultisafeAppInfo(): ReactElement {
 					}
 				</p>
 				<p className={'py-4 text-sm'}>
-					{'Built on the '}
+					{'Multisafe is built on '}
 					<Link
 						href={'https://safe.global'}
 						target={'_blank'}
 						className={'text-[#00B460] underline'}>
 						{'Safe protocol'}
 					</Link>
+					{' and Safe’s smart contracts to enable users to have the same Safe address on every chain.'}
+				</p>
+				<p className={'pb-4 text-sm'}>
+					{'The same security you know and love from Safe, but now with a consistent address above chains.'}
+				</p>
+				<p className={'pb-4 text-sm'}>{'Smol charges a smol fee of $4.20 per deployment.'}</p>
+				<p className={'text-sm'}>
 					{
-						", it's perfect for individuals, companies, and DAOs looking to manage their crypto treasuries efficiently. With easy setup and cost-effective deployment, MultiSafe ensures you have complete control over your cross-chain crypto assets."
+						'Please note, that some Safe’s that were deployed via Safe’s legacy contract cannot be cloned to new chains.'
 					}
 				</p>
-				<p className={'text-sm'}>{'Smol charges a smol fee of $4.20 per deployment.'}</p>
 			</div>
 		</div>
 	);

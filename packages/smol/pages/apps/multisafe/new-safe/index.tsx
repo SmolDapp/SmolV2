@@ -539,5 +539,5 @@ export default function MultisafeNewWrapper(): ReactElement {
 
 MultisafeNewWrapper.AppName = 'One new Safe, coming right up.';
 MultisafeNewWrapper.AppDescription =
-	"Choose your Safe's owners, define the threshold, and customize with a prefix or suffix. Create your secure Safe with ease.";
+	'Create your Multisafe by choosing it’s owners, and setting the amount of signers needed for transactions. (P.s you can customise your safe with a prefix and suffix if you want).';
 MultisafeNewWrapper.AppInfo = <MultisafeAppInfo />;

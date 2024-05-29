@@ -40,7 +40,7 @@ function NavItem({
 	return (
 		<motion.li className={'relative z-10 px-4'}>
 			<LinkOrDiv
-				href={hasSubmenu ? '' : href}
+				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
 				onClick={onClick}>
 				<div

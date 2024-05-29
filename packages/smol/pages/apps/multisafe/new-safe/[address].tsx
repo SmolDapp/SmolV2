@@ -185,7 +185,7 @@ export default function MultisafeDeployNewWrapper(): ReactElement {
 	);
 }
 
-MultisafeDeployNewWrapper.AppName = 'Deploy Your Safe';
+MultisafeDeployNewWrapper.AppName = 'One new Safe, coming right up.';
 MultisafeDeployNewWrapper.AppDescription =
-	'Select the networks where you want your newly created Safe to be deployed and ensure your assets are protected across multiple chains.';
+	'Create your Multisafe by choosing it’s owners, and setting the amount of signers needed for transactions. (P.s you can customise your safe with a prefix and suffix if you want).';
 MultisafeDeployNewWrapper.AppInfo = <MultisafeAppInfo />;

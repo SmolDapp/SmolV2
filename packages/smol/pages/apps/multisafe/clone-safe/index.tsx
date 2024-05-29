@@ -281,7 +281,6 @@ export default function MultisafeCloneWrapper(): ReactElement {
 	);
 }
 
-MultisafeCloneWrapper.AppName = 'Clone Your Safe';
-MultisafeCloneWrapper.AppDescription =
-	"Enter an existing Safe address to clone it onto another network. Duplicate your Safe's security and functionality seamlessly.";
+MultisafeCloneWrapper.AppName = 'Make your Safe a Multisafe';
+MultisafeCloneWrapper.AppDescription = 'Clone your existing Safe and give it the same address on every chain.';
 MultisafeCloneWrapper.AppInfo = <MultisafeAppInfo />;

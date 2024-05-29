@@ -41,7 +41,7 @@ export default function MultisafeWrapper(): ReactElement {
 	);
 }
 
-MultisafeWrapper.AppName = 'MultiSafe';
+MultisafeWrapper.AppName = 'Welcome to Multisafe';
 MultisafeWrapper.AppDescription =
-	'Make your multi-sig, multi-chain: get the same Safe address on all chains. Wow, fancy!';
+	'Get the same Safe address on every chain. Either create a new safe, or clone an existing one to start.';
 MultisafeWrapper.AppInfo = <MultisafeAppInfo />;

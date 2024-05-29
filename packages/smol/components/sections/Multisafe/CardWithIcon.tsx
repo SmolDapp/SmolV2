@@ -15,7 +15,7 @@ export type TCardWithIcon = {
 export default function CardWithIcon({onClick, label, icon, description}: TCardWithIcon): ReactElement {
 	return (
 		<button
-			className={cl('hover box-0 group relative flex w-full justify-center p-4 md:p-6')}
+			className={cl('hover box-0 !border-neutral-400/60 group relative flex w-full justify-center p-4 md:p-6')}
 			onClick={onClick}>
 			<div className={'relative flex w-full flex-col gap-2'}>
 				<div className={'flex w-full items-center gap-2 md:items-start md:gap-4'}>
