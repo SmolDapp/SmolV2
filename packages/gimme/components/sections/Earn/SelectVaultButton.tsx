@@ -67,7 +67,6 @@ export function SelectOpportunityButton({
 										/>
 									</div>
 									<p className={'w-full break-normal text-left font-bold'}>
-										{/* {'USDT Optimism v2 very long name'} */}
 										{configuration.opportunity.name}
 									</p>
 								</div>

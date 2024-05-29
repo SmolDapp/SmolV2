@@ -6,14 +6,14 @@ import {deserialize, serialize} from 'wagmi';
 import {numberSort, percentOf} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useMountEffect} from '@react-hookz/web';
 
-import type {TAddress, TDict, TNormalizedBN, TSortDirection} from '@builtbymom/web3/types';
+import type {TDict, TNDict, TNormalizedBN, TSortDirection} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TPossibleSortBy = 'apy' | 'savings' | 'yield' | '';
 
 export const useSortedVaults = (
 	userVaultsArray: TYDaemonVault[],
-	vaultTokenPrices: {data: {[key: TAddress]: TNormalizedBN} | undefined; isLoading: boolean; isSuccess: boolean},
+	vaultTokenPrices: {result: TNDict<TDict<TNormalizedBN>> | undefined; isLoading: boolean; isSuccess: boolean},
 	balances: TDict<TNormalizedBN>
 ): {
 	sortBy: TPossibleSortBy;
@@ -70,7 +70,7 @@ export const useSortedVaults = (
 
 	const sortyedBySavings = useMemo((): TYDaemonVault[] => {
 		if (
-			Object.values(vaultTokenPrices.data || {}).length === 0 ||
+			Object.values(vaultTokenPrices).length === 0 ||
 			vaultTokenPrices.isLoading ||
 			Object.values(balances).length === 0
 		) {
@@ -78,8 +78,8 @@ export const useSortedVaults = (
 		}
 
 		return userVaultsArray.toSorted((a, b): number => {
-			const aTokenPrice = vaultTokenPrices.data?.[a.token.address].normalized || 0;
-			const bTokenPrice = vaultTokenPrices.data?.[b.token.address].normalized || 0;
+			const aTokenPrice = vaultTokenPrices.result?.[a.chainID]?.[a.token.address].normalized || 0;
+			const bTokenPrice = vaultTokenPrices.result?.[b.chainID]?.[b.token.address].normalized || 0;
 
 			const aBalance = a.staking.available
 				? getStakingTokenBalance({address: a.staking.address, chainID: a.chainID}).normalized
@@ -98,19 +98,12 @@ export const useSortedVaults = (
 				sortDirection
 			});
 		});
-	}, [
-		balances,
-		getStakingTokenBalance,
-		sortDirection,
-		userVaultsArray,
-		vaultTokenPrices.data,
-		vaultTokenPrices.isLoading
-	]);
+	}, [balances, getStakingTokenBalance, sortDirection, userVaultsArray, vaultTokenPrices]);
 
 	const sortedByYield = useMemo(() => {
 		return userVaultsArray.toSorted((a, b): number => {
-			const aTokenPrice = vaultTokenPrices.data?.[a.token.address].normalized || 0;
-			const bTokenPrice = vaultTokenPrices.data?.[b.token.address].normalized || 0;
+			const aTokenPrice = vaultTokenPrices.result?.[a.chainID]?.[a.token.address].normalized || 0;
+			const bTokenPrice = vaultTokenPrices.result?.[b.chainID]?.[b.token.address].normalized || 0;
 
 			const aBalance = a.staking.available
 				? getStakingTokenBalance({address: a.staking.address, chainID: a.chainID}).normalized
@@ -129,7 +122,7 @@ export const useSortedVaults = (
 				sortDirection
 			});
 		});
-	}, [balances, getStakingTokenBalance, sortDirection, userVaultsArray, vaultTokenPrices.data]);
+	}, [balances, getStakingTokenBalance, sortDirection, userVaultsArray, vaultTokenPrices.result]);
 
 	const stringifiedVaultList = serialize(userVaultsArray);
 	const sortedVaults = useMemo((): TYDaemonVault[] => {

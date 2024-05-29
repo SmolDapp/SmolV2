@@ -5,7 +5,7 @@ import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {isAddress, isZeroAddress, toAddress} from '@builtbymom/web3/utils';
+import {isAddress, isZeroAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
@@ -98,7 +98,14 @@ export function Earn(): ReactElement {
 	const onClearAsset = useCallback(() => {
 		dispatchConfiguration({
 			type: 'SET_ASSET',
-			payload: {token: undefined}
+			payload: {
+				amount: '',
+				normalizedBigAmount: zeroNormalizedBN,
+				isValid: 'undetermined',
+				token: undefined,
+				status: 'none',
+				UUID: crypto.randomUUID()
+			}
 		});
 	}, [dispatchConfiguration]);
 

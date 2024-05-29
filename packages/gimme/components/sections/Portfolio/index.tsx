@@ -4,12 +4,12 @@ import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
+import {useMultiChainPrices} from '@builtbymom/web3/hooks/useMultiChainPrices';
 import {type TDict, type TNormalizedBN, type TSortDirection} from '@builtbymom/web3/types';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {Counter} from '@gimmeDesignSystem/Counter';
 import {readContracts} from '@wagmi/core';
+import {Counter} from '@lib/common/Counter';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
@@ -39,12 +39,12 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 
 export function Portfolio(): ReactNode {
 	const {userVaults, userVaultsArray, isLoadingUserVaults} = useVaults();
-	const {address, chainID} = useWeb3();
+	const {address} = useWeb3();
 	const [balances, set_balances] = useState<TDict<TNormalizedBN>>({});
 	const {data: blockNumber} = useBlockNumber({watch: true});
 
 	const isEmpty = userVaultsArray.length === 0;
-	const vaultTokenPrices = usePrices({
+	const vaultTokenPrices = useMultiChainPrices({
 		tokens: userVaultsArray.map(vault => ({
 			address: vault.token.address,
 			chainID: vault.chainID,
@@ -53,8 +53,7 @@ export function Portfolio(): ReactNode {
 			decimals: vault.token.decimals,
 			balance: zeroNormalizedBN,
 			value: 0
-		})),
-		chainId: chainID
+		}))
 	});
 
 	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(
@@ -125,9 +124,11 @@ export function Portfolio(): ReactNode {
 			}
 
 			const vaultTokenAddress = userVaults[balance].token.address;
+			const vaultChainId = userVaults[balance].chainID;
 
 			const usdValue =
-				balances[balance].normalized * (vaultTokenPrices.data?.[vaultTokenAddress]?.normalized || 0);
+				balances[balance].normalized *
+				(vaultTokenPrices.result?.[vaultChainId]?.[vaultTokenAddress]?.normalized || 0);
 			balancesUsd.push(usdValue);
 		}
 
@@ -151,7 +152,7 @@ export function Portfolio(): ReactNode {
 					<VaultRow
 						key={vault.address}
 						vault={vault}
-						price={vaultTokenPrices.data?.[vault.token.address]}
+						price={vaultTokenPrices.result?.[vault.chainID]?.[vault.token.address]}
 						balance={balances[vault.address] || zeroNormalizedBN}
 					/>
 				))}

@@ -1,6 +1,6 @@
 import {Fragment, type ReactElement, useCallback, useState} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatPercent} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
@@ -22,17 +22,27 @@ export function SelectVault({
 	filteredVaults: TYDaemonVault[];
 }): ReactElement {
 	const {configuration} = useEarnFlow();
-	const {safeChainID} = useChainID();
+	const {chainID, address} = useWeb3();
 
 	const {data: prices} = usePrices({
 		tokens: configuration.asset.token ? [configuration.asset.token] : [],
-		chainId: safeChainID
+		chainId: chainID
 	});
 	const price = prices && configuration.asset.token ? prices[configuration.asset.token.address] : undefined;
 
 	const [vaultInfo, set_vaultInfo] = useState<TYDaemonVault | undefined>(undefined);
 
 	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
+
+	const getDescription = useCallback((): string => {
+		if (!address) {
+			return "Here's all the Opportunties. Connect wallet to deposit into any of them!";
+		}
+		if (configuration.asset.token?.address) {
+			return "Here's the list of Opportunities that are linked to the selected asset. You can clear the asset to see all the Opportunities";
+		}
+		return "Here's all the Opportunites, room for choosing!";
+	}, [address, configuration.asset.token?.address]);
 
 	return (
 		<Transition
@@ -87,17 +97,14 @@ export function SelectVault({
 										/>
 									</button>
 								</div>
-								<p className={'w-full px-4 pb-4 pt-2 text-left text-neutral-600'}>
-									{configuration.asset.token?.address
-										? "Here's the list of Opportunities that are linked to the selected asset. You can clear the asset to see all the Opportunities"
-										: "Here's all the Opportunites, room for choosing!"}
-								</p>
+								<p className={'w-full px-4 pb-4 pt-2 text-left text-neutral-600'}>{getDescription()}</p>
 								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
 									{filteredVaults.map(vault => (
 										<Vault
 											key={`${vault.address}-${vault.chainID}`}
 											vault={vault}
 											price={price}
+											isDisabled={!address}
 											onSelect={onSelect}
 											onClose={onClose}
 											onChangeVaultInfo={onChangeVaultInfo}

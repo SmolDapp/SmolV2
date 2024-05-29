@@ -4,7 +4,7 @@ import {useRouter} from 'next/router';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
-import {Counter} from '@gimmeDesignSystem/Counter';
+import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
@@ -81,9 +81,17 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						/>
 					</p>
 					<p className={'text-xs'}>
-						{props.price?.normalized
-							? formatCounterValue(props.balance.normalized, props.price?.normalized)
-							: 'N/A'}
+						{'$'}
+						<Counter
+							value={
+								props.balance.normalized && props.price?.normalized
+									? props.balance.normalized * props.price.normalized
+									: 0
+							}
+							idealDecimals={2}
+							decimals={props.vault.decimals}
+							decimalsToDisplay={[6]}
+						/>
 					</p>
 				</div>
 				<div className={'group col-span-2 mb-4 flex flex-row items-center justify-end'}>

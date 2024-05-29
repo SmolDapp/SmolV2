@@ -38,6 +38,7 @@ export function SmolTokenAmountInput({
 	const [selectedTokenBalance, set_selectedTokenBalance] = useState<TNormalizedBN>(
 		selectedToken?.balance ?? zeroNormalizedBN
 	);
+
 	const {result, validate} = useValidateAmountInput();
 	const {data: prices} = usePrices({
 		tokens: selectedToken ? [selectedToken] : [],

@@ -32,12 +32,14 @@ function VaultRisk({value}: {value: 'low' | 'medium' | 'high'}): ReactElement {
 export function Vault({
 	vault,
 	price,
+	isDisabled = false,
 	onSelect,
 	onClose,
 	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
 	price: TNormalizedBN | undefined;
+	isDisabled: boolean;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
 	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
@@ -46,25 +48,19 @@ export function Vault({
 	const {token, name, apr} = vault;
 	const {validate} = useValidateAmountInput();
 	const {getBalance} = useWallet();
-	const {onConnect, address, chainID} = useWeb3();
+	const {chainID} = useWeb3();
 	const {switchChainAsync} = useSwitchChain();
 	const {connector} = useAccount();
 
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
 
 	const onSelectVault = useCallback(async () => {
-		if (!address) {
-			onConnect();
-		}
-
 		if (vault.chainID !== chainID) {
 			await switchChainAsync({connector, chainId: vault.chainID});
 		}
 
 		onSelect(vault);
 		onClose();
-
-		await new Promise(resolve => setTimeout(resolve, 500)); // sleep
 
 		if (configuration.asset.token?.address !== vault.token.address) {
 			const balance = getBalance({
@@ -84,14 +80,12 @@ export function Vault({
 			dispatchConfiguration({type: 'SET_ASSET', payload: validatedAssetInput});
 		}
 	}, [
-		address,
 		chainID,
 		configuration.asset.token?.address,
 		connector,
 		dispatchConfiguration,
 		getBalance,
 		onClose,
-		onConnect,
 		onSelect,
 		switchChainAsync,
 		validate,
@@ -100,10 +94,11 @@ export function Vault({
 
 	return (
 		<div
-			className={
-				'flex w-full cursor-pointer justify-between rounded-md px-4 py-3 transition-colors hover:bg-neutral-200'
-			}
-			onClick={onSelectVault}>
+			className={cl(
+				'flex w-full justify-between rounded-md px-4 py-3 transition-colors hover:bg-neutral-200',
+				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+			)}
+			onClick={isDisabled ? undefined : onSelectVault}>
 			<div className={'relative flex items-center gap-4'}>
 				<div className={'absolute -left-1 top-0'}>
 					<ImageWithFallback
