@@ -11,14 +11,11 @@ function SwapAppInfo(): ReactElement {
 					playsInline
 					className={'aspect-video cursor-pointer rounded-lg'}
 					onClick={(e): void => {
-						//pin it to top left wih 50% vw
-						// clone video element and append it to body
 						const video = e.currentTarget;
 						video.pause();
 
 						//clone video
 						const clonedVideo = video.cloneNode(true) as HTMLVideoElement;
-						//start cloned video time from current video time
 						clonedVideo.currentTime = video.currentTime;
 						clonedVideo.style.position = 'fixed';
 						clonedVideo.style.left = '50%';
@@ -28,9 +25,10 @@ function SwapAppInfo(): ReactElement {
 						clonedVideo.style.zIndex = '1000001';
 						clonedVideo.style.cursor = 'pointer';
 						clonedVideo.id = 'backdrop-content';
-						clonedVideo.onclick = (): void => {
+						clonedVideo.onclick = (e): void => {
 							backdrop.remove();
 							clonedVideo.remove();
+							video.currentTime = (e.currentTarget as HTMLVideoElement).currentTime;
 							video.play();
 						};
 
@@ -45,11 +43,11 @@ function SwapAppInfo(): ReactElement {
 						backdrop.style.cursor = 'pointer';
 						backdrop.id = 'backdrop';
 						backdrop.onclick = (): void => {
+							video.currentTime = clonedVideo.currentTime;
 							backdrop.remove();
 							clonedVideo.remove();
 							video.play();
 						};
-						//prepend child
 						document.body?.prepend(clonedVideo);
 						document.body?.prepend(backdrop);
 					}}
