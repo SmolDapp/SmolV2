@@ -1,18 +1,21 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress, truncateHex, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from '@smolSections/Multisafe/constants';
-import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
+import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
 import {createUniqueID, decodeArgInitializers} from '@smolSections/Multisafe/utils';
 import {getTransaction, serialize} from '@wagmi/core';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {Warning} from '@lib/common/Warning';
+import {IconDoc} from '@lib/icons/IconDoc';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 import {CHAINS} from '@lib/utils/tools.chains';
 
@@ -43,7 +46,9 @@ const defaultExistingSafeArgs: TExistingSafeArgs = {
 function Safe(): ReactElement {
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
+	const plausible = usePlausible();
 	const [isInfoOpen, set_isInfoOpen] = useState<boolean>(false);
+	const {onClickFAQ} = useMultisafe();
 	const [safe, set_safe] = useState<TInputAddressLike>(defaultInputAddressLike);
 	const [existingSafeArgs, set_existingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
@@ -199,6 +204,18 @@ function Safe(): ReactElement {
 
 	return (
 		<div className={'md:max-w-108 grid w-full max-w-full gap-4'}>
+			<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
+				<Button
+					className={'!h-8 !text-xs'}
+					variant={'light'}
+					onClick={() => {
+						plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
+						onClickFAQ();
+					}}>
+					<IconDoc className={'mr-2 size-3'} />
+					{'View FAQ'}
+				</Button>
+			</div>
 			<div>
 				<div className={'mb-2'}>
 					<p className={'text-sm font-medium md:text-base'}>{'Safe Address'}</p>

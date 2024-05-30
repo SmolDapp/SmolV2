@@ -24,6 +24,7 @@ export function App(props: TAppProp): ReactElement {
 				<InfoCurtain
 					trigger={
 						<div
+							id={'info-curtain-trigger'}
 							className={cl(
 								'size-4 md:size-8 rounded-full absolute right-4 top-4',
 								'bg-neutral-200 transition-colors hover:bg-neutral-300',

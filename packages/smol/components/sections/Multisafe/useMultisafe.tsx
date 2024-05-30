@@ -5,8 +5,6 @@ import {baseFetcher, isZeroAddress} from '@builtbymom/web3/utils';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 import {CHAINS} from '@lib/utils/tools.chains';
 
-import {MultisafeFAQCurtain} from './FAQ';
-
 import type {TAddress, TDict} from '@builtbymom/web3/types';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
@@ -38,7 +36,6 @@ const defaultProps: TMultisafeProps = {
 
 const MultisafeContext = createContext<TMultisafeProps>(defaultProps);
 export const MultisafeContextApp = ({children}: {children: React.ReactElement}): React.ReactElement => {
-	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [threshold, set_threshold] = useState(1);
 	const [owners, set_owners] = useState<TInputAddressLikeWithUUID[]>([
 		{...defaultInputAddressLike, UUID: crypto.randomUUID()}
@@ -100,20 +97,12 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 			onUpdateOwner: onUpdateOwnerByUUID,
 			onRemoveOwner: onRemoveOwnerByUUID,
 			chainCoinPrices: chainCoinPrices || {},
-			onClickFAQ: () => set_shouldOpenCurtain(true)
+			onClickFAQ: () => document.getElementById('info-curtain-trigger')?.click()
 		}),
 		[threshold, owners, onAddOwner, onSetOwners, onUpdateOwnerByUUID, onRemoveOwnerByUUID, chainCoinPrices]
 	);
 
-	return (
-		<MultisafeContext.Provider value={contextValue}>
-			{children}
-			<MultisafeFAQCurtain
-				isOpen={shouldOpenCurtain}
-				onOpenChange={set_shouldOpenCurtain}
-			/>
-		</MultisafeContext.Provider>
-	);
+	return <MultisafeContext.Provider value={contextValue}>{children}</MultisafeContext.Provider>;
 };
 
 export const useMultisafe = (): TMultisafeProps => useContext(MultisafeContext);

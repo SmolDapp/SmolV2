@@ -43,7 +43,7 @@ export function InfoCurtain(props: TCurtainElement): ReactElement {
 						<h3 className={'font-bold'}>{'Info'}</h3>
 						<CloseCurtainButton />
 					</div>
-					<div className={'scrollable text-neutral-600'}>{props.info}</div>
+					<div className={'scrollable !-mr-4 !pr-3 text-neutral-600'}>{props.info}</div>
 				</aside>
 			</CurtainContent>
 		</Dialog.Root>
