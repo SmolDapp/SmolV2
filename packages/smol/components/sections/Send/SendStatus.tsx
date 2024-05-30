@@ -102,8 +102,10 @@ export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): React
 			return set_status({
 				message: (
 					<>
-						{'This is the first time you interact with this address, please be careful.'}
-						<TriggerAddressBookButton>{'Wanna add it to Address Book?'}</TriggerAddressBookButton>
+						<p className={'whitespace-normal'}>
+							{'This is the first time you interact with this address, please be careful. '}
+							<TriggerAddressBookButton>{'Wanna add it to Address Book?'}</TriggerAddressBookButton>
+						</p>
 					</>
 				),
 				type: 'warning'
