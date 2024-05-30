@@ -57,9 +57,6 @@ export function Wallet(): ReactElement {
 		if (!address) {
 			return <EmptyView onConnect={onConnect} />;
 		}
-		if (isLoading) {
-			return null;
-		}
 		if (searchTokenAddress) {
 			return (
 				<FetchedTokenButton
@@ -83,7 +80,9 @@ export function Wallet(): ReactElement {
 				/>
 			));
 		}
-
+		if (isLoading) {
+			return null;
+		}
 		if (searchValue !== '') {
 			return <p className={'text-center text-xs text-neutral-600'}>{'No tokens found'}</p>;
 		}
@@ -119,10 +118,10 @@ export function Wallet(): ReactElement {
 				disabled={!address}
 				onChange={e => set_searchValue(e.target.value)}
 			/>
-			{!searchTokenAddress && address && !searchValue && !isLoading && <WalletListHeader />}
+			{!searchTokenAddress && address && !searchValue && <WalletListHeader />}
 			<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 				{walletLayout}
-				{isLoading && !!address && <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />}
+				{isLoading && !!address && <IconLoader className={'mt-4 size-4 animate-spin text-neutral-900'} />}
 			</div>
 		</div>
 	);

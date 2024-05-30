@@ -25,7 +25,7 @@ type TUseHistoricalAllowances = {
 	getAllowancesForToken: (tokenAddress: TAddress, fromBlock: bigint) => Promise<void>;
 };
 function useHistoricalAllowances(props: {
-	tokenAddresses: TAddress[];
+	tokenAddresses: TAddress[] | undefined;
 	fromBlock: bigint | undefined;
 }): TUseHistoricalAllowances {
 	const {address} = useWeb3();

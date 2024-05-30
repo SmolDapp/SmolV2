@@ -147,7 +147,7 @@ export const RevokeContextApp = (props: {
 	 *********************************************************************************************/
 	const {allowances, fromBlock, toBlock, isDoneWithInitialFetch, isLoadingAllowances, getAllowancesForToken} =
 		useHistoricalAllowances({
-			tokenAddresses: isTokensLoading ? [] : listTokensWithBalance(chainID).map(item => item.address),
+			tokenAddresses: isTokensLoading ? undefined : listTokensWithBalance(chainID).map(item => item.address),
 			fromBlock: currentEntry ? currentEntry.blockNumber || 0n : -1n
 		});
 
@@ -159,7 +159,11 @@ export const RevokeContextApp = (props: {
 	 ** with the same data.
 	 *********************************************************************************************/
 	useAsyncTrigger(async () => {
-		if (!allowances || allowances.length < 1 || !safeChainID || !isAddress(address) || !isDoneWithInitialFetch) {
+		if (!allowances || !safeChainID || !isAddress(address) || !isDoneWithInitialFetch) {
+			return;
+		}
+		if (allowances.length < 1) {
+			set_isLoadingInitialDB(false);
 			return;
 		}
 
@@ -169,6 +173,7 @@ export const RevokeContextApp = (props: {
 		 *****************************************************************************************/
 		const uniqueAllowancesByToken = getUniqueAllowancesByToken(allowances);
 		if (!uniqueAllowancesByToken || uniqueAllowancesByToken.length < 1) {
+			set_isLoadingInitialDB(false);
 			return;
 		}
 
@@ -202,6 +207,7 @@ export const RevokeContextApp = (props: {
 		const data = await readContracts(retrieveConfig(), {contracts: calls});
 		const dictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} = {};
 		if (data.length < 4) {
+			set_isLoadingInitialDB(false);
 			// Stop if we don't have enough data
 			return;
 		}

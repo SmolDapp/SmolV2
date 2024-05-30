@@ -12,7 +12,7 @@ import type {TAddress} from '@builtbymom/web3/types';
 type TUseContractLogsProps = {
 	chainID: number;
 	owner: TAddress;
-	addresses: TAddress | TAddress[];
+	addresses: TAddress[] | undefined;
 	startBlock: bigint;
 	pageSize: bigint;
 	enabled: boolean;
@@ -101,6 +101,7 @@ export function useInfiniteApprovalLogs({
 	 ** in a single array.
 	 *********************************************************************************************/
 	const query = useInfiniteQuery({
+		retry: false,
 		queryKey: ['infinite_contract_logs', addresses, startBlock.toString(), chainID, owner],
 		queryFn: async ({pageParam}) => {
 			return getClient(chainID).getLogs({
@@ -125,7 +126,7 @@ export function useInfiniteApprovalLogs({
 			};
 		},
 		staleTime: Number.POSITIVE_INFINITY,
-		enabled: !isZeroAddress(owner) && addresses.length > 0 && enabled
+		enabled: !isZeroAddress(owner) && (addresses || []).length > 0 && enabled
 	});
 
 	/**********************************************************************************************
@@ -140,6 +141,28 @@ export function useInfiniteApprovalLogs({
 			set_isDoneWithInitialFetch(true);
 		}
 	}, [query.isFetching, query.hasNextPage, query, isDoneWithInitialFetch, endBlock]);
+
+	/**********************************************************************************************
+	 ** If addresses is undefined, this means that the tokens are still loading. If the number
+	 ** of addresses is 0, this means that there are no tokens to fetch logs for. In this case,
+	 ** we set the isDoneWithInitialFetch flag to true.
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (addresses !== undefined && addresses.length === 0) {
+			set_isDoneWithInitialFetch(true);
+		}
+	}, [addresses]);
+
+	/**********************************************************************************************
+	 ** If the query fails, we log the failure reason and set the isDoneWithInitialFetch flag to
+	 ** true.
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (query.failureReason) {
+			console.error(query.failureReason);
+			set_isDoneWithInitialFetch(true);
+		}
+	}, [query.failureReason]);
 
 	return {
 		data: query.data?.items || [],
