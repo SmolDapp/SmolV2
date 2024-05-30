@@ -69,7 +69,10 @@ export function Revoke(): ReactElement {
 	 ** This function opens curtain to choose extra tokens to check.
 	 *********************************************************************************************/
 	const handleOpenCurtain = (): void => {
-		onOpenCurtain(selected => dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected}));
+		onOpenCurtain(selected => dispatchConfiguration({type: 'SET_TOKEN_TO_CHECK', payload: selected}), {
+			chainID: chainID,
+			withTabs: true
+		});
 	};
 
 	return (
