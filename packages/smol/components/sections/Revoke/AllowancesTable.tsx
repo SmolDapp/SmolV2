@@ -6,7 +6,6 @@ import {EmptyView} from '@lib/common/EmptyView';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 
 import {AllowanceItem} from './AllowanceItem';
-import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 import {useSortedAllowances} from './useSortedAllowances';
 
@@ -87,7 +86,7 @@ function TokenFetchingLoader(): ReactElement {
 	);
 }
 
-export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactElement => {
+export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB;
 	const hasNothingToRevoke =
@@ -95,6 +94,11 @@ export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactE
 	const {address, onConnect} = useWeb3();
 
 	const {sortedAllowances} = useSortedAllowances(allowances || []);
+
+	/**********************************************************************************************
+	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
+	 ** allowance.
+	 *********************************************************************************************/
 
 	if (!isAddress(address)) {
 		return (
@@ -128,10 +132,9 @@ export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactE
 						suppressHydrationWarning
 						className={'w-full'}>
 						{sortedAllowances?.map(item => (
-							<AllowanceRow
+							<AllowanceItem
 								key={`${item.blockNumber}-${item.logIndex}`}
 								allowance={item}
-								revoke={revoke}
 								price={prices?.[toAddress(item.address)]}
 							/>
 						))}
@@ -142,7 +145,6 @@ export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactE
 				{allowances?.map(item => (
 					<AllowanceItem
 						key={`${item.blockNumber}-${item.logIndex}`}
-						revoke={revoke}
 						allowance={item}
 						price={prices?.[toAddress(item.address)]}
 					/>

@@ -1,14 +1,49 @@
-import {type ReactElement, useCallback, useMemo} from 'react';
+import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import React from 'react';
+import toast from 'react-hot-toast';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {formatAmount, formatTAmount, toAddress, toBigInt, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
+import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {IconSpinner} from '@lib/icons/IconSpinner';
 import {Button} from '@lib/primitives/Button';
+import {isDev} from '@lib/utils/tools.chains';
 import {isUnlimitedBN} from '@lib/utils/tools.revoke';
 
-import type {TAllowanceItemProps} from '@lib/types/Revoke';
+import {useAllowances} from './useAllowances';
 
-export const AllowanceItem = ({allowance, revoke, price}: TAllowanceItemProps): ReactElement => {
+import type {TAddress} from '@builtbymom/web3/types';
+import type {TAllowanceItemProps, TTokenAllowance} from '@lib/types/Revoke';
+
+export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactElement => {
+	const {dispatchConfiguration} = useAllowances();
+	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
+	const {provider} = useWeb3();
+	const {chainID, safeChainID} = useChainID();
+
+	/**********************************************************************************************
+	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
+	 ** allowance.
+	 *********************************************************************************************/
+	const revokeTokenAllowance = useCallback(
+		async (tokenToRevoke: TTokenAllowance, spender: TAddress): Promise<void> => {
+			if (!tokenToRevoke) {
+				return;
+			}
+			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
+			await approveERC20({
+				contractAddress: tokenToRevoke.address,
+				chainID: isDev ? chainID : safeChainID,
+				connector: provider,
+				spenderAddress: spender,
+				amount: 0n,
+				statusHandler: set_revokeStatus
+			});
+		},
+		[chainID, dispatchConfiguration, provider, safeChainID]
+	);
 	/**********************************************************************************************
 	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
 	 *********************************************************************************************/
@@ -49,10 +84,30 @@ export const AllowanceItem = ({allowance, revoke, price}: TAllowanceItemProps): 
 	 ** This function calls revoke function and lets us to revoke the allowance.
 	 *********************************************************************************************/
 	const onRevoke = useCallback(() => {
-		revoke({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
-	}, [allowance.address, allowance.args.sender, allowance.symbol, revoke]);
+		revokeTokenAllowance({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
+	}, [allowance.address, allowance.args.sender, allowance.symbol, revokeTokenAllowance]);
 
 	const {getToken} = useTokenList();
+
+	/**********************************************************************************************
+	 ** This function lets us to copy the address to the clipboard and show the info toast.
+	 *********************************************************************************************/
+	const onCopyAddress = useCallback((e: React.MouseEvent<HTMLButtonElement>, address: TAddress) => {
+		e.stopPropagation();
+		navigator.clipboard.writeText(toAddress(address));
+		toast.success(`Address copied to clipboard: ${toAddress(address)}`);
+	}, []);
+
+	/**********************************************************************************************
+	 ** This function returns either 'Revoke' label or spinner is revoke is in progress.
+	 *********************************************************************************************/
+	const getRevokeLabel = useCallback(() => {
+		if (revokeStatus.pending) {
+			return <IconSpinner />;
+		}
+
+		return 'Revoke';
+	}, [revokeStatus.pending]);
 
 	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
@@ -70,46 +125,110 @@ export const AllowanceItem = ({allowance, revoke, price}: TAllowanceItemProps): 
 	}, [allowance, getToken]);
 
 	return (
-		<div className={'rounded-lg border border-neutral-400 p-4'}>
-			<div className={'flex'}>
+		<>
+			<div className={'rounded-lg border border-neutral-400 p-4 md:hidden'}>
 				<div className={'flex'}>
-					<div>
-						<ImageWithFallback
-							alt={allowance.symbol ?? ''}
-							unoptimized
-							src={tokenIcon}
-							quality={90}
-							width={40}
-							height={40}
-						/>
-					</div>
-					<div className={'ml-4 flex flex-col'}>
-						<div className={'text-base font-bold'}>{allowance.symbol}</div>
+					<div className={'flex'}>
+						<div>
+							<ImageWithFallback
+								alt={allowance.symbol ?? ''}
+								unoptimized
+								src={tokenIcon}
+								quality={90}
+								width={40}
+								height={40}
+							/>
+						</div>
+						<div className={'ml-4 flex flex-col'}>
+							<div className={'text-base font-bold'}>{allowance.symbol}</div>
 
-						<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>{truncateHex(allowance.address, 5)}</p>
+							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
+								{truncateHex(allowance.address, 5)}
+							</p>
+						</div>
 					</div>
 				</div>
+				<div className={'mt-2 border-b border-neutral-300'}></div>
+				<div className={'mt-2.5'}>
+					<div className={'mt-1 flex w-full items-center justify-between'}>
+						<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
+						<p>{allowanceAmount}</p>
+					</div>
+					<div className={'mt-1  flex w-full items-center justify-between'}>
+						<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
+						<p className={'text-sm text-neutral-600'}>{tokenAmountInUSD}</p>
+					</div>
+					<div className={'mt-1 flex w-full items-center justify-between'}>
+						<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
+						<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
+					</div>
+					<Button
+						onClick={onRevoke}
+						className={'mt-4 !h-8 w-full text-sm font-bold'}>
+						{getRevokeLabel()}
+					</Button>
+				</div>
 			</div>
-			<div className={'mt-2 border-b border-neutral-300'}></div>
-			<div className={'mt-2.5'}>
-				<div className={'mt-1 flex w-full items-center justify-between'}>
-					<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
-					<p>{allowanceAmount}</p>
-				</div>
-				<div className={'mt-1  flex w-full items-center justify-between'}>
-					<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
-					<p className={'text-sm text-neutral-600'}>{tokenAmountInUSD}</p>
-				</div>
-				<div className={'mt-1 flex w-full items-center justify-between'}>
-					<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
-					<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
-				</div>
-				<Button
-					onClick={onRevoke}
-					className={'mt-4 !h-8 w-full text-sm font-bold'}>
-					{'Revoke'}
-				</Button>
-			</div>
-		</div>
+
+			<tr className={'hidden md:table-row'}>
+				<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
+					<div className={'flex'}>
+						<div>
+							<ImageWithFallback
+								alt={allowance.symbol ?? ''}
+								unoptimized
+								src={tokenIcon}
+								quality={90}
+								width={40}
+								height={40}
+							/>
+						</div>
+						<div className={'ml-4 flex flex-col'}>
+							<div className={'text-base font-bold'}>{allowance.symbol}</div>
+
+							<button
+								className={
+									'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
+								}
+								onClick={e => onCopyAddress(e, allowance.address)}>
+								<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
+									{truncateHex(allowance.address, 5)}
+								</p>
+							</button>
+						</div>
+					</div>
+				</td>
+				<td className={'p-y-6 max-w-[80px] border-y border-neutral-400'}>
+					<div className={'flex w-full flex-col items-end justify-end'}>
+						<p className={'h-full truncate text-right text-base leading-6'}>{allowanceAmount}</p>
+						<p className={'text-xs text-neutral-600'}>{tokenAmountInUSD}</p>
+					</div>
+				</td>
+				<td className={'max-w-32 border-y border-neutral-400 p-6'}>
+					<div className={'flex flex-col text-right'}>
+						<div className={'flex items-center justify-end font-light text-neutral-600'}>
+							<div className={'grid w-full'}>
+								<button
+									className={
+										'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
+									}
+									onClick={e => onCopyAddress(e, allowance.args.sender)}>
+									<p className={'mb-[-2px] text-xs hover:underline'}>
+										{truncateHex(allowance.args.sender, 5)}
+									</p>
+								</button>
+							</div>
+						</div>
+					</div>
+				</td>
+				<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
+					<Button
+						onClick={onRevoke}
+						className={'!h-8 w-[85px] font-bold'}>
+						<p className={' text-xs font-bold	leading-6'}>{getRevokeLabel()}</p>
+					</Button>
+				</td>
+			</tr>
+		</>
 	);
 };

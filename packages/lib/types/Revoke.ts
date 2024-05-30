@@ -158,7 +158,6 @@ export type TApproveEventChainSyncEntry = {
  **TAllowanceItemProps type of props for a single Allowance item in UI.
  *************************************************************************************************/
 export type TAllowanceItemProps = {
-	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 	allowance: TExpandedAllowance;
 	price?: TNormalizedBN;
 };
@@ -189,6 +188,5 @@ export type TRevokeWizardProps = {
  ** The TAllowancesTableProps type is used to type the props of the AllowancesTable component.
  *************************************************************************************************/
 export type TAllowancesTableProps = {
-	revoke: (tokenToRevoke: TTokenAllowance, spender: TAddress) => void;
 	prices?: {[key: TAddress]: TNormalizedBN};
 };

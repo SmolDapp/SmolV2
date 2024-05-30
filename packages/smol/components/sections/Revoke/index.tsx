@@ -1,29 +1,22 @@
-import {type ReactElement, useCallback, useMemo, useState} from 'react';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
+import {type ReactElement, useMemo} from 'react';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {Counter} from '@lib/common/Counter';
 import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {Button} from '@lib/primitives/Button';
-import {isDev} from '@lib/utils/tools.chains';
 
 import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
-import {RevokeWizard} from './Wizard';
 
-import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TTokenAllowance} from '@lib/types/Revoke';
+import type {TToken} from '@builtbymom/web3/types';
 
 export function Revoke(): ReactElement {
-	const {chainID, safeChainID} = useChainID();
-	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
+	const {chainID} = useChainID();
 	const {onOpenCurtain} = useBalancesCurtain();
-	const {provider} = useWeb3();
 	const {dispatchConfiguration, allowances} = useAllowances();
 
 	/**********************************************************************************************
@@ -73,28 +66,6 @@ export function Revoke(): ReactElement {
 	}, [isLoading, prices, uniqueAllowancesByToken]);
 
 	/**********************************************************************************************
-	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
-	 ** allowance.
-	 *********************************************************************************************/
-	const revokeTokenAllowance = useCallback(
-		async (tokenToRevoke: TTokenAllowance, spender: TAddress): Promise<void> => {
-			if (!tokenToRevoke) {
-				return;
-			}
-			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
-			await approveERC20({
-				contractAddress: tokenToRevoke.address,
-				chainID: isDev ? chainID : safeChainID,
-				connector: provider,
-				spenderAddress: spender,
-				amount: 0n,
-				statusHandler: set_revokeStatus
-			});
-		},
-		[chainID, dispatchConfiguration, provider, safeChainID]
-	);
-
-	/**********************************************************************************************
 	 ** This function opens curtain to choose extra tokens to check.
 	 *********************************************************************************************/
 	const handleOpenCurtain = (): void => {
@@ -122,14 +93,7 @@ export function Revoke(): ReactElement {
 			</div>
 
 			<AllowancesFilters />
-			<AllowancesTable
-				prices={prices}
-				revoke={revokeTokenAllowance}
-			/>
-			<RevokeWizard
-				revokeStatus={revokeStatus}
-				set_revokeStatus={set_revokeStatus}
-			/>
+			<AllowancesTable prices={prices} />
 		</div>
 	);
 }
