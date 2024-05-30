@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement, useCallback} from 'react';
+import {Fragment, useCallback} from 'react';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatAmount, isAddress, toAddress} from '@builtbymom/web3/utils';
@@ -10,6 +10,7 @@ import {AllowanceRow} from './AllowanceRow';
 import {useAllowances} from './useAllowances';
 import {useSortedAllowances} from './useSortedAllowances';
 
+import type {ReactElement, ReactNode} from 'react';
 import type {TSortDirection} from '@builtbymom/web3/types';
 import type {TAllowancesTableProps, TExpandedAllowance, TRevokeSortBy} from '@lib/types/Revoke';
 
@@ -45,15 +46,23 @@ function TokenFetchingLoader(): ReactElement {
 	const {isDoneWithInitialFetch, allowanceFetchingFromBlock, allowanceFetchingToBlock, isLoadingInitialDB} =
 		useAllowances();
 
-	const getMessage = (): string => {
+	const getMessage = (): ReactNode => {
 		if (allowanceFetchingToBlock === 0n) {
 			return 'Analyzing past blocks ...';
 		}
 
 		if (isLoadingInitialDB && isDoneWithInitialFetch) {
-			return 'Double-checking everything...';
+			return 'Finalization ...';
 		}
-		return `Analyzing past blocks ${formatAmount((Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock)) * 100, 2, 2)}%`;
+		return (
+			<Fragment>
+				<span>{'Analyzing past blocks '}</span>
+				<span className={'tabular-nums'}>
+					{formatAmount((Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock)) * 100, 2, 2)}
+				</span>
+				<span>{'%'}</span>
+			</Fragment>
+		);
 	};
 
 	if (isDoneWithInitialFetch && !isLoadingInitialDB) {
@@ -81,7 +90,8 @@ function TokenFetchingLoader(): ReactElement {
 export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB;
-	const hasNothingToRevoke = (!allowances || allowances.length === 0) && !isFetchingData;
+	const hasNothingToRevoke =
+		(!allowances || allowances.length === 0) && !isFetchingData && !isLoadingInitialDB && !isLoading;
 	const {address, onConnect} = useWeb3();
 
 	const {sortedAllowances} = useSortedAllowances(allowances || []);
@@ -93,16 +103,17 @@ export const AllowancesTable = ({revoke, prices}: TAllowancesTableProps): ReactE
 			</div>
 		);
 	}
+
+	if (isFetchingData) {
+		return <TokenFetchingLoader />;
+	}
+
 	if (hasNothingToRevoke) {
 		return (
 			<div className={'flex w-full justify-center text-neutral-600'}>
 				<p>{'Nothing to revoke!'}</p>
 			</div>
 		);
-	}
-
-	if (isFetchingData) {
-		return <TokenFetchingLoader />;
 	}
 
 	return (
