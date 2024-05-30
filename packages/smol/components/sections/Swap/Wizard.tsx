@@ -22,7 +22,7 @@ function SendSuccessModal(props: {
 	if (!props.swapStatus.data) {
 		return (
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={
 					<div className={'w-full p-4 text-left'}>
 						<p className={'text-center'}>
@@ -43,7 +43,7 @@ function SendSuccessModal(props: {
 	const {data} = props.swapStatus;
 	return (
 		<SuccessModal
-			title={'It looks like a success!'}
+			title={'Success!'}
 			content={
 				<div className={'w-full rounded-md bg-neutral-400/40 p-4 text-left'}>
 					<p className={'text-center'}>

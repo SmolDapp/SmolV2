@@ -422,7 +422,7 @@ export function DisperseWizard(): ReactElement {
 			</Button>
 
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={`Successfully dispersed ${configuration.tokenToSend?.name} to ${configuration.inputs.length} receivers!`}
 				twitterShareContent={TWEETER_SHARE_CONTENT.DISPERSE}
 				ctaLabel={'Close'}
