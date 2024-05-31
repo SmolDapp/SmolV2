@@ -93,7 +93,7 @@ export const RevokeContextApp = (props: {
 	const {address} = useWeb3();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
 	const {chainID, safeChainID} = useChainID();
-	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoadingOnCurrentChain} = useTokensWithBalance();
 
 	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[] | undefined>(
 		undefined
@@ -150,7 +150,9 @@ export const RevokeContextApp = (props: {
 	 *********************************************************************************************/
 	const {allowances, fromBlock, toBlock, isDoneWithInitialFetch, isLoadingAllowances, getAllowancesForToken} =
 		useHistoricalAllowances({
-			tokenAddresses: isTokensLoading ? undefined : listTokensWithBalance(chainID).map(item => item.address),
+			tokenAddresses: isLoadingOnCurrentChain
+				? undefined
+				: listTokensWithBalance(chainID).map(item => item.address),
 			fromBlock: currentEntry ? currentEntry.blockNumber || 0n : -1n
 		});
 

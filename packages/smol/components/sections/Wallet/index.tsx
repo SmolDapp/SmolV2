@@ -31,7 +31,7 @@ export function Wallet(): ReactElement {
 	const [searchValue, set_searchValue] = useState('');
 	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
-	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, isLoadingOnCurrentChain} = useTokensWithBalance();
 
 	const searchTokenAddress = useMemo(() => {
 		if (
@@ -80,7 +80,7 @@ export function Wallet(): ReactElement {
 				/>
 			));
 		}
-		if (isLoading) {
+		if (isLoadingOnCurrentChain) {
 			return null;
 		}
 		if (searchValue !== '') {
@@ -92,13 +92,15 @@ export function Wallet(): ReactElement {
 		addCustomToken,
 		address,
 		filteredTokens,
-		isLoading,
+		isLoadingOnCurrentChain,
 		onConnect,
 		prices,
 		safeChainID,
 		searchTokenAddress,
 		searchValue
 	]);
+
+	console.log('render');
 
 	return (
 		<div className={'max-w-108 w-full gap-4'}>
@@ -121,7 +123,9 @@ export function Wallet(): ReactElement {
 			{!searchTokenAddress && address && !searchValue && <WalletListHeader />}
 			<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
 				{walletLayout}
-				{isLoading && !!address && <IconLoader className={'mt-4 size-4 animate-spin text-neutral-900'} />}
+				{isLoadingOnCurrentChain && !!address && (
+					<IconLoader className={'mt-4 size-4 animate-spin text-neutral-900'} />
+				)}
 			</div>
 		</div>
 	);
