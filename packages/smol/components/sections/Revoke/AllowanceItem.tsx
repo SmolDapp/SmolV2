@@ -127,7 +127,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 								height={40}
 							/>
 						</div>
-						<div className={'ml-4 flex flex-col'}>
+						<div className={'ml-4 flex flex-col items-start'}>
 							<div className={'text-base font-bold'}>{allowance.symbol}</div>
 
 							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
@@ -177,7 +177,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 
 							<button
 								className={
-									'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
+									'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
 								}
 								onClick={e => onCopyAddress(e, allowance.address)}>
 								<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>

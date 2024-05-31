@@ -189,4 +189,5 @@ export type TRevokeWizardProps = {
  *************************************************************************************************/
 export type TAllowancesTableProps = {
 	prices?: {[key: TAddress]: TNormalizedBN};
+	handleOpenCurtain: VoidFunction;
 };

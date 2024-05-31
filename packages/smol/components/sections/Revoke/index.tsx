@@ -86,17 +86,26 @@ export function Revoke(): ReactElement {
 
 			<div className={'mt-6 w-min'}>
 				<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
-				<p className={'text-[40px] font-semibold text-neutral-900'}>
-					{'$'}
-					<Counter
-						value={totalValueAtRisk}
-						decimals={2}
-					/>
-				</p>
+				<div className={'text-[40px] font-semibold text-neutral-900'}>
+					{totalValueAtRisk > 0 && totalValueAtRisk < 0.01 ? (
+						<p>{'<$0.01'}</p>
+					) : (
+						<p>
+							{'$'}
+							<Counter
+								value={totalValueAtRisk}
+								decimals={2}
+							/>
+						</p>
+					)}
+				</div>
 			</div>
 
 			<AllowancesFilters />
-			<AllowancesTable prices={prices} />
+			<AllowancesTable
+				handleOpenCurtain={handleOpenCurtain}
+				prices={prices}
+			/>
 		</div>
 	);
 }

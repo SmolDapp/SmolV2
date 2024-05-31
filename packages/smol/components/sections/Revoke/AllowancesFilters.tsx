@@ -1,7 +1,6 @@
 import {type ReactElement, useCallback, useMemo} from 'react';
-import {IconPlus} from 'packages/lib/icons/IconPlus';
 import {cl} from '@builtbymom/web3/utils';
-import IconRefresh from '@multisafeIcons/IconRefresh';
+import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 
 import {AssetFilterDropdown} from './AssetFilterDropdown';
 import {SpenderFilterDropdown} from './SpenderFilterDropdown';
@@ -99,13 +98,15 @@ export const AllowancesFilters = (): ReactElement | null => {
 
 	return (
 		<div className={'flex flex-col'}>
-			<div className={'mr-4 flex  pb-2 pt-4'}>
-				<p className={'mr-2 text-xs text-neutral-600 '}>{'Filters'}</p>
-				<button onClick={onResetFilters}>
-					<IconRefresh className={'size-3 text-neutral-600 transition-colors hover:text-neutral-900'} />
+			<div className={'mr-4 flex items-center pb-2 pt-4'}>
+				<p className={'mr-2 text-xs text-neutral-800'}>{'Filters'}</p>
+				<button
+					onClick={onResetFilters}
+					className={'text-xs text-neutral-600 underline'}>
+					{'Clear'}
 				</button>
 			</div>
-			<div className={'mb-6 grid grid-cols-3 gap-3 md:flex md:gap-y-3'}>
+			<div className={'mb-6 grid grid-cols-3 gap-3 md:mb-2 md:flex md:gap-y-3'}>
 				<AssetFilterDropdown allOptions={allTokenOptions}>
 					<div
 						className={cl(
@@ -115,8 +116,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 								: ''
 						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
-							<IconPlus className={'size-3'} />
-							<p className={'text-xs leading-4'}>{'Asset'}</p>
+							<p className={'text-xs leading-4'}>
+								{`Select Asset ${configuration.allowancesFilters.asset.filter.length ? ` (${configuration.allowancesFilters.asset.filter.length})` : ''}`}
+							</p>
+							<IconChevronBottom className={'ml-2 size-4'} />
 						</div>
 					</div>
 				</AssetFilterDropdown>
@@ -130,8 +133,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 								: ''
 						)}>
 						<div className={'flex items-center gap-x-1 px-3 py-2'}>
-							<IconPlus className={'size-3'} />
-							<p className={'text-xs leading-4'}>{'Spender'}</p>
+							<p className={'text-xs leading-4'}>
+								{`Select Spender ${configuration.allowancesFilters.spender.filter.length ? ` (${configuration.allowancesFilters.spender.filter.length})` : ''}`}
+							</p>
+							<IconChevronBottom className={'ml-2 size-4'} />
 						</div>
 					</div>
 				</SpenderFilterDropdown>

@@ -3,7 +3,9 @@ import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatAmount, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {EmptyView} from '@lib/common/EmptyView';
+import {IconPlus} from '@lib/icons/IconPlus';
 import {IconSpinner} from '@lib/icons/IconSpinner';
+import {Button} from '@lib/primitives/Button';
 
 import {AllowanceItem} from './AllowanceItem';
 import {useAllowances} from './useAllowances';
@@ -86,7 +88,7 @@ function TokenFetchingLoader(): ReactElement {
 	);
 }
 
-export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement => {
+export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB || !allowances;
 	const hasNothingToRevoke =
@@ -113,8 +115,17 @@ export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement =
 
 	if (hasNothingToRevoke) {
 		return (
-			<div className={'flex w-full justify-center text-neutral-600'}>
-				<p>{'Nothing to revoke!'}</p>
+			<div
+				className={
+					'rounded-large mt-3 flex h-56 w-full flex-col items-center justify-center bg-neutral-200 text-neutral-600'
+				}>
+				<p>{'Nothing to revoke. Select Token to check approvals'}</p>
+				<Button
+					className={'mt-6 !h-10'}
+					onClick={handleOpenCurtain}>
+					<IconPlus className={'mr-2 size-3'} />
+					{'Add token'}
+				</Button>
 			</div>
 		);
 	}

@@ -104,6 +104,13 @@ export const RevokeContextApp = (props: {
 	const currentIdentifier = useRef<string | undefined>();
 
 	/**********************************************************************************************
+	 **This useEffect clears the filters when the user switches the chain.
+	 *********************************************************************************************/
+	useEffect(() => {
+		dispatch({type: 'RESET_FILTER'});
+	}, [chainID]);
+
+	/**********************************************************************************************
 	 ** A callback function that allows us to add entry into approve-events DB
 	 *********************************************************************************************/
 	const addApproveEventEntry = useCallback(
