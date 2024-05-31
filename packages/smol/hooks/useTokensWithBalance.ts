@@ -21,8 +21,6 @@ export function useTokensWithBalance(): {
 	const [allTokens, set_allTokens] = useState<TNDict<TDict<TToken>>>({});
 	const {tokenLists, isCustomToken} = useTokenList();
 
-	console.warn(isLoading, Object.values(balances?.[56] || {}).length);
-
 	/**********************************************************************************************
 	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
 	 ** it to know when it changes. This new hash will be used to trigger the useEffect hook.

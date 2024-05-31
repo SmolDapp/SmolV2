@@ -25,6 +25,7 @@ import {useApproveEventsChainSync} from './useApproveEventsChainSync';
 import {useHistoricalAllowances} from './useHistoricalAllowances';
 
 import type {ReactElement} from 'react';
+import type {TDict} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
 
 const initialFilters = {
@@ -94,7 +95,9 @@ export const RevokeContextApp = (props: {
 	const {chainID, safeChainID} = useChainID();
 	const {listTokensWithBalance, isLoading: isTokensLoading} = useTokensWithBalance();
 
-	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[]>([]);
+	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[] | undefined>(
+		undefined
+	);
 	const [isLoadingInitialDB, set_isLoadingInitialDB] = useState(true);
 	const {getAll, add, deleteByID} = useIndexedDBStore<TApproveEventEntry>('approve-events');
 	const {currentEntry, updateChainSyncEntry} = useApproveEventsChainSync();
@@ -207,8 +210,8 @@ export const RevokeContextApp = (props: {
 		const data = await readContracts(retrieveConfig(), {contracts: calls});
 		const dictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} = {};
 		if (data.length < 4) {
-			set_isLoadingInitialDB(false);
 			// Stop if we don't have enough data
+			set_isLoadingInitialDB(false);
 			return;
 		}
 
@@ -268,21 +271,66 @@ export const RevokeContextApp = (props: {
 		await Promise.all(promises);
 
 		/******************************************************************************************
-		 ** Here, we are dealing with indexDB and making sure it's up to date.
-		 ** - We retrieve all the items we now have in the DB
-		 ** - We look for the last block we checked
-		 ** - We update the chain sync entry so we know we only need to check from this block next
-		 **   time
+		 ** Now we want to retrieve all the items from the indexedDB and filter them by the
+		 ** current address and chainID (aka current user for current chainID) and only deal with
+		 ** them.
 		 *****************************************************************************************/
 		const itemsFromDB = await getAll();
-		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
-		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
+		const relevantItems = itemsFromDB.filter(
+			item => isAddressEqual(item.owner, address) && item.chainID === safeChainID
+		);
+
+		/******************************************************************************************
+		 ** For a same key of owner/spender/token, we want to keep the latest event only, as this
+		 ** means that all the previous ones have been replaced by this one and are now void.
+		 ** In order to check if an event is the latest one, we compare the block number of the
+		 ** event with the block number of the last event we have seen for that key.
+		 ** If the block number of the event is greater than the block number of the last event,
+		 ** we replace the last event with the new one.
+		 ** However, if the block number is the same, we need to also check the log index of the
+		 ** event to determine which one is the latest.
+		 *****************************************************************************************/
+		const lastAllowances: TDict<TApproveEventEntry> = {};
+		for (const item of relevantItems) {
+			const key = `${item.owner}-${item.sender}-${item.address}`;
+			if (!lastAllowances[key]) {
+				lastAllowances[key] = item;
+				continue;
+			}
+			if (item.blockNumber > lastAllowances[key].blockNumber) {
+				lastAllowances[key] = item;
+				continue;
+			}
+			if (item.blockNumber === lastAllowances[key].blockNumber) {
+				if (item.logIndex > lastAllowances[key].logIndex) {
+					lastAllowances[key] = item;
+					continue;
+				}
+			}
+		}
+		const allowancesToKeep = Object.values(lastAllowances);
+
+		/******************************************************************************************
+		 ** Now we need to do on that list is to remove the allowances with a value of 0. This
+		 ** value means that the allowance has been revoked and is no longer interesting for us.
+		 ** We will loop through the list and keep only the ones with a value greater than 0.
+		 *****************************************************************************************/
+		const nonEmptyAllowances = [];
+		for (const allowance of allowancesToKeep) {
+			if (allowance.value > 0n) {
+				nonEmptyAllowances.push(allowance);
+			} else {
+				// No need to keep the allowance with 0 value in the DB
+				deleteByID(allowance.id);
+			}
+		}
+
 		/******************************************************************************************
 		 ** And finally, we are formatting the allowances to be displayed in the UI.
 		 *****************************************************************************************/
-		const _formatedAllowances: TExpandedAllowance[] = [];
-		for (const allowance of itemsFromDB) {
-			_formatedAllowances.push({
+		const formatedAllowances: TExpandedAllowance[] = [];
+		for (const allowance of nonEmptyAllowances) {
+			formatedAllowances.push({
 				...allowance,
 				args: {
 					owner: allowance.owner,
@@ -291,11 +339,15 @@ export const RevokeContextApp = (props: {
 				}
 			});
 		}
-		const filteredAllowances = _formatedAllowances.filter(
-			item => isAddressEqual(item.args.owner, address) && item.chainID === safeChainID
-		);
-		set_chainFilteredAllowances(filteredAllowances);
+		set_chainFilteredAllowances(formatedAllowances);
 		set_isLoadingInitialDB(false);
+
+		/******************************************************************************************
+		 ** Saving the last block number we have seen in the DB to be able to sync from this block
+		 ** next time.
+		 *****************************************************************************************/
+		const lastAllowanceBlockNumber = formatedAllowances[formatedAllowances.length - 1]?.blockNumber || 0n;
+		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
 	}, [
 		allowances,
 		safeChainID,
@@ -304,10 +356,10 @@ export const RevokeContextApp = (props: {
 		fromBlock,
 		toBlock,
 		getAll,
-		chainFilteredAllowances,
 		updateChainSyncEntry,
 		set_isLoadingInitialDB,
-		addApproveEventEntry
+		addApproveEventEntry,
+		deleteByID
 	]);
 
 	useEffect(() => {

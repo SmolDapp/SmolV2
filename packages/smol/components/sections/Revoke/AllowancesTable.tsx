@@ -88,9 +88,9 @@ function TokenFetchingLoader(): ReactElement {
 
 export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
-	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB;
+	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB || !allowances;
 	const hasNothingToRevoke =
-		(!allowances || allowances.length === 0) && !isFetchingData && !isLoadingInitialDB && !isLoading;
+		allowances && allowances.length === 0 && !isFetchingData && !isLoadingInitialDB && !isLoading;
 	const {address, onConnect} = useWeb3();
 
 	const {sortedAllowances} = useSortedAllowances(allowances || []);
@@ -99,7 +99,6 @@ export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement =
 	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
 	 ** allowance.
 	 *********************************************************************************************/
-
 	if (!isAddress(address)) {
 		return (
 			<div className={'max-w-108'}>
@@ -133,7 +132,7 @@ export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement =
 						className={'w-full'}>
 						{sortedAllowances?.map(item => (
 							<AllowanceItem
-								key={`${item.blockNumber}-${item.logIndex}`}
+								key={`${item.address}-${item.args.owner}-${item.args.sender}-${item.blockNumber}-${item.logIndex}`}
 								allowance={item}
 								price={prices?.[toAddress(item.address)]}
 							/>
@@ -144,7 +143,7 @@ export const AllowancesTable = ({prices}: TAllowancesTableProps): ReactElement =
 			<div className={'flex flex-col gap-y-2 md:hidden'}>
 				{allowances?.map(item => (
 					<AllowanceItem
-						key={`${item.blockNumber}-${item.logIndex}`}
+						key={`${item.address}-${item.args.owner}-${item.args.sender}-${item.blockNumber}-${item.logIndex}`}
 						allowance={item}
 						price={prices?.[toAddress(item.address)]}
 					/>
@@ -211,8 +210,10 @@ export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): R
 	return (
 		<thead className={'w-full text-xs'}>
 			<tr>
-				{tableColumns.map(item => (
-					<th className={item.thClassName}>
+				{tableColumns.map((item, i) => (
+					<th
+						key={`${item.value}${i}`}
+						className={item.thClassName}>
 						<div className={cl(item.value === 'spender' ? 'flex justify-end' : '')}>
 							<button
 								className={cl(item.btnClassName, sortBy === item.value ? 'text-neutral-800' : '')}

@@ -64,8 +64,8 @@ export type TRevokeContext = {
 	allowances: TExpandedAllowance[] | undefined;
 	configuration: TRevokeConfiguration;
 	dispatchConfiguration: Dispatch<TRevokeActions>;
-	isDoneWithInitialFetch: boolean;
 	filteredAllowances: TExpandedAllowance[] | undefined;
+	isDoneWithInitialFetch: boolean;
 	isLoading: boolean;
 	allowanceFetchingFromBlock: bigint;
 	allowanceFetchingToBlock: bigint;

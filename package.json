@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@builtbymom/web3": "^0.0.102",
+    "@builtbymom/web3": "0.0.104",
     "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@headlessui/react": "^2.0.4",
     "@radix-ui/react-dialog": "^1.0.5",

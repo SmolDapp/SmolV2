@@ -2,9 +2,9 @@ import {parseUnits} from 'viem';
 
 import type {TAllowance, TAllowances} from '@lib/types/Revoke';
 
-export const filterNotEmptyEvents = (events: TAllowances): TAllowances => {
-	const nonEmpty = events.filter(item => (item.args.value as bigint) > BigInt(0));
-	const noDuplicate = nonEmpty.filter(
+export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
+	// const nonEmpty = events.filter(item => (item.args.value as bigint) > BigInt(0));
+	const noDuplicate = events.filter(
 		(item, index, self) =>
 			self.findIndex(t => `${t.blockNumber}_${t.logIndex}` === `${item.blockNumber}_${item.logIndex}`) === index
 	);
@@ -29,7 +29,7 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
 		return acc;
 	}, {});
 
-	const resultArray: TAllowances = filterNotEmptyEvents(Object.values(filteredEvents));
+	const resultArray: TAllowances = filterDuplicateEvents(Object.values(filteredEvents));
 
 	return resultArray;
 };

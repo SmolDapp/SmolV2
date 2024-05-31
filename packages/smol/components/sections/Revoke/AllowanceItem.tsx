@@ -1,5 +1,4 @@
-import {type ReactElement, useCallback, useMemo, useState} from 'react';
-import React from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import toast from 'react-hot-toast';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -7,13 +6,13 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {formatAmount, formatTAmount, toAddress, toBigInt, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
-import {IconSpinner} from '@lib/icons/IconSpinner';
 import {Button} from '@lib/primitives/Button';
 import {isDev} from '@lib/utils/tools.chains';
 import {isUnlimitedBN} from '@lib/utils/tools.revoke';
 
 import {useAllowances} from './useAllowances';
 
+import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAllowanceItemProps, TTokenAllowance} from '@lib/types/Revoke';
 
@@ -99,17 +98,6 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 	}, []);
 
 	/**********************************************************************************************
-	 ** This function returns either 'Revoke' label or spinner is revoke is in progress.
-	 *********************************************************************************************/
-	const getRevokeLabel = useCallback(() => {
-		if (revokeStatus.pending) {
-			return <IconSpinner />;
-		}
-
-		return 'Revoke';
-	}, [revokeStatus.pending]);
-
-	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
 	 ** information and what we have in the token list, we will try to find the correct icon source
 	 *********************************************************************************************/
@@ -126,7 +114,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 
 	return (
 		<>
-			<div className={'rounded-lg border border-neutral-400 p-4 md:hidden'}>
+			<tr className={'rounded-lg border border-neutral-400 p-4 md:hidden'}>
 				<div className={'flex'}>
 					<div className={'flex'}>
 						<div>
@@ -164,11 +152,12 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 					</div>
 					<Button
 						onClick={onRevoke}
+						isBusy={revokeStatus.pending}
 						className={'mt-4 !h-8 w-full text-sm font-bold'}>
-						{getRevokeLabel()}
+						{'Revoke'}
 					</Button>
 				</div>
-			</div>
+			</tr>
 
 			<tr className={'hidden md:table-row'}>
 				<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
@@ -224,8 +213,9 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 				<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
 					<Button
 						onClick={onRevoke}
+						isBusy={revokeStatus.pending}
 						className={'!h-8 w-[85px] font-bold'}>
-						<p className={' text-xs font-bold	leading-6'}>{getRevokeLabel()}</p>
+						<p className={' text-xs font-bold leading-6'}>{'Revoke'}</p>
 					</Button>
 				</td>
 			</tr>

@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {type TAllowances} from 'packages/lib/types/Revoke';
-import {filterNotEmptyEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
+import {filterDuplicateEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
 import {erc20Abi as abi} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -57,17 +57,19 @@ function useHistoricalAllowances(props: {
 	 ** unnecessary/infinite re-renders.
 	 *********************************************************************************************/
 	useEffect((): void => {
-		const identifier = createUniqueID(serialize(data));
-		if (currentIdentifier.current === identifier) {
-			return;
-		}
-		currentIdentifier.current = identifier;
+		if (isDoneWithInitialFetch) {
+			const identifier = createUniqueID(serialize(data));
+			if (currentIdentifier.current === identifier) {
+				return;
+			}
+			currentIdentifier.current = identifier;
 
-		if (data) {
-			const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => ({...item, chainID}));
-			set_approveEvents(filteredEvents);
+			if (data) {
+				const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => ({...item, chainID}));
+				set_approveEvents(filteredEvents);
+			}
 		}
-	}, [data, chainID]);
+	}, [data, chainID, isDoneWithInitialFetch]);
 
 	/**********************************************************************************************
 	 ** Once we've gathered approval events for the token list, we need to verify if allowances
@@ -98,7 +100,9 @@ function useHistoricalAllowances(props: {
 				}
 			});
 		}
-		set_allowances(filterNotEmptyEvents(_allowances));
+
+		const ensureNoDuplicates = filterDuplicateEvents(_allowances);
+		set_allowances(ensureNoDuplicates);
 		set_isLoadingAllowances(false);
 	}, [approveEvents]);
 
@@ -160,7 +164,7 @@ function useHistoricalAllowances(props: {
 					}
 				});
 			}
-			set_allowances(prev => filterNotEmptyEvents([...(prev || []), ..._allowances]));
+			set_allowances(prev => filterDuplicateEvents([...(prev || []), ..._allowances]));
 			set_isLoadingAllowances(false);
 		},
 		[address, chainID]
