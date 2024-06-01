@@ -158,6 +158,7 @@ const useConfirmDisperse = ({
 			plausible(PLAUSIBLE_EVENTS.DISPERSE_TOKENS, {
 				props: {
 					disperseChainID: safeChainID,
+					numberOfReceivers: disperseAddresses.length,
 					tokenToDisperse: configuration.tokenToSend?.address,
 					totalToDisperse: `${formatAmount(
 						toNormalizedValue(totalToDisperse, configuration.tokenToSend?.decimals || 18),
