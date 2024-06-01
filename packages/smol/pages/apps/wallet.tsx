@@ -1,4 +1,3 @@
-import {Fragment} from 'react';
 import {Wallet} from '@smolSections/Wallet';
 
 import type {ReactElement} from 'react';
@@ -18,6 +17,3 @@ WalletPage.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-WalletPage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};

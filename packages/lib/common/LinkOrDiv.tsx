@@ -23,6 +23,17 @@ export function LinkOrDiv({href, isDisabled, children, passHref, onClick, ...res
 		);
 	}
 
+	if (!href) {
+		return (
+			<button
+				className={'w-full'}
+				onClick={onClick}
+				{...rest}>
+				{children}
+			</button>
+		);
+	}
+
 	return (
 		<Link
 			href={href}

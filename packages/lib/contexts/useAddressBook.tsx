@@ -14,15 +14,15 @@ import {slugify} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
-import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
-import type {TAddress} from '@builtbymom/web3/types';
 import type {
 	TAddressBookEntry,
 	TAddressBookEntryReducer,
 	TAddressBookProps,
 	TCurtainStatus,
 	TSelectCallback
-} from '@lib/types/AddressBook';
+} from 'packages/lib/types/AddressBook';
+import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
+import type {TAddress} from '@builtbymom/web3/types';
 
 const defaultCurtainStatus = {
 	isOpen: false,

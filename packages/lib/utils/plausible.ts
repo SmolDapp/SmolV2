@@ -5,6 +5,7 @@ export const PLAUSIBLE_EVENTS = {
 	OPEN_TOKEN_SELECTOR_CURTAIN: 'open token selector curtain',
 	OPEN_AB_CURTAIN: 'open address book curtain',
 	OPEN_SWAP_SETTINGS_CURTAIN: 'open swap settings curtain',
+	OPEN_MULTISAFE_FAQ_CURTAIN: 'open multisafe FAQ curtain',
 
 	// Address Book events
 	AB_ADD_FIRST_CONTACT: 'ab: add 1st contact',

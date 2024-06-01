@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement} from 'react';
+import {type ReactElement} from 'react';
 import {AddressBook} from '@smolSections/AddressBook';
 
 function AddressBookPage(): ReactElement {
@@ -23,8 +23,5 @@ AddressBookPage.AppInfo = (
 		<p>{'Thanks anon, now go forth and send thy digital tokens.'}</p>
 	</>
 );
-AddressBookPage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};
 
 export default AddressBookPage;

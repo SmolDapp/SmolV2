@@ -316,7 +316,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				<b>{'Send'}</b>
 			</Button>
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={
 					'Like a fancy bird, your tokens have migrated! They are moving to their new home, with their new friends.'
 				}
