@@ -40,12 +40,12 @@ module.exports = withPlausibleProxy({
 			return [
 				{source: '/disperse', destination: '/app/disperse', permanent: true},
 				{source: '/migratooor', destination: '/app/send', permanent: true},
-				{source: '/safe', destination: 'https://multisafe.app', permanent: true},
+				{source: '/safe', destination: '/apps/multisafe', permanent: true},
 				{source: '/stream', destination: 'https://v1.smold.app/stream', permanent: false},
 				{
 					source: '/',
 					has: [{type: 'host', value: 'multisafe.app'}],
-					destination: '/safe',
+					destination: '/apps/multisafe',
 					permanent: true
 				},
 				{
@@ -63,16 +63,11 @@ module.exports = withPlausibleProxy({
 				{
 					source: '/',
 					has: [
+						{type: 'host', value: 'nftmigratooor.smold.app'},
 						{type: 'host', value: 'migratooor.com'},
 						{type: 'host', value: 'migrate.smold.app'},
 						{type: 'host', value: 'migratooor.smold.app'}
 					],
-					destination: '/app/send',
-					permanent: true
-				},
-				{
-					source: '/',
-					has: [{type: 'host', value: 'nftmigratooor.smold.app'}],
 					destination: '/app/send',
 					permanent: true
 				},
