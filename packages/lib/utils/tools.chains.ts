@@ -13,6 +13,7 @@ import {
 	celo,
 	confluxESpace,
 	fantom,
+	filecoin,
 	fraxtal,
 	gnosis,
 	linea,
@@ -212,7 +213,7 @@ const CHAINS: TSmolChains = {
 	},
 	[aurora.id]: {
 		...aurora,
-		isLifiSwapSupported: false,
+		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-aurora.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=aurora:',
@@ -263,6 +264,15 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://blast-safe.io/home?safe=blast:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0x274889F6864Bc0493BfEe3CF292A2A0ba1A76951')
+	},
+	[filecoin.id]: {
+		...filecoin,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: false,
+		safeAPIURI: '',
+		safeUIURI: '',
+		coingeckoGasCoinID: 'filecoin',
+		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	}
 };
 
