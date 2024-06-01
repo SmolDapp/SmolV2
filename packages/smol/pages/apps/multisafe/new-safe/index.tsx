@@ -134,11 +134,21 @@ function Safe(): ReactElement {
 	 ** back to this page and the form will be populated with the same values.
 	 *********************************************************************************************/
 	const navigateToDeploy = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.PREPARE_NEW_SAFE, {
+			props: {
+				ownersCount: owners.length,
+				threshold,
+				singleton: factory,
+				prefix,
+				suffix
+			}
+		});
+
 		const thisPageUpdatedQueryURL = linkToDeploy;
 		thisPageUpdatedQueryURL.set('address', toAddress(safeAddress));
 		router.replace(`/apps/multisafe/new-safe?${thisPageUpdatedQueryURL.toString()}`);
 		router.push(`/apps/multisafe/new-safe/${safeAddress}?${linkToDeploy.toString()}`);
-	}, [linkToDeploy, router, safeAddress]);
+	}, [factory, linkToDeploy, owners.length, plausible, prefix, router, safeAddress, suffix, threshold]);
 
 	/**********************************************************************************************
 	 ** The onParamChange function is used to reset the safeAddress state when the parameters

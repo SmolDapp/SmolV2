@@ -2,6 +2,7 @@ import {useCallback, useEffect, useState} from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import Link from 'next/link';
+import {usePlausible} from 'next-plausible';
 import {encodeFunctionData, parseEther} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toAddress, truncateHex} from '@builtbymom/web3/utils';
@@ -22,6 +23,7 @@ import {IconLinkOut} from '@lib/icons/IconLinkOut';
 import {Button} from '@lib/primitives/Button';
 import DISPERSE_ABI from '@lib/utils/abi/disperse.abi';
 import GNOSIS_SAFE_PROXY_FACTORY from '@lib/utils/abi/gnosisSafeProxyFactory.abi';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import {multicall} from './actions';
@@ -63,6 +65,7 @@ function ChainStatus({
 	salt,
 	singleton
 }: TChainStatusArgs): ReactElement {
+	const plausible = usePlausible();
 	const {chainCoinPrices} = useMultisafe();
 	const gasCoinID = CHAINS?.[chain.id]?.coingeckoGasCoinID || 'ethereum';
 	const coinPrice = chainCoinPrices?.[gasCoinID]?.usd;
@@ -75,7 +78,7 @@ function ChainStatus({
 		method: 'contract'
 	});
 
-	/* 🔵 - Smold App **************************************************************************
+	/******************************************************************************************
 	 ** If the safe is already deployed on that chain, we don't need to do anything.
 	 ******************************************************************************************/
 	const checkIfDeployedOnThatChain = useCallback(async (): Promise<void> => {
@@ -88,7 +91,7 @@ function ChainStatus({
 		}
 	}, [chain.id, safeAddress]);
 
-	/* 🔵 - Smold App **************************************************************************
+	/******************************************************************************************
 	 ** As we want to be sure to deploy the safe on the same address as the original transaction,
 	 ** we need to check if the address we expect is the same as the one we get from the proxy
 	 ** factory.
@@ -149,7 +152,7 @@ function ChainStatus({
 		checkDeploymentExpectedAddress();
 	}, [checkDeploymentExpectedAddress, checkIfDeployedOnThatChain]);
 
-	/* 🔵 - Smold App **************************************************************************
+	/******************************************************************************************
 	 ** When the user clicks on the deploy button, we will try to deploy the safe on the chain
 	 ** the user selected.
 	 ** This can be done in two ways:
@@ -163,14 +166,24 @@ function ChainStatus({
 			return;
 		}
 
-		/* 🔵 - Smold App **************************************************************************
+		/******************************************************************************************
 		 ** First, make sure we are using the correct chainID to deploy this safe.
 		 ******************************************************************************************/
 		if (chainID !== chain.id) {
 			await switchChain(retrieveConfig(), {chainId: chain.id});
 		}
 
-		/* 🔵 - Smold App **************************************************************************
+		/******************************************************************************************
+		 ** Log the deployment info
+		 ******************************************************************************************/
+		plausible(originalTx ? PLAUSIBLE_EVENTS.CREATE_CLONE_SAFE : PLAUSIBLE_EVENTS.CREATE_NEW_SAFE, {
+			props: {
+				chainID: chain.id,
+				safeAddress
+			}
+		});
+
+		/******************************************************************************************
 		 ** If the method is direct, we will just clone the original transaction.
 		 ** As this is not a standard contract call, we kinda clone the handleTX function from the
 		 ** weblib.
@@ -213,7 +226,7 @@ function ChainStatus({
 			}
 		}
 
-		/* 🔵 - Smold App **************************************************************************
+		/******************************************************************************************
 		 ** If the method is contract, we can clone the safe using the proxy factory with the same
 		 ** arguments as the original transaction.
 		 ******************************************************************************************/
@@ -262,21 +275,22 @@ function ChainStatus({
 			}
 		}
 	}, [
-		address,
 		canDeployOnThatChain.canDeploy,
 		canDeployOnThatChain.method,
-		chain.id,
-		checkDeploymentExpectedAddress,
-		checkIfDeployedOnThatChain,
-		coinPrice,
-		originalTx?.input,
-		originalTx?.to,
-		owners,
-		provider,
 		chainID,
-		salt,
+		chain.id,
+		plausible,
+		originalTx,
+		safeAddress,
+		address,
+		checkIfDeployedOnThatChain,
+		checkDeploymentExpectedAddress,
+		coinPrice,
 		singleton,
-		threshold
+		owners,
+		threshold,
+		salt,
+		provider
 	]);
 
 	const currentView = {

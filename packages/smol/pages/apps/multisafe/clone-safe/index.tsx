@@ -196,11 +196,26 @@ function Safe(): ReactElement {
 	 ** back to this page and the form will be populated with the same values.
 	 *********************************************************************************************/
 	const navigateToDeploy = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.PREPARE_CLONE_SAFE, {
+			props: {
+				ownersCount: existingSafeArgs?.owners.length,
+				threshold: existingSafeArgs?.threshold,
+				singleton: existingSafeArgs?.singleton
+			}
+		});
+
 		const URLQueryParam = new URLSearchParams();
 		URLQueryParam.set('address', toAddress(safe.address));
 		router.replace(`/apps/multisafe/clone-safe?${URLQueryParam.toString()}`);
 		router.push(`/apps/multisafe/clone-safe/${toAddress(safe.address)}`);
-	}, [router, safe.address]);
+	}, [
+		existingSafeArgs?.owners.length,
+		existingSafeArgs?.singleton,
+		existingSafeArgs?.threshold,
+		plausible,
+		router,
+		safe.address
+	]);
 
 	return (
 		<div className={'md:max-w-108 grid w-full max-w-full gap-4'}>
