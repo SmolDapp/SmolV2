@@ -621,6 +621,22 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					);
 					statusHandler({...defaultTxStatus, success: true, data: result});
 					await new Promise(resolve => setTimeout(resolve, 1000));
+					toast.custom(
+						t => (
+							<ProgressToasts
+								t={t}
+								sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
+								receivingTokenSymbol={currentTxRequest.action.toToken.symbol}
+								expectedEnd={expectedEnd}
+								isCompleted={true}
+								animationDuration={1000}
+								message={'Fancy, your swap is complete!'}
+							/>
+						),
+						{position: 'bottom-right', duration: 0, id: toastID}
+					);
+					toast.dismiss(toastID);
+					toast.dismiss();
 					resetState();
 				} else {
 					plausible(PLAUSIBLE_EVENTS.SWAP_REVERTED, {

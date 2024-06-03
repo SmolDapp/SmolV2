@@ -41,7 +41,12 @@ export function SmolTokenSelector(props: {
 					getBorderColor()
 				)}>
 				<SmolTokenButton
-					onClick={() => onOpenCurtain(selected => props.onSelectToken(selected))}
+					onClick={() => {
+						onOpenCurtain(token => props.onSelectToken(token), {
+							chainID: safeChainID,
+							withTabs: true
+						});
+					}}
 					token={props.token}
 					price={price && props.token?.address ? price[props.token?.address] : undefined}
 					displayChevron

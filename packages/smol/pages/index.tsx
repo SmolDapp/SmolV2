@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {Wallet} from '@smolSections/Wallet';
 
 import type {ReactElement} from 'react';
@@ -18,6 +18,3 @@ Index.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
-Index.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};

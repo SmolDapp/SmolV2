@@ -158,6 +158,7 @@ const useConfirmDisperse = ({
 			plausible(PLAUSIBLE_EVENTS.DISPERSE_TOKENS, {
 				props: {
 					disperseChainID: safeChainID,
+					numberOfReceivers: disperseAddresses.length,
 					tokenToDisperse: configuration.tokenToSend?.address,
 					totalToDisperse: `${formatAmount(
 						toNormalizedValue(totalToDisperse, configuration.tokenToSend?.decimals || 18),
@@ -422,7 +423,7 @@ export function DisperseWizard(): ReactElement {
 			</Button>
 
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={`Successfully dispersed ${configuration.tokenToSend?.name} to ${configuration.inputs.length} receivers!`}
 				twitterShareContent={TWEETER_SHARE_CONTENT.DISPERSE}
 				ctaLabel={'Close'}

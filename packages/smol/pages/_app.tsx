@@ -19,7 +19,10 @@ import {
 } from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconClone} from '@lib/icons/IconClone';
 import {IconCross} from '@lib/icons/IconCross';
+import IconMultisafe from '@lib/icons/IconMultisafe';
+import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
 import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
 
@@ -70,6 +73,23 @@ const MENU = [
 		href: '/apps/revoke',
 		label: 'Revoke',
 		icon: <IconCross />
+	},
+	{
+		href: '/apps/multisafe',
+		label: 'Multisafe',
+		icon: <IconMultisafe />,
+		subMenu: [
+			{
+				href: '/apps/multisafe/new-safe',
+				label: 'Create a Safe',
+				icon: <IconSquarePlus />
+			},
+			{
+				href: '/apps/multisafe/clone-safe',
+				label: 'Clone a Safe',
+				icon: <IconClone />
+			}
+		]
 	}
 ];
 
