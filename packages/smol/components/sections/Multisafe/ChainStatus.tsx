@@ -241,7 +241,7 @@ function ChainStatus({
 				callData: encodeFunctionData({
 					abi: DISPERSE_ABI,
 					functionName: 'disperseEther',
-					args: [[toAddress(process.env.RECEIVER_ADDRESS)], [fee]]
+					args: [[toAddress(process.env.SMOL_ADDRESS)], [fee]]
 				})
 			};
 
