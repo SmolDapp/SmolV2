@@ -1,7 +1,7 @@
 import {createContext, memo, useContext, useMemo} from 'react';
+import useSWR from 'swr';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {useFetchYearnVaults} from '@yearn-finance/web-lib/hooks/useFetchYearnVaults';
+import {baseFetcher, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import {useStakingTokens} from '../hooks/useStakingTokens';
 
@@ -28,16 +28,25 @@ const VaultsContext = createContext<TVaultsContext>({
 });
 
 export const VaultsContextApp = memo(function VaultsContextApp({children}: {children: ReactElement}): ReactElement {
-	const {vaults: rawVaults, isLoading: isLoadingVaults} = useFetchYearnVaults();
+	const {data: gimmeVaults, isLoading: isLoadingVaults} = useSWR<TYDaemonVault[]>(
+		'https://ydaemon.yearn.fi/vaults/gimme?chainIDs=137', // Persist on displaying polygon vaults
+		baseFetcher
+	);
+
+	const gimmeVaultsDict: TDict<TYDaemonVault> = useMemo(
+		() => gimmeVaults?.reduce((acc, current) => ({...acc, [current.address]: current}), {}) || {},
+		[gimmeVaults]
+	);
+	console.log(gimmeVaultsDict);
 	const {balances, isLoading: isLoadingBalance, getBalance} = useWallet();
 
-	const {getStakingTokenBalance} = useStakingTokens(rawVaults);
+	const {getStakingTokenBalance} = useStakingTokens(gimmeVaultsDict);
 
 	const userVaults = useMemo(() => {
 		const result: TDict<TYDaemonVault> = {};
 		for (const [networkID, eachNetwork] of Object.entries(balances)) {
 			for (const eachToken of Object.values(eachNetwork)) {
-				const vault = rawVaults[toAddress(eachToken.address)];
+				const vault = gimmeVaultsDict[toAddress(eachToken.address)];
 				if (!vault) {
 					continue;
 				}
@@ -60,12 +69,12 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 			}
 		}
 		return result;
-	}, [balances, getBalance, getStakingTokenBalance, rawVaults]);
+	}, [balances, getBalance, getStakingTokenBalance, gimmeVaultsDict]);
 
 	return (
 		<VaultsContext.Provider
 			value={{
-				vaults: Object.values(rawVaults),
+				vaults: gimmeVaults || [],
 				userVaults,
 				userVaultsArray: Object.values(userVaults),
 				getStakingTokenBalance,
@@ -76,5 +85,4 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 		</VaultsContext.Provider>
 	);
 });
-
 export const useVaults = (): TVaultsContext => useContext(VaultsContext);
