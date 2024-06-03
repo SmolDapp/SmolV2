@@ -43,12 +43,12 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
-			<div className={'flex items-center justify-between'}>
+			<div className={'grid grid-cols-3'}>
 				<div className={'flex items-center gap-4'}>
 					<div className={'size-10 rounded-full bg-black'} />
 					<div className={'font-bold'}>{'GIMME'}</div>
 				</div>
-				<div className={'flex gap-6 font-bold'}>
+				<div className={'flex items-center justify-center gap-6 font-bold'}>
 					{TOP_NAV.map(item => (
 						<LinkOrDiv
 							key={item.label}
@@ -63,7 +63,7 @@ export default function Layout(props: AppProps): ReactElement {
 						</LinkOrDiv>
 					))}
 				</div>
-				<div className={'flex gap-2'}>
+				<div className={'flex justify-end gap-2'}>
 					<NetworkPopoverSelector />
 					<ConnectButton />
 				</div>
