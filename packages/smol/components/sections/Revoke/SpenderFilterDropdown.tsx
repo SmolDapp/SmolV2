@@ -64,7 +64,7 @@ export const SpenderFilterDropdown = (props: {
 						key={`${option.address}-${option.chainID}`}
 						checked={spenderFilter?.some(item => item === option.args.sender)}
 						onCheckedChange={() => onCheckedChange(option)}>
-						{truncateHex(option.args.sender, 7)}
+						{option.spenderName ?? truncateHex(option.args.sender, 7)}
 					</DropdownMenuCheckboxItem>
 				))}
 			</DropdownMenuContent>

@@ -11,6 +11,7 @@ import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils
 import {isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {erc20Abi as abi, isAddressEqual} from 'viem';
+import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -21,6 +22,7 @@ import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {readContracts, serialize} from '@wagmi/core';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
+import {contractDataURL} from './constants';
 import {useApproveEventsChainSync} from './useApproveEventsChainSync';
 import {useHistoricalAllowances} from './useHistoricalAllowances';
 
@@ -71,6 +73,14 @@ function getUniqueAllowancesByToken(allowances: TAllowances | undefined): TAllow
 			index === self.findIndex(t => t.blockNumber === item.blockNumber && t.logIndex === item.logIndex)
 	);
 	return noDuplicated;
+}
+
+/**********************************************************************************************
+ ** Here, we obtain distinctive allowances based on their spender addresses to avoid making
+ ** additional requests for the same spender.
+ *********************************************************************************************/
+function getUniqueAllowancesBySpender(allowances: TAllowances | undefined): TAllowances {
+	return [...new Map(allowances?.map(item => [item.args.sender, item])).values()];
 }
 
 const configurationReducer = (state: TRevokeConfiguration, action: TRevokeActions): TRevokeConfiguration => {
@@ -184,7 +194,14 @@ export const RevokeContextApp = (props: {
 		 ** We will call the getUniqueAllowancesByToken function to get the unique allowances.
 		 *****************************************************************************************/
 		const uniqueAllowancesByToken = getUniqueAllowancesByToken(allowances);
-		if (!uniqueAllowancesByToken || uniqueAllowancesByToken.length < 1) {
+		const uniqueAllowancesBySpender = getUniqueAllowancesBySpender(allowances);
+
+		if (
+			!uniqueAllowancesByToken ||
+			uniqueAllowancesByToken.length < 1 ||
+			!uniqueAllowancesBySpender ||
+			uniqueAllowancesBySpender.length < 1
+		) {
 			set_isLoadingInitialDB(false);
 			return;
 		}
@@ -241,6 +258,26 @@ export const RevokeContextApp = (props: {
 				name: name as string
 			};
 		}
+		const spenderDictionary: {[key: TAddress]: {name: string}} = {};
+
+		/******************************************************************************************
+		 ** Here, we're making request to get names for each spender contract.
+		 *****************************************************************************************/
+		const responses = await Promise.allSettled(
+			uniqueAllowancesBySpender.map(async (allowance): Promise<{spender: TAddress; name: string}> => {
+				return {
+					spender: allowance.args.sender,
+					name: (await axios.get(`${contractDataURL}${allowance.chainID}/${allowance.args.sender}.json`)).data
+						.name
+				};
+			})
+		);
+
+		for (const response of responses) {
+			if (response.status === 'fulfilled') {
+				spenderDictionary[response.value.spender] = {name: response.value.name};
+			}
+		}
 
 		/******************************************************************************************
 		 ** Here we're expanding allowances array using the dictionary, and we are also saving the
@@ -259,7 +296,8 @@ export const RevokeContextApp = (props: {
 				),
 				name: dictionary[allowance.address]?.name,
 				chainID: allowance.chainID,
-				logIndex: allowance.logIndex
+				logIndex: allowance.logIndex,
+				spenderName: spenderDictionary[allowance.args.sender]?.name
 			};
 			return addApproveEventEntry({
 				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.logIndex}`,
@@ -273,7 +311,8 @@ export const RevokeContextApp = (props: {
 				value: item.args.value as bigint,
 				balanceOf: item.balanceOf,
 				name: item.name,
-				logIndex: item.logIndex
+				logIndex: item.logIndex,
+				spenderName: item.spenderName
 			});
 		});
 

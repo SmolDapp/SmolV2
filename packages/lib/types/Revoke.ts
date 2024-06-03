@@ -40,13 +40,14 @@ export type TRevokeConfiguration = {
 };
 
 /**************************************************************************************************
- ** TExpandedAllowance is expanded TAllowances type with additional token info.
+ ** TExpandedAllowance is expanded TAllowances type with additional token and spender info.
  *************************************************************************************************/
 export type TExpandedAllowance = TAllowance & {
 	name: string;
 	symbol: string;
 	decimals: number;
 	balanceOf: TNormalizedBN;
+	spenderName: string;
 };
 
 export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
@@ -121,6 +122,7 @@ export type TRevokeActions =
  ** symbol: string - Symbol of a token that is approved
  ** decimals: number - Decimals of a token that is approved
  ** balanceOf: number - Balance of a token that is apporved
+ ** spenderName: string - Name of a contract that might spend user's money
  **********************************************************************************************/
 export type TApproveEventEntry = {
 	id?: number;
@@ -136,6 +138,7 @@ export type TApproveEventEntry = {
 	sender: TAddress;
 	symbol: string;
 	value: bigint;
+	spenderName: string;
 };
 
 /**************************************************************************************************
@@ -174,6 +177,7 @@ export type TRevokeSortBy = 'spender' | 'amount' | 'token' | undefined;
 
 export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
+	spenderName?: string;
 };
 
 /**************************************************************************************************
@@ -190,4 +194,13 @@ export type TRevokeWizardProps = {
 export type TAllowancesTableProps = {
 	prices?: {[key: TAddress]: TNormalizedBN};
 	handleOpenCurtain: VoidFunction;
+};
+
+/**************************************************************************************************
+ ** TSpenderData is type of spender contract info.
+ *************************************************************************************************/
+export type TSpenderData = {
+	name: string;
+	exploits?: string[];
+	riskFactors?: string[];
 };

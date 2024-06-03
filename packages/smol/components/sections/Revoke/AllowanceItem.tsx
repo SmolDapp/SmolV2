@@ -130,9 +130,15 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 						<div className={'ml-4 flex flex-col items-start'}>
 							<div className={'text-base font-bold'}>{allowance.symbol}</div>
 
-							<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
-								{truncateHex(allowance.address, 5)}
-							</p>
+							<button
+								className={
+									'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
+								}
+								onClick={e => onCopyAddress(e, allowance.address)}>
+								<p className={'mb-[-2px] mr-1 text-xs text-neutral-600'}>
+									{truncateHex(allowance.address, 5)}
+								</p>
+							</button>
 						</div>
 					</div>
 				</div>
@@ -140,15 +146,18 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 				<div className={'mt-2.5'}>
 					<div className={'mt-1 flex w-full items-center justify-between'}>
 						<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
-						<p>{allowanceAmount}</p>
+						<p className={'text-sm'}>{allowanceAmount}</p>
 					</div>
 					<div className={'mt-1  flex w-full items-center justify-between'}>
 						<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
 						<p className={'text-sm text-neutral-600'}>{tokenAmountInUSD}</p>
 					</div>
-					<div className={'mt-1 flex w-full items-center justify-between'}>
+					<div className={'mt-1 flex w-full items-start justify-between'}>
 						<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
-						<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
+						<div className={'flex flex-col items-end'}>
+							<p className={'text-sm text-neutral-900'}>{allowance.spenderName}</p>
+							<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
+						</div>
 					</div>
 					<Button
 						onClick={onRevoke}
@@ -197,6 +206,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 					<div className={'flex flex-col text-right'}>
 						<div className={'flex items-center justify-end font-light text-neutral-600'}>
 							<div className={'grid w-full'}>
+								<p className={'text-base text-neutral-900'}>{allowance.spenderName}</p>
 								<button
 									className={
 										'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'

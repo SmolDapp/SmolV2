@@ -100,8 +100,6 @@ export function Wallet(): ReactElement {
 		searchValue
 	]);
 
-	console.log('render');
-
 	return (
 		<div className={'max-w-108 w-full gap-4'}>
 			<input

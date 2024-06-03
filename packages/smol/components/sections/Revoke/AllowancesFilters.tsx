@@ -33,7 +33,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 				symbol: item.symbol,
 				chainID: item.chainID,
 				displayName: item.args.sender,
-				args: item.args
+				args: item.args,
+				spenderName: item.spenderName
 			};
 		});
 	}, [uniqueAllowancesBySpender]);
