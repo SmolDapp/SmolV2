@@ -12,19 +12,25 @@ import {useEarnFlow} from './useEarnFlow';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-function VaultRisk({value}: {value: 'low' | 'medium' | 'high'}): ReactElement {
+function VaultRisk({value}: {value: number}): ReactElement {
+	const heights = ['3', '9', '15', '21', '27'];
 	return (
 		<div className={'flex items-end gap-[6px]'}>
-			<div className={'h-[9px] w-[3px] rounded-sm bg-neutral-900'} />
-			<div
-				className={cl('h-[15px] w-[3px] rounded-sm bg-neutral-900', value === 'low' ? '!bg-neutral-600' : '')}
-			/>
-			<div
-				className={cl(
-					'h-[21px] w-[3px] rounded-sm bg-neutral-900',
-					value === 'medium' || value === 'low' ? '!bg-neutral-600' : ''
-				)}
-			/>
+			{Array(5)
+				.fill(1)
+				.map((_, index) => {
+					if (index === 0) {
+						return <div className={`size-[${heights[index]}px] rounded-sm bg-neutral-900`} />;
+					}
+					return (
+						<div
+							className={cl(
+								`h-[${heights[index]}px] w-[3px] rounded-sm bg-neutral-900`,
+								index + 1 > value ? '!bg-neutral-600' : ''
+							)}
+						/>
+					);
+				})}
 		</div>
 	);
 }
@@ -91,7 +97,7 @@ export function Vault({
 		validate,
 		vault
 	]);
-
+	console.log(vault.info.riskLevel);
 	return (
 		<div
 			className={cl(
@@ -130,16 +136,19 @@ export function Vault({
 				</div>
 			</div>
 			<div className={'flex items-center'}>
-				<p className={'mr-6 text-lg font-medium'}>
+				<p className={'mr-10 text-lg font-medium'}>
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
-				<VaultRisk value={'medium'} />
-				<button
+				<div className={'mr-3'}>
+					<VaultRisk value={vault.info.riskLevel} />
+				</div>
+
+				<div
 					className={'ml-4'}
 					onMouseEnter={() => onChangeVaultInfo(vault)}
 					onMouseLeave={() => onChangeVaultInfo(undefined)}>
 					<IconQuestionMark className={'size-6 text-neutral-600'} />
-				</button>
+				</div>
 			</div>
 		</div>
 	);

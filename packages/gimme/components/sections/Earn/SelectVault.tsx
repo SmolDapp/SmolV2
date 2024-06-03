@@ -4,12 +4,37 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatPercent} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
+import {TooltipContent} from '@lib/primitives/Tooltip';
 import {createMarkup} from '@lib/utils/react/createMarkup';
 
 import {useEarnFlow} from './useEarnFlow';
 import {Vault} from './Vault';
 
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
+
+function HeaderTooltip({message}: {message: string}): ReactElement {
+	return (
+		<Tooltip.Provider delayDuration={150}>
+			<Tooltip.Root>
+				<Tooltip.Trigger className={'flex w-full items-center'}>
+					<IconQuestionMark className={'size-4 text-neutral-600'} />
+				</Tooltip.Trigger>
+				<TooltipContent
+					side={'top'}
+					className={'TooltipContent bg-primary'}>
+					{message}
+					<Tooltip.Arrow
+						className={'fill-primary'}
+						width={11}
+						height={5}
+					/>
+				</TooltipContent>
+			</Tooltip.Root>
+		</Tooltip.Provider>
+	);
+}
 
 export function SelectVault({
 	isOpen,
@@ -100,6 +125,23 @@ export function SelectVault({
 									</button>
 								</div>
 								<p className={'w-full px-4 pb-4 pt-2 text-left text-neutral-600'}>{getDescription()}</p>
+								<div className={'mb-2 flex w-full justify-between px-4 text-xs text-neutral-600'}>
+									<div className={'flex gap-1'}>
+										{'Asset'}
+										<HeaderTooltip message={'Asset'} />
+									</div>
+									<div className={'flex'}>
+										<div className={'mr-10 flex gap-1'}>
+											{'APY'}
+											<HeaderTooltip message={'APY'} />
+										</div>
+										<div className={'mr-5 flex gap-1'}>
+											{'Risk'}
+											<HeaderTooltip message={'Risk'} />
+										</div>
+										<div className={'mr-2 flex gap-1'}>{'Info'}</div>
+									</div>
+								</div>
 								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
 									{filteredVaults.map(vault => (
 										<Vault
