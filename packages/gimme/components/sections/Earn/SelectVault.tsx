@@ -4,6 +4,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatPercent} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
+import {createMarkup} from '@lib/utils/react/createMarkup';
 
 import {useEarnFlow} from './useEarnFlow';
 import {Vault} from './Vault';
@@ -66,7 +67,7 @@ export function SelectVault({
 				<div className={'fixed inset-0 z-[1001] w-screen !overflow-visible overflow-y-auto'}>
 					<div
 						className={cl(
-							'col-start-10 grid max-h-screen grid-cols-7 grid-rows-4 gap-4 text-center sm:p-0',
+							'grid max-h-screen grid-cols-9 grid-rows-4 gap-4 text-center sm:p-0',
 							'grid-flow-col'
 						)}>
 						<TransitionChild
@@ -81,9 +82,10 @@ export function SelectVault({
 								className={cl(
 									'relative overflow-hidden h-full flex flex-col items-center justify-center rounded-md !bg-white !px-2 !pt-2 !pb-6 transition-all',
 									'shadow-lg',
-									'col-span-7 row-span-2 row-start-3',
-									'lg:col-span-3 lg:col-start-3',
-									'md:col-span-5 md:col-start-2 md:row-start-2 md:row-span-2'
+									'col-span-9 row-span-2 row-start-3',
+									'xl:col-span-3 xl:col-start-4',
+									'lg:col-span-5 lg:col-start-3',
+									'md:col-span-5 md:col-start-3 md:row-start-2 md:row-span-2'
 								)}>
 								<div className={'flex w-full justify-between px-4 pb-2 pt-4'}>
 									<p className={'font-bold'}>{'Stables Opportunities'}</p>
@@ -117,9 +119,10 @@ export function SelectVault({
 						{vaultInfo && (
 							<div
 								className={cl(
-									'col-span-7 col-start-1 row-start-1 items-end row-span-2 flex sm:text-base',
-									'md:col-span-5 md:col-start-2 md:row-span-1 md:row-start-1 items-start md:text-xs',
-									'lg:col-span-2 lg:col-start-6 lg:row-span-2 lg:row-start-2 lg:max-w-[424px] lg:text-base lg:items-start'
+									'col-span-9 col-start-1 row-start-1 items-end row-span-2 flex sm:text-base',
+									'xl: col-span-2 xl:col-start-7',
+									'lg:col-span-2 lg:col-start-8 lg:row-span-2 lg:row-start-2 lg:max-w-[424px] lg:text-base lg:items-start',
+									'md:col-span-5 md:col-start-3 md:row-span-1 md:row-start-1 items-start md:text-xs'
 								)}>
 								<div
 									className={
@@ -129,7 +132,11 @@ export function SelectVault({
 										{vaultInfo.name}
 										{' Info'}
 									</p>
-									<p className={'mb-4 text-left text-neutral-600 lg:mb-8'}>{vaultInfo.description}</p>
+									<p
+										className={'mb-4 text-left text-neutral-600 lg:mb-8'}
+										dangerouslySetInnerHTML={createMarkup(vaultInfo.description)}
+									/>
+
 									<p className={'mb-4 font-bold text-neutral-600 lg:mb-8'}>{'Low Risk'}</p>
 									<div className={'flex flex-col items-start text-neutral-600'}>
 										<p className={'font-bold'}>{'APY'}</p>
