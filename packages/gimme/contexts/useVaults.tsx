@@ -1,4 +1,5 @@
 import {createContext, memo, useContext, useMemo} from 'react';
+import {isAddressEqual} from 'viem';
 import useSWR from 'swr';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {baseFetcher, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
@@ -34,10 +35,21 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	);
 
 	const gimmeVaultsDict: TDict<TYDaemonVault> = useMemo(
-		() => gimmeVaults?.reduce((acc, current) => ({...acc, [current.address]: current}), {}) || {},
+		() =>
+			gimmeVaults?.reduce(
+				(acc, current) => ({
+					...acc,
+					[current.address]:
+						isAddressEqual(current.address, '0x28F53bA70E5c8ce8D03b1FaD41E9dF11Bb646c36') &&
+						current.chainID === 137
+							? {...current, name: 'MATIC'}
+							: current
+				}),
+				{}
+			) || {},
 		[gimmeVaults]
 	);
-	console.log(gimmeVaultsDict);
+
 	const {balances, isLoading: isLoadingBalance, getBalance} = useWallet();
 
 	const {getStakingTokenBalance} = useStakingTokens(gimmeVaultsDict);
@@ -74,7 +86,7 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	return (
 		<VaultsContext.Provider
 			value={{
-				vaults: gimmeVaults || [],
+				vaults: Object.values(gimmeVaultsDict) || [],
 				userVaults,
 				userVaultsArray: Object.values(userVaults),
 				getStakingTokenBalance,
