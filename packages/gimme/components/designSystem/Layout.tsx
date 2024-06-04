@@ -1,6 +1,7 @@
 import {type ReactElement, type ReactNode} from 'react';
 import {type NextRouter} from 'next/router';
 import {LinkOrDiv} from 'lib/common/LinkOrDiv';
+import {polygon} from 'viem/chains';
 import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 
@@ -64,7 +65,7 @@ export default function Layout(props: AppProps): ReactElement {
 					))}
 				</div>
 				<div className={'flex justify-end gap-2'}>
-					<NetworkPopoverSelector />
+					<NetworkPopoverSelector networks={[polygon]} />
 					<ConnectButton />
 				</div>
 			</div>

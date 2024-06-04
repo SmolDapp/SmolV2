@@ -2,14 +2,17 @@ import {type ReactElement, useMemo, useState} from 'react';
 import {CommandList} from 'cmdk';
 import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
-import {supportedNetworks} from 'lib/utils/tools.chains';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
-export function NetworkPopoverSelector(): ReactElement {
+import type {Chain} from 'viem';
+
+export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElement {
+	const networks = props.networks || supportedNetworks;
 	const {onSwitchChain, chainID} = useWeb3();
 	const safeChainID = toSafeChainID(chainID, Number(process.env.BASE_CHAINID));
 	const isMounted = useIsMounted();
@@ -17,11 +20,8 @@ export function NetworkPopoverSelector(): ReactElement {
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 	const currentNetwork = useMemo(
-		() =>
-			supportedNetworks.find(
-				(network): boolean => network.id === safeChainID || (isDev && network.id === chainID)
-			),
-		[safeChainID, chainID, isDev]
+		() => networks.find((network): boolean => network.id === safeChainID || (isDev && network.id === chainID)),
+		[networks, safeChainID, isDev, chainID]
 	);
 
 	const [isOpen, set_isOpen] = useState(false);
@@ -72,7 +72,7 @@ export function NetworkPopoverSelector(): ReactElement {
 					<CommandInput placeholder={'Search chain...'} />
 					<CommandEmpty>{'No chain found.'}</CommandEmpty>
 					<CommandList className={'max-h-48 overflow-y-auto'}>
-						{supportedNetworks.map(network => (
+						{networks.map(network => (
 							<CommandItem
 								key={network.id}
 								value={network.name}
@@ -88,7 +88,7 @@ export function NetworkPopoverSelector(): ReactElement {
 									if (selectedNetwork === currentNetwork?.name) {
 										return;
 									}
-									const chain = supportedNetworks.find(
+									const chain = networks.find(
 										network => network.name.toLowerCase() === selectedNetwork.toLocaleLowerCase()
 									);
 									onSwitchChain(chain?.id || 1);
