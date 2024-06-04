@@ -5,6 +5,7 @@ import {AnimatePresence, motion} from 'framer-motion';
 import {cl} from '@builtbymom/web3/utils';
 
 import {ConnectButton} from './ConnectButton';
+import {NetworkPopoverSelector} from './NetworkPopoverSelector';
 
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
@@ -63,7 +64,7 @@ export default function Layout(props: AppProps): ReactElement {
 					))}
 				</div>
 				<div className={'flex justify-end gap-2'}>
-					{/* <NetworkPopoverSelector /> */}
+					<NetworkPopoverSelector />
 					<ConnectButton />
 				</div>
 			</div>

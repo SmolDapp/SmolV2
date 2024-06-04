@@ -12,28 +12,29 @@ import {useEarnFlow} from './useEarnFlow';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-function VaultRisk({value}: {value: number}): ReactElement {
-	const heights = ['3', '9', '15', '21', '27'];
-	return (
-		<div className={'flex items-end gap-[6px]'}>
-			{Array(5)
-				.fill(1)
-				.map((_, index) => {
-					if (index === 0) {
-						return <div className={`size-[${heights[index]}px] rounded-sm bg-neutral-900`} />;
-					}
-					return (
-						<div
-							className={cl(
-								`h-[${heights[index]}px] w-[3px] rounded-sm bg-neutral-900`,
-								index + 1 > value ? '!bg-neutral-600' : ''
-							)}
-						/>
-					);
-				})}
-		</div>
-	);
-}
+// function VaultRisk({value}: {value: number}): ReactElement {
+// 	const heights = ['3', '9', '15', '21', '27'];
+
+// 	return (
+// 		<div className={'flex size-full items-end gap-[6px]'}>
+// 			{Array(5)
+// 				.fill(null)
+// 				.map((_, index) => {
+// 					if (index === 0) {
+// 						return <div className={`size-[${heights[index]}px] rounded-sm bg-neutral-900`} />;
+// 					}
+// 					return (
+// 						<div
+// 							className={cl(
+// 								`h-[${heights[index]}px] w-[3px] rounded-sm bg-neutral-900`,
+// 								index + 1 > value ? '!bg-neutral-600' : ''
+// 							)}
+// 						/>
+// 					);
+// 				})}
+// 		</div>
+// 	);
+// }
 
 export function Vault({
 	vault,
@@ -97,7 +98,7 @@ export function Vault({
 		validate,
 		vault
 	]);
-	console.log(vault.info.riskLevel);
+
 	return (
 		<div
 			className={cl(
@@ -126,7 +127,7 @@ export function Vault({
 				<div className={'flex flex-col items-start gap-0.5 text-left'}>
 					<p>{name}</p>
 					<div className={'flex items-start gap-1'}>
-						<p className={'text-xs text-[#AF9300]'}>
+						<p className={'text-green text-xs'}>
 							{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
 						</p>
 						{/* <div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
@@ -139,9 +140,9 @@ export function Vault({
 				<p className={'mr-10 text-lg font-medium'}>
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
-				<div className={'mr-3'}>
-					<VaultRisk value={vault.info.riskLevel} />
-				</div>
+				{/* <div className={'mr-3'}>
+					<VaultRisk value={vault.info.riskLevel || 5} />
+				</div> */}
 
 				<div
 					className={'ml-4'}

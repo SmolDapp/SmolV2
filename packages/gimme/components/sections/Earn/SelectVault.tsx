@@ -131,14 +131,14 @@ export function SelectVault({
 										<HeaderTooltip message={'Asset'} />
 									</div>
 									<div className={'flex'}>
-										<div className={'mr-10 flex gap-1'}>
+										<div className={'mr-12 flex gap-1'}>
 											{'APY'}
 											<HeaderTooltip message={'APY'} />
 										</div>
-										<div className={'mr-5 flex gap-1'}>
+										{/* <div className={'mr-5 flex gap-1'}>
 											{'Risk'}
 											<HeaderTooltip message={'Risk'} />
-										</div>
+										</div> */}
 										<div className={'mr-2 flex gap-1'}>{'Info'}</div>
 									</div>
 								</div>

@@ -9,6 +9,7 @@ export function Counter({
 	decimals = 18,
 	idealDecimals,
 	decimalsToDisplay,
+	noFormat = false,
 	className
 }: {
 	value: number; // Value to animate
@@ -16,6 +17,7 @@ export function Counter({
 	idealDecimals?: number; // Ideal decimals to display
 	decimalsToDisplay?: number[]; // Decimals to display
 	className?: string;
+	noFormat?: boolean;
 }): ReactElement {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const nodeRef = useRef<any>();
@@ -29,11 +31,14 @@ export function Counter({
 				onUpdate(value) {
 					let hasBeenSet = false;
 					valueRef.current = value;
-					if (Number.isNaN(value) || value === 0) {
+					if (noFormat) {
+						node.textContent = value.toFixed();
+					} else if (Number.isNaN(value) || value === 0) {
 						const formatedValue = formatAmount(0, idealDecimals, idealDecimals);
 						node.textContent = formatedValue;
 					} else if (decimalsToDisplay && decimalsToDisplay.length > 0) {
 						const allDecimalsToTests = [...decimalsToDisplay, decimals];
+
 						if (idealDecimals) {
 							allDecimalsToTests.unshift(idealDecimals);
 						}
@@ -82,7 +87,7 @@ export function Counter({
 			return () => controls.stop();
 		}
 		return () => undefined;
-	}, [value, decimals, decimalsToDisplay, idealDecimals]);
+	}, [value, decimals, decimalsToDisplay, idealDecimals, noFormat]);
 
 	return (
 		<span
