@@ -4,7 +4,14 @@ import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {assert, MAX_UINT_256, toAddress, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {
+	assert,
+	ETH_TOKEN_ADDRESS,
+	MAX_UINT_256,
+	toAddress,
+	toNormalizedBN,
+	zeroNormalizedBN
+} from '@builtbymom/web3/utils';
 import {allowanceOf, approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
 import {SuccessModal} from '@lib/common/SuccessModal';
@@ -51,7 +58,8 @@ const useApproveDeposit = ({
 				!configuration.asset.token ||
 				!configuration.opportunity ||
 				!provider ||
-				configuration.asset.token.chainID !== safeChainID
+				configuration.asset.token.chainID !== safeChainID ||
+				configuration.asset.token.address === ETH_TOKEN_ADDRESS // TODO: Investigate the case when asset is native and the vault is linked to wrapped native token
 			) {
 				return zeroNormalizedBN;
 			}

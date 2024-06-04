@@ -2,10 +2,12 @@ import {type ReactElement, useCallback, useEffect, useMemo, useRef} from 'react'
 import {useRouter} from 'next/router';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {isAddressEqual} from 'viem';
+import {mainnet, polygon} from 'viem/chains';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {isAddress, isZeroAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {ETH_TOKEN_ADDRESS, isAddress, isZeroAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
@@ -13,8 +15,13 @@ import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
 import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
-import type {TAddress} from '@builtbymom/web3/types';
+import type {TAddress, TNDict} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
+
+const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
+	[mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+	[polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+};
 
 export function Earn(): ReactElement {
 	const router = useRouter();
@@ -47,10 +54,15 @@ export function Earn(): ReactElement {
 		if (!configuration.asset.token?.address) {
 			return vaults;
 		}
-		return Object.values(vaults).filter(
-			rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address)
-		);
-	}, [configuration.asset.token?.address, vaults]);
+		if (isAddressEqual(configuration.asset.token.address, ETH_TOKEN_ADDRESS)) {
+			return vaults.filter(
+				rawVault =>
+					configuration.asset.token &&
+					isAddressEqual(rawVault.token.address, WRAPPED_TOKEN_ADDRESS[configuration.asset.token?.chainID])
+			);
+		}
+		return vaults.filter(rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address));
+	}, [configuration.asset.token, vaults]);
 
 	/**********************************************************************************************
 	 ** The user can come to this page with a bunch of query arguments. If this is the case, we

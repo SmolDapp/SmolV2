@@ -3,7 +3,7 @@ import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
+import {useUpdateEffect} from '@react-hookz/web';
 import {getNewInput} from '@smolSections/Send/useSendFlow';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
@@ -126,12 +126,12 @@ export function SmolTokenAmountInput({
 		);
 	};
 
-	useDeepCompareEffect(() => {
+	useEffect(() => {
 		if (!result) {
 			return;
 		}
 		onSetValue(result);
-	}, [result]);
+	}, [onSetValue, result]);
 
 	/**********************************************************************************************
 	 ** Remove selected token on network change, unless we are specifically setting the chainID via

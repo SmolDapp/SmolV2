@@ -2,7 +2,7 @@ import {type ReactElement, useCallback} from 'react';
 import {useAccount, useSwitchChain} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {cl, formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
+import {cl, ETH_TOKEN_ADDRESS, formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -61,6 +61,12 @@ export function Vault({
 
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
 
+	/**
+	 * Async funciton that allows us to set selected vault with some good side effects:
+	 * 1. Chain is asynchronously switched if it doesn't coinside with chain vault is on.
+	 * 2. Form is populated with token linked to the vault and user's balance of selected token.
+	 * Exception - user has already selected native token which needs to be linked to wrapped token vault manually.
+	 */
 	const onSelectVault = useCallback(async () => {
 		if (vault.chainID !== chainID) {
 			await switchChainAsync({connector, chainId: vault.chainID});
@@ -69,7 +75,10 @@ export function Vault({
 		onSelect(vault);
 		onClose();
 
-		if (configuration.asset.token?.address !== vault.token.address) {
+		if (
+			configuration.asset.token?.address !== vault.token.address &&
+			configuration.asset.token?.address !== ETH_TOKEN_ADDRESS
+		) {
 			const balance = getBalance({
 				address: toAddress(vault.token.address),
 				chainID: vault.chainID
