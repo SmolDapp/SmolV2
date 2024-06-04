@@ -137,7 +137,7 @@ export function Vault({
 				</div>
 			</div>
 			<div className={'flex items-center'}>
-				<p className={'mr-10 text-lg font-medium'}>
+				<p className={'mr-2 text-lg font-medium'}>
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
 				{/* <div className={'mr-3'}>

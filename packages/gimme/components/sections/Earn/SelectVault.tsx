@@ -131,7 +131,7 @@ export function SelectVault({
 										<HeaderTooltip message={'Asset'} />
 									</div>
 									<div className={'flex'}>
-										<div className={'mr-12 flex gap-1'}>
+										<div className={'mr-5 flex gap-1'}>
 											{'APY'}
 											<HeaderTooltip message={'APY'} />
 										</div>
@@ -139,7 +139,7 @@ export function SelectVault({
 											{'Risk'}
 											<HeaderTooltip message={'Risk'} />
 										</div> */}
-										<div className={'mr-2 flex gap-1'}>{'Info'}</div>
+										<div className={'mr-1.5 flex gap-1'}>{'Info'}</div>
 									</div>
 								</div>
 								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
@@ -179,19 +179,18 @@ export function SelectVault({
 										dangerouslySetInnerHTML={createMarkup(vaultInfo.description)}
 									/>
 
-									<p className={'mb-4 font-bold text-neutral-600 lg:mb-8'}>{'Low Risk'}</p>
 									<div className={'flex flex-col items-start text-neutral-600'}>
 										<p className={'font-bold'}>{'APY'}</p>
-										<div className={'flex justify-start gap-6 text-xs'}>
-											<p>
+										<div className={'flex  justify-start gap-6 text-xs'}>
+											<p className={'text-left'}>
 												{'Last week '}
 												{formatPercent(vaultInfo.apr.points.weekAgo * 100)}
 											</p>
-											<p>
+											<p className={'text-left'}>
 												{'Last Month '}
 												{formatPercent(vaultInfo.apr.points.monthAgo * 100)}
 											</p>
-											<p>
+											<p className={'text-left'}>
 												{'Inception '}
 												{formatPercent(vaultInfo.apr.points.inception * 100)}
 											</p>
