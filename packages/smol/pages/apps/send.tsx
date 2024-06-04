@@ -1,4 +1,3 @@
-import {Fragment} from 'react';
 import {Send} from '@smolSections/Send';
 import {SendContextApp} from '@smolSections/Send/useSendFlow';
 import {SendQueryManagement} from '@smolSections/Send/useSendQuery';
@@ -39,6 +38,3 @@ SendPage.AppInfo = (
 		</p>
 	</>
 );
-SendPage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};

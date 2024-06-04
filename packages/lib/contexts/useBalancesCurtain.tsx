@@ -139,6 +139,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
  ** anywhere. After every app refresh, the user will need to select the lists again.
  *************************************************************************************************/
 function TokenListSelectorLayout(): ReactNode {
+	const plausible = usePlausible();
 	const {listsURI, onChangeListsURI} = usePopularTokens();
 	const {data} = useSWR<TTokenListSummary>(
 		'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json',
@@ -171,8 +172,10 @@ function TokenListSelectorLayout(): ReactNode {
 						key={e.URI}
 						onClick={() => {
 							if (listsURI.includes(e.URI)) {
+								plausible(PLAUSIBLE_EVENTS.REMOVE_TOKEN_LIST, {props: {list: e.URI}});
 								onChangeListsURI(prev => prev.filter(el => el !== e.URI));
 							} else {
+								plausible(PLAUSIBLE_EVENTS.ADD_TOKEN_LIST, {props: {list: e.URI}});
 								onChangeListsURI(prev => [...prev, e.URI]);
 							}
 						}}

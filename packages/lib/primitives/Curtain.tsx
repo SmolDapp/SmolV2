@@ -11,6 +11,13 @@ export const CurtainContent = (props: DialogContentProps): ReactElement => {
 	return (
 		<>
 			<Content
+				onPointerDownOutside={e => {
+					const target = e.target as HTMLElement;
+					if (target.id == 'backdrop' || target.id == 'backdrop-content') {
+						e.preventDefault();
+						e.stopPropagation();
+					}
+				}}
 				{...rest}
 				tabIndex={-1}
 				className={cl(
