@@ -184,7 +184,24 @@ export function SmolTokenAmountInput({
 				</div>
 				<div className={'w-full max-w-[176px]'}>
 					<SmolTokenSelectorButton
-						onSelectToken={token => validate(value.amount, token, token.balance)}
+						onSelectToken={token => {
+							/**********************************************************************
+							 * Super specific case processing:
+							 * 1. Change token from the outside of the component (e.g set token to
+							 * undefined)
+							 * 2. Select previously changed token again
+							 * 3. Previous 'result' object (with defined token) and new 'result'
+							 * are deeply equal to each other therefore line 129 useEffect that
+							 * sets the value is not triggered
+							 *
+							 * This small condition helps to proceed with externally changed tokens
+							 **********************************************************************/
+							if (token.address === result?.token?.address) {
+								return onSetValue(result);
+							}
+
+							validate(value.amount, token, token.balance);
+						}}
 						token={selectedToken}
 						chainID={chainIDToUse}
 					/>
