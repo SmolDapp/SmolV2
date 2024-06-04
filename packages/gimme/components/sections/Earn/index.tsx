@@ -35,12 +35,16 @@ export function Earn(): ReactElement {
 		(value: Partial<TTokenAmountInputElement>): void => {
 			dispatchConfiguration({type: 'SET_ASSET', payload: value});
 
-			// Remove opportunity selection only if new token is selected
-			if (value.token && configuration.asset.token?.address !== value.token.address) {
+			// Remove opportunity selection only if new token is selected that is not linked to selected opportunity
+			if (
+				value.token &&
+				configuration.asset.token?.address !== value.token.address &&
+				configuration.opportunity?.token.address !== value.token?.address
+			) {
 				dispatchConfiguration({type: 'SET_OPPORTUNITY', payload: undefined});
 			}
 		},
-		[configuration.asset.token?.address, dispatchConfiguration]
+		[configuration.asset.token?.address, configuration.opportunity?.token.address, dispatchConfiguration]
 	);
 
 	const onSetOpportunity = useCallback(
