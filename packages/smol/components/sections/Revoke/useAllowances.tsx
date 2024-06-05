@@ -104,7 +104,9 @@ export const RevokeContextApp = (props: {
 	const {chainID, safeChainID} = useChainID();
 	const {listTokensWithBalance, isLoadingOnCurrentChain} = useTokensWithBalance();
 
-	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[]>([]);
+	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[] | undefined>(
+		undefined
+	);
 	const [isLoadingInitialDB, set_isLoadingInitialDB] = useState(true);
 	const {getAll, add, deleteByID} = useIndexedDBStore<TApproveEventEntry>('approve-events');
 	const {currentEntry, updateChainSyncEntry} = useApproveEventsChainSync();
@@ -325,8 +327,6 @@ export const RevokeContextApp = (props: {
 		 ** them.
 		 *****************************************************************************************/
 		const itemsFromDB = await getAll();
-		const lastAllowanceBlockNumber = chainFilteredAllowances[chainFilteredAllowances.length - 1]?.blockNumber || 0n;
-		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
 
 		/******************************************************************************************
 		 ** Here we are formatting the allowances to be displayed in the UI.
@@ -349,6 +349,8 @@ export const RevokeContextApp = (props: {
 		const filteredAllowances = _formatedAllowances.filter(
 			item => isAddressEqual(item.args.owner, address) && item.chainID === safeChainID
 		);
+		const lastAllowanceBlockNumber = filteredAllowances[filteredAllowances.length - 1]?.blockNumber || 0n;
+		updateChainSyncEntry({address, chainID: safeChainID, blockNumber: lastAllowanceBlockNumber});
 		set_chainFilteredAllowances(filteredAllowances);
 		set_isLoadingInitialDB(false);
 	}, [
@@ -359,7 +361,6 @@ export const RevokeContextApp = (props: {
 		fromBlock,
 		toBlock,
 		getAll,
-		chainFilteredAllowances,
 		updateChainSyncEntry,
 		addApproveEventEntry
 	]);
