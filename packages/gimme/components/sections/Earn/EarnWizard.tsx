@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useRef, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {isAddressEqual} from 'viem';
+import {erc20Abi, isAddressEqual} from 'viem';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -12,17 +13,18 @@ import {
 	toNormalizedBN,
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
-import {allowanceOf, approveERC20} from '@builtbymom/web3/utils/wagmi';
+import {allowanceOf, approveERC20, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
+import {readContract} from '@wagmi/core';
 import {SuccessModal} from '@lib/common/SuccessModal';
 import {Button} from '@lib/primitives/Button';
-import {deposit, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
+import {approveViaRouter, deposit, depositViaRouter, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {useEarnFlow} from './useEarnFlow';
 
 import type {ReactElement} from 'react';
-import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
 
 type TApprovalWizardProps = {
@@ -39,11 +41,9 @@ const useApproveDeposit = ({
 	onApprove: (amount: bigint) => Promise<void>;
 } => {
 	const {provider} = useWeb3();
-	const {safeChainID} = useChainID();
 	const {configuration} = useEarnFlow();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const {address} = useWeb3();
-
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
 
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
@@ -54,18 +54,12 @@ const useApproveDeposit = ({
 	 **************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (
-				!configuration.asset.token ||
-				!configuration.opportunity ||
-				!provider ||
-				configuration.asset.token.chainID !== safeChainID ||
-				configuration.asset.token.address === ETH_TOKEN_ADDRESS // TODO: Investigate the case when asset is native and the vault is linked to wrapped native token
-			) {
+			if (!configuration.asset.token || !configuration.opportunity || !provider) {
 				return zeroNormalizedBN;
 			}
 
 			const key = allowanceKey(
-				safeChainID,
+				configuration.opportunity.chainID,
 				toAddress(configuration.asset.token.address),
 				toAddress(configuration.opportunity.address),
 				toAddress(address)
@@ -74,16 +68,45 @@ const useApproveDeposit = ({
 				return existingAllowances.current[key];
 			}
 
+			/**************************************************************************************
+			 ** If we are dealing with the Yearn 4626 Router:
+			 ** - The router must have the allowance to spend the vault token. This actions is
+			 **   required only one time, but is required anyway. In our case, this should be part
+			 **   of our testing and in the end, this should always return true.
+			 ** - We need to check the allowance of the token, not for the current user, but for
+			 **   the router address, which prevent us to use allowanceOf in it's current state.
+			 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
+			 **   otherwise we throw an error, preventing the user to continue.
+			 *************************************************************************************/
+			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
+				if ((configuration.opportunity as {router?: TAddress}).router) {
+					const allowance = await readContract(retrieveConfig(), {
+						abi: erc20Abi,
+						functionName: 'allowance',
+						chainId: configuration.opportunity.chainID,
+						address: configuration.opportunity.token.address,
+						args: [
+							toAddress((configuration.opportunity as {router?: TAddress}).router),
+							configuration.opportunity.address
+						]
+					});
+					console.warn(allowance);
+					existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
+					return existingAllowances.current[key];
+				}
+				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
+			}
+
 			const allowance = await allowanceOf({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: configuration.opportunity.chainID,
 				tokenAddress: toAddress(configuration.asset.token.address),
 				spenderAddress: toAddress(configuration.opportunity.address)
 			});
 			existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
 			return existingAllowances.current[key];
 		},
-		[configuration.asset.token, configuration.opportunity, provider, safeChainID, address]
+		[configuration.asset.token, configuration.opportunity, provider, address]
 	);
 
 	/**********************************************************************************************
@@ -106,6 +129,35 @@ const useApproveDeposit = ({
 			assert(configuration.asset.token, 'Input token is not set');
 			assert(configuration.opportunity, 'Output token is not set');
 
+			/**************************************************************************************
+			 ** If we are dealing with the Yearn 4626 Router:
+			 ** - The router must be approved to spend the vault token. This actions is required
+			 **   only one time, but is required anyway. In our case, this should be part of our
+			 **   testing. But just in case, we are adding this check so the user can approve it
+			 **   and continue as if it was a normal approve.
+			 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
+			 **   otherwise we throw an error, preventing the user to continue.
+			 *************************************************************************************/
+			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
+				if ((configuration.opportunity as {router?: TAddress}).router) {
+					const result = await approveViaRouter({
+						connector: provider,
+						chainID: configuration.opportunity.chainID,
+						contractAddress: (configuration.opportunity as {router?: TAddress}).router,
+						amount: configuration.asset.normalizedBigAmount.raw,
+						vault: configuration.opportunity?.address,
+						tokenAddress: configuration.opportunity.token.address,
+						statusHandler: set_approvalStatus
+					});
+					if (result.isSuccessful) {
+						onSuccess();
+					}
+					triggerRetreiveAllowance();
+					return;
+				}
+				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
+			}
+
 			const result = await approveERC20({
 				connector: provider,
 				chainID: configuration.opportunity.chainID,
@@ -119,7 +171,14 @@ const useApproveDeposit = ({
 				triggerRetreiveAllowance();
 			}
 		},
-		[configuration.asset.token, configuration.opportunity, onSuccess, provider, triggerRetreiveAllowance]
+		[
+			configuration.asset.normalizedBigAmount.raw,
+			configuration.asset.token,
+			configuration.opportunity,
+			onSuccess,
+			provider,
+			triggerRetreiveAllowance
+		]
 	);
 
 	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
@@ -133,21 +192,15 @@ const useApproveDeposit = ({
 	};
 };
 
-const useDeposit = ({
-	onSuccess
-}: {
+const useDeposit = (props: {
 	onSuccess: () => void;
 }): {
 	onExecuteDeposit: () => Promise<void>;
-	onExecuteWithdraw: () => Promise<void>;
 	depositStatus: TTxStatus;
 	set_depositStatus: (value: TTxStatus) => void;
 } => {
 	const {configuration} = useEarnFlow();
 	const {provider} = useWeb3();
-	const {safeChainID} = useChainID();
-	const {vaults} = useVaults();
-
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 
 	/* 🔵 - Yearn Finance ******************************************************
@@ -158,16 +211,38 @@ const useDeposit = ({
 		assert(configuration.opportunity?.address, 'Output token is not set');
 		assert(configuration.asset.token?.address, 'Input amount is not set');
 
+		if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
+			if ((configuration.opportunity as {router?: TAddress}).router) {
+				const result = await depositViaRouter({
+					connector: provider,
+					chainID: configuration.opportunity.chainID,
+					contractAddress: (configuration.opportunity as {router?: TAddress}).router,
+					amount: configuration.asset.normalizedBigAmount.raw,
+					vault: configuration.opportunity?.address,
+					statusHandler: set_depositStatus
+				});
+				if (result.isSuccessful) {
+					set_depositStatus({...defaultTxStatus, success: true});
+					props.onSuccess();
+					return;
+				}
+				set_depositStatus({...defaultTxStatus, error: true});
+				return;
+			}
+			throw new Error(`No router for ${configuration.opportunity?.name} vault`);
+		}
+
 		set_depositStatus({...defaultTxStatus, pending: true});
 
 		const result = await deposit({
 			connector: provider,
-			chainID: safeChainID,
+			chainID: configuration.opportunity.chainID,
 			contractAddress: configuration.opportunity?.address,
-			amount: configuration.asset.normalizedBigAmount.raw
+			amount: configuration.asset.normalizedBigAmount.raw,
+			statusHandler: set_depositStatus
 		});
 		if (result.isSuccessful) {
-			onSuccess();
+			props.onSuccess();
 			set_depositStatus({...defaultTxStatus, success: true});
 			return;
 		}
@@ -175,84 +250,176 @@ const useDeposit = ({
 	}, [
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token?.address,
-		configuration.opportunity?.address,
-		onSuccess,
-		provider,
-		safeChainID
+		configuration.opportunity,
+		props,
+		provider
 	]);
 
-	/* 🔵 - Yearn Finance ******************************************************
-	 ** Trigger a withdraw web3 action using the vault contract to take back
-	 ** some underlying token from this specific vault.
-	 **************************************************************************/
+	return {onExecuteDeposit, set_depositStatus, depositStatus};
+};
+
+const useWithdraw = (props: {
+	onSuccess: () => void;
+}): {
+	onExecuteWithdraw: () => Promise<void>;
+	withdrawStatus: TTxStatus;
+	set_withdrawStatus: (value: TTxStatus) => void;
+} => {
+	const {configuration} = useEarnFlow();
+	const {provider} = useWeb3();
+	const {vaults} = useVaults();
+	const [withdrawStatus, set_withdrawStatus] = useState(defaultTxStatus);
+
+	/*********************************************************************************************
+	 ** Trigger a withdraw web3 action using the vault contract to take back some underlying token
+	 ** from this specific vault.
+	 *********************************************************************************************/
 	const onExecuteWithdraw = useCallback(async (): Promise<void> => {
 		assert(configuration.asset.token, 'Output token is not set');
 		assert(configuration.asset.amount, 'Input amount is not set');
 		const vault = vaults.find(vault =>
 			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
 		);
-		const isV3 = vault?.version.split('.')?.[0] === '3';
+		if (!vault) {
+			throw new Error('Vault not found');
+		}
+		const isV3 = vault.version.split('.')?.[0] === '3';
 
 		let result;
-		set_depositStatus({...defaultTxStatus, pending: true});
-
 		if (isV3) {
 			result = await redeemV3Shares({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: vault.chainID,
 				contractAddress: configuration.asset.token.address,
 				amount: configuration.asset.normalizedBigAmount.raw,
-				maxLoss: 1n
+				maxLoss: 1n,
+				statusHandler: set_withdrawStatus
 			});
 		} else {
 			result = await withdrawShares({
 				connector: provider,
-				chainID: safeChainID,
+				chainID: vault.chainID,
 				contractAddress: configuration.asset.token.address,
-				amount: configuration.asset.normalizedBigAmount.raw
+				amount: configuration.asset.normalizedBigAmount.raw,
+				statusHandler: set_withdrawStatus
 			});
 		}
 
 		if (result.isSuccessful) {
-			onSuccess();
-			set_depositStatus({...defaultTxStatus, success: true});
+			props.onSuccess();
+			set_withdrawStatus({...defaultTxStatus, success: true});
 			return;
 		}
-		set_depositStatus({...defaultTxStatus, error: true});
+		set_withdrawStatus({...defaultTxStatus, error: true});
 	}, [
 		configuration.asset.amount,
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token,
-		onSuccess,
+		props,
 		provider,
-		safeChainID,
 		vaults
 	]);
 
-	return {onExecuteDeposit, set_depositStatus, onExecuteWithdraw, depositStatus};
+	return {onExecuteWithdraw, set_withdrawStatus, withdrawStatus};
 };
 
 export function EarnWizard(): ReactElement {
+	const {onRefresh} = useWallet();
 	const {configuration, onResetEarn} = useEarnFlow();
+	const {safeChainID} = useChainID();
 	const {vaults} = useVaults();
-
-	const {onApprove, isApproved, approvalStatus} = useApproveDeposit({
-		onSuccess: () => console.log('success approve')
+	const [transactionResult, set_transactionResult] = useState({
+		isExecuted: false,
+		message: ''
 	});
 
-	const {onExecuteDeposit, onExecuteWithdraw, set_depositStatus, depositStatus} = useDeposit({
-		onSuccess: () => {
-			console.log('success deposit');
-		}
-	});
+	/**********************************************************************************************
+	 ** Based on the user action, we can display a different message in the success modal.
+	 *********************************************************************************************/
+	const getModalMessage = useCallback(
+		(kind: 'DEPOSIT' | 'WITHDRAW'): string => {
+			const vaultName = vaults.find(vault =>
+				isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
+			)?.name;
+
+			if (kind === 'WITHDRAW') {
+				return `Successfully withdrawn ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} from ${configuration.opportunity?.name ?? vaultName}`;
+			}
+			return `Successfully deposited ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} to ${configuration.opportunity?.name ?? vaultName}`;
+		},
+		[
+			configuration.asset.normalizedBigAmount.display,
+			configuration.asset.token?.address,
+			configuration.asset.token?.symbol,
+			configuration.opportunity?.name,
+			vaults
+		]
+	);
+
+	/**********************************************************************************************
+	 ** After a successful transaction, this function can be called to refresh balances of the
+	 ** tokens involved in the transaction (vault, asset, chain coin).
+	 *********************************************************************************************/
+	const onRefreshTokens = useCallback(
+		(kind: 'APPROVE' | 'DEPOSIT' | 'WITHDRAW') => {
+			if (kind !== 'APPROVE') {
+				set_transactionResult({
+					isExecuted: true,
+					message: getModalMessage(kind as 'DEPOSIT' | 'WITHDRAW')
+				});
+			}
+			const tokensToRefresh = [];
+			if (configuration.asset.token) {
+				tokensToRefresh.push({
+					decimals: configuration.asset.token.decimals,
+					name: configuration.asset.token.name,
+					symbol: configuration.asset.token.symbol,
+					address: toAddress(configuration.asset.token.address),
+					chainID: Number(configuration.asset.token.chainID)
+				});
+			}
+			if (configuration.opportunity) {
+				tokensToRefresh.push({
+					decimals: configuration.opportunity.decimals,
+					name: configuration.opportunity.name,
+					symbol: configuration.opportunity.symbol,
+					address: toAddress(configuration.opportunity.address),
+					chainID: Number(configuration.opportunity.chainID)
+				});
+			}
+			const currentChainID =
+				configuration.opportunity?.chainID || configuration.asset.token?.chainID || safeChainID;
+			const {nativeCurrency} = getNetwork(Number(currentChainID));
+			if (nativeCurrency) {
+				tokensToRefresh.push({
+					decimals: 18,
+					name: nativeCurrency.name,
+					symbol: nativeCurrency.symbol,
+					address: ETH_TOKEN_ADDRESS,
+					chainID: Number(currentChainID)
+				});
+			}
+			onRefresh(tokensToRefresh);
+		},
+		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, safeChainID]
+	);
+
+	const {onApprove, isApproved, approvalStatus} = useApproveDeposit({onSuccess: () => onRefreshTokens('APPROVE')});
+	const {onExecuteDeposit, depositStatus} = useDeposit({onSuccess: () => onRefreshTokens('DEPOSIT')});
+	const {onExecuteWithdraw, withdrawStatus} = useWithdraw({onSuccess: () => onRefreshTokens('WITHDRAW')});
+
+	/**********************************************************************************************
+	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
+	 *********************************************************************************************/
+	const onCloseModal = useCallback(() => {
+		set_transactionResult({isExecuted: false, message: ''});
+		onResetEarn();
+	}, [onResetEarn]);
 
 	const isWithdrawing = useMemo(() => {
 		return !!vaults.find(vault => isAddressEqual(vault.address, toAddress(configuration.asset.token?.address)));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [configuration.asset.token?.address, vaults.length]);
-	const widrawingVaultName = isWithdrawing
-		? vaults.find(vault => isAddressEqual(vault.address, toAddress(configuration.asset.token?.address)))?.name
-		: undefined;
 
 	const isValid = useMemo((): boolean => {
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -280,7 +447,7 @@ export function EarnWizard(): ReactElement {
 			{/* <small className={'pb-1 pl-1'}>{'Summary'}</small> */}
 
 			<Button
-				isBusy={depositStatus.pending || approvalStatus.pending}
+				isBusy={depositStatus.pending || withdrawStatus.pending || approvalStatus.pending}
 				isDisabled={!isValid}
 				onClick={(): any => {
 					if (isWithdrawing) {
@@ -297,14 +464,11 @@ export function EarnWizard(): ReactElement {
 
 			<SuccessModal
 				title={'It looks like a success!'}
-				content={`Successfully ${isWithdrawing ? 'withdrawn' : 'deposited'} ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} ${isWithdrawing ? 'from' : 'to'} ${configuration.opportunity?.name ?? widrawingVaultName}`}
+				content={transactionResult.message}
 				ctaLabel={isWithdrawing ? 'Deposit' : 'Another deposit'}
-				isOpen={depositStatus.success}
+				isOpen={transactionResult.isExecuted}
 				className={'!bg-white shadow-lg'}
-				onClose={(): void => {
-					onResetEarn();
-					set_depositStatus(defaultTxStatus);
-				}}
+				onClose={onCloseModal}
 			/>
 
 			{/* <ErrorModal

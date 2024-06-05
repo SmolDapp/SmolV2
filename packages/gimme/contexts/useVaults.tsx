@@ -42,7 +42,11 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 					[current.address]:
 						isAddressEqual(current.address, '0x28F53bA70E5c8ce8D03b1FaD41E9dF11Bb646c36') &&
 						current.chainID === 137
-							? {...current, name: 'MATIC'}
+							? {
+									...current,
+									name: 'MATIC',
+									router: toAddress('0x1112dbCF805682e828606f74AB717abf4b4FD8DE')
+								}
 							: current
 				}),
 				{}

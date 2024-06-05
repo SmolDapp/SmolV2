@@ -28,6 +28,7 @@ export function Earn(): ReactElement {
 	const {chainID} = useWeb3();
 
 	const {getToken} = useWallet();
+	const {vaults, userVaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 
@@ -53,8 +54,6 @@ export function Earn(): ReactElement {
 		},
 		[dispatchConfiguration]
 	);
-
-	const {vaults, userVaults} = useVaults();
 
 	const filteredVaults = useMemo(() => {
 		if (!configuration.asset.token?.address) {
