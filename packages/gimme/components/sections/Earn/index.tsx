@@ -97,6 +97,7 @@ export function Earn(): ReactElement {
 				}
 			});
 		}
+
 		if (vaultAddress && !isZeroAddress(vaultAddress as string) && isAddress(vaultAddress as string)) {
 			const vault = userVaults[vaultAddress as TAddress];
 
@@ -104,13 +105,13 @@ export function Earn(): ReactElement {
 		}
 
 		uniqueIdentifier.current = createUniqueID(serialize(router.query));
-	}, [chainID, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router.query, userVaults]);
+	}, [chainID, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router, router.query, userVaults]);
 
 	useEffect(() => {
 		return () => {
 			uniqueIdentifier.current = undefined;
 		};
-	});
+	}, []);
 
 	const onClearAsset = useCallback(() => {
 		dispatchConfiguration({
