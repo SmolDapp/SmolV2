@@ -1,4 +1,5 @@
 import {Fragment, useCallback} from 'react';
+import Link from 'next/link';
 import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatAmount, isAddress, toAddress} from '@builtbymom/web3/utils';
@@ -13,7 +14,7 @@ import {useSortedAllowances} from './useSortedAllowances';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {TSortDirection} from '@builtbymom/web3/types';
-import type {TAllowancesTableProps, TExpandedAllowance, TRevokeSortBy} from '@lib/types/Revoke';
+import type {TAllowancesTableProps, TExpandedAllowance} from '@lib/types/Revoke';
 
 /**********************************************************************************************
  ** Columns of allowance table.
@@ -40,7 +41,11 @@ const tableColumns = [
 		thClassName: 'px-6 font-light text-neutral-500',
 		btnClassName: 'flex items-center transition-colors hover:text-neutral-800 group justify-end'
 	},
-	{isSortable: false, thClassName: 'px-6 font-medium'}
+	{
+		value: '',
+		isSortable: false,
+		thClassName: 'px-6 font-medium'
+	}
 ];
 
 function TokenFetchingLoader(): ReactElement {
@@ -165,7 +170,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 };
 
 export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): ReactElement => {
-	const {sortBy, sortDirection, onChangeSort} = useSortedAllowances(allowances || []);
+	const {sortBy, sortDirection} = useSortedAllowances(allowances || []);
 
 	/**********************************************************************************************
 	 ** This toggleSortDirection function changes sort direction between asc, desc and 'no-sort'.
@@ -188,12 +193,12 @@ export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): R
 	/**********************************************************************************************
 	 ** This function triggers onChangeSort and changes sortDirection and sortBy.
 	 *********************************************************************************************/
-	const onSort = useCallback(
-		(newSortBy: string, newSortDirection: string): void => {
-			onChangeSort(newSortDirection as TSortDirection, newSortBy as TRevokeSortBy);
-		},
-		[onChangeSort]
-	);
+	// const onSort = useCallback(
+	// 	(newSortBy: string, newSortDirection: string): void => {
+	// 		onChangeSort(newSortDirection as TSortDirection, newSortBy as TRevokeSortBy);
+	// 	},
+	// 	[onChangeSort]
+	// );
 
 	/**********************************************************************************************
 	 ** This renderChevron function returns the correct icon, according to current sort state.
@@ -226,12 +231,12 @@ export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): R
 						key={`${item.value}${i}`}
 						className={item.thClassName}>
 						<div className={cl(item.value === 'spender' ? 'flex justify-end' : '')}>
-							<button
-								className={cl(item.btnClassName, sortBy === item.value ? 'text-neutral-800' : '')}
-								onClick={(): void => onSort(item.value!, toggleSortDirection(item.value!))}>
+							<Link
+								href={`?sortDirection=${toggleSortDirection(item.value)}&sortBy=${item.value}`}
+								className={cl(item.btnClassName, sortBy === item.value ? 'text-neutral-800' : '')}>
 								<p>{item.title}</p>
 								{item.isSortable && renderChevron(sortBy === item.value)}
-							</button>
+							</Link>
 						</div>
 					</th>
 				))}

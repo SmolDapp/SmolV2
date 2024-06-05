@@ -1,12 +1,4 @@
 import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
-import {
-	type TAllowances,
-	type TApproveEventEntry,
-	type TExpandedAllowance,
-	type TRevokeActions,
-	type TRevokeConfiguration,
-	type TRevokeContext
-} from 'packages/lib/types/Revoke';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
@@ -26,6 +18,14 @@ import {contractDataURL} from './constants';
 import {useApproveEventsChainSync} from './useApproveEventsChainSync';
 import {useHistoricalAllowances} from './useHistoricalAllowances';
 
+import type {
+	TAllowances,
+	TApproveEventEntry,
+	TExpandedAllowance,
+	TRevokeActions,
+	TRevokeConfiguration,
+	TRevokeContext
+} from 'packages/lib/types/Revoke';
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types/address';
 

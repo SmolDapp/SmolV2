@@ -173,7 +173,7 @@ export type TRevokeSort = {
 	asc: boolean | undefined;
 };
 
-export type TRevokeSortBy = 'spender' | 'amount' | 'token' | undefined;
+export type TRevokeSortBy = 'spender' | 'amount' | 'token' | '';
 
 export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
