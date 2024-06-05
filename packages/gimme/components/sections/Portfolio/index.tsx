@@ -135,7 +135,7 @@ export function Portfolio(): ReactNode {
 		return balancesUsd.reduce((acc, current) => current + acc, 0);
 	}, [blockNumber, userVaults, balances, vaultTokenPrices, userVaultsArray.length]);
 
-	const [totalDepositedIntegerPart, totalDepositedDecimalPart] = totalDeposited.toString().split('.');
+	// const [totalDepositedIntegerPart, totalDepositedDecimalPart] = totalDeposited.toString().split('.');
 
 	const getLayout = (): ReactNode => {
 		if (!address) {
@@ -173,19 +173,9 @@ export function Portfolio(): ReactNode {
 				<p className={'text-4xl'}>
 					{'$'}
 					<Counter
-						value={+totalDepositedIntegerPart}
-						decimals={0}
-						decimalsToDisplay={[0]}
-						idealDecimals={0}
-					/>
-					<span className={'text-neutral-400'}>{'.'}</span>
-					<Counter
-						className={'text-neutral-400'}
-						value={+totalDepositedDecimalPart}
-						decimals={0}
-						decimalsToDisplay={[0]}
-						idealDecimals={0}
-						noFormat={true}
+						value={totalDeposited}
+						decimals={18}
+						decimalsToDisplay={[4]}
 					/>
 				</p>
 			</div>
