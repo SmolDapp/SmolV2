@@ -22,6 +22,7 @@ type TTokenAmountInput = {
 	value: TTokenAmountInputElement;
 	chainIDToUse?: number;
 	showPercentButtons?: boolean;
+	displayNetworkIcon?: boolean;
 };
 
 const percentIntervals = [25, 50, 75];
@@ -30,6 +31,7 @@ export function SmolTokenAmountInput({
 	onSetValue,
 	value,
 	showPercentButtons = false,
+	displayNetworkIcon = false,
 	chainIDToUse
 }: TTokenAmountInput): ReactElement {
 	const {safeChainID} = useChainID();
@@ -202,6 +204,7 @@ export function SmolTokenAmountInput({
 
 							validate(value.amount, token, token.balance);
 						}}
+						displayNetworkIcon={displayNetworkIcon}
 						token={selectedToken}
 						chainID={chainIDToUse}
 					/>

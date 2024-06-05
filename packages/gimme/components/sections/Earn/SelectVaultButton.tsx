@@ -51,7 +51,15 @@ export function SelectOpportunityButton({
 						disabled={filteredVaults.length === 0}>
 						{configuration.opportunity ? (
 							<>
-								<div className={'flex w-full items-center gap-4'}>
+								<div className={'relative flex w-full items-center gap-4'}>
+									<div className={'absolute -left-2 -top-2'}>
+										<ImageWithFallback
+											width={16}
+											height={16}
+											alt={configuration.opportunity.chainID.toString()}
+											src={`${process.env.SMOL_ASSETS_URL}/chain/${configuration.opportunity.chainID}/logo-32.png`}
+										/>
+									</div>
 									<div
 										className={
 											'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'
@@ -59,8 +67,8 @@ export function SelectOpportunityButton({
 										<ImageWithFallback
 											alt={configuration.opportunity.token.symbol}
 											unoptimized
-											src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-32.png`}
-											altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-32.png`}
+											src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+											altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
 											quality={90}
 											width={40}
 											height={40}

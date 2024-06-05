@@ -127,8 +127,8 @@ export function Vault({
 				<ImageWithFallback
 					alt={token.symbol}
 					unoptimized
-					src={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-32.png`}
-					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-32.png`}
+					src={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
+					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
 					quality={90}
 					width={32}
 					height={32}

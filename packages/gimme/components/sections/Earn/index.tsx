@@ -140,6 +140,7 @@ export function Earn(): ReactElement {
 				<SmolTokenAmountInput
 					onSetValue={onSetAsset}
 					value={configuration.asset}
+					displayNetworkIcon
 				/>
 				<p className={'mb-2 mt-6 text-xs font-medium '}>{'Opportunity'}</p>
 				<SelectOpportunityButton
