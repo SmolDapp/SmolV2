@@ -68,7 +68,11 @@ export function VaultsListHead(props: {
 							{renderChevron(props.sortBy === item.value)}
 						</button>
 					) : (
-						<div className={'col-span-2 flex flex-row items-center justify-end'}>{item.label}</div>
+						<div
+							key={item.value}
+							className={'col-span-2 flex flex-row items-center justify-end'}>
+							{item.label}
+						</div>
 					)
 				)}
 			</div>
