@@ -191,16 +191,6 @@ export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): R
 	};
 
 	/**********************************************************************************************
-	 ** This function triggers onChangeSort and changes sortDirection and sortBy.
-	 *********************************************************************************************/
-	// const onSort = useCallback(
-	// 	(newSortBy: string, newSortDirection: string): void => {
-	// 		onChangeSort(newSortDirection as TSortDirection, newSortBy as TRevokeSortBy);
-	// 	},
-	// 	[onChangeSort]
-	// );
-
-	/**********************************************************************************************
 	 ** This renderChevron function returns the correct icon, according to current sort state.
 	 *********************************************************************************************/
 	const renderChevron = useCallback(
