@@ -1,5 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import toast from 'react-hot-toast';
+import {useIndexedDBStore} from 'use-indexeddb';
+import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -22,13 +24,14 @@ import {useAllowances} from './useAllowances';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TAllowanceItemProps, TTokenAllowance} from '@lib/types/Revoke';
+import type {TAllowanceItemProps, TApproveEventEntry, TTokenAllowance} from '@lib/types/Revoke';
 
 export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactElement => {
-	const {dispatchConfiguration} = useAllowances();
+	const {dispatchConfiguration, configuration} = useAllowances();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
-	const {provider} = useWeb3();
-	const {chainID, safeChainID} = useChainID();
+	const {provider, address, chainID} = useWeb3();
+	const {safeChainID} = useChainID();
+	const {deleteByID, getAll} = useIndexedDBStore<TApproveEventEntry>('approve-events');
 
 	/**********************************************************************************************
 	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
@@ -48,13 +51,30 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 				amount: 0n,
 				statusHandler: set_revokeStatus
 			});
-			if (result.isSuccessful) {
-				// Option1: clear indexDB with this item
-				// Option2: refetch allowance for this token to get the most up-to-date data and
-				//          update the indexDB with the new data
+
+			if (result.isSuccessful && address && configuration?.tokenToRevoke?.address) {
+				const storedAllowances = await getAll();
+				const allowanceToBeRemoved = storedAllowances.find(
+					item =>
+						configuration.tokenToRevoke &&
+						isAddressEqual(address, item.owner) &&
+						isAddressEqual(item.address, configuration.tokenToRevoke.address) &&
+						isAddressEqual(item.sender, configuration.tokenToRevoke.spender) &&
+						item.chainID === chainID
+				);
+				deleteByID(allowanceToBeRemoved?.id);
 			}
 		},
-		[chainID, dispatchConfiguration, provider, safeChainID]
+		[
+			address,
+			chainID,
+			configuration.tokenToRevoke,
+			deleteByID,
+			dispatchConfiguration,
+			getAll,
+			provider,
+			safeChainID
+		]
 	);
 	/**********************************************************************************************
 	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
@@ -92,7 +112,10 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 	 ** This function calls revoke function and lets us to revoke the allowance.
 	 *********************************************************************************************/
 	const onRevoke = useCallback(() => {
-		revokeTokenAllowance({address: allowance.address, name: allowance.symbol ?? ''}, allowance.args.sender);
+		revokeTokenAllowance(
+			{spender: allowance.args.sender, address: allowance.address, name: allowance.symbol ?? ''},
+			allowance.args.sender
+		);
 	}, [allowance.address, allowance.args.sender, allowance.symbol, revokeTokenAllowance]);
 
 	const {getToken} = useTokenList();

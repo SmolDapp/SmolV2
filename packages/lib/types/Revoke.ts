@@ -33,9 +33,9 @@ export type TWithBalanceFilter = 'with-balance' | 'without-balance' | undefined;
  ** TRevokeConfiguration contains all the necessary information to perform a revoke operation.
  *************************************************************************************************/
 export type TRevokeConfiguration = {
-	tokenToCheck: TToken | undefined;
-	tokensToCheck: TTokenAllowance[] | undefined;
-	tokenToRevoke?: TTokenAllowance | undefined;
+	tokenToCheck?: TToken;
+	tokensToCheck?: TTokenAllowance[];
+	tokenToRevoke?: TTokenAllowance;
 	allowancesFilters: TAllowancesFilters;
 };
 
@@ -50,7 +50,7 @@ export type TExpandedAllowance = TAllowance & {
 	spenderName: string;
 };
 
-export type TTokenAllowance = Partial<Pick<TToken, 'address' | 'name'>> & {spender?: TAddress};
+export type TTokenAllowance = Pick<TToken, 'address' | 'name'> & {spender: TAddress};
 
 /**************************************************************************************************
  ** TRevokeContext is the context that hepls us to work with allowances.

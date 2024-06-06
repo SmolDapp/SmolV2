@@ -29,7 +29,7 @@ const tableColumns = [
 	},
 	{
 		value: 'amount',
-		title: 'Amount',
+		title: 'Amount at risk',
 		isSortable: true,
 		thClassName: 'flex justify-end font-light text-neutral-500',
 		btnClassName: 'flex items-center group transition-colors hover:text-neutral-800'
