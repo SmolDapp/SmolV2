@@ -211,6 +211,8 @@ const useDeposit = (props: {
 		assert(configuration.opportunity?.address, 'Output token is not set');
 		assert(configuration.asset.token?.address, 'Input amount is not set');
 
+		set_depositStatus({...defaultTxStatus, pending: true});
+
 		if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
 			if ((configuration.opportunity as {router?: TAddress}).router) {
 				const result = await depositViaRouter({
@@ -218,8 +220,7 @@ const useDeposit = (props: {
 					chainID: configuration.opportunity.chainID,
 					contractAddress: (configuration.opportunity as {router?: TAddress}).router,
 					amount: configuration.asset.normalizedBigAmount.raw,
-					vault: configuration.opportunity?.address,
-					statusHandler: set_depositStatus
+					vault: configuration.opportunity?.address
 				});
 				if (result.isSuccessful) {
 					set_depositStatus({...defaultTxStatus, success: true});
@@ -232,14 +233,11 @@ const useDeposit = (props: {
 			throw new Error(`No router for ${configuration.opportunity?.name} vault`);
 		}
 
-		set_depositStatus({...defaultTxStatus, pending: true});
-
 		const result = await deposit({
 			connector: provider,
 			chainID: configuration.opportunity.chainID,
 			contractAddress: configuration.opportunity?.address,
-			amount: configuration.asset.normalizedBigAmount.raw,
-			statusHandler: set_depositStatus
+			amount: configuration.asset.normalizedBigAmount.raw
 		});
 		if (result.isSuccessful) {
 			props.onSuccess();
@@ -285,6 +283,8 @@ const useWithdraw = (props: {
 		}
 		const isV3 = vault.version.split('.')?.[0] === '3';
 
+		set_withdrawStatus({...defaultTxStatus, pending: true});
+
 		let result;
 		if (isV3) {
 			result = await redeemV3Shares({
@@ -292,16 +292,14 @@ const useWithdraw = (props: {
 				chainID: vault.chainID,
 				contractAddress: configuration.asset.token.address,
 				amount: configuration.asset.normalizedBigAmount.raw,
-				maxLoss: 1n,
-				statusHandler: set_withdrawStatus
+				maxLoss: 1n
 			});
 		} else {
 			result = await withdrawShares({
 				connector: provider,
 				chainID: vault.chainID,
 				contractAddress: configuration.asset.token.address,
-				amount: configuration.asset.normalizedBigAmount.raw,
-				statusHandler: set_withdrawStatus
+				amount: configuration.asset.normalizedBigAmount.raw
 			});
 		}
 
