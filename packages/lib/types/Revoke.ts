@@ -87,7 +87,7 @@ export type TAllowancesFilters = {
 		filter: TAddress[];
 	};
 	spender: {
-		filter: TAddress[];
+		filter: string[];
 	};
 };
 
@@ -177,7 +177,7 @@ export type TRevokeSortBy = 'spender' | 'amount' | 'token' | '';
 
 export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
 	displayName?: TAddress | string;
-	spenderName?: string;
+	spenderName: string;
 };
 
 /**************************************************************************************************

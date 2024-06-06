@@ -301,6 +301,8 @@ export const RevokeContextApp = (props: {
 				chainID: allowance.chainID,
 				logIndex: allowance.logIndex,
 				spenderName: spenderDictionary[allowance.args.sender]?.name
+					? spenderDictionary[allowance.args.sender]?.name
+					: 'Unknown'
 			};
 			return addApproveEventEntry({
 				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.logIndex}`,
@@ -406,7 +408,7 @@ export const RevokeContextApp = (props: {
 			}
 
 			if (filters.spender.filter.length > 0) {
-				if (!filters.spender.filter.includes(item.args.sender)) {
+				if (!filters.spender.filter.includes(item.spenderName)) {
 					return false;
 				}
 			}

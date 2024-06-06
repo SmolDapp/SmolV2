@@ -5,7 +5,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuSeparator
 } from 'packages/lib/primitives/DropdownMenu';
-import {truncateHex} from '@builtbymom/web3/utils';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 import {useAllowances} from './useAllowances';
@@ -26,18 +25,18 @@ export const SpenderFilterDropdown = (props: {
 	 *********************************************************************************************/
 	const onCheckedChange = useCallback(
 		(option: TFilterAllowance): void => {
-			if (!spenderFilter?.some(item => item === option.args.sender)) {
+			if (!spenderFilter?.some(item => item === option.spenderName)) {
 				dispatchConfiguration({
 					type: 'SET_FILTER',
 					payload: {
 						...configuration.allowancesFilters,
 						spender: {
-							filter: [...(spenderFilter ?? []), option.args.sender]
+							filter: [...(spenderFilter ?? []), option.spenderName]
 						}
 					}
 				});
 			} else {
-				const filteredOptions = spenderFilter.filter(item => item !== option.args.sender);
+				const filteredOptions = spenderFilter.filter(item => item !== option.spenderName);
 				dispatchConfiguration({
 					type: 'SET_FILTER',
 					payload: {
@@ -62,9 +61,9 @@ export const SpenderFilterDropdown = (props: {
 				{allOptions?.map(option => (
 					<DropdownMenuCheckboxItem
 						key={`${option.address}-${option.chainID}`}
-						checked={spenderFilter?.some(item => item === option.args.sender)}
+						checked={spenderFilter?.some(item => item === option.spenderName)}
 						onCheckedChange={() => onCheckedChange(option)}>
-						{option.spenderName ?? truncateHex(option.args.sender, 7)}
+						{option.spenderName}
 					</DropdownMenuCheckboxItem>
 				))}
 			</DropdownMenuContent>

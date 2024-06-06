@@ -20,7 +20,7 @@ export const AllowancesFilters = (): ReactElement | null => {
 	}, [allowances]);
 
 	const uniqueAllowancesBySpender = useMemo(() => {
-		return [...new Map(allowances?.map(item => [item.args.sender, item])).values()];
+		return [...new Map(allowances?.map(item => [item.spenderName, item])).values()];
 	}, [allowances]);
 
 	/**********************************************************************************************
@@ -49,7 +49,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 				symbol: item.symbol,
 				chainID: item.chainID,
 				displayName: item.symbol,
-				args: item.args
+				args: item.args,
+				spenderName: item.spenderName
 			};
 		});
 	}, [uniqueAllowancesByToken]);
