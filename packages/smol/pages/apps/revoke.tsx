@@ -44,5 +44,21 @@ RevokePage.AppInfo = (
 				'Revoke gives you full transparency to see which contracts have the power to spend from your wallet, and the power to take back control with a simple click (but please note revoking a contract requires a transaction to be signed by your wallet).'
 			}
 		</p>
+		<br />
+		<p>
+			{'Smol Revoke is using '}
+			<a
+				href={'https://github.com/RevokeCash/whois/'}
+				className={'text-neutral-900 underline'}>
+				{'whois'}
+			</a>
+			{' libraries by '}
+			<a
+				href={'https://revoke.cash/'}
+				className={'text-neutral-900 underline'}>
+				{'revoke.cash'}
+			</a>
+			{'. We stan.'}
+		</p>
 	</>
 );
