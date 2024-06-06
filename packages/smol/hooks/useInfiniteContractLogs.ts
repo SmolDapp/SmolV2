@@ -138,7 +138,9 @@ export function useInfiniteApprovalLogs({
 			query.fetchNextPage();
 		}
 		if (!query.hasNextPage && !isDoneWithInitialFetch && endBlock !== undefined && query.isFetched) {
-			set_isDoneWithInitialFetch(true);
+			setTimeout(() => {
+				set_isDoneWithInitialFetch(true);
+			}, 100);
 		}
 	}, [query.isFetching, query.hasNextPage, query, isDoneWithInitialFetch, endBlock]);
 

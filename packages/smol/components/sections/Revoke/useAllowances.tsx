@@ -99,9 +99,9 @@ const RevokeContext = createContext<TRevokeContext>(defaultProps);
 export const RevokeContextApp = (props: {
 	children: TOptionalRenderProps<TRevokeContext, ReactElement>;
 }): ReactElement => {
-	const {address} = useWeb3();
+	const {address, chainID} = useWeb3();
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
-	const {chainID, safeChainID} = useChainID();
+	const {safeChainID} = useChainID();
 	const {listTokensWithBalance, isLoadingOnCurrentChain} = useTokensWithBalance();
 
 	const [chainFilteredAllowances, set_chainFilteredAllowances] = useState<TExpandedAllowance[] | undefined>(
@@ -116,6 +116,8 @@ export const RevokeContextApp = (props: {
 	 **This useEffect clears the filters when the user switches the chain.
 	 *********************************************************************************************/
 	useEffect(() => {
+		set_isLoadingInitialDB(true);
+		set_chainFilteredAllowances(undefined);
 		dispatch({type: 'RESET_FILTER'});
 	}, [chainID]);
 
@@ -366,10 +368,6 @@ export const RevokeContextApp = (props: {
 		updateChainSyncEntry,
 		addApproveEventEntry
 	]);
-
-	useEffect(() => {
-		set_isLoadingInitialDB(true);
-	}, [chainID]);
 
 	/**********************************************************************************************
 	 ** We sequentially apply filters to the allowances based on the provided filter object. First,

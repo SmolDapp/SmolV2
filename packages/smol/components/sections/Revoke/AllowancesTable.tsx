@@ -107,6 +107,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 	 ** allowance.
 	 *********************************************************************************************/
 	if (!isAddress(address)) {
+		console.log('EMPTY VIEW');
 		return (
 			<div className={'max-w-108'}>
 				<EmptyView onConnect={onConnect} />
@@ -114,11 +115,8 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 		);
 	}
 
-	if (isFetchingData) {
-		return <TokenFetchingLoader />;
-	}
-
 	if (hasNothingToRevoke) {
+		console.log('NOTHING VIEW');
 		return (
 			<div
 				className={
@@ -133,6 +131,10 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 				</Button>
 			</div>
 		);
+	}
+
+	if (!isDoneWithInitialFetch || isLoadingInitialDB || !allowances) {
+		return <TokenFetchingLoader />;
 	}
 
 	return (
@@ -164,6 +166,13 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 						price={prices?.[toAddress(item.address)]}
 					/>
 				))}
+			</div>
+			<div
+				className={cl(
+					'flex h-6 justify-center transition-opacity',
+					isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
+				)}>
+				<IconSpinner />
 			</div>
 		</>
 	);

@@ -28,8 +28,8 @@ function useHistoricalAllowances(props: {
 	tokenAddresses: TAddress[] | undefined;
 	fromBlock: bigint | undefined;
 }): TUseHistoricalAllowances {
-	const {address} = useWeb3();
-	const {chainID, safeChainID} = useChainID();
+	const {address, chainID} = useWeb3();
+	const {safeChainID} = useChainID();
 	const [allowances, set_allowances] = useState<TAllowances | undefined>(undefined);
 	const [approveEvents, set_approveEvents] = useState<TAllowances | undefined>(undefined);
 	const [isLoadingAllowances, set_isLoadingAllowances] = useState<boolean>(false);

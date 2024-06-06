@@ -94,10 +94,6 @@ export const AllowancesFilters = (): ReactElement | null => {
 	 *********************************************************************************************/
 	const onResetFilters = (): void => dispatchConfiguration({type: 'RESET_FILTER'});
 
-	if (!allowances) {
-		return null;
-	}
-
 	return (
 		<div className={'flex flex-col'}>
 			<div className={'mr-4 flex items-center pb-2 pt-4'}>
