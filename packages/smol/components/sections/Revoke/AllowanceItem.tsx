@@ -40,7 +40,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 				return;
 			}
 			dispatchConfiguration({type: 'SET_ALLOWANCE_TO_REVOKE', payload: {...tokenToRevoke, spender}});
-			await approveERC20({
+			const result = await approveERC20({
 				contractAddress: tokenToRevoke.address,
 				chainID: isDev ? chainID : safeChainID,
 				connector: provider,
@@ -48,6 +48,11 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 				amount: 0n,
 				statusHandler: set_revokeStatus
 			});
+			if (result.isSuccessful) {
+				// Option1: clear indexDB with this item
+				// Option2: refetch allowance for this token to get the most up-to-date data and
+				//          update the indexDB with the new data
+			}
 		},
 		[chainID, dispatchConfiguration, provider, safeChainID]
 	);
