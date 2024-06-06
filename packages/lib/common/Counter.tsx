@@ -87,7 +87,7 @@ export function Counter({
 						set_innerContent(
 							<span>
 								{parts[0]}
-								<span className={'text-neutral-500'}>
+								<span className={'text-neutral-400'}>
 									{'.'}
 									{parts[1]}
 								</span>
