@@ -3,7 +3,15 @@ import toast from 'react-hot-toast';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {formatAmount, formatTAmount, toAddress, toBigInt, toNormalizedBN, truncateHex} from '@builtbymom/web3/utils';
+import {
+	formatAmount,
+	formatTAmount,
+	toAddress,
+	toBigInt,
+	toNormalizedBN,
+	toNormalizedValue,
+	truncateHex
+} from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
@@ -47,7 +55,7 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 	 ** We want to show amount of allowance with correct decimal or 'Unlimited'.
 	 *********************************************************************************************/
 	const allowanceAmount = useMemo(() => {
-		if (isUnlimitedBN(allowance.args.value as bigint)) {
+		if (isUnlimitedBN(allowance.args.value as bigint, allowance.decimals)) {
 			return 'Unlimited';
 		}
 
@@ -63,21 +71,17 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 		if (!allowance) {
 			return 'N/A';
 		}
-		if (toBigInt(price?.raw) === 0n) {
+		if (toBigInt(price?.raw) === 0n || !price) {
 			return 'N/A';
 		}
 
-		if (allowanceAmount === 'Unlimited') {
-			return 'unlimited';
-		}
 		const value =
-			allowanceAmount !== 'Unlimited'
-				? toNormalizedBN(allowance.args.value as bigint, allowance.decimals).normalized *
-					(price?.normalized || 0)
-				: 0;
+			toNormalizedValue(allowance.args.value as bigint, allowance.decimals) > allowance.balanceOf.normalized
+				? allowance.balanceOf.normalized * price.normalized
+				: toNormalizedValue(allowance.args.value as bigint, allowance.decimals) * price.normalized;
 		const formatedValue = formatAmount(value, 2);
 		return `$${formatedValue}`;
-	}, [allowance, allowanceAmount, price]);
+	}, [allowance, price]);
 
 	/**********************************************************************************************
 	 ** This function calls revoke function and lets us to revoke the allowance.

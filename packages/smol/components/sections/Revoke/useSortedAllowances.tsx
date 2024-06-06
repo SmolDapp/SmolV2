@@ -1,13 +1,14 @@
 import {useEffect, useMemo} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {deserialize, serialize} from 'wagmi';
-import {bigNumberSort, stringSort} from '@builtbymom/web3/utils';
+import {numberSort, stringSort, toAddress, toNormalizedValue} from '@builtbymom/web3/utils';
 
-import type {TSortDirection} from '@builtbymom/web3/types';
+import type {TAddress, TNormalizedBN, TSortDirection} from '@builtbymom/web3/types';
 import type {TExpandedAllowance, TRevokeSortBy} from '@lib/types/Revoke';
 
 export const useSortedAllowances = (
-	allowances: TExpandedAllowance[]
+	allowances: TExpandedAllowance[],
+	prices?: {[key: TAddress]: TNormalizedBN}
 ): {
 	sortBy: TRevokeSortBy;
 	sortDirection: TSortDirection;
@@ -49,13 +50,15 @@ export const useSortedAllowances = (
 	 *********************************************************************************************/
 	const sortedBySpender = useMemo((): TExpandedAllowance[] => {
 		return allowances?.length
-			? allowances.toSorted((a, b): number =>
-					stringSort({
-						a: a.args.sender || '',
-						b: b.args.sender || '',
+			? allowances.toSorted((a, b): number => {
+					const sortABy = a.spenderName ? a.spenderName : a.args.sender;
+					const sortBBy = b.spenderName ? b.spenderName : b.args.sender;
+					return stringSort({
+						a: sortABy,
+						b: sortBBy,
 						sortDirection: sortDirection as TSortDirection
-					})
-				)
+					});
+				})
 			: [];
 	}, [allowances, sortDirection]);
 
@@ -64,15 +67,31 @@ export const useSortedAllowances = (
 	 *********************************************************************************************/
 	const sortedByAmount = useMemo((): TExpandedAllowance[] => {
 		return allowances?.length
-			? allowances.toSorted((a, b): number =>
-					bigNumberSort({
-						a: (a.args.value as bigint) || 0n,
-						b: (b.args.value as bigint) || 0n,
+			? allowances.toSorted((a, b): number => {
+					if (!a || !b || !prices) {
+						return 0;
+					}
+
+					const amountAInUSD =
+						toNormalizedValue(a.args.value as bigint, a.decimals) > a.balanceOf.normalized
+							? a.balanceOf.normalized * prices[toAddress(a.address)].normalized
+							: toNormalizedValue(a.args.value as bigint, a.decimals) *
+								prices[toAddress(a.address)].normalized;
+
+					const amountBInUSD =
+						toNormalizedValue(b.args.value as bigint, b.decimals) > b.balanceOf.normalized
+							? b.balanceOf.normalized * prices[toAddress(b.address)].normalized
+							: toNormalizedValue(b.args.value as bigint, b.decimals) *
+								prices[toAddress(b.address)].normalized;
+
+					return numberSort({
+						a: amountAInUSD || 0,
+						b: amountBInUSD || 0,
 						sortDirection: sortDirection as TSortDirection
-					})
-				)
+					});
+				})
 			: [];
-	}, [allowances, sortDirection]);
+	}, [allowances, prices, sortDirection]);
 	const stringifiedAllowancesList = serialize(allowances) ?? '{}';
 
 	/**********************************************************************************************

@@ -1,4 +1,4 @@
-import {parseUnits} from 'viem';
+import {toNormalizedValue} from '@builtbymom/web3/utils';
 
 import type {TAllowance, TAllowances} from '@lib/types/Revoke';
 
@@ -40,8 +40,8 @@ export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowance
  ** the unlimited allowance diminishes. Hence, we must recognize an "unlimited" allowance as
  ** a very large yet variable quantity.
  *************************************************************************************************/
-export const isUnlimitedBN = (value: bigint): boolean => {
-	return (value as bigint) > parseUnits('115', 74);
+export const isUnlimitedBN = (value: bigint, decimals: number): boolean => {
+	return toNormalizedValue(value as bigint, decimals) > Math.pow(10, 9);
 };
 
 /**************************************************************************************************

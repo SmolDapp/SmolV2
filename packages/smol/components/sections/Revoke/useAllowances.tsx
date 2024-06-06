@@ -380,11 +380,11 @@ export const RevokeContextApp = (props: {
 
 		return chainFilteredAllowances?.filter(item => {
 			if (filters.unlimited.filter === 'unlimited') {
-				if (!isUnlimitedBN(item.args.value as bigint)) {
+				if (!isUnlimitedBN(item.args.value as bigint, item.decimals)) {
 					return false;
 				}
 			} else if (filters.unlimited.filter === 'limited') {
-				if (isUnlimitedBN(item.args.value as bigint)) {
+				if (isUnlimitedBN(item.args.value as bigint, item.decimals)) {
 					return false;
 				}
 			}

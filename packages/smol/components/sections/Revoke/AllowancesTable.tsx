@@ -100,7 +100,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 		allowances && allowances.length === 0 && !isFetchingData && !isLoadingInitialDB && !isLoading;
 	const {address, onConnect} = useWeb3();
 
-	const {sortedAllowances} = useSortedAllowances(allowances || []);
+	const {sortedAllowances} = useSortedAllowances(allowances || [], prices);
 
 	/**********************************************************************************************
 	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
