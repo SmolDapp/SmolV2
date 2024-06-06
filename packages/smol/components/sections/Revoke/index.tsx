@@ -95,6 +95,7 @@ export function Revoke(): ReactElement {
 							<Counter
 								value={totalValueAtRisk}
 								decimals={2}
+								shouldBeStylized
 							/>
 						</p>
 					)}
