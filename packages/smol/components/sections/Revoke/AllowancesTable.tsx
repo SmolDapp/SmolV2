@@ -107,7 +107,6 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 	 ** allowance.
 	 *********************************************************************************************/
 	if (!isAddress(address)) {
-		console.log('EMPTY VIEW');
 		return (
 			<div className={'max-w-108'}>
 				<EmptyView onConnect={onConnect} />
@@ -116,7 +115,6 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 	}
 
 	if (hasNothingToRevoke) {
-		console.log('NOTHING VIEW');
 		return (
 			<div
 				className={
