@@ -23,7 +23,7 @@ import {IconClone} from '@lib/icons/IconClone';
 import IconMultisafe from '@lib/icons/IconMultisafe';
 import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -101,7 +101,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
+				supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
 				tokenLists={[
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
