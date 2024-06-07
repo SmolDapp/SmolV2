@@ -1,4 +1,4 @@
-import {type ReactElement, useMemo} from 'react';
+import {Fragment, type ReactElement, useMemo} from 'react';
 import {serialize} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
@@ -60,37 +60,42 @@ export function Revoke(): ReactElement {
 	};
 
 	return (
-		<div className={'w-full'}>
-			<Button
-				className={'!h-10'}
-				onClick={handleOpenCurtain}>
-				<IconPlus className={'mr-2 size-3'} />
-				{'Add token'}
-			</Button>
-
-			<div className={'mt-6 w-min'}>
-				<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
-				<div className={'text-[40px] font-semibold text-neutral-900'}>
-					{totalValueAtRisk > 0 && totalValueAtRisk < 0.01 ? (
-						<p>{'<$0.01'}</p>
-					) : (
-						<p>
-							{'$'}
-							<Counter
-								value={totalValueAtRisk}
-								decimals={2}
-								shouldBeStylized
-							/>
-						</p>
-					)}
-				</div>
+		<Fragment>
+			<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
+				<Button
+					variant={'light'}
+					className={'!h-8 !text-xs'}
+					onClick={handleOpenCurtain}>
+					<IconPlus className={'mr-2 size-3'} />
+					{'Add token'}
+				</Button>
 			</div>
 
-			<AllowancesFilters />
-			<AllowancesTable
-				handleOpenCurtain={handleOpenCurtain}
-				prices={prices}
-			/>
-		</div>
+			<div className={'w-full'}>
+				<div className={'mt-6 w-min'}>
+					<p className={'whitespace-nowrap text-sm font-bold text-neutral-900'}>{'Total Value at Risk'}</p>
+					<div className={'text-[40px] font-semibold text-neutral-900'}>
+						{totalValueAtRisk > 0 && totalValueAtRisk < 0.01 ? (
+							<p>{'<$0.01'}</p>
+						) : (
+							<p>
+								{'$'}
+								<Counter
+									value={totalValueAtRisk}
+									decimals={2}
+									shouldBeStylized
+								/>
+							</p>
+						)}
+					</div>
+				</div>
+
+				<AllowancesFilters />
+				<AllowancesTable
+					handleOpenCurtain={handleOpenCurtain}
+					prices={prices}
+				/>
+			</div>
+		</Fragment>
 	);
 }

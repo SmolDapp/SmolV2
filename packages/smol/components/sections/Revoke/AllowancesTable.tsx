@@ -93,13 +93,29 @@ function TokenFetchingLoader(): ReactElement {
 	);
 }
 
+function NoAllowanceView(props: {handleOpenCurtain: () => void}): ReactElement {
+	return (
+		<div
+			className={
+				'rounded-large mt-3 flex h-56 w-full flex-col items-center justify-center bg-neutral-200 text-neutral-600'
+			}>
+			<p>{'Nothing to revoke. Select Token to check approvals'}</p>
+			<Button
+				className={'mt-6 !h-10'}
+				onClick={props.handleOpenCurtain}>
+				<IconPlus className={'mr-2 size-3'} />
+				{'Add token'}
+			</Button>
+		</div>
+	);
+}
+
 export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTableProps): ReactElement => {
 	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
 	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB || !allowances;
 	const hasNothingToRevoke =
 		allowances && allowances.length === 0 && !isFetchingData && !isLoadingInitialDB && !isLoading;
 	const {address, onConnect} = useWeb3();
-
 	const {sortedAllowances} = useSortedAllowances(allowances || [], prices);
 
 	/**********************************************************************************************
@@ -108,31 +124,22 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 	 *********************************************************************************************/
 	if (!isAddress(address)) {
 		return (
-			<div className={'max-w-108'}>
+			<div className={'max-w-full'}>
 				<EmptyView onConnect={onConnect} />
 			</div>
 		);
 	}
 
 	if (hasNothingToRevoke) {
-		return (
-			<div
-				className={
-					'rounded-large mt-3 flex h-56 w-full flex-col items-center justify-center bg-neutral-200 text-neutral-600'
-				}>
-				<p>{'Nothing to revoke. Select Token to check approvals'}</p>
-				<Button
-					className={'mt-6 !h-10'}
-					onClick={handleOpenCurtain}>
-					<IconPlus className={'mr-2 size-3'} />
-					{'Add token'}
-				</Button>
-			</div>
-		);
+		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
 	}
 
-	if (!isDoneWithInitialFetch || isLoadingInitialDB || !allowances) {
+	if (!isDoneWithInitialFetch || isLoadingInitialDB) {
 		return <TokenFetchingLoader />;
+	}
+
+	if (!allowances) {
+		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
 	}
 
 	return (
