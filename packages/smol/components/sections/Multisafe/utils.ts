@@ -2,6 +2,7 @@ import {fromHex, pad, toHex} from 'viem';
 import XXH from 'xxhashjs';
 import {toAddress, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {
+	ALTERNATE_FALLBACK_HANDLER,
 	FALLBACK_HANDLER,
 	SAFE_CREATION_SIGNATURE,
 	SINGLETON_L1,
@@ -13,7 +14,11 @@ import {
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
 
-export function generateArgInitializers(owners: TAddress[], threshold: number): string {
+export function generateArgInitializers(
+	owners: TAddress[],
+	threshold: number,
+	shouldUseAlternateFallbackHandler?: boolean
+): string {
 	return (
 		'b63e800d' + //Function signature
 		'100'.padStart(64, '0') + // Version
@@ -22,7 +27,9 @@ export function generateArgInitializers(owners: TAddress[], threshold: number): 
 		pad(toHex(0x120 + 0x20 * owners.length))
 			.substring(2)
 			.padStart(64, '0') + // Data length
-		FALLBACK_HANDLER.substring(2).padStart(64, '0') +
+		(shouldUseAlternateFallbackHandler ? ALTERNATE_FALLBACK_HANDLER : FALLBACK_HANDLER)
+			.substring(2)
+			.padStart(64, '0') +
 		ZERO_ADDRESS.substring(2).padStart(64, '0') + // paymentToken
 		ZERO.padStart(64, '0') + // payment
 		ZERO_ADDRESS.substring(2).padStart(64, '0') + // paymentReceiver
