@@ -9,7 +9,6 @@ import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/Revoke';
 
 export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
-	// const nonEmpty = events.filter(item => (item.args.value as bigint) > BigInt(0));
 	const noDuplicate = events.filter(
 		(item, index, self) =>
 			self.findIndex(t => `${t.blockNumber}_${t.logIndex}` === `${item.blockNumber}_${item.logIndex}`) === index
@@ -109,9 +108,6 @@ export const getTotalAmountAtRisk = (
 	if (!prices) {
 		return 0;
 	}
-	/**********************************************************************************************
-	 * Here we take unique allowances by token address.
-	 *********************************************************************************************/
 	const uniqueAllowancesByToken = getUniqueExpandedAllowancesByToken(allowances);
 
 	let sum = 0;
