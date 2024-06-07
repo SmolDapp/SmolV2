@@ -1,6 +1,7 @@
-import {toNormalizedValue} from '@builtbymom/web3/utils';
+import {toAddress, toNormalizedValue} from '@builtbymom/web3/utils';
 
-import type {TAllowance, TAllowances} from '@lib/types/Revoke';
+import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/Revoke';
 
 export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
 	// const nonEmpty = events.filter(item => (item.args.value as bigint) > BigInt(0));
@@ -50,4 +51,54 @@ export const isUnlimitedBN = (value: bigint, decimals: number): boolean => {
  **************************************************************************************************/
 export const isUnlimitedNumber = (value: number): boolean => {
 	return value > Math.pow(10, 10);
+};
+
+/**************************************************************************************************
+ ** To get total amount at risk we should summarize all values*prices and make sure that summ
+ ** isn't bigger that balance of the token.
+ *************************************************************************************************/
+export const getTotalAmountAtRisk = (
+	allowances: TExpandedAllowance[],
+	prices?: {[key: TAddress]: TNormalizedBN}
+): number => {
+	if (!prices) {
+		return 0;
+	}
+	/**********************************************************************************************
+	 * Here we take unique allowances by token address.
+	 *********************************************************************************************/
+	const uniqueAllowancesByToken: TExpandedAllowance[] = [
+		...new Map(
+			allowances?.map(item => [
+				item.address,
+				{
+					...item
+				}
+			])
+		).values()
+	];
+
+	let sum = 0;
+	/**********************************************************************************************
+	 ** Then for each individual token we sum up all amounts in usd and if this amount is greater
+	 ** than the balance, we use balance instead. After that we sum up all the token amounts
+	 ** together.
+	 *********************************************************************************************/
+	for (const allowance of uniqueAllowancesByToken) {
+		const arr = allowances.filter(item => item.address === allowance.address);
+		const total = arr.reduce((sum, curr) => {
+			const amountInUSD =
+				toNormalizedValue(curr.args.value as bigint, curr.decimals) > curr.balanceOf.normalized
+					? curr.balanceOf.normalized * prices[toAddress(curr.address)].normalized
+					: toNormalizedValue(curr.args.value as bigint, curr.decimals) *
+						prices[toAddress(curr.address)].normalized;
+			return sum + amountInUSD;
+		}, 0);
+		if (total >= allowance.balanceOf.normalized) {
+			sum = sum + allowance.balanceOf.normalized * prices[toAddress(allowance.address)].normalized;
+		} else {
+			sum = sum + total;
+		}
+	}
+	return sum;
 };
