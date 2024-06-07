@@ -1,7 +1,8 @@
 import {type ReactElement, useMemo} from 'react';
+import {serialize} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {usePrices} from '@builtbymom/web3/hooks/usePrices';
-import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
+import {toAddress, toNormalizedBN, toNormalizedValue} from '@builtbymom/web3/utils';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {Counter} from '@lib/common/Counter';
 import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
@@ -39,7 +40,8 @@ export function Revoke(): ReactElement {
 				])
 			).values()
 		];
-	}, [allowances]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [serialize(allowances)]);
 
 	const {data: prices, isLoading} = usePrices({
 		tokens: uniqueAllowancesByToken ? uniqueAllowancesByToken : [],
@@ -50,20 +52,21 @@ export function Revoke(): ReactElement {
 	 ** We summarize all allowances values multiplied by their prices to get total value at risk.
 	 *********************************************************************************************/
 	const totalValueAtRisk = useDeepCompareMemo(() => {
-		if (!prices || isLoading) {
+		if (!prices || isLoading || !allowances) {
 			return 0;
 		}
 
-		const total = uniqueAllowancesByToken.reduce((sum, curr) => {
+		const total = allowances.reduce((sum, curr) => {
 			const amountInUSD =
-				curr.value > curr.balance.normalized
-					? curr.balance.normalized * prices[toAddress(curr.address)].normalized
-					: curr.value * prices[toAddress(curr.address)].normalized;
+				toNormalizedValue(curr.args.value as bigint, curr.decimals) > curr.balanceOf.normalized
+					? curr.balanceOf.normalized * prices[toAddress(curr.address)].normalized
+					: toNormalizedValue(curr.args.value as bigint, curr.decimals) *
+						prices[toAddress(curr.address)].normalized;
 			return sum + amountInUSD;
 		}, 0);
 
 		return total;
-	}, [isLoading, prices, uniqueAllowancesByToken]);
+	}, [allowances, isLoading, prices]);
 
 	/**********************************************************************************************
 	 ** This function opens curtain to choose extra tokens to check.
