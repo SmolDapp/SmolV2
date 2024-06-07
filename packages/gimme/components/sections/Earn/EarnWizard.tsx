@@ -38,6 +38,7 @@ const useApproveDeposit = ({
 	allowance: TNormalizedBN;
 	isDisabled: boolean;
 	isApproved: boolean;
+	isFetchingAllowance: boolean;
 	onApprove: (amount: bigint) => Promise<void>;
 } => {
 	const {provider} = useWeb3();
@@ -45,6 +46,8 @@ const useApproveDeposit = ({
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const {address} = useWeb3();
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
+
+	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
@@ -68,6 +71,8 @@ const useApproveDeposit = ({
 				return existingAllowances.current[key];
 			}
 
+			set_isFetchingAllowance(true);
+
 			/**************************************************************************************
 			 ** If we are dealing with the Yearn 4626 Router:
 			 ** - The router must have the allowance to spend the vault token. This actions is
@@ -90,7 +95,7 @@ const useApproveDeposit = ({
 							configuration.opportunity.address
 						]
 					});
-					console.warn(allowance);
+					set_isFetchingAllowance(false);
 					existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
 					return existingAllowances.current[key];
 				}
@@ -103,6 +108,7 @@ const useApproveDeposit = ({
 				tokenAddress: toAddress(configuration.asset.token.address),
 				spenderAddress: toAddress(configuration.opportunity.address)
 			});
+			set_isFetchingAllowance(false);
 			existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
 			return existingAllowances.current[key];
 		},
@@ -186,6 +192,7 @@ const useApproveDeposit = ({
 	return {
 		approvalStatus,
 		allowance,
+		isFetchingAllowance,
 		isApproved: isAboveAllowance,
 		isDisabled: !approvalStatus.none,
 		onApprove
@@ -411,9 +418,13 @@ export function EarnWizard(): ReactElement {
 		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, safeChainID, vaults]
 	);
 
-	const {onApprove, isApproved, approvalStatus} = useApproveDeposit({onSuccess: () => onRefreshTokens('APPROVE')});
+	const {onApprove, isApproved, isFetchingAllowance, approvalStatus} = useApproveDeposit({
+		onSuccess: () => onRefreshTokens('APPROVE')
+	});
 	const {onExecuteDeposit, depositStatus} = useDeposit({onSuccess: () => onRefreshTokens('DEPOSIT')});
 	const {onExecuteWithdraw, withdrawStatus} = useWithdraw({onSuccess: () => onRefreshTokens('WITHDRAW')});
+
+	const isWithdrawing = configuration.asset.token ? !!vaults[configuration.asset.token?.address] : false;
 
 	/**********************************************************************************************
 	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
@@ -423,12 +434,22 @@ export function EarnWizard(): ReactElement {
 		onResetEarn();
 	}, [onResetEarn]);
 
-	const isWithdrawing = useMemo(() => {
-		return !!vaultsArray.find(vault =>
-			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [configuration.asset.token?.address, vaultsArray.length]);
+	const onAction = useCallback(async () => {
+		if (isWithdrawing) {
+			return onExecuteWithdraw();
+		}
+		if (isApproved) {
+			return onExecuteDeposit();
+		}
+		return onApprove(configuration.asset.normalizedBigAmount.raw);
+	}, [
+		configuration.asset.normalizedBigAmount.raw,
+		isApproved,
+		isWithdrawing,
+		onApprove,
+		onExecuteDeposit,
+		onExecuteWithdraw
+	]);
 
 	const isValid = useMemo((): boolean => {
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -456,17 +477,11 @@ export function EarnWizard(): ReactElement {
 			{/* <small className={'pb-1 pl-1'}>{'Summary'}</small> */}
 
 			<Button
-				isBusy={depositStatus.pending || withdrawStatus.pending || approvalStatus.pending}
+				isBusy={
+					depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
+				}
 				isDisabled={!isValid}
-				onClick={(): any => {
-					if (isWithdrawing) {
-						return onExecuteWithdraw();
-					}
-					if (isApproved) {
-						return onExecuteDeposit();
-					}
-					return onApprove(configuration.asset.normalizedBigAmount.raw);
-				}}
+				onClick={onAction}
 				className={'w-full'}>
 				<b>{getButtonTitle()}</b>
 			</Button>
