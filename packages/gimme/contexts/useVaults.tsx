@@ -11,7 +11,8 @@ import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TVaultsContext = {
-	vaults: TYDaemonVault[];
+	vaults: TDict<TYDaemonVault>;
+	vaultsArray: TYDaemonVault[];
 	userVaultsArray: TYDaemonVault[];
 	userVaults: TDict<TYDaemonVault>;
 	getStakingTokenBalance: (value: {address: TAddress; chainID: number}) => TNormalizedBN;
@@ -20,7 +21,8 @@ export type TVaultsContext = {
 };
 
 const VaultsContext = createContext<TVaultsContext>({
-	vaults: [],
+	vaults: {},
+	vaultsArray: [],
 	userVaultsArray: [],
 	userVaults: {},
 	getStakingTokenBalance: (): TNormalizedBN => zeroNormalizedBN,
@@ -90,7 +92,8 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	return (
 		<VaultsContext.Provider
 			value={{
-				vaults: Object.values(gimmeVaultsDict).toSorted((a, b) => b.apr.netAPR - a.apr.netAPR) || [],
+				vaults: gimmeVaultsDict,
+				vaultsArray: Object.values(gimmeVaultsDict).toSorted((a, b) => b.apr.netAPR - a.apr.netAPR) || [],
 				userVaults,
 				userVaultsArray: Object.values(userVaults),
 				getStakingTokenBalance,

@@ -17,15 +17,15 @@ export function SelectOpportunityButton({
 	filteredVaults: TYDaemonVault[];
 }): JSX.Element {
 	const {configuration} = useEarnFlow();
-	const {vaults} = useVaults();
+	const {vaultsArray} = useVaults();
 	const [isOpen, set_isOpen] = useState(false);
 
 	const maxAPR = useMemo(() => {
-		const vaultsToUse = configuration.asset.token?.address ? filteredVaults : vaults;
+		const vaultsToUse = configuration.asset.token?.address ? filteredVaults : vaultsArray;
 		const APRs = vaultsToUse.map(vault => vault.apr.netAPR);
 		const max = Math.max(...APRs);
 		return max;
-	}, [configuration.asset.token?.address, filteredVaults, vaults]);
+	}, [configuration.asset.token?.address, filteredVaults, vaultsArray]);
 
 	return (
 		<>

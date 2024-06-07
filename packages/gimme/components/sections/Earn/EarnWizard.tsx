@@ -265,7 +265,7 @@ const useWithdraw = (props: {
 } => {
 	const {configuration} = useEarnFlow();
 	const {provider} = useWeb3();
-	const {vaults} = useVaults();
+	const {vaultsArray} = useVaults();
 	const [withdrawStatus, set_withdrawStatus] = useState(defaultTxStatus);
 
 	/*********************************************************************************************
@@ -275,7 +275,7 @@ const useWithdraw = (props: {
 	const onExecuteWithdraw = useCallback(async (): Promise<void> => {
 		assert(configuration.asset.token, 'Output token is not set');
 		assert(configuration.asset.amount, 'Input amount is not set');
-		const vault = vaults.find(vault =>
+		const vault = vaultsArray.find(vault =>
 			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
 		);
 		if (!vault) {
@@ -315,7 +315,7 @@ const useWithdraw = (props: {
 		configuration.asset.token,
 		props,
 		provider,
-		vaults
+		vaultsArray
 	]);
 
 	return {onExecuteWithdraw, set_withdrawStatus, withdrawStatus};
@@ -325,7 +325,7 @@ export function EarnWizard(): ReactElement {
 	const {onRefresh} = useWallet();
 	const {configuration, onResetEarn} = useEarnFlow();
 	const {safeChainID} = useChainID();
-	const {vaults} = useVaults();
+	const {vaults, vaultsArray} = useVaults();
 	const [transactionResult, set_transactionResult] = useState({
 		isExecuted: false,
 		message: ''
@@ -336,7 +336,7 @@ export function EarnWizard(): ReactElement {
 	 *********************************************************************************************/
 	const getModalMessage = useCallback(
 		(kind: 'DEPOSIT' | 'WITHDRAW'): string => {
-			const vaultName = vaults.find(vault =>
+			const vaultName = vaultsArray.find(vault =>
 				isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
 			)?.name;
 
@@ -350,7 +350,7 @@ export function EarnWizard(): ReactElement {
 			configuration.asset.token?.address,
 			configuration.asset.token?.symbol,
 			configuration.opportunity?.name,
-			vaults
+			vaultsArray
 		]
 	);
 
@@ -385,6 +385,15 @@ export function EarnWizard(): ReactElement {
 					chainID: Number(configuration.opportunity.chainID)
 				});
 			}
+
+			/**************************************************************************************
+			 * It's important to refetch the token linked to the vault user been withdrawing from
+			 *************************************************************************************/
+			if (kind === 'WITHDRAW' && configuration.asset.token) {
+				const vaultToken = vaults[configuration.asset.token?.address].token ?? null;
+				tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
+			}
+
 			const currentChainID =
 				configuration.opportunity?.chainID || configuration.asset.token?.chainID || safeChainID;
 			const {nativeCurrency} = getNetwork(Number(currentChainID));
@@ -397,9 +406,9 @@ export function EarnWizard(): ReactElement {
 					chainID: Number(currentChainID)
 				});
 			}
-			onRefresh(tokensToRefresh);
+			onRefresh(tokensToRefresh, false, true);
 		},
-		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, safeChainID]
+		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, safeChainID, vaults]
 	);
 
 	const {onApprove, isApproved, approvalStatus} = useApproveDeposit({onSuccess: () => onRefreshTokens('APPROVE')});
@@ -415,9 +424,11 @@ export function EarnWizard(): ReactElement {
 	}, [onResetEarn]);
 
 	const isWithdrawing = useMemo(() => {
-		return !!vaults.find(vault => isAddressEqual(vault.address, toAddress(configuration.asset.token?.address)));
+		return !!vaultsArray.find(vault =>
+			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [configuration.asset.token?.address, vaults.length]);
+	}, [configuration.asset.token?.address, vaultsArray.length]);
 
 	const isValid = useMemo((): boolean => {
 		if (!configuration.asset.amount || !configuration.asset.token) {

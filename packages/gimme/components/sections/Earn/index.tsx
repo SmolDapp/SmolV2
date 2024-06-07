@@ -28,7 +28,7 @@ export function Earn(): ReactElement {
 	const {chainID} = useWeb3();
 
 	const {getToken} = useWallet();
-	const {vaults, userVaults} = useVaults();
+	const {vaultsArray, userVaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 
@@ -57,17 +57,17 @@ export function Earn(): ReactElement {
 
 	const filteredVaults = useMemo(() => {
 		if (!configuration.asset.token?.address) {
-			return vaults;
+			return vaultsArray;
 		}
 		if (isAddressEqual(configuration.asset.token.address, ETH_TOKEN_ADDRESS)) {
-			return vaults.filter(
+			return vaultsArray.filter(
 				rawVault =>
 					configuration.asset.token &&
 					isAddressEqual(rawVault.token.address, WRAPPED_TOKEN_ADDRESS[configuration.asset.token?.chainID])
 			);
 		}
-		return vaults.filter(rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address));
-	}, [configuration.asset.token, vaults]);
+		return vaultsArray.filter(rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address));
+	}, [configuration.asset.token, vaultsArray]);
 
 	/**********************************************************************************************
 	 ** The user can come to this page with a bunch of query arguments. If this is the case, we
