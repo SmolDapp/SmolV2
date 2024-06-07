@@ -155,6 +155,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 						className={'w-full'}>
 						{sortedAllowances?.map(item => (
 							<AllowanceItem
+								isTable={true}
 								key={`${item.address}-${item.args.owner}-${item.args.sender}-${item.blockNumber}-${item.logIndex}`}
 								allowance={item}
 								price={prices?.[toAddress(item.address)]}
@@ -166,6 +167,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 			<div className={'flex flex-col gap-y-2 md:hidden'}>
 				{allowances?.map(item => (
 					<AllowanceItem
+						isTable={false}
 						key={`${item.address}-${item.args.owner}-${item.args.sender}-${item.blockNumber}-${item.logIndex}`}
 						allowance={item}
 						price={prices?.[toAddress(item.address)]}

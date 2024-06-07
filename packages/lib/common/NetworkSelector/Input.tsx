@@ -42,7 +42,7 @@ export function NetworkInputSelector(props: {
 			networksToUse.find(
 				(network): boolean => network.id === safeChainID || (isDev && network.id === props.value)
 			),
-		[safeChainID, props.value, isDev, networksToUse]
+		[safeChainID, props.value, networksToUse]
 	);
 
 	const [isOpen, set_isOpen] = useState(false);

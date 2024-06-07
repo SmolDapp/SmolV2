@@ -47,18 +47,7 @@ const MENU = [
 		label: 'Swap',
 		icon: <IconAppSwap />
 	},
-	{
-		href: '/apps/earn',
-		label: 'Earn',
-		isDisabled: true,
-		icon: <IconAppEarn />
-	},
-	{
-		href: '/apps/stream',
-		label: 'Stream',
-		isDisabled: true,
-		icon: <IconAppStream />
-	},
+
 	{
 		href: '/apps/address-book',
 		label: 'Address Book',
@@ -90,6 +79,18 @@ const MENU = [
 				icon: <IconClone />
 			}
 		]
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
 	}
 ];
 

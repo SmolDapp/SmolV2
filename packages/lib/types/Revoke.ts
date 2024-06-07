@@ -163,6 +163,7 @@ export type TApproveEventChainSyncEntry = {
 export type TAllowanceItemProps = {
 	allowance: TExpandedAllowance;
 	price?: TNormalizedBN;
+	isTable?: boolean;
 };
 
 /**************************************************************************************************

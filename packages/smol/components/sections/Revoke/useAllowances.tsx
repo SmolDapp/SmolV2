@@ -1,25 +1,26 @@
 import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
 import {optionalRenderProps, type TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {isUnlimitedBN} from 'packages/lib/utils/tools.revoke';
+import {
+	getNameDictionaries,
+	getUniqueAllowancesBySpender,
+	getUniqueAllowancesByToken,
+	isUnlimitedBN
+} from 'packages/lib/utils/tools.revoke';
 import {useIndexedDBStore} from 'use-indexeddb';
-import {erc20Abi as abi, isAddressEqual} from 'viem';
-import axios from 'axios';
+import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isAddress, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
-import {readContracts, serialize} from '@wagmi/core';
+import {serialize} from '@wagmi/core';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
-import {contractDataURL} from './constants';
 import {useApproveEventsChainSync} from './useApproveEventsChainSync';
 import {useHistoricalAllowances} from './useHistoricalAllowances';
 
 import type {
-	TAllowances,
 	TApproveEventEntry,
 	TExpandedAllowance,
 	TRevokeActions,
@@ -27,7 +28,6 @@ import type {
 	TRevokeContext
 } from 'packages/lib/types/Revoke';
 import type {ReactElement} from 'react';
-import type {TAddress} from '@builtbymom/web3/types/address';
 
 const initialFilters = {
 	unlimited: {
@@ -60,27 +60,6 @@ const defaultProps: TRevokeContext = {
 	allowanceFetchingToBlock: 0n,
 	isLoadingInitialDB: false
 };
-
-/**********************************************************************************************
- ** Here, we obtain distinctive tokens based on their token addresses to avoid making
- ** additional requests for the same tokens.
- *********************************************************************************************/
-function getUniqueAllowancesByToken(allowances: TAllowances | undefined): TAllowances {
-	const noDuplicatedStep0 = [...new Map(allowances?.map(item => [item.address, item])).values()];
-	const noDuplicated = noDuplicatedStep0.filter(
-		(item, index, self) =>
-			index === self.findIndex(t => t.blockNumber === item.blockNumber && t.logIndex === item.logIndex)
-	);
-	return noDuplicated;
-}
-
-/**********************************************************************************************
- ** Here, we obtain distinctive allowances based on their spender addresses to avoid making
- ** additional requests for the same spender.
- *********************************************************************************************/
-function getUniqueAllowancesBySpender(allowances: TAllowances | undefined): TAllowances {
-	return [...new Map(allowances?.map(item => [item.args.sender, item])).values()];
-}
 
 const configurationReducer = (state: TRevokeConfiguration, action: TRevokeActions): TRevokeConfiguration => {
 	switch (action.type) {
@@ -229,59 +208,15 @@ export const RevokeContextApp = (props: {
 		 ** TODO @Karlen9 this can be improved by only fetching tokens onces for the same address
 		 ** and recomputing the structure later
 		 *****************************************************************************************/
-		const calls = [];
-		for (const token of uniqueAllowancesByToken) {
-			const from = {abi, address: toAddress(token.address), chainId: token.chainID};
-			calls.push({...from, functionName: 'symbol'});
-			calls.push({...from, functionName: 'decimals'});
-			calls.push({...from, functionName: 'balanceOf', args: [address]});
-			calls.push({...from, functionName: 'name'});
-		}
-
-		const data = await readContracts(retrieveConfig(), {contracts: calls});
-		const dictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} = {};
-		if (data.length < 4) {
-			// Stop if we don't have enough data
-			set_isLoadingInitialDB(false);
-			return;
-		}
-
-		/******************************************************************************************
-		 ** Once we have an array of those additional fields, we form a dictionary
-		 ** with key of an address and additional fields as a value.
-		 *****************************************************************************************/
-		for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
-			const idx = i * 4;
-			const symbol = data[idx].result;
-			const decimals = data[idx + 1].result;
-			const balanceOf = data[idx + 2].result;
-			const name = data[idx + 3].result;
-			dictionary[uniqueAllowancesByToken[i].address] = {
-				symbol: symbol as string,
-				decimals: decimals as number,
-				balanceOf: balanceOf as bigint,
-				name: name as string
-			};
-		}
-		const spenderDictionary: {[key: TAddress]: {name: string}} = {};
-
-		/******************************************************************************************
-		 ** Here, we're making request to get names for each spender contract.
-		 *****************************************************************************************/
-		const responses = await Promise.allSettled(
-			uniqueAllowancesBySpender.map(async (allowance): Promise<{spender: TAddress; name: string}> => {
-				return {
-					spender: allowance.args.sender,
-					name: (await axios.get(`${contractDataURL}${allowance.chainID}/${allowance.args.sender}.json`)).data
-						.name
-				};
-			})
+		const dictionaries = await getNameDictionaries(
+			uniqueAllowancesBySpender,
+			uniqueAllowancesByToken,
+			address,
+			set_isLoadingInitialDB
 		);
 
-		for (const response of responses) {
-			if (response.status === 'fulfilled') {
-				spenderDictionary[response.value.spender] = {name: response.value.name};
-			}
+		if (!dictionaries) {
+			return;
 		}
 
 		/******************************************************************************************
@@ -293,17 +228,17 @@ export const RevokeContextApp = (props: {
 				address: allowance.address,
 				args: allowance.args,
 				blockNumber: allowance.blockNumber,
-				symbol: dictionary[allowance.address]?.symbol,
-				decimals: dictionary[allowance.address]?.decimals,
+				symbol: dictionaries?.tokenInfoDictionary[allowance.address]?.symbol,
+				decimals: dictionaries?.tokenInfoDictionary[allowance.address]?.decimals,
 				balanceOf: toNormalizedBN(
-					dictionary[allowance.address]?.balanceOf,
-					dictionary[allowance.address]?.decimals
+					dictionaries.tokenInfoDictionary[allowance.address]?.balanceOf,
+					dictionaries.tokenInfoDictionary[allowance.address]?.decimals
 				),
-				name: dictionary[allowance.address]?.name,
+				name: dictionaries.tokenInfoDictionary[allowance.address]?.name,
 				chainID: allowance.chainID,
 				logIndex: allowance.logIndex,
-				spenderName: spenderDictionary[allowance.args.sender]?.name
-					? spenderDictionary[allowance.args.sender]?.name
+				spenderName: dictionaries.spenderDictionary[allowance.args.sender]?.name
+					? dictionaries.spenderDictionary[allowance.args.sender]?.name
 					: 'Unknown'
 			};
 			return addApproveEventEntry({

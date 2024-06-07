@@ -26,7 +26,7 @@ import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TAllowanceItemProps, TApproveEventEntry, TTokenAllowance} from '@lib/types/Revoke';
 
-export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactElement => {
+export const AllowanceItem = ({allowance, price, isTable}: TAllowanceItemProps): ReactElement => {
 	const {dispatchConfiguration, configuration} = useAllowances();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
 	const {provider, address, chainID} = useWeb3();
@@ -146,121 +146,125 @@ export const AllowanceItem = ({allowance, price}: TAllowanceItemProps): ReactEle
 
 	return (
 		<>
-			<tr className={'rounded-lg border border-neutral-400 p-4 md:hidden'}>
-				<div className={'flex'}>
+			{isTable ? null : (
+				<div className={'rounded-lg border border-neutral-400 p-4 md:hidden'}>
 					<div className={'flex'}>
-						<div>
-							<ImageWithFallback
-								alt={allowance.symbol ?? ''}
-								unoptimized
-								src={tokenIcon}
-								quality={90}
-								width={40}
-								height={40}
-							/>
-						</div>
-						<div className={'ml-4 flex flex-col items-start'}>
-							<div className={'text-base font-bold'}>{allowance.symbol}</div>
+						<div className={'flex'}>
+							<div>
+								<ImageWithFallback
+									alt={allowance.symbol ?? ''}
+									unoptimized
+									src={tokenIcon}
+									quality={90}
+									width={40}
+									height={40}
+								/>
+							</div>
+							<div className={'ml-4 flex flex-col items-start'}>
+								<div className={'text-base font-bold'}>{allowance.symbol}</div>
 
-							<button
-								className={
-									'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
-								}
-								onClick={e => onCopyAddress(e, allowance.address)}>
-								<p className={'mb-[-2px] mr-1 text-xs text-neutral-600'}>
-									{truncateHex(allowance.address, 5)}
-								</p>
-							</button>
-						</div>
-					</div>
-				</div>
-				<div className={'mt-2 border-b border-neutral-300'}></div>
-				<div className={'mt-2.5'}>
-					<div className={'mt-1 flex w-full items-center justify-between'}>
-						<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
-						<p className={'text-sm'}>{allowanceAmount}</p>
-					</div>
-					<div className={'mt-1  flex w-full items-center justify-between'}>
-						<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
-						<p className={'text-sm text-neutral-600'}>{tokenAmountInUSD}</p>
-					</div>
-					<div className={'mt-1 flex w-full items-start justify-between'}>
-						<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
-						<div className={'flex flex-col items-end'}>
-							<p className={'text-sm text-neutral-900'}>{allowance.spenderName}</p>
-							<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
-						</div>
-					</div>
-					<Button
-						onClick={onRevoke}
-						isBusy={revokeStatus.pending}
-						className={'mt-4 !h-8 w-full text-sm font-bold'}>
-						{'Revoke'}
-					</Button>
-				</div>
-			</tr>
-
-			<tr className={'hidden md:table-row'}>
-				<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
-					<div className={'flex'}>
-						<div>
-							<ImageWithFallback
-								alt={allowance.symbol ?? ''}
-								unoptimized
-								src={tokenIcon}
-								quality={90}
-								width={40}
-								height={40}
-							/>
-						</div>
-						<div className={'ml-4 flex flex-col'}>
-							<div className={'text-base font-bold'}>{allowance.symbol}</div>
-
-							<button
-								className={
-									'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
-								}
-								onClick={e => onCopyAddress(e, allowance.address)}>
-								<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
-									{truncateHex(allowance.address, 5)}
-								</p>
-							</button>
-						</div>
-					</div>
-				</td>
-				<td className={'p-y-6 max-w-[80px] border-y border-neutral-400'}>
-					<div className={'flex w-full flex-col items-end justify-end'}>
-						<p className={'h-full truncate text-right text-base leading-6'}>{allowanceAmount}</p>
-						<p className={'text-xs text-neutral-600'}>{tokenAmountInUSD}</p>
-					</div>
-				</td>
-				<td className={'max-w-32 border-y border-neutral-400 p-6'}>
-					<div className={'flex flex-col text-right'}>
-						<div className={'flex items-center justify-end font-light text-neutral-600'}>
-							<div className={'grid w-full'}>
-								<p className={'text-base text-neutral-900'}>{allowance.spenderName}</p>
 								<button
 									className={
-										'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
+										'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
 									}
-									onClick={e => onCopyAddress(e, allowance.args.sender)}>
-									<p className={'mb-[-2px] text-xs hover:underline'}>
-										{truncateHex(allowance.args.sender, 5)}
+									onClick={e => onCopyAddress(e, allowance.address)}>
+									<p className={'mb-[-2px] mr-1 text-xs text-neutral-600'}>
+										{truncateHex(allowance.address, 5)}
 									</p>
 								</button>
 							</div>
 						</div>
 					</div>
-				</td>
-				<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
-					<Button
-						onClick={onRevoke}
-						isBusy={revokeStatus.pending}
-						className={'!h-8 w-[85px] font-bold'}>
-						<p className={' text-xs font-bold leading-6'}>{'Revoke'}</p>
-					</Button>
-				</td>
-			</tr>
+					<div className={'mt-2 border-b border-neutral-300'}></div>
+					<div className={'mt-2.5'}>
+						<div className={'mt-1 flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-600'}>{'Amount:'}</p>
+							<p className={'text-sm'}>{allowanceAmount}</p>
+						</div>
+						<div className={'mt-1  flex w-full items-center justify-between'}>
+							<p className={'text-sm text-neutral-600'}>{'Value:'}</p>
+							<p className={'text-sm text-neutral-600'}>{tokenAmountInUSD}</p>
+						</div>
+						<div className={'mt-1 flex w-full items-start justify-between'}>
+							<p className={'text-sm text-neutral-600'}>{'Spender:'}</p>
+							<div className={'flex flex-col items-end'}>
+								<p className={'text-sm text-neutral-900'}>{allowance.spenderName}</p>
+								<p className={'text-sm text-neutral-600'}>{truncateHex(allowance.args.sender, 5)}</p>
+							</div>
+						</div>
+						<Button
+							onClick={onRevoke}
+							isBusy={revokeStatus.pending}
+							className={'mt-4 !h-8 w-full text-sm font-bold'}>
+							{'Revoke'}
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{isTable ? (
+				<tr className={'hidden md:table-row'}>
+					<td className={'rounded-l-lg border-y border-l border-neutral-400 p-6'}>
+						<div className={'flex'}>
+							<div>
+								<ImageWithFallback
+									alt={allowance.symbol ?? ''}
+									unoptimized
+									src={tokenIcon}
+									quality={90}
+									width={40}
+									height={40}
+								/>
+							</div>
+							<div className={'ml-4 flex flex-col'}>
+								<div className={'text-base font-bold'}>{allowance.symbol}</div>
+
+								<button
+									className={
+										'z-10 flex w-full cursor-copy items-center justify-start font-light text-neutral-600'
+									}
+									onClick={e => onCopyAddress(e, allowance.address)}>
+									<p className={'mb-[-2px] mr-1 text-xs hover:underline'}>
+										{truncateHex(allowance.address, 5)}
+									</p>
+								</button>
+							</div>
+						</div>
+					</td>
+					<td className={'p-y-6 max-w-[80px] border-y border-neutral-400'}>
+						<div className={'flex w-full flex-col items-end justify-end'}>
+							<p className={'h-full truncate text-right text-base leading-6'}>{allowanceAmount}</p>
+							<p className={'text-xs text-neutral-600'}>{tokenAmountInUSD}</p>
+						</div>
+					</td>
+					<td className={'max-w-32 border-y border-neutral-400 p-6'}>
+						<div className={'flex flex-col text-right'}>
+							<div className={'flex items-center justify-end font-light text-neutral-600'}>
+								<div className={'grid w-full'}>
+									<p className={'text-base text-neutral-900'}>{allowance.spenderName}</p>
+									<button
+										className={
+											'z-10 flex w-full cursor-copy items-center justify-end font-light text-neutral-600'
+										}
+										onClick={e => onCopyAddress(e, allowance.args.sender)}>
+										<p className={'mb-[-2px] text-xs hover:underline'}>
+											{truncateHex(allowance.args.sender, 5)}
+										</p>
+									</button>
+								</div>
+							</div>
+						</div>
+					</td>
+					<td className={'w-32 rounded-r-lg border-y border-r border-neutral-400 p-3'}>
+						<Button
+							onClick={onRevoke}
+							isBusy={revokeStatus.pending}
+							className={'!h-8 w-[85px] font-bold'}>
+							<p className={' text-xs font-bold leading-6'}>{'Revoke'}</p>
+						</Button>
+					</td>
+				</tr>
+			) : null}
 		</>
 	);
 };

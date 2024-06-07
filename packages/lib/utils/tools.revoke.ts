@@ -1,4 +1,9 @@
+import {erc20Abi as abi} from 'viem';
+import axios from 'axios';
 import {toAddress, toNormalizedValue} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {contractDataURL} from '@smolSections/Revoke/constants';
+import {readContracts} from '@wagmi/core';
 
 import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/Revoke';
@@ -53,6 +58,46 @@ export const isUnlimitedNumber = (value: number): boolean => {
 	return value > Math.pow(10, 10);
 };
 
+/**********************************************************************************************
+ ** Here, we obtain distinctive tokens based on their token addresses to avoid making
+ ** additional requests for the same tokens.
+ *********************************************************************************************/
+export function getUniqueAllowancesByToken(allowances: TAllowances | undefined): TAllowances {
+	const noDuplicatedStep0 = [...new Map(allowances?.map(item => [item.address, item])).values()];
+	const noDuplicated = noDuplicatedStep0.filter(
+		(item, index, self) =>
+			index === self.findIndex(t => t.blockNumber === item.blockNumber && t.logIndex === item.logIndex)
+	);
+	return noDuplicated;
+}
+
+/**********************************************************************************************
+ ** Here, we obtain distinctive allowances based on their spender addresses to avoid making
+ ** additional requests for the same spender.
+ *********************************************************************************************/
+export function getUniqueAllowancesBySpender(allowances: TAllowances | undefined): TAllowances {
+	return [...new Map(allowances?.map(item => [item.args.sender, item])).values()];
+}
+
+export function getUniqueExpandedAllowancesBySpender(
+	allowances: TExpandedAllowance[] | undefined
+): TExpandedAllowance[] {
+	return [...new Map(allowances?.map(item => [item.spenderName, item])).values()];
+}
+
+export const getUniqueExpandedAllowancesByToken = (allowances: TExpandedAllowance[]): TExpandedAllowance[] => {
+	return [
+		...new Map(
+			allowances?.map(item => [
+				item.address,
+				{
+					...item
+				}
+			])
+		).values()
+	];
+};
+
 /**************************************************************************************************
  ** To get total amount at risk we should summarize all values*prices and make sure that summ
  ** isn't bigger that balance of the token.
@@ -67,16 +112,7 @@ export const getTotalAmountAtRisk = (
 	/**********************************************************************************************
 	 * Here we take unique allowances by token address.
 	 *********************************************************************************************/
-	const uniqueAllowancesByToken: TExpandedAllowance[] = [
-		...new Map(
-			allowances?.map(item => [
-				item.address,
-				{
-					...item
-				}
-			])
-		).values()
-	];
+	const uniqueAllowancesByToken = getUniqueExpandedAllowancesByToken(allowances);
 
 	let sum = 0;
 	/**********************************************************************************************
@@ -102,3 +138,73 @@ export const getTotalAmountAtRisk = (
 	}
 	return sum;
 };
+
+export async function getNameDictionaries(
+	uniqueAllowancesBySpender: TAllowances,
+	uniqueAllowancesByToken: TAllowances,
+	address: TAddress,
+	set_isLoadingInitialDB: (value: boolean) => void
+): Promise<
+	| {
+			tokenInfoDictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}};
+			spenderDictionary: {[key: TAddress]: {name: string}};
+	  }
+	| undefined
+> {
+	const calls = [];
+	for (const token of uniqueAllowancesByToken) {
+		const from = {abi, address: toAddress(token.address), chainId: token.chainID};
+		calls.push({...from, functionName: 'symbol'});
+		calls.push({...from, functionName: 'decimals'});
+		calls.push({...from, functionName: 'balanceOf', args: [address]});
+		calls.push({...from, functionName: 'name'});
+	}
+
+	const data = await readContracts(retrieveConfig(), {contracts: calls});
+	const tokenInfoDictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} =
+		{};
+	if (data.length < 4) {
+		// Stop if we don't have enough data
+		set_isLoadingInitialDB(false);
+		return;
+	}
+
+	/******************************************************************************************
+	 ** Once we have an array of those additional fields, we form a dictionary
+	 ** with key of an address and additional fields as a value.
+	 *****************************************************************************************/
+	for (let i = 0; i < uniqueAllowancesByToken.length; i++) {
+		const idx = i * 4;
+		const symbol = data[idx].result;
+		const decimals = data[idx + 1].result;
+		const balanceOf = data[idx + 2].result;
+		const name = data[idx + 3].result;
+		tokenInfoDictionary[uniqueAllowancesByToken[i].address] = {
+			symbol: symbol as string,
+			decimals: decimals as number,
+			balanceOf: balanceOf as bigint,
+			name: name as string
+		};
+	}
+	const spenderDictionary: {[key: TAddress]: {name: string}} = {};
+
+	/******************************************************************************************
+	 ** Here, we're making request to get names for each spender contract.
+	 *****************************************************************************************/
+	const responses = await Promise.allSettled(
+		uniqueAllowancesBySpender.map(async (allowance): Promise<{spender: TAddress; name: string}> => {
+			return {
+				spender: allowance.args.sender,
+				name: (await axios.get(`${contractDataURL}${allowance.chainID}/${allowance.args.sender}.json`)).data
+					.name
+			};
+		})
+	);
+	for (const response of responses) {
+		if (response.status === 'fulfilled') {
+			spenderDictionary[response.value.spender] = {name: response.value.name};
+		}
+	}
+
+	return {tokenInfoDictionary, spenderDictionary};
+}

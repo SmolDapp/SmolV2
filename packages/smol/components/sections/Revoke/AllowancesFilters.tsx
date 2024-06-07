@@ -1,6 +1,7 @@
 import {type ReactElement, useCallback, useMemo} from 'react';
 import {cl} from '@builtbymom/web3/utils';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
+import {getUniqueExpandedAllowancesBySpender, getUniqueExpandedAllowancesByToken} from '@lib/utils/tools.revoke';
 
 import {AssetFilterDropdown} from './AssetFilterDropdown';
 import {SpenderFilterDropdown} from './SpenderFilterDropdown';
@@ -16,11 +17,11 @@ export const AllowancesFilters = (): ReactElement | null => {
 	 ** and form new arrays to have filters for original arrays
 	 *********************************************************************************************/
 	const uniqueAllowancesByToken = useMemo(() => {
-		return [...new Map(allowances?.map(item => [item.address, item])).values()];
+		return getUniqueExpandedAllowancesByToken(allowances || []);
 	}, [allowances]);
 
 	const uniqueAllowancesBySpender = useMemo(() => {
-		return [...new Map(allowances?.map(item => [item.spenderName, item])).values()];
+		return getUniqueExpandedAllowancesBySpender(allowances);
 	}, [allowances]);
 
 	/**********************************************************************************************
