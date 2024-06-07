@@ -90,7 +90,7 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	return (
 		<VaultsContext.Provider
 			value={{
-				vaults: Object.values(gimmeVaultsDict) || [],
+				vaults: Object.values(gimmeVaultsDict).toSorted((a, b) => b.apr.netAPR - a.apr.netAPR) || [],
 				userVaults,
 				userVaultsArray: Object.values(userVaults),
 				getStakingTokenBalance,
