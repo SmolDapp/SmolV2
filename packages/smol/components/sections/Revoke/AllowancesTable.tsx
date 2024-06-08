@@ -110,37 +110,9 @@ function NoAllowanceView(props: {handleOpenCurtain: () => void}): ReactElement {
 	);
 }
 
-export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTableProps): ReactElement => {
-	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
-	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB || !allowances;
-	const hasNothingToRevoke =
-		allowances && allowances.length === 0 && !isFetchingData && !isLoadingInitialDB && !isLoading;
-	const {address, onConnect} = useWeb3();
+function Table({prices}: TAllowancesTableProps): ReactElement {
+	const {filteredAllowances: allowances, isLoading} = useAllowances();
 	const {sortedAllowances} = useSortedAllowances(allowances || [], prices);
-
-	/**********************************************************************************************
-	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
-	 ** allowance.
-	 *********************************************************************************************/
-	if (!isAddress(address)) {
-		return (
-			<div className={'max-w-full'}>
-				<EmptyView onConnect={onConnect} />
-			</div>
-		);
-	}
-
-	if (hasNothingToRevoke) {
-		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
-	}
-
-	if (!isDoneWithInitialFetch || isLoadingInitialDB) {
-		return <TokenFetchingLoader />;
-	}
-
-	if (!allowances) {
-		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
-	}
 
 	return (
 		<>
@@ -182,6 +154,44 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 				<IconSpinner />
 			</div>
 		</>
+	);
+}
+
+export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTableProps): ReactElement => {
+	const {filteredAllowances: allowances, isLoading, isDoneWithInitialFetch, isLoadingInitialDB} = useAllowances();
+	const hasAllowances = allowances && allowances.length === 0;
+	const isFetchingData = !isDoneWithInitialFetch || isLoading || isLoadingInitialDB || !allowances;
+	const {address, onConnect} = useWeb3();
+
+	/**********************************************************************************************
+	 ** This function calls approve contract and sets 0 for approve amount. Simply it revokes the
+	 ** allowance.
+	 *********************************************************************************************/
+	if (!isAddress(address)) {
+		return (
+			<div className={'max-w-full'}>
+				<EmptyView onConnect={onConnect} />
+			</div>
+		);
+	}
+
+	if (hasAllowances && !isFetchingData && !isLoadingInitialDB && !isLoading) {
+		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
+	}
+
+	if (!isDoneWithInitialFetch || isLoadingInitialDB) {
+		return <TokenFetchingLoader />;
+	}
+
+	if (!allowances) {
+		return <NoAllowanceView handleOpenCurtain={handleOpenCurtain} />;
+	}
+
+	return (
+		<Table
+			prices={prices}
+			handleOpenCurtain={handleOpenCurtain}
+		/>
 	);
 };
 
