@@ -9,6 +9,7 @@ import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
+import {WithPrices} from '@lib/contexts/usePrices';
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
@@ -107,20 +108,19 @@ function MyApp(props: AppProps): ReactElement {
 				og={'https://smold.app/og.png'}
 				uri={'https://smold.app'}
 			/>
-
 			<IndexedDB>
-				<>
-					<WithMom
-						supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
-						tokenLists={[
-							'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-							'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
-						]}>
-						<WalletContextApp
-							shouldWorkOnTestnet={
-								process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-							}>
-							<WithPopularTokens>
+				<WithMom
+					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+					tokenLists={[
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+					]}>
+					<WalletContextApp
+						shouldWorkOnTestnet={
+							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+						}>
+						<WithPopularTokens>
+							<WithPrices>
 								<SafeProvider>
 									<PlausibleProvider
 										domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
@@ -133,32 +133,32 @@ function MyApp(props: AppProps): ReactElement {
 										</main>
 									</PlausibleProvider>
 								</SafeProvider>
-							</WithPopularTokens>
-						</WalletContextApp>
-					</WithMom>
-					<Toaster
-						toastOptions={{
-							duration: 5_000,
-							className: 'toast',
-							success: {
-								icon: <IconCheck className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
-								iconTheme: {
-									primary: 'black',
-									secondary: '#F1EBD9'
-								}
-							},
-							error: {
-								icon: <IconCircleCross className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
-								iconTheme: {
-									primary: 'black',
-									secondary: '#F1EBD9'
-								}
-							}
-						}}
-						position={'top-right'}
-					/>
-				</>
+							</WithPrices>
+						</WithPopularTokens>
+					</WalletContextApp>
+				</WithMom>
 			</IndexedDB>
+			<Toaster
+				toastOptions={{
+					duration: 5_000,
+					className: 'toast',
+					success: {
+						icon: <IconCheck className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
+						iconTheme: {
+							primary: 'black',
+							secondary: '#F1EBD9'
+						}
+					},
+					error: {
+						icon: <IconCircleCross className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
+						iconTheme: {
+							primary: 'black',
+							secondary: '#F1EBD9'
+						}
+					}
+				}}
+				position={'top-right'}
+			/>
 		</WithFonts>
 	);
 }

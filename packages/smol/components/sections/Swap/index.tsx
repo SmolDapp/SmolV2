@@ -3,7 +3,6 @@ import {usePlausible} from 'next-plausible';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue, isZeroAddress} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {formatSeconds} from '@smolHooks/useTimer';
@@ -12,6 +11,7 @@ import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
 import {SmolTokenSelectorButton} from '@lib/common/SmolTokenSelectorButton';
 import {TextTruncate} from '@lib/common/TextTruncate';
+import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
@@ -26,6 +26,7 @@ import {SwapStatus} from './SwapStatus';
 import {useSwapFlow} from './useSwapFlow.lifi';
 import {SendWizard} from './Wizard';
 
+import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/Inputs';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
@@ -37,13 +38,28 @@ function ReadonlySwapTokenRow(props: {
 }): ReactElement {
 	const {safeChainID} = useChainID();
 	const {result, validate} = useValidateAmountInput();
+	const {getPrice, pricingHash} = usePrices();
+	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
 	const selectedToken = props.value.token;
-	const {data: prices} = usePrices({
-		tokens: selectedToken ? [selectedToken] : [],
-		chainId: selectedToken?.chainID || safeChainID
-	});
-	const price = prices && selectedToken ? prices[selectedToken.address] : undefined;
 
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the selectedToken, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the price for the current token.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (!selectedToken) {
+			return;
+		}
+		set_price(getPrice(selectedToken));
+	}, [selectedToken, safeChainID, pricingHash, getPrice]);
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the result changes, indicating that
+	 ** we need to update the value of the token amount input. If the result is not null, then the
+	 ** onChangeValue function is called with the result value.
+	 *********************************************************************************************/
 	useDeepCompareEffect(() => {
 		if (!result) {
 			return;
@@ -83,10 +99,12 @@ function ReadonlySwapTokenRow(props: {
 								<p>
 									{props.value.value
 										? `$${formatAmount(props.value.value, 2)}`
-										: formatCounterValue(
-												props.value.normalizedBigAmount.normalized,
-												price?.normalized ?? 0
-											)}
+										: price
+											? formatCounterValue(
+													props.value.normalizedBigAmount.normalized,
+													price.normalized
+												)
+											: 'N/A'}
 								</p>
 							) : (
 								<TextTruncate value={'N/A'} />

@@ -42,6 +42,7 @@ type TSmolChains = TNDict<
 		safeAPIURI: string;
 		safeUIURI: string;
 		coingeckoGasCoinID: string;
+		llamaChainName?: string;
 		disperseAddress: TAddress;
 	}
 >;
@@ -55,6 +56,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-mainnet.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=eth:',
 		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[optimism.id]: {
@@ -65,6 +67,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-optimism.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=oeth:',
 		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'optimism',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[bsc.id]: {
@@ -74,6 +77,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-bsc.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=bnb:',
 		coingeckoGasCoinID: 'binancecoin',
+		llamaChainName: 'bsc',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[gnosis.id]: {
@@ -83,6 +87,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-gnosis-chain.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=gno:',
 		coingeckoGasCoinID: 'xdai',
+		llamaChainName: 'xdai',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[polygon.id]: {
@@ -92,6 +97,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-polygon.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=matic:',
 		coingeckoGasCoinID: 'matic-network',
+		llamaChainName: 'polygon',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[polygonZkEvm.id]: {
@@ -110,6 +116,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.fantom.network/home?safe=ftm:',
 		coingeckoGasCoinID: 'fantom',
+		llamaChainName: 'fantom',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[zkSync.id]: {
@@ -137,6 +144,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-base.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=base:',
 		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'base',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[sepolia.id]: {
@@ -164,6 +172,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-arbitrum.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=arb1:',
 		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'arbitrum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[celo.id]: {
@@ -173,6 +182,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-celo.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=celo:',
 		coingeckoGasCoinID: 'celo',
+		llamaChainName: 'celo',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	},
 	[avalanche.id]: {
@@ -182,6 +192,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: 'https://safe-transaction-avalanche.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=avax:',
 		coingeckoGasCoinID: 'avalanche-2',
+		llamaChainName: 'avax',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b')
 	},
 	[linea.id]: {
@@ -200,6 +211,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: '',
 		safeUIURI: 'https://app.safe.global/home?safe=scr:',
 		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'scroll',
 		disperseAddress: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F')
 	},
 	[metis.id]: {
@@ -272,6 +284,7 @@ const CHAINS: TSmolChains = {
 		safeAPIURI: '',
 		safeUIURI: '',
 		coingeckoGasCoinID: 'filecoin',
+		llamaChainName: 'filecoin',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150')
 	}
 };

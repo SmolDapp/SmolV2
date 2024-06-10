@@ -131,17 +131,17 @@ module.exports = withPlausibleProxy({
 			 ** Legacy RPC configuration, mainnet and testnet
 			 *********************************************************************************/
 			JSON_RPC_URL: {
-				1: process.env.RPC_URL_MAINNET,
-				10: process.env.RPC_URL_OPTIMISM,
-				56: process.env.RPC_URL_BINANCE,
-				97: process.env.RPC_URL_BINANCE_TESTNET,
-				137: process.env.RPC_URL_POLYGON,
-				250: process.env.RPC_URL_FANTOM,
-				420: process.env.RPC_URL_OPTIMISM_GOERLI,
-				8453: process.env.RPC_URL_BASE,
-				80001: process.env.RPC_URL_POLYGON_TESTNET,
-				42161: process.env.RPC_URL_ARBITRUM,
-				11155111: process.env.RPC_URL_SEPOLIA
+				1: process.env.RPC_URI_FOR_1,
+				10: process.env.RPC_URI_FOR_10,
+				56: process.env.RPC_URI_FOR_56,
+				97: process.env.RPC_URL_FOR_97,
+				137: process.env.RPC_URL_FOR_137,
+				250: process.env.RPC_URL_FOR_250,
+				420: process.env.RPC_URL_FOR_420,
+				8453: process.env.RPC_URL_FOR_8453,
+				80001: process.env.RPC_URL_FOR_80001,
+				42161: process.env.RPC_URL_FOR_42161,
+				11155111: process.env.RPC_URL_FOR_11155111
 			},
 			/**********************************************************************************
 			 ** Wallet Connect configuration

@@ -3,16 +3,16 @@ import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
-import {useDeepCompareMemo} from '@react-hookz/web';
+import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {EmptyView} from '@lib/common/EmptyView';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {usePrices} from '@lib/contexts/usePrices';
 import {IconLoader} from '@lib/icons/IconLoader';
 
-import type {TPrice} from '@lib/utils/types/types';
+import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 
 function WalletListHeader(): ReactElement {
 	return (
@@ -31,27 +31,59 @@ export function Wallet(): ReactElement {
 	const [searchValue, set_searchValue] = useState('');
 	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
+	const {getPrices, pricingHash} = usePrices();
 	const {listTokensWithBalance, isLoadingOnCurrentChain} = useTokensWithBalance();
+	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
 
+	/**********************************************************************************************
+	 ** The tokensToUse memoized value contains the list of tokens that we will use to display the
+	 ** wallet. This is a wrapper aroung listTokensWithBalance that will return an empty array if
+	 ** the tokens for the current chain are not loaded yet.
+	 *********************************************************************************************/
+	const tokensToUse = useMemo(() => {
+		if (isLoadingOnCurrentChain) {
+			return [];
+		}
+		return listTokensWithBalance();
+	}, [listTokensWithBalance, isLoadingOnCurrentChain]);
+
+	/**********************************************************************************************
+	 ** The searchTokenAddress memoized value contains the address of the token that we are trying
+	 ** to search. If the search value is a valid address and the token is not already in the list,
+	 ** we will return the address of the token.
+	 *********************************************************************************************/
 	const searchTokenAddress = useMemo(() => {
 		if (
 			isAddress(searchValue) &&
-			!listTokensWithBalance().some(token => isAddressEqual(token.address, toAddress(searchValue)))
+			!tokensToUse.some(token => isAddressEqual(token.address, toAddress(searchValue)))
 		) {
 			return toAddress(searchValue);
 		}
 		return undefined;
-	}, [listTokensWithBalance, searchValue]);
+	}, [tokensToUse, searchValue]);
 
+	/**********************************************************************************************
+	 ** The filteredTokens memoized value contains the list of tokens that we will display in the
+	 ** wallet view once the user started to search for a token.
+	 *********************************************************************************************/
 	const filteredTokens = useDeepCompareMemo(() => {
-		return listTokensWithBalance().filter(
+		return tokensToUse.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				token.name.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
 				toAddress(token.address).toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
 		);
-	}, [searchValue, listTokensWithBalance]);
-	const {data: prices} = usePrices({tokens: filteredTokens, chainId: safeChainID}) as TPrice;
+	}, [searchValue, tokensToUse]);
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect(() => {
+		set_prices(getPrices(filteredTokens, safeChainID));
+	}, [filteredTokens, safeChainID, pricingHash]);
 
 	const walletLayout = useMemo(() => {
 		if (!address) {
@@ -76,7 +108,7 @@ export function Wallet(): ReactElement {
 				<SmolTokenButton
 					key={`${token.address}_${token.chainID}`}
 					token={token}
-					price={prices ? prices[token.address] : undefined}
+					price={prices ? prices[toAddress(token.address)] : undefined}
 				/>
 			));
 		}
