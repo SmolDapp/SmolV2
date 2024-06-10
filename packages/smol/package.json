@@ -1,9 +1,6 @@
 {
 	"name": "smol",
 	"private": true,
-	"workspaces": [
-		"packages/*"
-	],
 	"scripts": {
 		"dev": "next",
 		"dev:ts": "tsc --watch",

@@ -186,7 +186,7 @@ function Safe(): ReactElement {
 				opcode: 'CREATE2',
 				salt
 			});
-			if (addrCreate2.startsWith(`0x${prefix}` || '0x') && addrCreate2.endsWith(suffix || '')) {
+			if (addrCreate2.startsWith(prefix ? `0x${prefix}` : prefix || '0x') && addrCreate2.endsWith(suffix || '')) {
 				return {address: addrCreate2, salt: seed};
 			}
 			const newSalt = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));

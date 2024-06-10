@@ -3,7 +3,7 @@
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {usePlausible} from 'next-plausible';
 import assert from 'assert';
-import setupIndexedDB, {useIndexedDBStore} from 'use-indexeddb';
+import {useIndexedDBStore} from 'use-indexeddb';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
@@ -21,7 +21,6 @@ import type {
 	TCurtainStatus,
 	TSelectCallback
 } from 'packages/lib/types/AddressBook';
-import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
 import type {TAddress} from '@builtbymom/web3/types';
 
 const defaultCurtainStatus = {
@@ -46,31 +45,6 @@ const defaultProps: TAddressBookProps = {
 	set_curtainStatus: (): void => undefined
 };
 
-/******************************************************************************
- * Open the link with the IndexDB Storage. Might be moved to a separate file on
- * a higher level to handle multiple stores.
- *****************************************************************************/
-const addressBookIDBConfig: IndexedDBConfig = {
-	databaseName: 'smol',
-	version: 3,
-	stores: [
-		{
-			name: 'address-book',
-			id: {keyPath: 'id', autoIncrement: true},
-			indices: [
-				{name: 'address', keyPath: 'address', options: {unique: true}},
-				{name: 'label', keyPath: 'label'},
-				{name: 'slugifiedLabel', keyPath: 'slugifiedLabel'},
-				{name: 'chains', keyPath: 'chains'},
-				{name: 'isFavorite', keyPath: 'isFavorite'},
-				{name: 'isHidden', keyPath: 'isHidden'},
-				{name: 'tags', keyPath: 'tags'},
-				{name: 'numberOfInteractions', keyPath: 'numberOfInteractions'}
-			]
-		}
-	]
-};
-
 const AddressBookContext = createContext<TAddressBookProps>(defaultProps);
 export const WithAddressBook = ({children}: {children: React.ReactElement}): React.ReactElement => {
 	const plausible = usePlausible();
@@ -83,8 +57,6 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	const {safeChainID} = useChainID();
 
 	useMountEffect(async () => {
-		setupIndexedDB(addressBookIDBConfig);
-
 		/* Initially add smol address in the AB */
 		const entriesFromDB = await getAll();
 		if (entriesFromDB.length === 0) {

@@ -139,11 +139,19 @@ function Safe(): ReactElement {
 					});
 					return;
 				}
-				const tx = await getTransaction(retrieveConfig(), {hash, chainId: chainID});
-				const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
-				const {owners, threshold, salt, singleton} = decodeArgInitializers(input as Hex);
+				try {
+					const tx = await getTransaction(retrieveConfig(), {hash, chainId: chainID});
+					const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
+					const {owners, threshold, salt, singleton} = decodeArgInitializers(input as Hex);
 
-				set_existingSafeArgs({owners, threshold, isLoading: false, address, salt, singleton, tx: tx});
+					set_existingSafeArgs({owners, threshold, isLoading: false, address, salt, singleton, tx: tx});
+				} catch (error) {
+					set_existingSafeArgs({
+						...defaultExistingSafeArgs,
+						error: 'No safe found at this address',
+						isLoading: false
+					});
+				}
 			} else {
 				set_existingSafeArgs({
 					...defaultExistingSafeArgs,

@@ -105,13 +105,17 @@ function ChainStatus({
 		const publicClient = getClient(chain.id);
 		let prepareWriteAddress = toAddress();
 		let prepareCallAddress = toAddress();
+
 		try {
 			const signletonToUse = singleton || SINGLETON_L2;
 			if (signletonToUse === SINGLETON_L1) {
 				return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
 			}
-			const argInitializers = generateArgInitializers(owners, threshold);
 
+			/**************************************************************************************
+			 ** First try to clone with the regular FALLBACK_HANDLER
+			 **************************************************************************************/
+			const argInitializers = generateArgInitializers(owners, threshold);
 			const prepareWriteResult = await publicClient.simulateContract({
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -120,9 +124,25 @@ function ChainStatus({
 				args: [signletonToUse, `0x${argInitializers}`, salt]
 			});
 			prepareWriteAddress = toAddress(prepareWriteResult.result);
-
 			if (prepareWriteAddress === safeAddress) {
 				return set_canDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contract'});
+			}
+
+			/**************************************************************************************
+			 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
+			 **************************************************************************************/
+			const argInitializersAlt = generateArgInitializers(owners, threshold, true);
+			const prepareWriteResultAlt = await publicClient.simulateContract({
+				account: address,
+				address: getProxyFromSingleton(signletonToUse),
+				abi: GNOSIS_SAFE_PROXY_FACTORY,
+				functionName: 'createProxyWithNonce',
+				args: [signletonToUse, `0x${argInitializersAlt}`, salt]
+			});
+			prepareWriteAddress = toAddress(prepareWriteResultAlt.result);
+
+			if (prepareWriteAddress === safeAddress) {
+				return set_canDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contractAlt'});
 			}
 		} catch (err) {
 			console.log(err);
@@ -142,10 +162,11 @@ function ChainStatus({
 				}
 			}
 		} catch (err) {
+			console.error(err);
 			//
 		}
 		return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
-	}, [address, chain.id, originalTx?.input, originalTx?.to, owners, safeAddress, salt, singleton, threshold]);
+	}, [address, chain, originalTx, owners, safeAddress, salt, singleton, threshold]);
 
 	useEffect((): void => {
 		checkIfDeployedOnThatChain();
@@ -230,10 +251,14 @@ function ChainStatus({
 		 ** If the method is contract, we can clone the safe using the proxy factory with the same
 		 ** arguments as the original transaction.
 		 ******************************************************************************************/
-		if (canDeployOnThatChain.method === 'contract') {
+		if (canDeployOnThatChain.method === 'contract' || canDeployOnThatChain.method === 'contractAlt') {
 			const fee = parseEther((DEFAULT_FEES_USD / coinPrice).toString());
 			const signletonToUse = singleton || SINGLETON_L2;
-			const argInitializers = generateArgInitializers(owners, threshold);
+			const argInitializers = generateArgInitializers(
+				owners,
+				threshold,
+				canDeployOnThatChain.method === 'contractAlt'
+			);
 			const callDataDisperseEth = {
 				target: CHAINS[chain.id].disperseAddress,
 				value: fee,

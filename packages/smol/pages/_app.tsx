@@ -1,4 +1,3 @@
-import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
@@ -8,6 +7,7 @@ import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
+import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {
 	IconAppAddressBook,
@@ -20,10 +20,11 @@ import {
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
+import {IconCross} from '@lib/icons/IconCross';
 import IconMultisafe from '@lib/icons/IconMultisafe';
 import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -46,18 +47,7 @@ const MENU = [
 		label: 'Swap',
 		icon: <IconAppSwap />
 	},
-	{
-		href: '/apps/earn',
-		label: 'Earn',
-		isDisabled: true,
-		icon: <IconAppEarn />
-	},
-	{
-		href: '/apps/stream',
-		label: 'Stream',
-		isDisabled: true,
-		icon: <IconAppStream />
-	},
+
 	{
 		href: '/apps/address-book',
 		label: 'Address Book',
@@ -67,6 +57,11 @@ const MENU = [
 		href: '/apps/wallet',
 		label: 'Wallet',
 		icon: <IconWallet />
+	},
+	{
+		href: '/apps/revoke',
+		label: 'Revoke',
+		icon: <IconCross />
 	},
 	{
 		href: '/apps/multisafe',
@@ -84,6 +79,18 @@ const MENU = [
 				icon: <IconClone />
 			}
 		]
+	},
+	{
+		href: '/apps/earn',
+		label: 'Earn',
+		isDisabled: true,
+		icon: <IconAppEarn />
+	},
+	{
+		href: '/apps/stream',
+		label: 'Stream',
+		isDisabled: true,
+		icon: <IconAppStream />
 	}
 ];
 
@@ -100,53 +107,58 @@ function MyApp(props: AppProps): ReactElement {
 				og={'https://smold.app/og.png'}
 				uri={'https://smold.app'}
 			/>
-			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={[
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
-				]}>
-				<WalletContextApp
-					shouldWorkOnTestnet={
-						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-					}>
-					<WithPopularTokens>
-						<SafeProvider>
-							<PlausibleProvider
-								domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
-								enabled={true}>
-								<main className={'h-app flex flex-col'}>
-									<Layout
-										{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
-										menu={MENU}
-									/>
-								</main>
-							</PlausibleProvider>
-						</SafeProvider>
-					</WithPopularTokens>
-				</WalletContextApp>
-			</WithMom>
-			<Toaster
-				toastOptions={{
-					duration: 5_000,
-					className: 'toast',
-					success: {
-						icon: <IconCheck className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
-						iconTheme: {
-							primary: 'black',
-							secondary: '#F1EBD9'
-						}
-					},
-					error: {
-						icon: <IconCircleCross className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
-						iconTheme: {
-							primary: 'black',
-							secondary: '#F1EBD9'
-						}
-					}
-				}}
-				position={'top-right'}
-			/>
+
+			<IndexedDB>
+				<>
+					<WithMom
+						supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+						tokenLists={[
+							'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+							'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+						]}>
+						<WalletContextApp
+							shouldWorkOnTestnet={
+								process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+							}>
+							<WithPopularTokens>
+								<SafeProvider>
+									<PlausibleProvider
+										domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
+										enabled={true}>
+										<main className={'h-app flex flex-col'}>
+											<Layout
+												{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
+												menu={MENU}
+											/>
+										</main>
+									</PlausibleProvider>
+								</SafeProvider>
+							</WithPopularTokens>
+						</WalletContextApp>
+					</WithMom>
+					<Toaster
+						toastOptions={{
+							duration: 5_000,
+							className: 'toast',
+							success: {
+								icon: <IconCheck className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
+								iconTheme: {
+									primary: 'black',
+									secondary: '#F1EBD9'
+								}
+							},
+							error: {
+								icon: <IconCircleCross className={'-mr-1 size-5 min-h-5 min-w-5 pt-1.5'} />,
+								iconTheme: {
+									primary: 'black',
+									secondary: '#F1EBD9'
+								}
+							}
+						}}
+						position={'top-right'}
+					/>
+				</>
+			</IndexedDB>
 		</WithFonts>
 	);
 }

@@ -8,21 +8,19 @@ import {useIsMounted} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkPopoverSelector(): ReactElement {
 	const isMounted = useIsMounted();
 	const {onSwitchChain, chainID} = useWeb3();
 	const safeChainID = toSafeChainID(chainID, Number(process.env.BASE_CHAINID));
 
-	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
-
 	const currentNetwork = useMemo(
 		() =>
 			supportedNetworks.find(
 				(network): boolean => network.id === safeChainID || (isDev && network.id === chainID)
 			),
-		[safeChainID, chainID, isDev]
+		[safeChainID, chainID]
 	);
 	const [isOpen, set_isOpen] = useState(false);
 	return (
