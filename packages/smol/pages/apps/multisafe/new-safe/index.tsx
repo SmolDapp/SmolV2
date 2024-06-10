@@ -176,19 +176,16 @@ function Safe(): ReactElement {
 			suffix?: string;
 			seed: bigint;
 		}): Promise<{address: TAddress; salt: bigint}> => {
-			console.log('generateCreate2Addresses');
 			if (shouldCancel.current) {
 				return {address: '' as TAddress, salt: 0n};
 			}
 			const salt = keccak256(encodePacked(['bytes', 'uint256'], [keccak256(`0x${argInitializers}`), seed]));
-			console.log('salt', salt);
 			const addrCreate2 = getContractAddress({
 				bytecode,
 				from: factory == 'ssf' ? PROXY_FACTORY_L2 : PROXY_FACTORY_L2_DDP,
 				opcode: 'CREATE2',
 				salt
 			});
-			console.log('addrCreate2', addrCreate2, prefix);
 			if (addrCreate2.startsWith(prefix ? `0x${prefix}` : prefix || '0x') && addrCreate2.endsWith(suffix || '')) {
 				return {address: addrCreate2, salt: seed};
 			}
