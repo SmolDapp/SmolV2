@@ -1,6 +1,6 @@
 # Smoldapp
 
-![./packages/smol/public/og.png](./public/og.png)
+![https://raw.githubusercontent.com/SmolDapp/SmolV2/main/packages/smol/public/og.png](https://raw.githubusercontent.com/SmolDapp/SmolV2/main/packages/smol/public/og.png)
 
 > The safest way to transfer all your ERC20 tokens at once!
 
