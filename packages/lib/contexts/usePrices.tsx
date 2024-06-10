@@ -107,7 +107,6 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 
 			const [pricesFromYDaemon, ...allPricesFromLlama] = await Promise.allSettled([
 				axios.post('https://ydaemon.yearn.fi/prices/some', {addresses: queryStringForYDaemon}),
-				// axios.get(`https://coins.llama.fi/prices/current/${queryStringForLlama}`)
 				...llamaRequests
 			]);
 
@@ -120,9 +119,7 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 				},
 				{status: 'fulfilled', value: {data: {}}}
 			);
-			console.log(allPricesFromLlama, pricesFromLlama);
-
-			console.log('UPDATING PRICES');
+			console.log('UPDATING PRICES', allPricesFromLlama, pricesFromLlama);
 
 			dispatcher(previous => {
 				const newPrices: typeof previous = {};
