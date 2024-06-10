@@ -47,7 +47,7 @@ export function VaultsListHead(props: {
 	);
 
 	return (
-		<div className={'mb-4 mt-12 grid w-full grid-cols-12 border-neutral-200 pr-4 text-xs'}>
+		<div className={'mb-4 hidden w-full grid-cols-12 border-neutral-200 pr-4 text-xs md:grid'}>
 			<p className={'col-span-5 flex flex-row items-center justify-between font-medium'}>{props.title}</p>
 			<div className={'col-span-7 grid grid-cols-8 gap-x-7 text-neutral-600'}>
 				{props.items.map(item =>

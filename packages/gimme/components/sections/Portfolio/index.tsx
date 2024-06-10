@@ -168,7 +168,7 @@ export function Portfolio(): ReactNode {
 
 	return (
 		<div className={'w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl'}>
-			<div className={'font-medium'}>
+			<div className={'mb-12 font-medium'}>
 				<p className={'mb-2 text-xs'}>{'Total Deposited'}</p>
 				<p className={'text-4xl'}>
 					{'$'}

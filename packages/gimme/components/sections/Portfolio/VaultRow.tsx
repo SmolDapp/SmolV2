@@ -6,6 +6,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {Button} from '@lib/primitives/Button';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {BaseError} from 'wagmi';
@@ -48,7 +49,10 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 	};
 
 	return (
-		<div className={'grid w-full grid-cols-12 justify-between rounded-md border border-neutral-400 p-6'}>
+		<div
+			className={
+				'grid w-full grid-cols-1 justify-between gap-y-4 rounded-md border border-neutral-400 p-6 md:grid-cols-12'
+			}>
 			<div className={'col-span-5 flex min-w-[236px] items-center gap-4'}>
 				<ImageWithFallback
 					alt={props.vault.token.symbol}
@@ -66,40 +70,45 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 					</div>
 				</div>
 			</div>
-			<div className={'col-span-7 grid grid-cols-8 gap-x-7'}>
-				<div className={'group col-span-2 flex flex-row items-center justify-end'}>
-					<div className={'bg-primary mb-4 flex rounded-md p-1 text-xs font-bold'}>
+			<div className={'col-span-7 grid grid-cols-2 gap-x-7 gap-y-4 md:grid-cols-8'}>
+				<div className={'group col-span-2 flex flex-row items-center justify-between md:justify-end'}>
+					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'APY'}</p>
+					<div className={'bg-primary flex rounded-md p-1 text-xs font-bold md:mb-4'}>
 						{`APY ${formatTAmount({value: props.vault.apr.netAPR, decimals: props.vault.decimals, symbol: 'percent'})}`}
 					</div>
 				</div>
-				<div className={'group col-span-2 flex flex-col items-end'}>
-					<p className={'font-bold'}>
-						<Counter
-							value={props.balance.normalized}
-							decimals={props.vault.decimals}
-							decimalsToDisplay={[6, 12]}
-						/>
-					</p>
-					<p className={'text-xs'}>
-						{'$'}
-						<Counter
-							value={
-								props.balance.normalized && props.price?.normalized
-									? props.balance.normalized * props.price.normalized
-									: 0
-							}
-							idealDecimals={2}
-							decimals={props.vault.decimals}
-							decimalsToDisplay={[6]}
-						/>
-					</p>
+				<div className={'group col-span-2 flex justify-between md:block'}>
+					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'Savings'}</p>
+					<div className={'flex flex-col items-end'}>
+						<p className={'font-bold'}>
+							<Counter
+								value={props.balance.normalized}
+								decimals={props.vault.decimals}
+								decimalsToDisplay={[6, 12]}
+							/>
+						</p>
+						<p className={'text-xs'}>
+							{'$'}
+							<Counter
+								value={
+									props.balance.normalized && props.price?.normalized
+										? props.balance.normalized * props.price.normalized
+										: 0
+								}
+								idealDecimals={2}
+								decimals={props.vault.decimals}
+								decimalsToDisplay={[6]}
+							/>
+						</p>
+					</div>
 				</div>
-				<div className={'group col-span-2 mb-4 flex flex-row items-center justify-end'}>
+				<div className={'group col-span-2 flex flex-row items-center justify-between md:mb-4 md:justify-end'}>
+					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'Annual Yield'}</p>
 					<p className={'font-bold'}>
 						{`+${formatCounterValue(percentOf(props.balance.normalized, props.vault.apr.netAPR * 100), props.price?.normalized || 0)}`}
 					</p>
 				</div>
-				<div className={'group col-span-2 flex flex-row items-center justify-end gap-2'}>
+				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-2 md:flex'}>
 					<button
 						onClick={async () => onAction({tokenAddress: props.vault.address})}
 						className={
@@ -116,6 +125,20 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						}>
 						<p className={'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}>{'+'}</p>
 					</button>
+				</div>
+				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>
+					<Button
+						onClick={async () => onAction({tokenAddress: props.vault.address})}
+						className={'!h-10 w-full'}>
+						{'Withdraw'}
+					</Button>
+					<Button
+						onClick={async () =>
+							onAction({tokenAddress: props.vault.token.address, vaultAddress: props.vault.address})
+						}
+						className={'!h-10 w-full'}>
+						{'Deposit'}
+					</Button>
 				</div>
 			</div>
 		</div>
