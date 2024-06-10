@@ -176,6 +176,7 @@ export function Portfolio(): ReactNode {
 						value={totalDeposited}
 						decimals={18}
 						decimalsToDisplay={[4]}
+						shouldBeStylized
 					/>
 				</p>
 			</div>
