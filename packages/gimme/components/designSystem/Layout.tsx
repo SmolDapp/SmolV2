@@ -32,7 +32,7 @@ type TAppProp = {
 };
 
 function App(props: TAppProp): ReactElement {
-	return <section className={'mt-24 flex w-full justify-center'}>{props.children}</section>;
+	return <section className={'mt-24 flex w-full justify-center px-2'}>{props.children}</section>;
 }
 
 type TComponent = NextComponentType & {
@@ -44,7 +44,7 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
-			<div className={'grid grid-cols-3'}>
+			<div className={'grid grid-cols-3 px-2'}>
 				<div className={'flex items-center gap-4'}>
 					<div className={'size-10 rounded-full bg-black'} />
 					<div className={'font-bold'}>{'GIMME'}</div>
