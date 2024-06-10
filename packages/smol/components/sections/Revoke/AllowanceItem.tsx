@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import toast from 'react-hot-toast';
+import {usePlausible} from 'next-plausible';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -17,6 +18,7 @@ import {
 import {approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isDev} from '@lib/utils/tools.chains';
 import {isUnlimitedBN} from '@lib/utils/tools.revoke';
 
@@ -27,6 +29,7 @@ import type {TAddress} from '@builtbymom/web3/types';
 import type {TAllowanceItemProps, TApproveEventEntry, TTokenAllowance} from '@lib/types/Revoke';
 
 export const AllowanceItem = ({allowance, price, isTable}: TAllowanceItemProps): ReactElement => {
+	const plausible = usePlausible();
 	const {dispatchConfiguration, configuration} = useAllowances();
 	const [revokeStatus, set_revokeStatus] = useState(defaultTxStatus);
 	const {provider, address, chainID} = useWeb3();
@@ -112,11 +115,21 @@ export const AllowanceItem = ({allowance, price, isTable}: TAllowanceItemProps):
 	 ** This function calls revoke function and lets us to revoke the allowance.
 	 *********************************************************************************************/
 	const onRevoke = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.REVOKE_ALLOWANCE, {
+			props: {token: allowance.address, spender: allowance.args.sender, chainID: allowance.chainID}
+		});
 		revokeTokenAllowance(
 			{spender: allowance.args.sender, address: allowance.address, name: allowance.symbol ?? ''},
 			allowance.args.sender
 		);
-	}, [allowance.address, allowance.args.sender, allowance.symbol, revokeTokenAllowance]);
+	}, [
+		allowance.address,
+		allowance.args.sender,
+		allowance.chainID,
+		allowance.symbol,
+		plausible,
+		revokeTokenAllowance
+	]);
 
 	const {getToken} = useTokenList();
 
