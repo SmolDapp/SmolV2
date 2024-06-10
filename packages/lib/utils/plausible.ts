@@ -18,6 +18,9 @@ export const PLAUSIBLE_EVENTS = {
 	SEND_TOKENS: 'send',
 	ADD_TOKEN_OPTION: 'send: add token option',
 
+	// Revoke events
+	REVOKE_ALLOWANCE: 'revoke',
+
 	// Disperse events
 	DISPERSE_TOKENS: 'disperse',
 	DISPERSE_IMPORT_CONFIG: 'disperse: import configuration',
