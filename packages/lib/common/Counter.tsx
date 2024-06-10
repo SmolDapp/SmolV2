@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 import {animate} from 'framer-motion';
 import {formatAmount, parseAmount} from '@builtbymom/web3/utils';
 
@@ -9,17 +9,20 @@ export function Counter({
 	decimals = 18,
 	idealDecimals,
 	decimalsToDisplay,
-	className
+	className,
+	shouldBeStylized
 }: {
 	value: number; // Value to animate
 	decimals: number; // Number of decimals of that token
 	idealDecimals?: number; // Ideal decimals to display
 	decimalsToDisplay?: number[]; // Decimals to display
 	className?: string;
+	shouldBeStylized?: boolean; // Whether the counter should be stylized
 }): ReactElement {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const nodeRef = useRef<any>();
 	const valueRef = useRef(value || 0);
+	const [innerContent, set_innerContent] = useState<ReactElement | undefined>(undefined);
 
 	useLayoutEffect((): (() => void) => {
 		const node = nodeRef.current;
@@ -27,11 +30,12 @@ export function Counter({
 			const controls = animate(Number(valueRef.current || 0), value, {
 				duration: 1,
 				onUpdate(value) {
+					let finalValue = '0.00';
 					let hasBeenSet = false;
 					valueRef.current = value;
 					if (Number.isNaN(value) || value === 0) {
 						const formatedValue = formatAmount(0, idealDecimals, idealDecimals);
-						node.textContent = formatedValue;
+						finalValue = formatedValue;
 					} else if (decimalsToDisplay && decimalsToDisplay.length > 0) {
 						const allDecimalsToTests = [...decimalsToDisplay, decimals];
 						if (idealDecimals) {
@@ -40,7 +44,7 @@ export function Counter({
 						for (const decimalToDisplay of allDecimalsToTests) {
 							if (decimalToDisplay > decimals) {
 								const formatedValue = formatAmount(value.toFixed(decimals), decimals, decimals);
-								node.textContent = formatedValue;
+								finalValue = formatedValue;
 								hasBeenSet = true;
 								break;
 							}
@@ -56,17 +60,17 @@ export function Counter({
 							) {
 								continue;
 							}
-							node.textContent = formatedValue;
+							finalValue = formatedValue;
 							hasBeenSet = true;
 							break;
 						}
 						if (!hasBeenSet) {
 							if (Number.isNaN(value) || value === 0) {
 								const formatedValue = formatAmount(0, idealDecimals, idealDecimals);
-								node.textContent = formatedValue;
+								finalValue = formatedValue;
 							} else {
 								const formatedValue = formatAmount(value.toFixed(decimals), decimals, decimals);
-								node.textContent = formatedValue;
+								finalValue = formatedValue;
 							}
 						}
 					} else {
@@ -75,20 +79,36 @@ export function Counter({
 							decimals || idealDecimals,
 							decimals || idealDecimals
 						);
-						node.textContent = formatedValue;
+						finalValue = formatedValue;
+					}
+
+					if (shouldBeStylized) {
+						const parts = finalValue.split('.');
+						set_innerContent(
+							<span>
+								{parts[0]}
+								<span className={'text-neutral-400'}>
+									{'.'}
+									{parts[1]}
+								</span>
+							</span>
+						);
+					} else {
+						node.textContent = finalValue;
 					}
 				}
 			});
 			return () => controls.stop();
 		}
 		return () => undefined;
-	}, [value, decimals, decimalsToDisplay, idealDecimals]);
+	}, [value, decimals, decimalsToDisplay, idealDecimals, shouldBeStylized]);
 
 	return (
 		<span
 			className={className}
 			suppressHydrationWarning
 			ref={nodeRef}
+			children={innerContent}
 		/>
 	);
 }

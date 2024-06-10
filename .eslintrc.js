@@ -23,10 +23,10 @@ module.exports = {
 	plugins: ['@typescript-eslint', 'react', 'tailwindcss', 'unused-imports', 'simple-import-sort', 'import'],
 	settings: {
 		react: {version: 'detect'},
-		'import/resolver': {typescript: {}},
 		next: {
 			rootDir: 'packages/*/'
-		}
+		},
+		'import/resolver': {typescript: {}}
 	},
 	rules: {
 		'import/default': 0,
@@ -45,7 +45,7 @@ module.exports = {
 		'react/jsx-curly-brace-presence': ['error', {props: 'always', children: 'always'}],
 		'react/jsx-first-prop-new-line': ['error', 'multiline'],
 		'react/jsx-closing-tag-location': 2,
-		'unused-imports/no-unused-imports-ts': 'error',
+		'unused-imports/no-unused-imports': 'error',
 		'unused-imports/no-unused-vars': [
 			'warn',
 			{

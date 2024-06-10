@@ -14,10 +14,12 @@ export function useTokensWithBalance(): {
 	listTokensWithBalance: (chainID?: number) => TToken[];
 	listTokens: (chainID?: number) => TToken[];
 	isLoading: boolean;
+	isLoadingOnCurrentChain: boolean;
+	isLoadingOnChain: (chainID?: number) => boolean;
 	onRefresh: () => Promise<TChainTokens>;
 } {
 	const {chainID} = useWeb3();
-	const {balances, getBalance, isLoading, onRefresh} = useWallet();
+	const {balances, getBalance, isLoading, isLoadingOnCurrentChain, isLoadingOnChain, onRefresh} = useWallet();
 	const [allTokens, set_allTokens] = useState<TNDict<TDict<TToken>>>({});
 	const {tokenLists, isCustomToken} = useTokenList();
 
@@ -123,5 +125,12 @@ export function useTokensWithBalance(): {
 		[allTokens, getBalance, currentIdentifier, chainID]
 	);
 
-	return {listTokensWithBalance, listTokens, isLoading, onRefresh};
+	return {
+		listTokensWithBalance,
+		listTokens,
+		isLoading,
+		isLoadingOnCurrentChain,
+		isLoadingOnChain,
+		onRefresh
+	};
 }
