@@ -77,13 +77,15 @@ export function useValidateAddressInput(): {
 			}
 			set_isCheckingValidity(false);
 
-			return {
-				address: toAddress(ensAddress),
-				label: input || toAddress(ensAddress),
-				error: undefined,
-				isValid: true,
-				source: 'typed'
-			};
+			if (ensAddress) {
+				return {
+					address: toAddress(ensAddress),
+					label: input || toAddress(ensAddress),
+					error: undefined,
+					isValid: true,
+					source: 'typed'
+				};
+			}
 		}
 
 		return {
