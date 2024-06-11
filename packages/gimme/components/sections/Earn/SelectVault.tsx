@@ -92,7 +92,7 @@ export function SelectVault({
 				<div className={'fixed inset-0 z-[1001] w-screen !overflow-visible overflow-y-auto'}>
 					<div
 						className={cl(
-							'grid max-h-screen grid-cols-9 grid-rows-4 gap-4 text-center sm:p-0',
+							'grid max-h-screen grid-cols-9 p-4 grid-rows-4 gap-4 text-center sm:p-0',
 							'grid-flow-col'
 						)}>
 						<TransitionChild

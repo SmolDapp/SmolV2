@@ -43,10 +43,6 @@ export function NavBar(props: {router: Router}): ReactElement {
 					'fixed bottom-6 left-1/2 grid w-full max-w-72 -translate-x-1/2 grid-cols-3 rounded-2xl bg-white p-1 md:hidden'
 				}>
 				{TOP_NAV.map(item => (
-					// <button
-					// 	className={'col-span-1 rounded-xl px-2 py-4 leading-5 transition-colors hover:bg-neutral-300'}>
-					// 	{item.label}
-					// </button>
 					<LinkOrDiv
 						key={item.label}
 						className={cl(
