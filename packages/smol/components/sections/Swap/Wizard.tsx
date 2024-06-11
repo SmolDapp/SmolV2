@@ -166,7 +166,7 @@ export function SendWizard(): ReactElement {
 				) : (
 					<Button
 						className={'!h-8 w-full max-w-[240px] !text-xs'}
-						isBusy={approveStatus.pending}
+						isBusy={approveStatus.pending || swapStatus.pending}
 						isDisabled={isSendButtonDisabled}
 						onClick={onHandleApprove}>
 						<b>{'Approve and swap'}</b>
