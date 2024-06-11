@@ -33,6 +33,11 @@ import '../style.css';
 
 const MENU = [
 	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	},
+	{
 		href: '/apps/send',
 		label: 'Send',
 		icon: <IconAppSend />
@@ -52,11 +57,6 @@ const MENU = [
 		href: '/apps/address-book',
 		label: 'Address Book',
 		icon: <IconAppAddressBook />
-	},
-	{
-		href: '/apps/wallet',
-		label: 'Wallet',
-		icon: <IconWallet />
 	},
 	{
 		href: '/apps/revoke',
