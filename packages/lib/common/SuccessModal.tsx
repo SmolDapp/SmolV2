@@ -98,7 +98,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 												href={tweetURL}
 												target={'_blank'}>
 												<Button
-													variant={'light-alt'}
+													variant={'light'}
 													className={'!h-10 w-full'}>
 													{'Share on Twitter'}
 												</Button>
@@ -109,6 +109,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 												'!h-10 w-full',
 												props.twitterShareContent ? 'col-span-1' : 'col-span-2'
 											)}
+											variant={'light'}
 											onClick={props.onClose}>
 											{props.ctaLabel}
 										</Button>
