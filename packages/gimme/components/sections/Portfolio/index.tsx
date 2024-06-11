@@ -174,7 +174,7 @@ export function Portfolio(): ReactNode {
 					{'$'}
 					<Counter
 						value={totalDeposited}
-						decimals={18}
+						decimals={4}
 						decimalsToDisplay={[4]}
 						shouldBeStylized
 					/>
