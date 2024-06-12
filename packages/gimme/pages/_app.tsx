@@ -9,6 +9,7 @@ import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import Layout from '@gimmeDesignSystem/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
+import {WithPrices} from '@lib/contexts/usePrices';
 
 import {VaultsContextApp} from '../contexts/useVaults';
 
@@ -32,11 +33,13 @@ function MyApp(props: AppProps): ReactElement {
 				supportedChains={[mainnet, polygon, optimism, base, arbitrum, localhost]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/yearn-min.json']}>
 				<WalletContextApp>
-					<VaultsContextApp>
-						<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
-							<Layout {...props} />
-						</main>
-					</VaultsContextApp>
+					<WithPrices>
+						<VaultsContextApp>
+							<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
+								<Layout {...props} />
+							</main>
+						</VaultsContextApp>
+					</WithPrices>
 				</WalletContextApp>
 			</WithMom>
 			<Toaster

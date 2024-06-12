@@ -4,12 +4,12 @@ import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {useMultiChainPrices} from '@builtbymom/web3/hooks/useMultichainPrices';
 import {type TDict, type TNormalizedBN, type TSortDirection} from '@builtbymom/web3/types';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {readContracts} from '@wagmi/core';
 import {Counter} from '@lib/common/Counter';
+import {usePrices} from '@lib/contexts/usePrices';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
@@ -44,23 +44,10 @@ export function Portfolio(): ReactNode {
 	const {data: blockNumber} = useBlockNumber({watch: true});
 
 	const isEmpty = userVaultsArray.length === 0;
-	const vaultTokenPrices = useMultiChainPrices({
-		tokens: userVaultsArray.map(vault => ({
-			address: vault.token.address,
-			chainID: vault.chainID,
-			name: vault.token.name,
-			symbol: vault.token.symbol,
-			decimals: vault.token.decimals,
-			balance: zeroNormalizedBN,
-			value: 0
-		}))
-	});
 
-	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(
-		userVaultsArray,
-		vaultTokenPrices,
-		balances
-	);
+	const {getPrice} = usePrices();
+
+	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances);
 
 	const refetch = useAsyncTrigger(async (): Promise<void> => {
 		blockNumber;
@@ -112,7 +99,7 @@ export function Portfolio(): ReactNode {
 
 	const totalDeposited = useMemo(() => {
 		blockNumber;
-		if (!userVaults || Object.values(balances).length === 0 || !vaultTokenPrices || userVaultsArray.length === 0) {
+		if (!userVaults || Object.values(balances).length === 0 || userVaultsArray.length === 0) {
 			return zeroNormalizedBN.normalized;
 		}
 
@@ -126,14 +113,15 @@ export function Portfolio(): ReactNode {
 			const vaultTokenAddress = userVaults[balance].token.address;
 			const vaultChainId = userVaults[balance].chainID;
 
-			const usdValue =
-				balances[balance].normalized *
-				(vaultTokenPrices.result?.[vaultChainId]?.[vaultTokenAddress]?.normalized || 0);
+			const price = getPrice({address: vaultTokenAddress, chainID: vaultChainId}) || zeroNormalizedBN;
+
+			const usdValue = balances[balance].normalized * price.normalized;
+
 			balancesUsd.push(usdValue);
 		}
 
 		return balancesUsd.reduce((acc, current) => current + acc, 0);
-	}, [blockNumber, userVaults, balances, vaultTokenPrices, userVaultsArray.length]);
+	}, [blockNumber, userVaults, balances, userVaultsArray.length, getPrice]);
 
 	// const [totalDepositedIntegerPart, totalDepositedDecimalPart] = totalDeposited.toString().split('.');
 
@@ -154,7 +142,7 @@ export function Portfolio(): ReactNode {
 					<VaultRow
 						key={vault.address}
 						vault={vault}
-						price={vaultTokenPrices.result?.[vault.chainID]?.[vault.token.address]}
+						price={getPrice({address: vault.token.address, chainID: vault.chainID})}
 						balance={balances[vault.address] || zeroNormalizedBN}
 					/>
 				))}

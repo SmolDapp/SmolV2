@@ -1,10 +1,10 @@
 import {Fragment, type ReactElement, useCallback, useState} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatPercent} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import {usePrices} from '@lib/contexts/usePrices';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 import {TooltipContent} from '@lib/primitives/Tooltip';
 import {createMarkup} from '@lib/utils/react/createMarkup';
@@ -48,13 +48,9 @@ export function SelectVault({
 	filteredVaults: TYDaemonVault[];
 }): ReactElement {
 	const {configuration} = useEarnFlow();
-	const {chainID, address} = useWeb3();
+	const {address} = useWeb3();
 
-	const {data: prices} = usePrices({
-		tokens: configuration.asset.token ? [configuration.asset.token] : [],
-		chainId: chainID
-	});
-	const price = prices && configuration.asset.token ? prices[configuration.asset.token.address] : undefined;
+	const {getPrice} = usePrices();
 
 	const [vaultInfo, set_vaultInfo] = useState<TYDaemonVault | undefined>(undefined);
 
@@ -147,7 +143,7 @@ export function SelectVault({
 										<Vault
 											key={`${vault.address}-${vault.chainID}`}
 											vault={vault}
-											price={price}
+											price={getPrice({address: vault.token.address, chainID: vault.chainID})}
 											isDisabled={!address}
 											onSelect={onSelect}
 											onClose={onClose}
