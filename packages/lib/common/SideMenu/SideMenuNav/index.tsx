@@ -38,7 +38,7 @@ function NavItem({
 	isDisabled = false
 }: TNavItemProps): ReactElement {
 	return (
-		<motion.li className={'relative z-10 px-4'}>
+		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
 			<LinkOrDiv
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}

@@ -72,7 +72,9 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 					initial={{scale: 0.9, opacity: 0}}
 					animate={{scale: 1, opacity: 1}}
 					transition={{duration: 0.6, ease: 'easeInOut'}}
-					className={'col-sidebar h-app bg-neutral-0 sticky top-10 z-20 hidden flex-col rounded-lg md:flex'}>
+					className={
+						'col-sidebar h-app bg-neutral-0 sticky top-10 z-20 hidden flex-col rounded-lg md:ml-3 md:flex lg:ml-4 '
+					}>
 					<SideMenu menu={props.menu} />
 				</motion.nav>
 
@@ -80,7 +82,7 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 					<SideMenuMobile menu={props.menu} />
 				</div>
 
-				<div className={'md:col-main col-span-full px-4 '}>
+				<div className={'md:col-main col-span-full px-4 md:px-3 lg:px-4'}>
 					<div className={'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'}>
 						<WithAddressBook>
 							<App
