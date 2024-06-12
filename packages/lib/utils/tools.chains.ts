@@ -69,14 +69,24 @@ export function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls 
 	if (chain.rpcUrls['infura'].http[0] && process.env.INFURA_PROJECT_ID) {
 		availableRPCs.push(`${chain.rpcUrls['infura'].http[0]}/${process.env.INFURA_PROJECT_ID}`);
 	}
-	if (chain.id === bsc.id) {
-		console.log({chain});
+
+	/**********************************************************************************************
+	 ** Make sure to add a proper http object to the chain.rpcUrls.default object.
+	 ********************************************************************************************/
+	const http = [];
+	if (rpcUrls?.length) {
+		http.push(...rpcUrls);
 	}
+	if (injectedRPC) {
+		http.push(injectedRPC);
+	}
+	if (availableRPCs.length) {
+		http.push(...availableRPCs);
+	}
+	http.push(...chain.rpcUrls.default.http);
 	return {
 		...chain.rpcUrls,
-		default: {
-			http: [...(rpcUrls || []), injectedRPC, ...availableRPCs, ...(chain.rpcUrls.default.http || [])]
-		}
+		default: {http}
 	};
 }
 

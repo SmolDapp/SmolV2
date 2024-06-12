@@ -1,52 +1,28 @@
 import {createContext, useCallback, useContext, useMemo, useState} from 'react';
 import {serialize} from 'wagmi';
 import axios from 'axios';
-import {deepMerge, fromNormalized, toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
+import {toAddress, toBigInt, toNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
-import {CHAINS} from '@lib/utils/tools.chains';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
+import {
+	assignLlamaPrices,
+	assignYDaemonPrices,
+	mergeLlamaResponse,
+	prepareQueryStringForLlama,
+	prepareQueryStringForYDaemon,
+	usePricesDefaultProps
+} from './usePrices.helpers';
+
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
-import type {TAddress, TDict, TNDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TGetPriceProps, TPrices, TPricesProps, TPriceTokens} from '@lib/utils/types/hook.usePrices';
 
-type TPricesProps = {
-	pricingHash: string;
-	prices: TNDict<TDict<TNormalizedBN>>;
-	getPrice: (value: {chainID: number; address: TAddress}) => TNormalizedBN | undefined;
-	getPrices: (tokens: TToken[], chainID: number) => TDict<TNormalizedBN>;
-};
-
-const defaultProps: TPricesProps = {
-	pricingHash: '',
-	prices: {},
-	getPrice: () => undefined,
-	getPrices: () => ({})
-};
-
-function prepareQueryStringForYDaemon(tokens: Pick<TToken, 'address' | 'chainID'>[]): string {
-	const allTokens = [];
-	for (const token of tokens) {
-		allTokens.push(`${token.chainID}:${token.address}`);
-	}
-	return allTokens.join(',');
-}
-
-function prepareQueryStringForLlama(tokens: Pick<TToken, 'address' | 'chainID'>[]): string {
-	const allTokens = [];
-	for (const token of tokens) {
-		if (!CHAINS[token.chainID].llamaChainName) {
-			continue;
-		}
-		allTokens.push(`${CHAINS[token.chainID].llamaChainName}:${token.address}`);
-	}
-	return allTokens.join(',');
-}
-
-const PricesContext = createContext<TPricesProps>(defaultProps);
+const PricesContext = createContext<TPricesProps>(usePricesDefaultProps);
 export const WithPrices = ({children}: {children: ReactElement}): ReactElement => {
-	const [pricesFromList, set_pricesFromList] = useState<TNDict<TDict<TNormalizedBN>>>({});
-	const [prices, set_prices] = useState<TNDict<TDict<TNormalizedBN>>>({});
+	const [pricesFromList, set_pricesFromList] = useState<TPrices>({});
+	const [prices, set_prices] = useState<TPrices>({});
 	const {listAllTokensWithBalance, listTokensWithBalance, isLoadingOnCurrentChain, isLoading} =
 		useTokensWithBalance();
 
@@ -59,7 +35,7 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 	 ** only for theses tokens.
 	 ** Then, once every other tokens are loaded, we will fetch the prices for all tokens.
 	 *********************************************************************************************/
-	const tokensToUse = useMemo((): Pick<TToken, 'address' | 'chainID'>[] => {
+	const tokensToUse = useMemo((): TPriceTokens => {
 		const tokens = listAllTokensWithBalance();
 		const tokensForThisChain = listTokensWithBalance();
 		if (!tokens.length) {
@@ -80,20 +56,22 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 	 ** doesn't have the price, we will use the prices from the yDaemon endpoint.
 	 *********************************************************************************************/
 	const fetchLists = useCallback(
-		async (
-			_tokensToUse: Pick<TToken, 'address' | 'chainID'>[],
-			dispatcher: Dispatch<SetStateAction<TNDict<TDict<TNormalizedBN>>>>
-		) => {
+		async (_tokensToUse: TPriceTokens, dispatcher: Dispatch<SetStateAction<TPrices>>) => {
 			const queryStringForYDaemon = prepareQueryStringForYDaemon(_tokensToUse);
 			const queryStringForLlama = prepareQueryStringForLlama(_tokensToUse);
 			if (!queryStringForYDaemon || !queryStringForLlama) {
 				return;
 			}
 
-			console.log(queryStringForYDaemon, queryStringForLlama);
+			/**************************************************************************************
+			 ** The llama endpoint needs a GET request with some query arguments. In the web
+			 ** standard, URLs are limited in size. Thus, if we have a lot of tokens to fetch, we
+			 ** might have to split the request in multiple requests.
+			 ** Thus, we will create an array of requests to fetch the prices for the tokens with
+			 ** a batch of 100 tokens per request.
+			 *************************************************************************************/
 			const llamaRequests = [];
 			if (_tokensToUse.length > 100) {
-				// As llama is a query string, we need to split it in multiple requests
 				const tokens = _tokensToUse.slice();
 				while (tokens.length) {
 					const chunk = tokens.splice(0, 100);
@@ -105,74 +83,33 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 				llamaRequests.push(axios.get(`https://coins.llama.fi/prices/current/${queryStringForLlama}`));
 			}
 
+			/**************************************************************************************
+			 ** Once we know what to fetch, we will use the Promise.allSettled function to fetch
+			 ** the prices from the yDaemon and llama endpoints, waiting for all requests to be
+			 ** resolved or rejected before updating the prices.
+			 *************************************************************************************/
 			const [pricesFromYDaemon, ...allPricesFromLlama] = await Promise.allSettled([
 				axios.post('https://ydaemon.yearn.fi/prices/some', {addresses: queryStringForYDaemon}),
 				...llamaRequests
 			]);
 
-			const pricesFromLlama = allPricesFromLlama.reduce(
-				(acc, current) => {
-					if (current.status === 'fulfilled') {
-						acc.value.data = deepMerge(acc.value.data, current.value.data) as unknown as {coin: unknown};
-					}
-					return acc;
-				},
-				{status: 'fulfilled', value: {data: {}}}
-			);
-			console.log('UPDATING PRICES', allPricesFromLlama, pricesFromLlama);
+			/**************************************************************************************
+			 ** For simplicity, we will merge the prices from the llama endpoint in a single object
+			 ** as if it was a single request.
+			 *************************************************************************************/
+			const pricesFromLlama = mergeLlamaResponse(allPricesFromLlama);
 
+			/**************************************************************************************
+			 ** We will update the prices object with the new prices from the llama and yDaemon
+			 ** endpoints.
+			 *************************************************************************************/
 			dispatcher(previous => {
-				const newPrices: typeof previous = {};
+				let newPrices: typeof previous = {};
 				for (const chainID in previous) {
 					newPrices[chainID] = {...previous[chainID]};
 				}
-				const storedChainsToID: TDict<number> = {};
-				if (pricesFromLlama.status === 'fulfilled' && (pricesFromLlama.value.data as {coins: unknown})?.coins) {
-					const coins = (pricesFromLlama.value.data as {coins: unknown}).coins as TDict<{
-						decimals: number;
-						price: string;
-					}>;
-
-					for (const [chainNameAndTokenAddress, details] of Object.entries(coins)) {
-						const [chainName, tokenAddress] = chainNameAndTokenAddress.split(':');
-
-						let chainID = storedChainsToID[chainName];
-						if (!storedChainsToID[chainName]) {
-							const chain = Object.values(CHAINS).find(chain => chain.llamaChainName === chainName);
-							if (!chain) {
-								continue;
-							}
-							storedChainsToID[chainName] = chain.id;
-							chainID = chain.id;
-						}
-						if (chainID === 0) {
-							console.log(chainNameAndTokenAddress, details, chainName);
-						}
-
-						const normalizedPrice = toNormalizedBN(fromNormalized(details.price || 0, 6), 6);
-						if (!newPrices[chainID]) {
-							newPrices[chainID] = {};
-						}
-						newPrices[chainID][tokenAddress] = normalizedPrice;
-					}
-				}
-
-				if (pricesFromYDaemon.status === 'fulfilled') {
-					for (const chainID in pricesFromYDaemon.value.data) {
-						const item = pricesFromYDaemon.value.data[Number(chainID)];
-						if (!newPrices[Number(chainID)]) {
-							newPrices[Number(chainID)] = {};
-						}
-						for (const address in item) {
-							if (toBigInt(newPrices[Number(chainID)][toAddress(address)]?.raw) === 0n) {
-								newPrices[Number(chainID)][toAddress(address)] = toNormalizedBN(
-									item[toAddress(address)] || 0,
-									6
-								);
-							}
-						}
-					}
-				}
+				newPrices = assignLlamaPrices(pricesFromLlama, newPrices);
+				newPrices = assignYDaemonPrices(pricesFromYDaemon, newPrices);
 
 				return newPrices;
 			});
@@ -189,9 +126,10 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 
 	/**********************************************************************************************
 	 ** This function will be used to get the price of a given token on a given chain.
+	 ** If the price is not available, it will trigger a fetch to get the price of this token.
 	 *********************************************************************************************/
 	const getPrice = useCallback(
-		({chainID, address}: {chainID: number; address: TAddress}): TNormalizedBN | undefined => {
+		({chainID, address}: TGetPriceProps): TNormalizedBN | undefined => {
 			const tokenExists = prices[chainID]?.[toAddress(address)] || pricesFromList[chainID]?.[toAddress(address)];
 			const tokenPrice =
 				prices[chainID]?.[toAddress(address)] || pricesFromList[chainID]?.[toAddress(address)] || undefined;
@@ -204,6 +142,11 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 		[fetchLists, prices, pricesFromList]
 	);
 
+	/**********************************************************************************************
+	 ** This function will be used to get the prices of a list of tokens on a given chain.
+	 ** Over the token iterations, it will check if the price is available in the prices object and
+	 ** trigger a fetch of the full list of unavailable prices at the end.
+	 *********************************************************************************************/
 	const getPrices = useCallback(
 		(tokens: TToken[], chainID: number): TDict<TNormalizedBN> => {
 			const missingPrices: TDict<TNormalizedBN> = {};
@@ -233,6 +176,10 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 		[fetchLists, prices, pricesFromList]
 	);
 
+	/**********************************************************************************************
+	 ** We will merge the prices from the prices object and the pricesFromList object to have the
+	 ** most up-to-date prices.
+	 *********************************************************************************************/
 	const mergedPrices = useMemo(() => {
 		const newPrices = {...prices};
 		for (const chainID in pricesFromList) {
@@ -248,6 +195,10 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 		return newPrices;
 	}, [prices, pricesFromList]);
 
+	/**********************************************************************************************
+	 ** We will create a hash of the prices object to prevent some issues with hooks, memoization
+	 ** and array comparison.
+	 *********************************************************************************************/
 	const pricingHash = useMemo(() => {
 		return createUniqueID(serialize(mergedPrices));
 	}, [mergedPrices]);
