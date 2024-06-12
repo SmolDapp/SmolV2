@@ -50,7 +50,7 @@ const MENU = [
 	},
 	{
 		href: '/apps/swap',
-		label: 'Swap',
+		label: 'Swap/Bridge',
 		icon: <IconAppSwap />
 	},
 
