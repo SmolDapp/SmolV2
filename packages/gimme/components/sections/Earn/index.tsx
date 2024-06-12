@@ -14,8 +14,8 @@ import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TTokenAmountInputElement} from 'packages/lib/types/Inputs';
 import type {TAddress, TNDict} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
