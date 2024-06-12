@@ -1,151 +1,49 @@
-import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
-import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
-import type {Dispatch, ReactElement} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
-import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
-import type {TPartialExhaustive} from '@lib/types/utils';
+import {useDisperseConfigurationReducer, useDisperseDefaultProps} from './useDisperse.helpers';
+
+import type {ReactElement} from 'react';
+import type {TDisperseContext} from '@lib/types/app.disperse';
 import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
-import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-export type TDisperseInput = {receiver: TInputAddressLike; value: TAmountInputElement; UUID: string};
-
-export type TDisperseConfiguration = {
-	tokenToSend: TToken | undefined;
-	inputs: TDisperseInput[];
-};
-
-export type TDisperseActions =
-	| {type: 'SET_TOKEN_TO_SEND'; payload: TToken | undefined}
-	| {type: 'SET_RECEIVERS'; payload: TDisperseInput[]}
-	| {type: 'ADD_RECEIVERS'; payload: TDisperseInput[]}
-	| {type: 'DEL_RECEIVER_BY_UUID'; payload: string}
-	| {type: 'SET_RECEIVER'; payload: Partial<TInputAddressLike> & {UUID: string}}
-	| {type: 'SET_VALUE'; payload: Partial<TAmountInputElement> & {UUID: string}}
-	| {type: 'CLEAR_RECEIVERS'; payload: undefined}
-	| {type: 'RESET'; payload: undefined};
-
-export type TDisperseQuery = TPartialExhaustive<{
-	token: string;
-	addresses: string[];
-	values: string[];
-}>;
-
-export type TDisperse = {
-	configuration: TDisperseConfiguration;
-	dispatchConfiguration: Dispatch<TDisperseActions>;
-	isDispersed: boolean;
-	onResetDisperse: () => void;
-};
-
-export function newVoidRow(): TDisperseInput {
-	return {
-		receiver: defaultInputAddressLike,
-		value: {
-			amount: '',
-			normalizedBigAmount: zeroNormalizedBN,
-			isValid: 'undetermined',
-			status: 'none'
-		},
-		UUID: crypto.randomUUID()
-	};
-}
-
-const defaultProps: TDisperse = {
-	isDispersed: false,
-	dispatchConfiguration: (): void => undefined,
-	onResetDisperse: (): void => undefined,
-	configuration: {
-		tokenToSend: undefined,
-		inputs: []
-	}
-};
-
-const configurationReducer = (state: TDisperseConfiguration, action: TDisperseActions): TDisperseConfiguration => {
-	switch (action.type) {
-		case 'SET_TOKEN_TO_SEND':
-			return {...state, tokenToSend: action.payload};
-		case 'SET_RECEIVERS':
-			return {...state, inputs: action.payload};
-		case 'ADD_RECEIVERS':
-			return {
-				...state,
-				inputs: [...state.inputs, ...action.payload]
-			};
-		case 'CLEAR_RECEIVERS':
-			return {...state, inputs: []};
-
-		case 'DEL_RECEIVER_BY_UUID':
-			if (state.inputs.length === 1) {
-				return {...state, inputs: [newVoidRow()]};
-			}
-			return {
-				...state,
-				inputs: state.inputs.filter((input): boolean => input.UUID !== action.payload)
-			};
-
-		case 'SET_RECEIVER': {
-			return {
-				...state,
-				inputs: state.inputs.map(input =>
-					input.UUID === action.payload.UUID
-						? {
-								...input,
-								receiver: {
-									...input.receiver,
-									...action.payload
-								}
-							}
-						: input
-				)
-			};
-		}
-		case 'SET_VALUE': {
-			return {
-				...state,
-				inputs: state.inputs.map(input =>
-					input.UUID === action.payload.UUID
-						? {
-								...input,
-								value: {
-									...input.value,
-									...action.payload
-								}
-							}
-						: input
-				)
-			};
-		}
-		case 'RESET':
-			return {tokenToSend: undefined, inputs: [newVoidRow()]};
-	}
-};
-
-const DisperseContext = createContext<TDisperse>(defaultProps);
+const DisperseContext = createContext<TDisperseContext>(useDisperseDefaultProps);
 export const DisperseContextApp = (props: {
-	children: TOptionalRenderProps<TDisperse, ReactElement>;
-}): React.ReactElement => {
+	children: TOptionalRenderProps<TDisperseContext, ReactElement>;
+}): ReactElement => {
 	const [isDispersed, set_isDispersed] = useState<boolean>(false);
-	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
+	const [configuration, dispatch] = useReducer(
+		useDisperseConfigurationReducer,
+		useDisperseDefaultProps.configuration
+	);
 
-	const onResetDisperse = (): void => {
+	/**********************************************************************************************
+	 ** onResetDisperse is a callback function that will reset the disperse configuration and
+	 ** disperse the UI.
+	 ** It will first set the `isDispersed` state to true, then wait for 500ms before resetting the
+	 ** configuration and setting the `isDispersed` state to false.
+	 *********************************************************************************************/
+	const onResetDisperse = useCallback((): void => {
 		set_isDispersed(true);
 		setTimeout((): void => {
 			dispatch({type: 'RESET', payload: undefined});
 			set_isDispersed(false);
 		}, 500);
-	};
+	}, []);
 
+	/**********************************************************************************************
+	 ** contextValue is a memoized object that will be passed to the DisperseContext.Provider in
+	 ** order to provide the context to the children components and prevent some unwanted
+	 ** re-renders.
+	 *********************************************************************************************/
 	const contextValue = useMemo(
-		(): TDisperse => ({
+		(): TDisperseContext => ({
 			configuration,
 			dispatchConfiguration: dispatch,
 			isDispersed,
 			onResetDisperse
 		}),
-		[configuration, isDispersed]
+		[configuration, onResetDisperse, isDispersed]
 	);
 
 	return (
@@ -155,7 +53,10 @@ export const DisperseContextApp = (props: {
 	);
 };
 
-export const useDisperse = (): TDisperse => {
+/**************************************************************************************************
+ ** Context accessor
+ *************************************************************************************************/
+export const useDisperse = (): TDisperseContext => {
 	const ctx = useContext(DisperseContext);
 	if (!ctx) {
 		throw new Error('DisperseContext not found');

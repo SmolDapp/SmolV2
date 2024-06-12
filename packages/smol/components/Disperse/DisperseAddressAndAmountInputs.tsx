@@ -7,8 +7,8 @@ import {useDisperse} from './useDisperse';
 
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
+import type {TDisperseInput} from '@lib/types/app.disperse';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
-import type {TDisperseInput} from './useDisperse';
 
 type TDisperseAddressAndAmountInputs = {
 	input: TDisperseInput;

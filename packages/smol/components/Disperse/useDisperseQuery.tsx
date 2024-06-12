@@ -10,12 +10,13 @@ import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import {getStateFromUrlQuery} from '@lib/utils/url/getStateFromUrlQuery';
 
-import {newVoidRow, useDisperse} from './useDisperse';
+import {useDisperse} from './useDisperse';
+import {newDisperseVoidRow} from './useDisperse.helpers';
 
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
+import type {TDisperseInput, TDisperseQuery} from '@lib/types/app.disperse';
 import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
-import type {TDisperseInput, TDisperseQuery} from './useDisperse';
 
 type TDisperseQueryManagement = {
 	stateFromUrl: TDisperseQuery;
@@ -133,7 +134,7 @@ export function useDisperseQuery(): {
 					const stringAmount = getInitialAmount(index, initialToken);
 					const value = {
 						receiver: validatedReceiver,
-						value: {...newVoidRow().value, ...validateAmount(stringAmount, initialToken)},
+						value: {...newDisperseVoidRow().value, ...validateAmount(stringAmount, initialToken)},
 						UUID: crypto.randomUUID()
 					};
 					result.push(value);

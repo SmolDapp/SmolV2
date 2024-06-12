@@ -18,14 +18,15 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
-import {newVoidRow, useDisperse} from './useDisperse';
+import {useDisperse} from './useDisperse';
+import {newDisperseVoidRow} from './useDisperse.helpers';
 import {useDisperseQueryManagement} from './useDisperseQuery';
 import {DisperseWizard} from './Wizard';
 
 import type {AxiosResponse} from 'axios';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TAddress, TNormalizedBN, TToken} from '@builtbymom/web3/types';
-import type {TDisperseInput} from './useDisperse';
+import type {TDisperseInput} from '@lib/types/app.disperse';
 
 type TRecord = {
 	tokenAddress: TAddress;
@@ -136,7 +137,7 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 					const stringAmount = getInitialAmount(records[index].value, initialToken);
 					const value = {
 						receiver: validatedReceiver,
-						value: {...newVoidRow().value, ...validateAmount(stringAmount, initialToken)},
+						value: {...newDisperseVoidRow().value, ...validateAmount(stringAmount, initialToken)},
 						UUID: crypto.randomUUID()
 					};
 					resultInputs.push(value);
@@ -269,7 +270,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 			type: 'ADD_RECEIVERS',
 			payload: Array(amount)
 				.fill(null)
-				.map(() => newVoidRow())
+				.map(() => newDisperseVoidRow())
 		});
 	};
 
