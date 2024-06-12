@@ -2,7 +2,7 @@ import {useLayoutEffect, useRef, useState} from 'react';
 import {animate} from 'framer-motion';
 import {formatAmount, parseAmount} from '@builtbymom/web3/utils';
 
-import type {ReactElement} from 'react';
+import type {MutableRefObject, ReactElement} from 'react';
 
 export function Counter({
 	value,
@@ -19,8 +19,7 @@ export function Counter({
 	className?: string;
 	shouldBeStylized?: boolean; // Whether the counter should be stylized
 }): ReactElement {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const nodeRef = useRef<any>();
+	const nodeRef = useRef() as MutableRefObject<HTMLSpanElement | undefined>;
 	const valueRef = useRef(value || 0);
 	const [innerContent, set_innerContent] = useState<ReactElement | undefined>(undefined);
 
@@ -107,7 +106,7 @@ export function Counter({
 		<span
 			className={className}
 			suppressHydrationWarning
-			ref={nodeRef}
+			ref={nodeRef as MutableRefObject<HTMLSpanElement>}
 			children={innerContent}
 		/>
 	);
