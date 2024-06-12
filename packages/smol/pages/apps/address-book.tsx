@@ -1,5 +1,5 @@
 import {type ReactElement} from 'react';
-import {AddressBook} from '@smolSections/AddressBook';
+import {AddressBook} from 'packages/smol/components/AddressBook';
 
 function AddressBookPage(): ReactElement {
 	return <AddressBook />;

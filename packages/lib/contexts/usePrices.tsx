@@ -17,7 +17,7 @@ import {
 
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
-import type {TGetPriceProps, TPrices, TPricesProps, TPriceTokens} from '@lib/utils/types/hook.usePrices';
+import type {TGetPriceProps, TPrices, TPricesProps, TPriceTokens} from '@lib/types/hook.usePrices';
 
 const PricesContext = createContext<TPricesProps>(usePricesDefaultProps);
 export const WithPrices = ({children}: {children: ReactElement}): ReactElement => {

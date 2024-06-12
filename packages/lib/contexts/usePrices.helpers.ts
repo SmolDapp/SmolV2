@@ -3,7 +3,7 @@ import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {AxiosResponse} from 'axios';
 import type {TDict} from '@builtbymom/web3/types';
-import type {TLLamaPricesEndpointResponse, TPrices, TPricesProps, TPriceTokens} from '@lib/utils/types/hook.usePrices';
+import type {TLLamaPricesEndpointResponse, TPrices, TPricesProps, TPriceTokens} from '@lib/types/hook.usePrices';
 
 export const usePricesDefaultProps: TPricesProps = {
 	pricingHash: '',

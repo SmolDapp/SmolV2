@@ -13,9 +13,9 @@ export type TSelectCallback = (item: TToken) => void;
 export type TWalletLayoutProps = {
 	filteredTokens: TToken[];
 	selectedTokens?: TToken[];
-	onSelect?: TSelectCallback;
 	searchTokenAddress?: TAddress;
 	chainID: number;
+	onSelect?: TSelectCallback;
 	onOpenChange: (isOpen: boolean) => void;
 };
 
@@ -24,13 +24,13 @@ export type TWalletLayoutProps = {
  *************************************************************************************************/
 export type TBalancesCurtain = {
 	isOpen: boolean;
-	onRefresh: () => Promise<TChainTokens>;
 	tokensWithBalance: TToken[];
 	allTokens: TToken[];
-	onSelect: TSelectCallback | undefined;
 	selectedTokens?: TToken[];
-	onOpenChange: (isOpen: boolean) => void;
 	options: TBalancesCurtainOptions;
+	onOpenChange: (isOpen: boolean) => void;
+	onSelect: TSelectCallback | undefined;
+	onRefresh: () => Promise<TChainTokens>;
 };
 
 /**************************************************************************************************

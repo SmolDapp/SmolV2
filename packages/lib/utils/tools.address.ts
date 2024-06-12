@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {assertFulfilled} from '@lib/types/assertType';
 import {CHAINS, supportedNetworks} from '@lib/utils/tools.chains';
-import {assertFulfilled} from '@lib/utils/types/assertType';
 
 import type {GetBytecodeReturnType} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';

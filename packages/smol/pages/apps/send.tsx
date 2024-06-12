@@ -1,6 +1,6 @@
-import {Send} from '@smolSections/Send';
-import {SendContextApp} from '@smolSections/Send/useSendFlow';
-import {SendQueryManagement} from '@smolSections/Send/useSendQuery';
+import {Send} from 'packages/smol/components/Send';
+import {SendContextApp} from 'packages/smol/components/Send/useSendFlow';
+import {SendQueryManagement} from 'packages/smol/components/Send/useSendQuery';
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';

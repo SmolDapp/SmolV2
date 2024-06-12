@@ -3,7 +3,7 @@ import {fromNormalized, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@built
 import {getNewInput} from '@lib/utils/helpers';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
 
