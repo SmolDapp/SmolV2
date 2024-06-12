@@ -65,12 +65,12 @@ export function useValidateAddressInput(): {
 		/******************************************************************************************
 		 ** Check if the input is an ENS and handle it by checking if it resolves to an address
 		 *****************************************************************************************/
-		if (input.endsWith('.eth')) {
+		if (input.toLowerCase().endsWith('.eth')) {
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
 			}
 			set_isCheckingValidity(true);
-			const ensAddress = await getEnsAddress(retrieveConfig(), {name: input, chainId: mainnet.id});
+			const ensAddress = await getEnsAddress(retrieveConfig(), {name: input.toLowerCase(), chainId: mainnet.id});
 
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
@@ -80,7 +80,7 @@ export function useValidateAddressInput(): {
 			if (ensAddress) {
 				return {
 					address: toAddress(ensAddress),
-					label: input || toAddress(ensAddress),
+					label: input.toLowerCase() || toAddress(ensAddress),
 					error: undefined,
 					isValid: true,
 					source: 'typed'
