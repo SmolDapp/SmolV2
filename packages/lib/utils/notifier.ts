@@ -6,7 +6,7 @@ import {EIP3770_PREFIX} from '@lib/utils/eip-3770';
 
 import type {Hex} from 'viem';
 import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 const safeBaseURIForNetwork = (network: number): string => {
 	if (network === zora.id) {

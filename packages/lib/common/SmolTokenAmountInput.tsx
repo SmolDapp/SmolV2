@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
+import {getNewInput} from 'packages/smol/components/Send/useSendFlow';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
-import {getNewInput} from '@smolSections/Send/useSendFlow';
 import {TextTruncate} from '@lib/common/TextTruncate';
+import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {handleLowAmount} from '@lib/utils/helpers';
 
@@ -13,7 +13,7 @@ import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
 
@@ -35,24 +35,37 @@ export function SmolTokenAmountInput({
 	chainIDToUse
 }: TTokenAmountInput): ReactElement {
 	const {safeChainID} = useChainID();
+	const {getPrice, pricingHash} = usePrices();
 	const [isFocused, set_isFocused] = useState<boolean>(false);
+	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
+	const {result, validate} = useValidateAmountInput();
 	const {token: selectedToken} = value;
 	const [selectedTokenBalance, set_selectedTokenBalance] = useState<TNormalizedBN>(
 		selectedToken?.balance ?? zeroNormalizedBN
 	);
 
-	const {result, validate} = useValidateAmountInput();
-	const {data: prices} = usePrices({
-		tokens: selectedToken ? [selectedToken] : [],
-		chainId: chainIDToUse || safeChainID
-	});
-	const price = prices && selectedToken ? prices[selectedToken.address] : undefined;
-
+	/**********************************************************************************************
+	 ** This effect hook will be triggered when the property token changes, indicating that we need
+	 ** to update the balance for the current token.
+	 *********************************************************************************************/
 	useEffect(() => {
 		if (selectedToken) {
 			set_selectedTokenBalance(selectedToken.balance);
 		}
 	}, [selectedToken]);
+
+	/**********************************************************************************************
+	 ** This effect hook will be triggered when the property token, safeChainID or the
+	 ** pricingHash changes, indicating that we need to update the price for the current token.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (!selectedToken) {
+			return;
+		}
+		set_price(getPrice(selectedToken));
+	}, [selectedToken, pricingHash, getPrice]);
 
 	const onSetMax = (): void => {
 		return onSetValue({
@@ -123,7 +136,9 @@ export function SmolTokenAmountInput({
 			<p>
 				{value.value
 					? `$${formatAmount(value.value, 2)}`
-					: formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}
+					: price
+						? formatCounterValue(value.normalizedBigAmount.normalized, price.normalized)
+						: 'N/A'}
 			</p>
 		);
 	};

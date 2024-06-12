@@ -1,8 +1,8 @@
 import React from 'react';
 import {useRouter} from 'next/router';
-import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
-import CardWithIcon from '@smolSections/Multisafe/CardWithIcon';
-import {MultisafeContextApp} from '@smolSections/Multisafe/useMultisafe';
+import {MultisafeAppInfo} from 'packages/smol/components/Multisafe/AppInfo';
+import CardWithIcon from 'packages/smol/components/Multisafe/CardWithIcon';
+import {MultisafeContextApp} from 'packages/smol/components/Multisafe/useMultisafe';
 import {IconClone} from '@lib/icons/IconClone';
 import IconSquarePlus from '@lib/icons/IconSquarePlus';
 

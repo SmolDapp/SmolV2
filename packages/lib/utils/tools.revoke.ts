@@ -1,12 +1,12 @@
+import {contractDataURL} from 'packages/smol/components/Revoke/constants';
 import {erc20Abi as abi} from 'viem';
 import axios from 'axios';
 import {toAddress, toNormalizedValue} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {contractDataURL} from '@smolSections/Revoke/constants';
 import {readContracts} from '@wagmi/core';
 
 import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
-import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/Revoke';
+import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/app.revoke';
 
 export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
 	const noDuplicate = events.filter(

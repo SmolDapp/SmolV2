@@ -3,7 +3,7 @@
 import {formatAmount, ZERO_ADDRESS, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/Inputs';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 /******************************************************************************
  ** Used to slugify a string.

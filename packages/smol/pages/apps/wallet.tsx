@@ -1,4 +1,4 @@
-import {Wallet} from '@smolSections/Wallet';
+import {Wallet} from 'packages/smol/components/Wallet';
 
 import type {ReactElement} from 'react';
 

@@ -2,20 +2,20 @@ import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import assert from 'assert';
-import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex} from 'viem';
-import {serialize} from 'wagmi';
-import {cl, isZeroAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
-import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
-import {ConfigurationStatus} from '@smolSections/Multisafe/ConfigurationStatus';
+import {MultisafeAppInfo} from 'packages/smol/components/Multisafe/AppInfo';
+import {ConfigurationStatus} from 'packages/smol/components/Multisafe/ConfigurationStatus';
 import {
 	GNOSIS_SAFE_PROXY_CREATION_CODE,
 	PROXY_FACTORY_L2,
 	PROXY_FACTORY_L2_DDP,
 	SINGLETON_L2,
 	SINGLETON_L2_DDP
-} from '@smolSections/Multisafe/constants';
-import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
-import {createUniqueID, generateArgInitializers} from '@smolSections/Multisafe/utils';
+} from 'packages/smol/components/Multisafe/constants';
+import {MultisafeContextApp, useMultisafe} from 'packages/smol/components/Multisafe/useMultisafe';
+import {createUniqueID, generateArgInitializers} from 'packages/smol/components/Multisafe/utils';
+import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex} from 'viem';
+import {serialize} from 'wagmi';
+import {cl, isZeroAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {IconCross} from '@lib/icons/IconCross';
@@ -24,11 +24,11 @@ import {IconFire} from '@lib/icons/IconFire';
 import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
+import type {TInputAddressLikeWithUUID} from 'packages/smol/components/Multisafe/useMultisafe';
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
-import type {TInputAddressLikeWithUUID} from '@smolSections/Multisafe/useMultisafe';
 
 function SafeOwner(props: {
 	owner: TInputAddressLike;

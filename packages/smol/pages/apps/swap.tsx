@@ -1,7 +1,7 @@
-import {Swap} from '@smolSections/Swap';
-import {SwapAppInfo} from '@smolSections/Swap/AppInfo';
-import {SwapContextApp} from '@smolSections/Swap/useSwapFlow.lifi';
-import {SwapQueryManagement} from '@smolSections/Swap/useSwapQuery';
+import {Swap} from 'packages/smol/components/Swap';
+import {SwapAppInfo} from 'packages/smol/components/Swap/AppInfo';
+import {SwapContextApp} from 'packages/smol/components/Swap/useSwapFlow.lifi';
+import {SwapQueryManagement} from 'packages/smol/components/Swap/useSwapQuery';
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';

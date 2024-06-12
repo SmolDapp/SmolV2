@@ -13,7 +13,6 @@
 			"@gimmmeSections/*": ["packages/gimme/components/sections/*"],
 
 			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
-			"@smolSections/*": ["packages/smol/components/sections/*"],
 			"@smolContexts/*": ["packages/smol/contexts/*"],
 			"@smolHooks/*": ["packages/smol/hooks/*"]
 		},

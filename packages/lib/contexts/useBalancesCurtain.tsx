@@ -11,13 +11,11 @@ import useSWR from 'swr';
 import {LayoutGroup, motion} from 'framer-motion';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {baseFetcher} from '@builtbymom/web3/utils/fetchers';
 import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {useDeepCompareMemo} from '@react-hookz/web';
+import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
@@ -27,8 +25,10 @@ import {IconAppSwap} from '@lib/icons/IconApps';
 import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
+import {usePrices} from './usePrices';
+
 import type {ReactElement, ReactNode} from 'react';
-import type {TChainTokens, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
@@ -38,12 +38,10 @@ import type {
 	TTokenListSummary,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
-import type {TPrice} from '@lib/utils/types/types';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,
 	tokensWithBalance: [],
-	isLoading: false,
 	onOpenCurtain: (): void => undefined,
 	onCloseCurtain: (): void => undefined
 };
@@ -55,8 +53,22 @@ const defaultProps: TBalancesCurtainContextProps = {
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
-	const {safeChainID} = useChainID();
-	const {data: prices} = usePrices({tokens: props.filteredTokens, chainId: safeChainID}) as TPrice;
+	const {isLoadingOnChain} = useTokensWithBalance();
+	const {getPrices, pricingHash} = usePrices();
+	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect(() => {
+		if (props.filteredTokens.length === 0) {
+			return;
+		}
+		set_prices(getPrices(props.filteredTokens, props.chainID));
+	}, [props.filteredTokens, props.chainID, pricingHash]);
 
 	/**********************************************************************************************
 	 ** If the wallet is not connected, we want to display a message and a button to connect.
@@ -83,7 +95,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
 	 *********************************************************************************************/
-	if (props.isLoading) {
+	if (isLoadingOnChain(props.chainID)) {
 		return <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />;
 	}
 
@@ -113,7 +125,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<SmolTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
-				price={prices ? prices[token.address] : undefined}
+				price={prices ? prices[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
 						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
@@ -446,13 +458,12 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 				{tab === 0 || tab === 1 ? (
 					<div
 						className={cl(
-							'scrollable flex flex-col items-center gap-2',
-							props.options.appearAs !== 'modal' ? 'mb-2 pb-2' : ''
+							'scrollable flex flex-col items-center gap-2 pb-2',
+							props.options.appearAs === 'modal' ? '' : 'mb-8'
 						)}>
 						<WalletLayout
 							filteredTokens={filteredTokens}
 							selectedTokens={props.selectedTokens}
-							isLoading={props.isLoading}
 							onSelect={props.onSelect}
 							searchTokenAddress={searchTokenAddress}
 							onOpenChange={props.onOpenChange}
@@ -472,7 +483,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {listTokensWithBalance, isLoading, onRefresh} = useTokensWithBalance();
+	const {listTokensWithBalance, onRefresh} = useTokensWithBalance();
 	const {listTokens} = usePopularTokens();
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
@@ -527,11 +538,10 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 		(): TBalancesCurtainContextProps => ({
 			shouldOpenCurtain,
 			tokensWithBalance: tokensToUse,
-			isLoading,
 			onOpenCurtain,
 			onCloseCurtain: (): void => set_shouldOpenCurtain(false)
 		}),
-		[isLoading, shouldOpenCurtain, tokensToUse, onOpenCurtain]
+		[shouldOpenCurtain, tokensToUse, onOpenCurtain]
 	);
 
 	return (
@@ -542,7 +552,6 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
 				allTokens={allTokensToUse}
-				isLoading={isLoading}
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}

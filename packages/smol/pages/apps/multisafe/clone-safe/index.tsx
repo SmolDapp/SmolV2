@@ -2,13 +2,13 @@ import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {SafeDetailsCurtain} from 'lib/common/Curtains/SafeDetailsCurtain';
+import {MultisafeAppInfo} from 'packages/smol/components/Multisafe/AppInfo';
+import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from 'packages/smol/components/Multisafe/constants';
+import {MultisafeContextApp, useMultisafe} from 'packages/smol/components/Multisafe/useMultisafe';
+import {createUniqueID, decodeArgInitializers} from 'packages/smol/components/Multisafe/utils';
 import axios from 'axios';
 import {cl, isZeroAddress, toAddress, truncateHex, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {MultisafeAppInfo} from '@smolSections/Multisafe/AppInfo';
-import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from '@smolSections/Multisafe/constants';
-import {MultisafeContextApp, useMultisafe} from '@smolSections/Multisafe/useMultisafe';
-import {createUniqueID, decodeArgInitializers} from '@smolSections/Multisafe/utils';
 import {getTransaction, serialize} from '@wagmi/core';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {Warning} from '@lib/common/Warning';
