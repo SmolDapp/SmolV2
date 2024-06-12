@@ -5,10 +5,10 @@ import axios from 'axios';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
 import {useDownloadFile} from '@smolHooks/useDownloadFile';
 import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
+import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconFile} from '@lib/icons/IconFile';
@@ -24,8 +24,7 @@ import {DisperseWizard} from './Wizard';
 
 import type {AxiosResponse} from 'axios';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TPrice} from '@lib/utils/types/types';
+import type {TAddress, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput} from './useDisperse';
 
 type TRecord = {
@@ -217,8 +216,13 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {safeChainID} = useChainID();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {hasInitialInputs} = useDisperseQueryManagement();
+	const {getPrice, pricingHash} = usePrices();
+	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
 	const plausible = usePlausible();
 
+	/**********************************************************************************************
+	 ** TODO: Add explanation of the downloadFile function
+	 *********************************************************************************************/
 	const downloadFile = async (): Promise<AxiosResponse<Blob>> => {
 		const url =
 			'https://chocolate-gleaming-armadillo-579.mypinata.cloud/ipfs/QmQDj9Cwxx8YABPfbt65LvttrVGeb5qDG8Q6TPJDHy4Li2';
@@ -228,22 +232,38 @@ const Disperse = memo(function Disperse(): ReactElement {
 		});
 	};
 
+	/**********************************************************************************************
+	 ** TODO: Add explanation of the downloadTemplate function
+	 *********************************************************************************************/
 	const {download: downloadTemplate} = useDownloadFile({
 		apiDefinition: downloadFile,
 		fileName: 'smol-disperse-template',
 		fileType: 'csv'
 	});
 
-	const {data: prices} = usePrices({
-		tokens: configuration.tokenToSend ? [configuration.tokenToSend] : [],
-		chainId: safeChainID
-	}) as TPrice;
-	const price = prices && configuration.tokenToSend ? prices[configuration.tokenToSend.address] : undefined;
+	/**********************************************************************************************
+	 ** This effect hook will be triggered when the property token, safeChainID or the
+	 ** pricingHash changes, indicating that we need to update the price for the current token.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useEffect(() => {
+		if (!configuration.tokenToSend) {
+			return;
+		}
+		set_price(getPrice(configuration.tokenToSend));
+	}, [configuration.tokenToSend, safeChainID, pricingHash, getPrice]);
 
+	/**********************************************************************************************
+	 ** TODO: Add explanation of the onSelectToken function
+	 *********************************************************************************************/
 	const onSelectToken = (token: TToken | undefined): void => {
 		dispatchConfiguration({type: 'SET_TOKEN_TO_SEND', payload: token});
 	};
 
+	/**********************************************************************************************
+	 ** TODO: Add explanation of the onAddReceivers function
+	 *********************************************************************************************/
 	const onAddReceivers = (amount: number): void => {
 		dispatchConfiguration({
 			type: 'ADD_RECEIVERS',
@@ -253,7 +273,10 @@ const Disperse = memo(function Disperse(): ReactElement {
 		});
 	};
 
-	/** Add initial inputs */
+	/**********************************************************************************************
+	 ** TODO: Add explanation of this useEffect hook
+	 ** Add initial inputs
+	 *********************************************************************************************/
 	useEffect(() => {
 		if (!hasInitialInputs && configuration.inputs.length === 0) {
 			onAddReceivers(2);
