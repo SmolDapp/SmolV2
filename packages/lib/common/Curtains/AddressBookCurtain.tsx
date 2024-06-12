@@ -118,7 +118,6 @@ function NameInput(props: {
 	selectedEntry: TAddressBookEntry;
 	isEditMode: boolean;
 	onEdit: (shouldEdit: boolean) => void;
-	onChange: (value: string) => void;
 	onRefresh?: VoidFunction;
 	set_isValid?: (valud: boolean | 'undetermined') => void;
 }): ReactElement {
@@ -134,8 +133,6 @@ function NameInput(props: {
 			<SmolNameInput
 				inputRef={inputRef}
 				id={'name'}
-				onSetValue={props.onChange}
-				value={props.selectedEntry.label}
 				disabled={!props.isEditMode}
 				set_isValid={props.set_isValid}
 			/>
@@ -336,10 +333,6 @@ export function AddressBookCurtain(props: {
 									selectedEntry={currentEntry}
 									isEditMode={isEditMode}
 									onEdit={set_isEditMode}
-									onChange={(label: string) => {
-										set_currentEntry({...currentEntry, label});
-										props.dispatch({type: 'SET_LABEL', payload: label});
-									}}
 									set_isValid={set_isValidName}
 								/>
 								<small className={'pl-1'}>&nbsp;</small>
