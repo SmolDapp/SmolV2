@@ -191,7 +191,7 @@ export function Portfolio(): ReactNode {
 					items={[
 						{value: 'apy', label: 'APY', isSortable: true},
 						{value: 'savings', label: 'Savings', isSortable: true},
-						{value: 'yield', label: 'Annual Yield', isSortable: true},
+						{value: 'yield', label: 'Est. Yield', isSortable: true},
 						{value: 'actions', label: 'Widtraw/Deposit', isSortable: false}
 					]}
 				/>

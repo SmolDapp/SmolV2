@@ -103,9 +103,9 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 					</div>
 				</div>
 				<div className={'group col-span-2 flex flex-row items-center justify-between md:mb-4 md:justify-end'}>
-					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'Annual Yield'}</p>
+					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'Est. Yield'}</p>
 					<p className={'font-bold'}>
-						{`+${formatCounterValue(percentOf(props.balance.normalized, props.vault.apr.netAPR * 100), props.price?.normalized || 0)}`}
+						{`${formatCounterValue(percentOf(props.balance.normalized, props.vault.apr.netAPR * 100), props.price?.normalized || 0)}`}
 					</p>
 				</div>
 				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-2 md:flex'}>
