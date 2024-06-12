@@ -1,4 +1,5 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import Link from 'next/link';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
@@ -21,7 +22,7 @@ function WalletListHeader(): ReactElement {
 				<p>{'Token'}</p>
 				<p>{'Balance'}</p>
 			</div>
-			<div className={'h-px bg-neutral-400'} />
+			<div className={'mb-2 h-px bg-neutral-400'} />
 		</>
 	);
 }
@@ -105,11 +106,16 @@ export function Wallet(): ReactElement {
 
 		if (filteredTokens.length > 0) {
 			return filteredTokens.map(token => (
-				<SmolTokenButton
-					key={`${token.address}_${token.chainID}`}
-					token={token}
-					price={prices ? prices[toAddress(token.address)] : undefined}
-				/>
+				<Link
+					className={'w-full'}
+					href={`/apps/send?tokens=${token.address}&values=${token.balance.raw}`}>
+					<SmolTokenButton
+						key={`${token.address}_${token.chainID}`}
+						token={token}
+						price={prices ? prices[toAddress(token.address)] : undefined}
+						className={'cursor-pointer rounded-lg p-2 hover:bg-neutral-200'}
+					/>
+				</Link>
 			));
 		}
 		if (isLoadingOnCurrentChain) {
