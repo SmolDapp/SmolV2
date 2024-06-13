@@ -89,6 +89,7 @@ export function SmolAddressInput({
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
+	const {getCachedEntry} = useAddressBook();
 
 	useEffect(() => {
 		if (value.address && value.source === 'autoPopulate') {
@@ -111,8 +112,13 @@ export function SmolAddressInput({
 			return truncateHex(value.label, 5);
 		}
 
+		const cachedEntry = getCachedEntry({address: value.address});
+		if (cachedEntry && !cachedEntry.isHidden) {
+			return cachedEntry.label;
+		}
+
 		return value.label;
-	}, [isFocused, value.label]);
+	}, [getCachedEntry, isFocused, value.address, value.label]);
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
