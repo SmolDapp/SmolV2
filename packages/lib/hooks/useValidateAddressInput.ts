@@ -105,7 +105,7 @@ export function useValidateAddressInput(): {
 			}
 			set_isCheckingValidity(false);
 
-			if (clusterAddress?.type === 'evm' && isAddress(clusterAddress.address)) {
+			if (clusterAddress && clusterAddress?.type === 'evm' && isAddress(clusterAddress.address)) {
 				return {
 					address: toAddress(clusterAddress.address),
 					label: lowercaseInput || clusterAddress.name || toAddress(clusterAddress.address),
