@@ -117,18 +117,10 @@ export function Vault({
 			)}
 			onClick={isDisabled ? undefined : onSelectVault}>
 			<div className={'relative flex items-center gap-4'}>
-				<div className={'absolute -left-1 top-0'}>
-					<ImageWithFallback
-						width={16}
-						height={16}
-						alt={vault.chainID.toString()}
-						src={`${process.env.SMOL_ASSETS_URL}/chain/${vault.chainID}/logo-32.png`}
-					/>
-				</div>
 				<ImageWithFallback
 					alt={token.symbol}
 					unoptimized
-					src={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
+					src={'/opportunity.png'}
 					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
 					quality={90}
 					width={32}
