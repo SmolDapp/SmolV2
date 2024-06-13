@@ -6,17 +6,20 @@ import {useAccountModal, useChainModal} from '@rainbow-me/rainbowkit';
 export function ConnectButton(): ReactElement {
 	const {openAccountModal} = useAccountModal();
 	const {openChainModal} = useChainModal();
-	const {isActive, address, ens, openLoginModal} = useWeb3();
+	const {isActive, address, ens, clusters, openLoginModal} = useWeb3();
 
 	const buttonLabel = useMemo(() => {
 		if (ens) {
 			return ens;
 		}
+		if (clusters) {
+			return clusters.name;
+		}
 		if (address) {
 			return truncateHex(address, 5);
 		}
 		return 'Connect wallet';
-	}, [address, ens]);
+	}, [address, clusters, ens]);
 
 	return (
 		<button

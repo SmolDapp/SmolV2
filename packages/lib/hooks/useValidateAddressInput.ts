@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {mainnet} from 'viem/chains';
 import {isAddress, toAddress} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {Clusters} from '@clustersxyz/sdk';
 import {getEnsAddress, getEnsName} from '@wagmi/core';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
@@ -65,7 +66,6 @@ export function useValidateAddressInput(): {
 		/******************************************************************************************
 		 ** Check if the input is an ENS and handle it by checking if it resolves to an address
 		 *****************************************************************************************/
-
 		const lowercaseInput = input.toLowerCase();
 		if (lowercaseInput.endsWith('.eth')) {
 			if (signal?.aborted) {
@@ -83,6 +83,32 @@ export function useValidateAddressInput(): {
 				return {
 					address: toAddress(ensAddress),
 					label: lowercaseInput || toAddress(ensAddress),
+					error: undefined,
+					isValid: true,
+					source: 'typed'
+				};
+			}
+		}
+
+		/******************************************************************************************
+		 ** Check if the input is a cluster handle by checking if it ends with `/`
+		 *****************************************************************************************/
+		if (lowercaseInput.endsWith('/') || lowercaseInput.includes('/')) {
+			if (signal?.aborted) {
+				throw new Error('Aborted!');
+			}
+			set_isCheckingValidity(true);
+			const clusters = new Clusters();
+			const clusterAddress = await clusters.getAddress(lowercaseInput);
+			if (signal?.aborted) {
+				throw new Error('Aborted!');
+			}
+			set_isCheckingValidity(false);
+
+			if (clusterAddress?.type === 'evm' && isAddress(clusterAddress.address)) {
+				return {
+					address: toAddress(clusterAddress.address),
+					label: lowercaseInput || clusterAddress.name || toAddress(clusterAddress.address),
 					error: undefined,
 					isValid: true,
 					source: 'typed'

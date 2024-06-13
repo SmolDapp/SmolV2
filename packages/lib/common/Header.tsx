@@ -11,10 +11,12 @@ import type {ReactElement} from 'react';
 
 function Header(): ReactElement {
 	const pathname = usePathname();
-	const {onConnect, onDesactivate, address, ens} = useWeb3();
+	const {onConnect, onDesactivate, address, ens, clusters} = useWeb3();
 	const {openAccountModal} = useAccountModal();
 
 	const tabs = [{href: '/', label: 'Home', target: '_self'}];
+
+	const ensOrClusters = address && (ens || clusters?.name);
 
 	return (
 		<header className={'mx-auto grid w-full max-w-6xl'}>
@@ -43,7 +45,7 @@ function Header(): ReactElement {
 						suppressHydrationWarning
 						onClick={address ? openAccountModal : onConnect}
 						className={'text-base font-bold'}>
-						{address && ens ? ens : address ? truncateHex(address, 6) : 'Connect Wallet'}
+						{ensOrClusters ? ensOrClusters : address ? truncateHex(address, 6) : 'Connect Wallet'}
 					</button>
 				</div>
 			</div>
@@ -60,7 +62,7 @@ function Header(): ReactElement {
 								className={
 									'bg-yellow h-10 rounded-lg border-2 border-neutral-900 px-5 text-base font-bold'
 								}>
-								{address && ens ? ens : address ? truncateHex(address, 6) : 'Connect Wallet'}
+								{ensOrClusters ? ensOrClusters : address ? truncateHex(address, 6) : 'Connect Wallet'}
 							</button>
 							<div className={'mt-6 grid gap-4 text-left'}>
 								{tabs.map(({href, label, target}) => (
@@ -93,7 +95,7 @@ function Header(): ReactElement {
 						suppressHydrationWarning
 						onClick={address ? openAccountModal : onConnect}
 						className={'text-base font-bold'}>
-						{address && ens ? ens : address ? truncateHex(address, 6) : 'Connect Wallet'}
+						{ensOrClusters ? ensOrClusters : address ? truncateHex(address, 6) : 'Connect Wallet'}
 					</button>
 				</div>
 			</div>

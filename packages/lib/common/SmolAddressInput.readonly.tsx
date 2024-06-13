@@ -6,15 +6,15 @@ import {cl, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {AvatarWrapper} from '@lib/common/Avatar';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {IconLinkOut} from '@lib/icons/IconLinkOut';
+import {useClusters} from '@lib/utils/tools.clusters';
 
 import type {ReactElement} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
 
 export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement {
-	const {data: ens} = useEnsName({
-		address: props.value,
-		chainId: mainnet.id
-	});
+	const {data: ens} = useEnsName({address: props.value, chainId: mainnet.id});
+	const clusters = useClusters(props.value);
+
 	return (
 		<div className={'max-w-108 group relative size-full rounded-lg'}>
 			<label
@@ -38,7 +38,7 @@ export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement
 						autoComplete={'off'}
 						autoCorrect={'off'}
 						spellCheck={'false'}
-						value={ens || truncateHex(props.value, 5)}
+						value={ens || clusters?.name || truncateHex(props.value, 5)}
 					/>
 					<TextTruncate
 						value={toAddress(props.value)}

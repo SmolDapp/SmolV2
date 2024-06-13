@@ -231,9 +231,7 @@ export function SmolAddressInput({
 									}
 								}, 0);
 							}}
-							onBlur={() => {
-								set_isFocused(false);
-							}}
+							onBlur={() => set_isFocused(false)}
 							{...rest}
 						/>
 						<TextTruncate

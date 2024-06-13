@@ -12,6 +12,7 @@ import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
 import {TooltipContent} from '@lib/primitives/Tooltip';
+import {useClusters} from '@lib/utils/tools.clusters';
 
 import {Avatar} from './Avatar';
 
@@ -150,10 +151,7 @@ export function AddressBookEntry(props: {
 }): ReactElement {
 	const {chainID} = useChainID();
 	const {updateEntry} = useAddressBook();
-	const {data: ensName} = useEnsName({
-		chainId: mainnet.id,
-		address: toAddress(props.entry.address)
-	});
+	const {data: ensName} = useEnsName({chainId: mainnet.id, address: toAddress(props.entry.address)});
 	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
 		chainId: mainnet.id,
 		name: ensName || props.entry.ens,
@@ -161,18 +159,21 @@ export function AddressBookEntry(props: {
 			enabled: Boolean(ensName || props.entry.ens)
 		}
 	});
+	const clusters = useClusters(toAddress(props.entry.address));
 
 	useEffect((): void => {
 		if ((ensName && !props.entry.ens) || (ensName && props.entry.ens !== ensName)) {
 			updateEntry({...props.entry, ens: ensName});
+		} else if (clusters?.name && !props.entry.ens) {
+			updateEntry({...props.entry, ens: clusters.name});
 		}
-	}, [ensName, props.entry, updateEntry]);
+	}, [clusters, ensName, props.entry, updateEntry]);
 
 	return (
 		<div
 			role={'button'}
 			onClick={() => {
-				props.onSelect({...props.entry, ens: ensName || undefined});
+				props.onSelect({...props.entry, ens: ensName || clusters?.name || undefined});
 			}}
 			className={cl(
 				'mb-2 flex flex-row items-center justify-between rounded-lg p-4 w-full group',
@@ -190,7 +191,11 @@ export function AddressBookEntry(props: {
 				/>
 				<AddressBookEntryAddress
 					address={toAddress(props.entry.address)}
-					ens={ensName ? `${props.entry.label} (${ensName})` : props.entry.label}
+					ens={
+						ensName || clusters?.name
+							? `${props.entry.label} (${ensName || clusters?.name})`
+							: props.entry.label
+					}
 				/>
 				<div className={'absolute inset-y-0 right-0 flex items-center'}>
 					<EntryBookEntryFavorite
@@ -213,10 +218,7 @@ export function AddressBookEntry(props: {
  *************************************************************************************************/
 export function AddressEntry(props: {address: TAddress}): ReactElement {
 	const {getCachedEntry} = useAddressBook();
-	const {data: ensName} = useEnsName({
-		chainId: mainnet.id,
-		address: toAddress(props.address)
-	});
+	const {data: ensName} = useEnsName({chainId: mainnet.id, address: toAddress(props.address)});
 	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
 		chainId: mainnet.id,
 		name: ensName || '',
@@ -224,6 +226,8 @@ export function AddressEntry(props: {address: TAddress}): ReactElement {
 			enabled: Boolean(ensName)
 		}
 	});
+	const clusters = useClusters(toAddress(props.address));
+
 	const cached = useMemo(
 		() => getCachedEntry({address: props.address, label: ensName || truncateHex(props.address, 5)}),
 		[ensName, getCachedEntry, props.address]
@@ -245,7 +249,11 @@ export function AddressEntry(props: {address: TAddress}): ReactElement {
 				/>
 				<AddressBookEntryAddress
 					address={toAddress(props.address)}
-					ens={ensName ? ensName : cached?.label || truncateHex(props.address, 5)}
+					ens={
+						ensName || clusters?.name
+							? ensName || clusters?.name
+							: cached?.label || truncateHex(props.address, 5)
+					}
 				/>
 			</div>
 		</div>

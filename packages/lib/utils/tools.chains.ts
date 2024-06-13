@@ -63,11 +63,11 @@ export function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls 
 	if (injectedRPC) {
 		availableRPCs.push(injectedRPC);
 	}
-	if (chain.rpcUrls['alchemy'].http[0] && process.env.ALCHEMY_KEY) {
-		availableRPCs.push(`${chain.rpcUrls['alchemy'].http[0]}/${process.env.ALCHEMY_KEY}`);
+	if (chain.rpcUrls['alchemy']?.http[0] && process.env.ALCHEMY_KEY) {
+		availableRPCs.push(`${chain.rpcUrls['alchemy']?.http[0]}/${process.env.ALCHEMY_KEY}`);
 	}
-	if (chain.rpcUrls['infura'].http[0] && process.env.INFURA_PROJECT_ID) {
-		availableRPCs.push(`${chain.rpcUrls['infura'].http[0]}/${process.env.INFURA_PROJECT_ID}`);
+	if (chain.rpcUrls['infura']?.http[0] && process.env.INFURA_PROJECT_ID) {
+		availableRPCs.push(`${chain.rpcUrls['infura']?.http[0]}/${process.env.INFURA_PROJECT_ID}`);
 	}
 
 	/**********************************************************************************************
