@@ -49,6 +49,9 @@ export const useSortedVaults = (
 		}
 	}, []);
 
+	/**********************************************************************************************
+	 * Initially populate sortBy and sortDirection states with query values
+	 *********************************************************************************************/
 	useMountEffect((): void | VoidFunction => {
 		const currentPage = new URL(window.location.href);
 		handleQuery(new URLSearchParams(currentPage.search));

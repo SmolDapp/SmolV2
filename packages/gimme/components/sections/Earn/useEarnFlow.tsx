@@ -26,7 +26,6 @@ export type TEarn = {
 
 const defaultProps: TEarn = {
 	configuration: {
-		// TODO: move to lib
 		asset: {
 			amount: '',
 			normalizedBigAmount: zeroNormalizedBN,

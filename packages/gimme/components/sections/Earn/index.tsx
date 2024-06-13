@@ -36,7 +36,10 @@ export function Earn(): ReactElement {
 		(value: Partial<TTokenAmountInputElement>): void => {
 			dispatchConfiguration({type: 'SET_ASSET', payload: value});
 
-			// Remove opportunity selection only if new token is selected that is not linked to selected opportunity
+			/**************************************************************************************
+			 * Remove opportunity selection only if new token is selected that is not linked to
+			 * selected opportunity
+			 *************************************************************************************/
 			if (
 				value.token &&
 				configuration.asset.token?.address !== value.token.address &&
@@ -55,10 +58,18 @@ export function Earn(): ReactElement {
 		[dispatchConfiguration]
 	);
 
+	/**********************************************************************************************
+	 * The list of vaults that are linked to the currently selected token to be displayed in the
+	 * Select Opportunity modal
+	 *********************************************************************************************/
 	const filteredVaults = useMemo(() => {
 		if (!configuration.asset.token?.address) {
 			return vaultsArray;
 		}
+
+		/******************************************************************************************
+		 * If native token is selected, wrapped token vaults should be displayed
+		 *****************************************************************************************/
 		if (isAddressEqual(configuration.asset.token.address, ETH_TOKEN_ADDRESS)) {
 			return vaultsArray.filter(
 				rawVault =>

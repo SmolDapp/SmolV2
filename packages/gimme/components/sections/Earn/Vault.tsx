@@ -61,12 +61,13 @@ export function Vault({
 
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
 
-	/**
+	/**********************************************************************************************
 	 * Async funciton that allows us to set selected vault with some good side effects:
 	 * 1. Chain is asynchronously switched if it doesn't coinside with chain vault is on.
 	 * 2. Form is populated with token linked to the vault and user's balance of selected token.
-	 * Exception - user has already selected native token which needs to be linked to wrapped token vault manually.
-	 */
+	 * Exception - user has already selected native token which needs to be linked to wrapped token
+	 * vault manually.
+	 *********************************************************************************************/
 	const onSelectVault = useCallback(async () => {
 		if (vault.chainID !== chainID) {
 			await switchChainAsync({connector, chainId: vault.chainID});

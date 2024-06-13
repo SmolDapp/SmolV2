@@ -51,10 +51,10 @@ const useApproveDeposit = ({
 
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
-	/* 🔵 - Yearn Finance ******************************************************
+	/**********************************************************************************************
 	 ** Retrieve the allowance for the token to be used by the solver. This will
 	 ** be used to determine if the user should approve the token or not.
-	 **************************************************************************/
+	 *********************************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
 			if (!configuration.asset.token || !configuration.opportunity || !provider) {
@@ -124,12 +124,12 @@ const useApproveDeposit = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [address, configuration.asset.token?.address, configuration.asset.token?.address, onRetrieveAllowance]);
 
-	/* 🔵 - Yearn Finance ******************************************************
+	/**********************************************************************************************
 	 ** Trigger an approve web3 action, simply trying to approve `amount` tokens
 	 ** to be used by the final vault, in charge of depositing the tokens.
 	 ** This approve can not be triggered if the wallet is not active
 	 ** (not connected) or if the tx is still pending.
-	 **************************************************************************/
+	 *********************************************************************************************/
 	const onApprove = useCallback(
 		async (amount = MAX_UINT_256): Promise<void> => {
 			assert(configuration.asset.token, 'Input token is not set');
@@ -210,10 +210,10 @@ const useDeposit = (props: {
 	const {provider} = useWeb3();
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 
-	/* 🔵 - Yearn Finance ******************************************************
+	/**********************************************************************************************
 	 ** Trigger a deposit web3 action, simply trying to deposit `amount` tokens to
 	 ** the selected vault.
-	 **************************************************************************/
+	 *********************************************************************************************/
 	const onExecuteDeposit = useCallback(async (): Promise<void> => {
 		assert(configuration.opportunity?.address, 'Output token is not set');
 		assert(configuration.asset.token?.address, 'Input amount is not set');
@@ -474,8 +474,6 @@ export function EarnWizard(): ReactElement {
 
 	return (
 		<div className={'col-span-12 mt-6'}>
-			{/* <small className={'pb-1 pl-1'}>{'Summary'}</small> */}
-
 			<Button
 				isBusy={
 					depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
@@ -494,16 +492,6 @@ export function EarnWizard(): ReactElement {
 				className={'!bg-white shadow-lg'}
 				onClose={onCloseModal}
 			/>
-
-			{/* <ErrorModal
-				title={'Error'}
-				content={'An error occured while dispersing your token, please try again.'}
-				ctaLabel={'Close'}
-				isOpen={disperseStatus.error}
-				onClose={(): void => {
-					set_disperseStatus(defaultTxStatus);
-				}}
-			/> */}
 		</div>
 	);
 }

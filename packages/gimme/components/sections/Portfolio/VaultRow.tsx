@@ -23,6 +23,18 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 
 	const {switchChainAsync} = useSwitchChain();
 
+	/**********************************************************************************************
+	 * Function that is used to handle redirecting to the earn page with proper query params.
+	 * There 2 cases this function can be used:
+	 * 1. Deposit
+	 * @param tokenAddress is vault token address
+	 * @param vaultAddress is address of the current vault
+	 *
+	 * 2. Withdraw
+	 * @param tokenAddress is a vault address (form should be populated with staking token to be
+	 * able to withraw)
+	 * @param vaultAddress is not present
+	 *********************************************************************************************/
 	const onAction = async ({
 		tokenAddress,
 		vaultAddress

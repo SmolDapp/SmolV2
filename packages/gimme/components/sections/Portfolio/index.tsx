@@ -49,6 +49,10 @@ export function Portfolio(): ReactNode {
 
 	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances);
 
+	/**********************************************************************************************
+	 * Function that should be triggered on every block update. This lets us display the up-to-date
+	 * balances without the need to refresh the page.
+	 *********************************************************************************************/
 	const refetch = useAsyncTrigger(async (): Promise<void> => {
 		blockNumber;
 		const calls = [];
@@ -97,6 +101,9 @@ export function Portfolio(): ReactNode {
 		set_balances(result);
 	}, [address, userVaultsArray, blockNumber]);
 
+	/**********************************************************************************************
+	 * Total savings in USD
+	 *********************************************************************************************/
 	const totalDeposited = useMemo(() => {
 		blockNumber;
 		if (!userVaults || Object.values(balances).length === 0 || userVaultsArray.length === 0) {
@@ -122,8 +129,6 @@ export function Portfolio(): ReactNode {
 
 		return balancesUsd.reduce((acc, current) => current + acc, 0);
 	}, [blockNumber, userVaults, balances, userVaultsArray.length, getPrice]);
-
-	// const [totalDepositedIntegerPart, totalDepositedDecimalPart] = totalDeposited.toString().split('.');
 
 	const getLayout = (): ReactNode => {
 		if (!address) {
