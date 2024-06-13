@@ -22,6 +22,7 @@ type TTokenAmountInput = {
 	value: TTokenAmountInputElement;
 	chainIDToUse?: number;
 	showPercentButtons?: boolean;
+	displayNetworkIcon?: boolean;
 };
 
 const percentIntervals = [25, 50, 75];
@@ -30,6 +31,7 @@ export function SmolTokenAmountInput({
 	onSetValue,
 	value,
 	showPercentButtons = false,
+	displayNetworkIcon = false,
 	chainIDToUse
 }: TTokenAmountInput): ReactElement {
 	const {safeChainID} = useChainID();
@@ -106,7 +108,7 @@ export function SmolTokenAmountInput({
 			);
 		}
 
-		if (!selectedTokenBalance.normalized) {
+		if (!selectedToken?.address) {
 			return <TextTruncate value={'No token selected'} />;
 		}
 
@@ -139,8 +141,6 @@ export function SmolTokenAmountInput({
 						: 'N/A'}
 			</p>
 		);
-
-		// return <p>{formatCounterValue(value.normalizedBigAmount.normalized, price?.normalized ?? 0)}</p>;
 	};
 
 	useDeepCompareEffect(() => {
@@ -201,7 +201,25 @@ export function SmolTokenAmountInput({
 				</div>
 				<div className={'w-full max-w-[176px]'}>
 					<SmolTokenSelectorButton
-						onSelectToken={token => validate(value.amount, token, token.balance)}
+						onSelectToken={token => {
+							/**********************************************************************
+							 * Super specific case processing:
+							 * 1. Change token from the outside of the component (e.g set token to
+							 * undefined)
+							 * 2. Select previously changed token again
+							 * 3. Previous 'result' object (with defined token) and new 'result'
+							 * are deeply equal to each other therefore line 129 useEffect that
+							 * sets the value is not triggered
+							 *
+							 * This small condition helps to proceed with externally changed tokens
+							 **********************************************************************/
+							if (token.address === result?.token?.address) {
+								return onSetValue(result);
+							}
+
+							validate(value.amount, token, token.balance);
+						}}
+						displayNetworkIcon={displayNetworkIcon}
 						token={selectedToken}
 						chainID={chainIDToUse}
 					/>

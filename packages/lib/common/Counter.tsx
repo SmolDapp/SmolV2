@@ -37,6 +37,7 @@ export function Counter({
 						finalValue = formatedValue;
 					} else if (decimalsToDisplay && decimalsToDisplay.length > 0) {
 						const allDecimalsToTests = [...decimalsToDisplay, decimals];
+
 						if (idealDecimals) {
 							allDecimalsToTests.unshift(idealDecimals);
 						}
