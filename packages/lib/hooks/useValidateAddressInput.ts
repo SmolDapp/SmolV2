@@ -91,7 +91,7 @@ export function useValidateAddressInput(): {
 		}
 
 		/******************************************************************************************
-		 ** Check if the input is a cluster handle by checking if it ends with `/`
+		 ** Check if the input is a clusters handle by checking if it ends with `/`
 		 *****************************************************************************************/
 		if (lowercaseInput.endsWith('/') || lowercaseInput.includes('/')) {
 			if (signal?.aborted) {
