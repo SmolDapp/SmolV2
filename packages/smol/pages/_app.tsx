@@ -14,6 +14,7 @@ import {
 	IconAppAddressBook,
 	IconAppDisperse,
 	IconAppEarn,
+	IconAppRevoke,
 	IconAppSend,
 	IconAppStream,
 	IconAppSwap
@@ -22,7 +23,6 @@ import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
 import IconMultisafe from '@lib/icons/IconMultisafe';
-import {IconRevoke} from '@lib/icons/IconRevoke';
 import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
 import {supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
@@ -62,7 +62,7 @@ const MENU = [
 	{
 		href: '/apps/revoke',
 		label: 'Revoke',
-		icon: <IconRevoke />
+		icon: <IconAppRevoke />
 	},
 	{
 		href: '/apps/multisafe',
