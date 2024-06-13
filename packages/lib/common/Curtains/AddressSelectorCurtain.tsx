@@ -1,12 +1,15 @@
 'use client';
 
-import React, {Fragment, useEffect, useMemo, useState} from 'react';
+import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
-import {zeroAddress} from 'viem';
+import {isAddress} from 'viem';
+import {mainnet} from 'viem/chains';
 import {LayoutGroup, motion} from 'framer-motion';
-import {isZeroAddress, toAddress} from '@builtbymom/web3/utils';
+import {toAddress} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useIsMounted} from '@smolHooks/useIsMounted';
+import {getEnsAddress} from '@wagmi/core';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {Button} from '@lib/primitives/Button';
@@ -17,6 +20,8 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {AddressBookEntry} from '../AddressBookEntry';
 
 import type {ReactElement, ReactNode} from 'react';
+import type {GetEnsAddressReturnType} from 'viem';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TAddressBookEntry, TSelectCallback} from '@lib/types/AddressBook';
 
 function FavoriteList(props: {
@@ -96,6 +101,52 @@ function ContactList(props: {
 }): ReactElement {
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 
+	const onAddToAB = useCallback(async () => {
+		const isSearchAnAddress = isAddress(props.searchValue);
+		const lowerCaseSearchValue = props.searchValue.toLowerCase();
+		const isEnsCandidate = lowerCaseSearchValue.endsWith('.eth');
+
+		let ensAddress: GetEnsAddressReturnType;
+		if (isEnsCandidate) {
+			ensAddress = await getEnsAddress(retrieveConfig(), {
+				name: lowerCaseSearchValue,
+				chainId: mainnet.id
+			});
+		}
+
+		const getAddress = (): TAddress | undefined => {
+			if (isSearchAnAddress) {
+				return toAddress(props.searchValue);
+			}
+			if (ensAddress) {
+				return ensAddress;
+			}
+			return;
+		};
+
+		const getLabel = (): string => {
+			if (!getAddress() && !isEnsCandidate) {
+				return props.searchValue;
+			}
+			if (isEnsCandidate) {
+				return lowerCaseSearchValue.split('.').slice(0, -1).join(' ');
+			}
+			return '';
+		};
+
+		dispatchConfiguration({
+			type: 'SET_SELECTED_ENTRY',
+			payload: {
+				address: getAddress(),
+				label: getLabel(),
+				slugifiedLabel: '',
+				chains: [],
+				isFavorite: false
+			}
+		});
+		set_curtainStatus({isOpen: true, isEditing: true});
+	}, [dispatchConfiguration, props.searchValue, set_curtainStatus]);
+
 	return (
 		<LayoutGroup>
 			{props.searchValue !== '' && props.favorite.length === 0 && props.availableEntries.length === 0 && (
@@ -111,21 +162,7 @@ function ContactList(props: {
 						type={'button'}
 						variant={'light'}
 						className={'mt-2 !h-8 w-fit !text-xs'}
-						onClick={() => {
-							const hasALabel = isZeroAddress(props.searchValue);
-							const isSearchAnAddress = !isZeroAddress(props.searchValue);
-							dispatchConfiguration({
-								type: 'SET_SELECTED_ENTRY',
-								payload: {
-									address: isSearchAnAddress ? toAddress(props.searchValue) : zeroAddress,
-									label: hasALabel ? props.searchValue : '',
-									slugifiedLabel: '',
-									chains: [],
-									isFavorite: false
-								}
-							});
-							set_curtainStatus({isOpen: true, isEditing: true});
-						}}>
+						onClick={onAddToAB}>
 						{'Wanna add it?'}
 					</Button>
 				</div>

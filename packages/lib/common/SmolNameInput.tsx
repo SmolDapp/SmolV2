@@ -1,5 +1,6 @@
 import {type InputHTMLAttributes, type ReactElement, type RefObject, useCallback, useState} from 'react';
 import {cl} from '@builtbymom/web3/utils';
+import {useMountEffect} from '@react-hookz/web';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useValidateNameInput} from '@lib/hooks/useValidateNameInput';
@@ -15,9 +16,13 @@ export const SmolNameInput = ({set_isValid, ...rest}: TSmolNameInputProps): Reac
 	const [isTouched, set_isTouched] = useState<boolean>(false);
 	const [inputName, set_inputName] = useState<string>('');
 
-	const {dispatchConfiguration: dispatch} = useAddressBook();
+	const {dispatchConfiguration: dispatch, selectedEntry} = useAddressBook();
 	const {validate} = useValidateNameInput();
 	const validation = validate(inputName, isTouched, set_isValid);
+
+	useMountEffect(() => {
+		selectedEntry?.label && set_inputName(selectedEntry.label);
+	});
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
