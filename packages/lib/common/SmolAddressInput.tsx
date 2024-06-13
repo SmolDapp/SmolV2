@@ -1,4 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {useOnClickOutside} from 'usehooks-ts';
 import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {useAsyncAbortable} from '@react-hookz/web';
 import {TextTruncate} from '@lib/common/TextTruncate';
@@ -85,17 +86,33 @@ export function SmolAddressInput({
 	inputRef,
 	...rest
 }: TAddressInput): ReactElement {
+	const inputWrapperRef = useRef<HTMLLabelElement>(null);
 	const {onOpenCurtain} = useAddressBook();
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
 	const {getCachedEntry} = useAddressBook();
 
+	/**********************************************************************************************
+	 ** On mount, this component can have an autoPopulate value source, which means that we know
+	 ** the address we want to use, but we want to delegate the input population (ens? clusters?
+	 ** something else?) to this component so it can fetch the relevant information, verify the
+	 ** address and display the result based on that.
+	 ** This is a "hack" to trigger something which should only be trigger onChange otherwise.
+	 *********************************************************************************************/
 	useEffect(() => {
 		if (value.address && value.source === 'autoPopulate') {
 			actions.execute(value.address);
 		}
 	}, [actions, value.address, value.source]);
+
+	/**********************************************************************************************
+	 ** When clicking outside the input, we want to remove the focus state. However, as we are
+	 ** using quite a lot of custom layout and wrapper to display all the elements we want to
+	 ** display, we cannot simply use the onBlur event on the input element. Instead, we use the
+	 ** useOnClickOutside hook to detect the click outside the input wrapper.
+	 *********************************************************************************************/
+	useOnClickOutside(inputWrapperRef, () => set_isFocused(false));
 
 	const onChange = (input: string): void => {
 		actions.abort();
@@ -151,6 +168,22 @@ export function SmolAddressInput({
 		return false;
 	}, [value.label, value.isValid, isFocused, isCheckingValidity]);
 
+	const onFocusInput = useCallback(() => {
+		if (!isFocused) {
+			set_isFocused(true);
+			setTimeout(() => {
+				if (inputRef.current) {
+					const end = value.label.length;
+					inputRef.current.setSelectionRange(0, end);
+					inputRef.current.scrollLeft = inputRef.current.scrollWidth;
+					inputRef.current.focus();
+				}
+			}, 0);
+		} else {
+			set_isFocused(true);
+		}
+	}, [inputRef, isFocused, value.label.length]);
+
 	return (
 		<div className={cl(isSplitted ? 'flex flex-row gap-2 mt-1' : 'w-full')}>
 			{isSplitted && (
@@ -167,18 +200,19 @@ export function SmolAddressInput({
 			)}
 			<div className={'group relative size-full rounded-[8px]'}>
 				<label
+					ref={inputWrapperRef}
 					className={cl(
 						'h-20 z-20 relative',
 						'flex flex-row justify-between items-center cursor-text',
-						'p-2 pl-4 group bg-neutral-0 rounded-lg',
+						'pr-2 pl-4 group bg-neutral-0 rounded-lg',
 						'overflow-hidden border',
 						getBorderColor()
 					)}>
-					<div className={'relative w-full pr-2 transition-all'}>
+					<div className={'relative w-full py-2 pr-2 transition-all'}>
 						<div
 							className={cl(
 								'absolute flex flex-row gap-2 items-center transition-all right-2 z-10',
-								'pointer-events-none h-full'
+								'pointer-events-none h-full pb-4'
 							)}>
 							{getHasStatusIcon() ? (
 								<div className={'pointer-events-none relative size-4 min-w-[16px]'}>
@@ -220,18 +254,8 @@ export function SmolAddressInput({
 							onChange={e => {
 								onChange(e.target.value);
 							}}
-							onFocus={() => {
-								set_isFocused(true);
-								setTimeout(() => {
-									if (inputRef.current) {
-										const end = value.label.length;
-										inputRef.current.setSelectionRange(0, end);
-										inputRef.current.scrollLeft = inputRef.current.scrollWidth;
-										inputRef.current.focus();
-									}
-								}, 0);
-							}}
-							onBlur={() => set_isFocused(false)}
+							onFocus={onFocusInput}
+							// onBlur={() => set_isFocused(false)}
 							{...rest}
 						/>
 						<TextTruncate

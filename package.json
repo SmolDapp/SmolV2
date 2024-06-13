@@ -52,6 +52,7 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
     "use-indexeddb": "^2.0.2",
+    "usehooks-ts": "^3.1.0",
     "vaul": "^0.9.1",
     "viem": "^2.13.10",
     "wagmi": "^2.10.2",
