@@ -47,7 +47,11 @@ export function useValidateAddressInput(): {
 				throw new Error('Aborted!');
 			}
 			set_isCheckingValidity(true);
-			const ensName = await getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id});
+			const clusters = new Clusters();
+			const [ensName, clusterName] = await Promise.all([
+				getEnsName(retrieveConfig(), {address: toAddress(input), chainId: mainnet.id}),
+				clusters.getName(toAddress(input))
+			]);
 
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
@@ -56,7 +60,7 @@ export function useValidateAddressInput(): {
 
 			return {
 				address: toAddress(input),
-				label: ensName || toAddress(input),
+				label: ensName || clusterName || toAddress(input),
 				error: undefined,
 				isValid: true,
 				source: 'typed'
