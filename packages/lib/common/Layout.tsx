@@ -19,8 +19,8 @@ type TAppProp = {
 };
 export function App(props: TAppProp): ReactElement {
 	return (
-		<div className={'h-full'}>
-			<div className={'flex size-full justify-end'}>
+		<div>
+			<div className={'flex w-full justify-end'}>
 				{Boolean(props.info) && (
 					<InfoCurtain
 						trigger={
