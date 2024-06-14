@@ -66,6 +66,9 @@ export function AddressBookEntryAddress(props: {
 		);
 	}
 
+	/**********************************************************************************************
+	 ** AddressBookEntry that will be used in AddressBook, but not in the rest app.
+	 *********************************************************************************************/
 	const AddressBookEntry: ReactElement = (
 		<div className={'grid w-full'}>
 			<b className={'text-left text-base'}>
