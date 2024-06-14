@@ -20,6 +20,10 @@ export const SmolNameInput = ({set_isValid, ...rest}: TSmolNameInputProps): Reac
 	const {validate} = useValidateNameInput();
 	const validation = validate(inputName, isTouched, set_isValid);
 
+	/**********************************************************************************************
+	 ** If we already have some label in "selectedEntry", we want to use it first. And then we let
+	 ** the user to change it by themselves
+	 *********************************************************************************************/
 	useMountEffect(() => {
 		selectedEntry?.label && set_inputName(selectedEntry.label);
 	});

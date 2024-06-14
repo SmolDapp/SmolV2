@@ -101,20 +101,12 @@ function ContactList(props: {
 }): ReactElement {
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
 
-	const onAddToAB = useCallback(async () => {
-		const isSearchAnAddress = isAddress(props.searchValue);
-		const lowerCaseSearchValue = props.searchValue.toLowerCase();
-		const isEnsCandidate = lowerCaseSearchValue.endsWith('.eth');
-
-		let ensAddress: GetEnsAddressReturnType;
-		if (isEnsCandidate) {
-			ensAddress = await getEnsAddress(retrieveConfig(), {
-				name: lowerCaseSearchValue,
-				chainId: mainnet.id
-			});
-		}
-
-		const getAddress = (): TAddress | undefined => {
+	/**********************************************************************************************
+	 ** If user wants to add the TAddress we just put it in address input. If they use ens, we
+	 ** go with relevant TAddress.
+	 *********************************************************************************************/
+	const getAddress = useCallback(
+		(isSearchAnAddress: boolean, ensAddress: GetEnsAddressReturnType): TAddress | undefined => {
 			if (isSearchAnAddress) {
 				return toAddress(props.searchValue);
 			}
@@ -122,30 +114,63 @@ function ContactList(props: {
 				return ensAddress;
 			}
 			return;
-		};
+		},
+		[props.searchValue]
+	);
 
-		const getLabel = (): string => {
-			if (!getAddress() && !isEnsCandidate) {
+	/**********************************************************************************************
+	 ** If searchValue is not an address and not a valid ENS, cut the ".eth" part and go with it.
+	 *********************************************************************************************/
+	const getLabel = useCallback(
+		(
+			isSearchAnAddress: boolean,
+			isEnsCandidate: boolean,
+			lowerCaseSearchValue: string,
+			ensAddress: GetEnsAddressReturnType
+		): string => {
+			if (!getAddress(isSearchAnAddress, ensAddress) && !isEnsCandidate) {
 				return props.searchValue;
 			}
 			if (isEnsCandidate) {
 				return lowerCaseSearchValue.split('.').slice(0, -1).join(' ');
 			}
 			return '';
-		};
+		},
+		[getAddress, props.searchValue]
+	);
+
+	/**********************************************************************************************
+	 ** When user's looking for sone entry in AB but doesn't find it, they has an option to add
+	 ** this entry there. So if this searchValue is TAddress, we fill up address input in curtain.
+	 ** If it is valid ENS, we fill address input with relevant ENS address, and first part of
+	 ** ENS we place in name input. Last option is when search value is none of the above, we
+	 ** just place it in name input.
+	 *********************************************************************************************/
+	const onAddToAB = useCallback(async () => {
+		const isSearchAnAddress = isAddress(props.searchValue);
+		const lowerCaseSearchValue = props.searchValue.toLowerCase();
+		const isEnsCandidate = lowerCaseSearchValue.endsWith('.eth');
+
+		let ensAddress: GetEnsAddressReturnType = null;
+		if (isEnsCandidate) {
+			ensAddress = await getEnsAddress(retrieveConfig(), {
+				name: lowerCaseSearchValue,
+				chainId: mainnet.id
+			});
+		}
 
 		dispatchConfiguration({
 			type: 'SET_SELECTED_ENTRY',
 			payload: {
-				address: getAddress(),
-				label: getLabel(),
+				address: getAddress(isSearchAnAddress, ensAddress),
+				label: getLabel(isSearchAnAddress, isEnsCandidate, lowerCaseSearchValue, ensAddress),
 				slugifiedLabel: '',
 				chains: [],
 				isFavorite: false
 			}
 		});
 		set_curtainStatus({isOpen: true, isEditing: true});
-	}, [dispatchConfiguration, props.searchValue, set_curtainStatus]);
+	}, [dispatchConfiguration, getAddress, getLabel, props.searchValue, set_curtainStatus]);
 
 	return (
 		<LayoutGroup>
