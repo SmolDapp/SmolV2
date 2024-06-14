@@ -51,8 +51,8 @@ export const useSortedAllowances = (
 	const sortedBySpender = useMemo((): TExpandedAllowance[] => {
 		return allowances?.length
 			? allowances.toSorted((a, b): number => {
-					const sortABy = a.spenderName ? a.spenderName : a.args.sender;
-					const sortBBy = b.spenderName ? b.spenderName : b.args.sender;
+					const sortABy = a.spenderName && a.spenderName !== b.spenderName ? a.spenderName : a.args.sender;
+					const sortBBy = b.spenderName && b.spenderName !== a.spenderName ? b.spenderName : b.args.sender;
 					return stringSort({
 						a: sortABy,
 						b: sortBBy,
@@ -74,15 +74,15 @@ export const useSortedAllowances = (
 
 					const amountAInUSD =
 						toNormalizedValue(a.args.value as bigint, a.decimals) > a.balanceOf.normalized
-							? a.balanceOf.normalized * prices[toAddress(a.address)].normalized
+							? a.balanceOf.normalized * prices[toAddress(a.address)]?.normalized
 							: toNormalizedValue(a.args.value as bigint, a.decimals) *
-								prices[toAddress(a.address)].normalized;
+								prices[toAddress(a.address)]?.normalized;
 
 					const amountBInUSD =
 						toNormalizedValue(b.args.value as bigint, b.decimals) > b.balanceOf.normalized
-							? b.balanceOf.normalized * prices[toAddress(b.address)].normalized
+							? b.balanceOf.normalized * prices[toAddress(b.address)]?.normalized
 							: toNormalizedValue(b.args.value as bigint, b.decimals) *
-								prices[toAddress(b.address)].normalized;
+								prices[toAddress(b.address)]?.normalized;
 
 					return numberSort({
 						a: amountAInUSD || 0,

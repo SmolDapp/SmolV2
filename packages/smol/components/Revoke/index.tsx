@@ -1,10 +1,10 @@
 import {Fragment, type ReactElement, useMemo} from 'react';
 import {serialize} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
 import {Counter} from '@lib/common/Counter';
 import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
+import {usePrices} from '@lib/contexts/usePrices';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {Button} from '@lib/primitives/Button';
 import {getTotalAmountAtRisk} from '@lib/utils/tools.revoke';
@@ -13,7 +13,7 @@ import {AllowancesFilters} from './AllowancesFilters';
 import {AllowancesTable} from './AllowancesTable';
 import {useAllowances} from './useAllowances';
 
-import type {TAddress, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TToken} from '@builtbymom/web3/types';
 
 export function Revoke(): ReactElement {
 	const {chainID} = useChainID();
@@ -43,11 +43,10 @@ export function Revoke(): ReactElement {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [serialize(allowances)]);
 
-	const {data: prices} = usePrices({
-		tokens: uniqueAllowancesByToken ? uniqueAllowancesByToken : [],
-		chainId: chainID
-	});
-	const totalValueAtRisk = getTotalAmountAtRisk(allowances || [], prices as {[key: TAddress]: TNormalizedBN});
+	const {getPrices} = usePrices();
+
+	const prices = getPrices(uniqueAllowancesByToken ? uniqueAllowancesByToken : [], chainID);
+	const totalValueAtRisk = getTotalAmountAtRisk(allowances || [], prices);
 
 	/**********************************************************************************************
 	 ** This function opens curtain to choose extra tokens to check.
