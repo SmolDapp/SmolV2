@@ -38,7 +38,7 @@ export function App(props: TAppProp): ReactElement {
 					/>
 				)}
 			</div>
-			<section className={'-mt-2 size-full p-4 md:p-8'}>
+			<section className={'-mt-2 w-full p-4 md:p-8'}>
 				<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
 					<div>
 						<h1

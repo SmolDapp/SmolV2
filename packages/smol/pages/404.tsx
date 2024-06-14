@@ -7,7 +7,7 @@ export default function NotFoundPage(): ReactElement {
 	return (
 		<div
 			className={
-				'flex h-[calc(100vh-500px)] w-full flex-col items-center  justify-center md:h-[calc(100vh-350px)]'
+				'flex h-[calc(100vh-500px)] w-full flex-col items-center justify-center md:h-[calc(100vh-350px)]'
 			}>
 			<div className={'relative'}>
 				<p
