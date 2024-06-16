@@ -21,20 +21,22 @@ export function App(props: TAppProp): ReactElement {
 	return (
 		<div>
 			<div className={'flex w-full justify-end'}>
-				<InfoCurtain
-					trigger={
-						<div
-							id={'info-curtain-trigger'}
-							className={cl(
-								'size-4 md:size-8 rounded-full absolute right-4 top-4',
-								'bg-neutral-200 transition-colors hover:bg-neutral-300',
-								'flex justify-center items-center'
-							)}>
-							<IconQuestionMark className={'size-6 text-neutral-600'} />
-						</div>
-					}
-					info={props.info}
-				/>
+				{Boolean(props.info) && (
+					<InfoCurtain
+						trigger={
+							<div
+								id={'info-curtain-trigger'}
+								className={cl(
+									'size-4 md:size-8 rounded-full absolute right-4 top-4',
+									'bg-neutral-200 transition-colors hover:bg-neutral-300',
+									'flex justify-center items-center'
+								)}>
+								<IconQuestionMark className={'size-6 text-neutral-600'} />
+							</div>
+						}
+						info={props.info}
+					/>
+				)}
 			</div>
 			<section className={'-mt-2 w-full p-4 md:p-8'}>
 				<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>

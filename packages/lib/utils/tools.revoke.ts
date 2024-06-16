@@ -121,13 +121,13 @@ export const getTotalAmountAtRisk = (
 		const total = arr.reduce((sum, curr) => {
 			const amountInUSD =
 				toNormalizedValue(curr.args.value as bigint, curr.decimals) > curr.balanceOf.normalized
-					? curr.balanceOf.normalized * prices[toAddress(curr.address)].normalized
+					? curr.balanceOf.normalized * prices[toAddress(curr.address)]?.normalized
 					: toNormalizedValue(curr.args.value as bigint, curr.decimals) *
-						prices[toAddress(curr.address)].normalized;
+						prices[toAddress(curr.address)]?.normalized;
 			return sum + amountInUSD;
 		}, 0);
 		if (total >= allowance.balanceOf.normalized) {
-			sum = sum + allowance.balanceOf.normalized * prices[toAddress(allowance.address)].normalized;
+			sum = sum + allowance.balanceOf.normalized * prices[toAddress(allowance.address)]?.normalized;
 		} else {
 			sum = sum + total;
 		}

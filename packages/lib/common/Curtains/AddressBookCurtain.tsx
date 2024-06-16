@@ -203,7 +203,7 @@ export function AddressBookCurtain(props: {
 }): ReactElement {
 	const router = useRouter();
 	const plausible = usePlausible();
-	const {updateEntry, listCachedEntries} = useAddressBook();
+	const {updateEntry, listCachedEntries, set_curtainStatus} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const {safeChainID} = useChainID();
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
@@ -387,6 +387,7 @@ export function AddressBookCurtain(props: {
 											onResetAddressLike();
 											set_isEditMode(false);
 										}
+										set_curtainStatus({isOpen: false, isEditing: false});
 									}}
 									type={'button'}
 									variant={'light'}
