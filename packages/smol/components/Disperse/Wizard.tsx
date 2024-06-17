@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import toast from 'react-hot-toast';
 import {usePlausible} from 'next-plausible';
-import {type BaseError, erc20Abi, type Hex} from 'viem';
+import {type BaseError, erc20Abi, type Hex, zeroAddress} from 'viem';
 import {useReadContract} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -31,6 +31,7 @@ import {CHAINS} from '@lib/utils/tools.chains';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
+import {useHandleMigration} from '../Send/useHandleMigration';
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
 
@@ -54,6 +55,7 @@ const useApproveDisperse = ({
 	isApproved: boolean;
 	isDisabled: boolean;
 	onApproveToken: () => void;
+	shouldUseSend: boolean;
 } => {
 	const {provider} = useWeb3();
 	const {safeChainID, chainID} = useChainID();
@@ -78,6 +80,7 @@ const useApproveDisperse = ({
 	});
 
 	const isApproved = allowance >= totalToDisperse;
+	const shouldUseSend = configuration.inputs.length === 1;
 	const onApproveToken = useCallback((): void => {
 		if (isApproved) {
 			return;
@@ -112,7 +115,8 @@ const useApproveDisperse = ({
 		allowance,
 		isApproved,
 		isDisabled: !approvalStatus.none || !configuration.tokenToSend,
-		onApproveToken
+		onApproveToken,
+		shouldUseSend
 	};
 };
 
@@ -307,21 +311,48 @@ const useConfirmDisperse = ({
 };
 
 export function DisperseWizard(): ReactElement {
-	const {getBalance} = useWallet();
 	const {isWalletSafe} = useWeb3();
 	const {configuration, onResetDisperse} = useDisperse();
 	const [disperseStatus, set_disperseStatus] = useState(defaultTxStatus);
+	const {getBalance} = useWallet();
+	const plausible = usePlausible();
+	const {safeChainID} = useChainID();
 
 	const totalToDisperse = useMemo((): bigint => {
 		return configuration.inputs.reduce((acc, row): bigint => acc + row.value.normalizedBigAmount.raw, 0n);
 	}, [configuration.inputs]);
 
-	const {isApproved, approvalStatus, onApproveToken} = useApproveDisperse({
+	const {isApproved, approvalStatus, onApproveToken, shouldUseSend} = useApproveDisperse({
 		onSuccess: () => {
 			set_disperseStatus(defaultTxStatus);
 		},
 		totalToDisperse
 	});
+
+	const {onHandleMigration} = useHandleMigration(
+		{
+			receiver: configuration?.inputs[0]?.receiver.address || zeroAddress,
+			amount: configuration?.inputs[0]?.value.normalizedBigAmount.raw,
+			address: configuration?.tokenToSend?.address || zeroAddress
+		},
+		set_disperseStatus
+	);
+
+	const onSendSingleToken = (): void => {
+		onHandleMigration();
+		plausible(PLAUSIBLE_EVENTS.DISPERSE_TOKENS, {
+			props: {
+				disperseChainID: safeChainID,
+				numberOfReceivers: 1,
+				tokenToDisperse: configuration.tokenToSend?.address,
+				totalToDisperse: `${formatAmount(
+					toNormalizedValue(totalToDisperse, configuration.tokenToSend?.decimals || 18),
+					6,
+					configuration.tokenToSend?.decimals || 18
+				)} ${configuration.tokenToSend?.symbol || 'Tokens'}`
+			}
+		});
+	};
 
 	const {onDisperseTokens} = useConfirmDisperse({
 		onError: () => {
@@ -372,6 +403,9 @@ export function DisperseWizard(): ReactElement {
 	}, [configuration.inputs, checkAlreadyExists]);
 
 	const getButtonTitle = (): string => {
+		if (shouldUseSend) {
+			return 'Disperse';
+		}
 		if (isWalletSafe) {
 			return 'Disperse';
 		}
@@ -407,6 +441,9 @@ export function DisperseWizard(): ReactElement {
 				isBusy={disperseStatus.pending || approvalStatus.pending}
 				isDisabled={isAboveBalance || configuration.inputs.length === 0 || !isValid}
 				onClick={(): void => {
+					if (shouldUseSend) {
+						return onSendSingleToken();
+					}
 					if (isWalletSafe) {
 						return onDisperseTokens();
 					}

@@ -1,8 +1,8 @@
 import type {Dispatch} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
+import type {TAddress, TToken} from '@builtbymom/web3/types';
 import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
 import type {TInputAddressLike} from '../utils/tools.address';
-import type {TPartialExhaustive} from './utils';
+import type {TModify, TPartialExhaustive, TTokenAmountInputElement} from './utils';
 
 /**********************************************************************************************
  ** TDisperseInput contains the receiver and the value of the disperse operation. The UUID is
@@ -68,3 +68,7 @@ export type TDisperseQuery = TPartialExhaustive<{
 	addresses: string[];
 	values: string[];
 }>;
+
+export type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;
+
+export type TTxInfo = {receiver: TAddress; amount: bigint; address: TAddress};
