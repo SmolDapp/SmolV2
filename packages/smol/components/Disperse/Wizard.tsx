@@ -15,7 +15,8 @@ import {
 	toBigInt,
 	toNormalizedValue,
 	truncateHex,
-	ZERO_ADDRESS
+	ZERO_ADDRESS,
+	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {approveERC20} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
@@ -31,7 +32,7 @@ import {CHAINS} from '@lib/utils/tools.chains';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
-import {useHandleMigration} from '../Send/useHandleMigration';
+import {useSend} from '../Send/useSend';
 import {ExportConfigurationButton} from '.';
 import {useDisperse} from './useDisperse';
 
@@ -329,11 +330,19 @@ export function DisperseWizard(): ReactElement {
 		totalToDisperse
 	});
 
-	const {onHandleMigration} = useHandleMigration(
+	const {onHandleMigration} = useSend(
 		{
 			receiver: configuration?.inputs[0]?.receiver.address || zeroAddress,
-			amount: configuration?.inputs[0]?.value.normalizedBigAmount.raw,
-			address: configuration?.tokenToSend?.address || zeroAddress
+			amount: configuration?.inputs[0]?.value.normalizedBigAmount,
+			token: {
+				address: configuration.tokenToSend?.address || zeroAddress,
+				name: configuration?.tokenToSend?.name || '',
+				symbol: configuration?.tokenToSend?.symbol || '',
+				decimals: configuration?.tokenToSend?.decimals || 18,
+				chainID: configuration?.tokenToSend?.chainID || safeChainID,
+				value: configuration?.tokenToSend?.value || 0,
+				balance: configuration?.tokenToSend?.balance || zeroNormalizedBN
+			}
 		},
 		set_disperseStatus
 	);

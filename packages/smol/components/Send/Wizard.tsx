@@ -10,7 +10,7 @@ import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
-import {useHandleMigration} from './useHandleMigration';
+import {useSend} from './useSend';
 import {useSendFlow} from './useSendFlow';
 
 import type {ReactElement} from 'react';
@@ -20,7 +20,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 	const {address} = useWeb3();
 	const {configuration, dispatchConfiguration} = useSendFlow();
 	const [migrateStatus, set_migrateStatus] = useState(defaultTxStatus);
-	const {migratedTokens, onHandleMigration} = useHandleMigration(undefined, undefined, set_migrateStatus);
+	const {migratedTokens, onHandleMigration} = useSend(undefined, undefined, set_migrateStatus);
 
 	const plausible = usePlausible();
 

@@ -1,5 +1,5 @@
 import type {Dispatch} from 'react';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
 import type {TInputAddressLike} from '../utils/tools.address';
 import type {TModify, TPartialExhaustive, TTokenAmountInputElement} from './utils';
@@ -71,4 +71,4 @@ export type TDisperseQuery = TPartialExhaustive<{
 
 export type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;
 
-export type TTxInfo = {receiver: TAddress; amount: bigint; address: TAddress};
+export type TDisperseTxInfo = {receiver: TAddress; amount: TNormalizedBN; token: TToken};

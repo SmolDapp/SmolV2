@@ -26,11 +26,11 @@ import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multic
 import type {TAddress, TChainTokens} from '@builtbymom/web3/types';
 import type {TTxResponse, TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
-import type {TInputWithToken, TTxInfo} from '@lib/types/app.disperse';
+import type {TDisperseTxInfo, TInputWithToken} from '@lib/types/app.disperse';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
-export const useHandleMigration = (
-	txInfo?: TTxInfo,
+export const useSend = (
+	txInfo?: TDisperseTxInfo,
 	set_disperseStatus?: (value: TTxStatus) => void,
 	set_migrateStatus?: (value: TTxStatus) => void
 ): {onHandleMigration: () => void; migratedTokens: TTokenAmountInputElement[]} => {
@@ -99,7 +99,7 @@ export const useHandleMigration = (
 	 ** function will perform the migration for all the selected tokens, one at a time.
 	 **********************************************************************************************/
 	const onMigrateERC20 = useCallback(
-		async (input?: TInputWithToken, txInfo?: TTxInfo): Promise<TTxResponse> => {
+		async (input?: TInputWithToken, txInfo?: TDisperseTxInfo): Promise<TTxResponse> => {
 			const tokenAddress = input?.token.address;
 			const inputUUID = input?.UUID;
 
@@ -109,9 +109,9 @@ export const useHandleMigration = (
 			const result = await transferERC20({
 				connector: provider,
 				chainID: chainID,
-				contractAddress: txInfo?.address ?? tokenAddress,
+				contractAddress: txInfo?.token.address ?? tokenAddress,
 				receiverAddress: txInfo?.receiver ?? configuration.receiver?.address,
-				amount: txInfo?.amount ?? (input?.normalizedBigAmount.raw || 0n)
+				amount: txInfo?.amount.raw ?? (input?.normalizedBigAmount.raw || 0n)
 			});
 
 			if (result.isSuccessful) {
@@ -127,8 +127,8 @@ export const useHandleMigration = (
 				await handleSuccessCallback(tokenAddress);
 			}
 
-			if (txInfo?.address) {
-				await handleSuccessCallback(txInfo?.address);
+			if (txInfo?.token.address) {
+				await handleSuccessCallback(txInfo?.token.address);
 			}
 			return result;
 		},
@@ -140,12 +140,12 @@ export const useHandleMigration = (
 	 ** function will perform the migration for ETH coin.
 	 **********************************************************************************************/
 	const onMigrateETH = useCallback(
-		async (input?: TInputWithToken, txInfo?: TTxInfo): Promise<TTxResponse> => {
+		async (input?: TInputWithToken, txInfo?: TDisperseTxInfo): Promise<TTxResponse> => {
 			const inputUUID = input?.UUID;
 			inputUUID && onUpdateStatus(inputUUID, 'pending');
 			set_disperseStatus?.({...defaultTxStatus, pending: true});
 
-			const ethAmountRaw = input?.normalizedBigAmount.raw ?? txInfo?.amount;
+			const ethAmountRaw = input?.normalizedBigAmount.raw ?? txInfo?.amount.raw;
 
 			const isSendingBalance =
 				toBigInt(ethAmountRaw) >= toBigInt(getBalance({address: ETH_TOKEN_ADDRESS, chainID: chainID})?.raw);
@@ -182,16 +182,34 @@ export const useHandleMigration = (
 	 ** Safe.
 	 **********************************************************************************************/
 	const onMigrateSelectedForGnosis = useCallback(
-		async (allSelected: TInputWithToken[], txInfo?: TTxInfo): Promise<void> => {
+		async (allSelected: TInputWithToken[], txInfo?: TDisperseTxInfo): Promise<void> => {
 			const transactions: BaseTransaction[] = [];
 
 			if (txInfo) {
 				const newTransaction = getTransferTransaction(
 					txInfo.amount.toString(),
-					txInfo.address,
+					txInfo.token.address,
 					toAddress(txInfo.receiver)
 				);
-				await sdk.txs.send({txs: [newTransaction]});
+				const {safeTxHash} = await sdk.txs.send({txs: [newTransaction]});
+
+				const migratedToken: TTokenAmountInputElement = {
+					amount: txInfo.amount.display,
+					normalizedBigAmount: txInfo.amount,
+					token: txInfo.token,
+					status: 'success',
+					isValid: true,
+					UUID: crypto.randomUUID()
+				};
+
+				notifySend({
+					chainID: chainID,
+					to: toAddress(txInfo.receiver),
+					tokensMigrated: [migratedToken],
+					hashes: [migratedToken].map((): Hex => safeTxHash as Hex),
+					type: 'SAFE',
+					from: toAddress(address)
+				});
 
 				return set_disperseStatus?.({...defaultTxStatus, success: true});
 			}
@@ -260,7 +278,7 @@ export const useHandleMigration = (
 			return onMigrateSelectedForGnosis(allSelected);
 		}
 
-		if (txInfo && isAddressEqual(txInfo.address, ETH_TOKEN_ADDRESS)) {
+		if (txInfo && isAddressEqual(txInfo.token.address, ETH_TOKEN_ADDRESS)) {
 			const result = await onMigrateETH(undefined, txInfo);
 			if (result.isSuccessful) {
 				return set_disperseStatus?.({...defaultTxStatus, success: true});
@@ -268,7 +286,7 @@ export const useHandleMigration = (
 			return set_disperseStatus?.({...defaultTxStatus, error: true});
 		}
 
-		if (txInfo && !isAddressEqual(txInfo.address, ETH_TOKEN_ADDRESS)) {
+		if (txInfo && !isAddressEqual(txInfo.token.address, ETH_TOKEN_ADDRESS)) {
 			const result = await onMigrateERC20(undefined, txInfo);
 			if (result.isSuccessful) {
 				return set_disperseStatus?.({...defaultTxStatus, success: true});
