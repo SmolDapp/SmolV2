@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useRef, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {erc20Abi, isAddressEqual} from 'viem';
+import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -8,14 +8,15 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {
 	assert,
 	ETH_TOKEN_ADDRESS,
-	MAX_UINT_256,
+	isEthAddress,
+	isZeroAddress,
 	toAddress,
+	toBigInt,
 	toNormalizedBN,
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
-import {allowanceOf, approveERC20, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {allowanceOf, approveERC20, getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi/transaction';
-import {readContract} from '@wagmi/core';
 import {SuccessModal} from '@lib/common/SuccessModal';
 import {Button} from '@lib/primitives/Button';
 import {approveViaRouter, deposit, depositViaRouter, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
@@ -73,35 +74,6 @@ const useApproveDeposit = ({
 
 			set_isFetchingAllowance(true);
 
-			/**************************************************************************************
-			 ** If we are dealing with the Yearn 4626 Router:
-			 ** - The router must have the allowance to spend the vault token. This actions is
-			 **   required only one time, but is required anyway. In our case, this should be part
-			 **   of our testing and in the end, this should always return true.
-			 ** - We need to check the allowance of the token, not for the current user, but for
-			 **   the router address, which prevent us to use allowanceOf in it's current state.
-			 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
-			 **   otherwise we throw an error, preventing the user to continue.
-			 *************************************************************************************/
-			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
-				if ((configuration.opportunity as {router?: TAddress}).router) {
-					const allowance = await readContract(retrieveConfig(), {
-						abi: erc20Abi,
-						functionName: 'allowance',
-						chainId: configuration.opportunity.chainID,
-						address: configuration.opportunity.token.address,
-						args: [
-							toAddress((configuration.opportunity as {router?: TAddress}).router),
-							configuration.opportunity.address
-						]
-					});
-					set_isFetchingAllowance(false);
-					existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
-					return existingAllowances.current[key];
-				}
-				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
-			}
-
 			const allowance = await allowanceOf({
 				connector: provider,
 				chainID: configuration.opportunity.chainID,
@@ -116,11 +88,63 @@ const useApproveDeposit = ({
 	);
 
 	/**********************************************************************************************
+	 ** canProceedWithAllowanceFlow checks if the user can proceed with the allowance flow. It will
+	 ** check if the current transaction request, input token, and output token are valid. It will
+	 ** also check if the input amount is greater than 0 and if the input token is not an ETH token
+	 ** or the zero address.
+	 ** If all these conditions are met, it will return true meaning we can either retrieve the
+	 ** allowance or proceed allowance request.
+	 *********************************************************************************************/
+	const canProceedWithSolverAllowanceFlow = useMemo((): boolean => {
+		if (
+			!configuration.quote.data ||
+			!configuration.asset.token?.address ||
+			!configuration.opportunity?.token.address
+		) {
+			return false;
+		}
+
+		if (toBigInt(configuration.quote.data.action.fromAmount) === 0n) {
+			return false;
+		}
+
+		const tokenToSpend = configuration.quote.data.action.fromToken.address;
+		if (isEthAddress(tokenToSpend) || isZeroAddress(tokenToSpend)) {
+			return false;
+		}
+		return true;
+	}, [configuration.asset.token?.address, configuration.opportunity?.token.address, configuration.quote.data]);
+
+	/**********************************************************************************************
+	 ** onRetrieveAllowance checks if the user has enough allowance to perform the swap. It will
+	 ** check the allowance of the input token to the contract that will perform the swap, contract
+	 ** which is provided by the Portals API.
+	 *********************************************************************************************/
+	const onRetrieveSolverAllowance = useCallback(async (): Promise<TNormalizedBN> => {
+		if (!configuration.quote.data || !canProceedWithSolverAllowanceFlow) {
+			return zeroNormalizedBN;
+		}
+		set_isFetchingAllowance(true);
+		const allowance = await allowanceOf({
+			connector: provider,
+			chainID: configuration.quote.data.action.fromChainId,
+			tokenAddress: toAddress(configuration.quote.data.action.fromToken.address),
+			spenderAddress: toAddress(configuration.quote.data.estimate.approvalAddress)
+		});
+		set_isFetchingAllowance(false);
+
+		return toNormalizedBN(allowance, configuration.asset.token?.decimals || 18);
+	}, [canProceedWithSolverAllowanceFlow, configuration.asset.token?.decimals, configuration.quote.data, provider]);
+
+	/**********************************************************************************************
 	 ** SWR hook to get the expected out for a given in/out pair with a specific amount. This hook
 	 ** is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		set_allowance(await onRetrieveAllowance(true));
+		if (configuration.asset.token?.address === configuration.opportunity?.token.address) {
+			return set_allowance(await onRetrieveAllowance(true));
+		}
+		return set_allowance(await onRetrieveSolverAllowance());
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [address, configuration.asset.token?.address, configuration.asset.token?.address, onRetrieveAllowance]);
 
@@ -130,62 +154,79 @@ const useApproveDeposit = ({
 	 ** This approve can not be triggered if the wallet is not active
 	 ** (not connected) or if the tx is still pending.
 	 *********************************************************************************************/
-	const onApprove = useCallback(
-		async (amount = MAX_UINT_256): Promise<void> => {
-			assert(configuration.asset.token, 'Input token is not set');
-			assert(configuration.opportunity, 'Output token is not set');
+	const onApprove = useCallback(async (): Promise<void> => {
+		assert(configuration.asset.token, 'Input token is not set');
+		assert(configuration.opportunity, 'Output token is not set');
 
-			/**************************************************************************************
-			 ** If we are dealing with the Yearn 4626 Router:
-			 ** - The router must be approved to spend the vault token. This actions is required
-			 **   only one time, but is required anyway. In our case, this should be part of our
-			 **   testing. But just in case, we are adding this check so the user can approve it
-			 **   and continue as if it was a normal approve.
-			 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
-			 **   otherwise we throw an error, preventing the user to continue.
-			 *************************************************************************************/
-			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
-				if ((configuration.opportunity as {router?: TAddress}).router) {
-					const result = await approveViaRouter({
-						connector: provider,
-						chainID: configuration.opportunity.chainID,
-						contractAddress: (configuration.opportunity as {router?: TAddress}).router,
-						amount: configuration.asset.normalizedBigAmount.raw,
-						vault: configuration.opportunity?.address,
-						tokenAddress: configuration.opportunity.token.address,
-						statusHandler: set_approvalStatus
-					});
-					if (result.isSuccessful) {
-						onSuccess();
-					}
-					triggerRetreiveAllowance();
-					return;
+		/**************************************************************************************
+		 ** If we are dealing with the Yearn 4626 Router:
+		 ** - The router must be approved to spend the vault token. This actions is required
+		 **   only one time, but is required anyway. In our case, this should be part of our
+		 **   testing. But just in case, we are adding this check so the user can approve it
+		 **   and continue as if it was a normal approve.
+		 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
+		 **   otherwise we throw an error, preventing the user to continue.
+		 *************************************************************************************/
+		if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
+			if ((configuration.opportunity as {router?: TAddress}).router) {
+				const result = await approveViaRouter({
+					connector: provider,
+					chainID: configuration.opportunity.chainID,
+					contractAddress: (configuration.opportunity as {router?: TAddress}).router,
+					amount: configuration.asset.normalizedBigAmount.raw,
+					vault: configuration.opportunity?.address,
+					tokenAddress: configuration.opportunity.token.address,
+					statusHandler: set_approvalStatus
+				});
+				if (result.isSuccessful) {
+					onSuccess();
 				}
-				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
-			}
-
-			const result = await approveERC20({
-				connector: provider,
-				chainID: configuration.opportunity.chainID,
-				contractAddress: configuration.asset.token.address,
-				spenderAddress: configuration.opportunity.address,
-				amount: amount,
-				statusHandler: set_approvalStatus
-			});
-			if (result.isSuccessful) {
-				onSuccess();
 				triggerRetreiveAllowance();
+				return;
 			}
-		},
-		[
-			configuration.asset.normalizedBigAmount.raw,
-			configuration.asset.token,
-			configuration.opportunity,
-			onSuccess,
-			provider,
-			triggerRetreiveAllowance
-		]
-	);
+			throw new Error(`No router for ${configuration.opportunity?.name} vault`);
+		}
+
+		const result = await approveERC20({
+			connector: provider,
+			chainID: configuration.opportunity.chainID,
+			contractAddress: configuration.asset.token.address,
+			spenderAddress: configuration.opportunity.address,
+			amount: configuration.asset.normalizedBigAmount.raw,
+			statusHandler: set_approvalStatus
+		});
+		if (result.isSuccessful) {
+			onSuccess();
+			triggerRetreiveAllowance();
+		}
+	}, [
+		configuration.asset.normalizedBigAmount.raw,
+		configuration.asset.token,
+		configuration.opportunity,
+		onSuccess,
+		provider,
+		triggerRetreiveAllowance
+	]);
+
+	const onApproveSolver = useCallback(async (): Promise<void> => {
+		if (!configuration.quote.data || !canProceedWithSolverAllowanceFlow) {
+			return;
+		}
+
+		const result = await approveERC20({
+			connector: provider,
+			chainID: configuration.quote.data.action.fromChainId,
+			contractAddress: toAddress(configuration.quote.data.action.fromToken.address),
+			spenderAddress: toAddress(configuration.quote.data.estimate.approvalAddress),
+			amount: toBigInt(configuration.quote.data.action.fromAmount),
+			statusHandler: set_approvalStatus,
+			shouldDisplaySuccessToast: false
+		});
+		if (result.isSuccessful) {
+			onSuccess();
+			triggerRetreiveAllowance();
+		}
+	}, [canProceedWithSolverAllowanceFlow, configuration.quote.data, onSuccess, provider, triggerRetreiveAllowance]);
 
 	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
 
@@ -195,7 +236,7 @@ const useApproveDeposit = ({
 		isFetchingAllowance,
 		isApproved: isAboveAllowance,
 		isDisabled: !approvalStatus.none,
-		onApprove
+		onApprove: configuration.quote.data ? onApproveSolver : onApprove
 	};
 };
 
@@ -452,6 +493,15 @@ export function EarnWizard(): ReactElement {
 	]);
 
 	const isValid = useMemo((): boolean => {
+		// TODO: probably move to util this check
+		const isZapNeeded =
+			configuration.asset.token?.address &&
+			configuration.opportunity?.address &&
+			configuration.asset.token.address !== configuration.opportunity.token.address;
+
+		if (isZapNeeded && !configuration.quote.data) {
+			return false;
+		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
 			return false;
 		}
@@ -460,7 +510,13 @@ export function EarnWizard(): ReactElement {
 		}
 
 		return true;
-	}, [configuration.asset.amount, configuration.asset.token, configuration.opportunity, isWithdrawing]);
+	}, [
+		configuration.asset.amount,
+		configuration.asset.token,
+		configuration.opportunity,
+		configuration.quote.data,
+		isWithdrawing
+	]);
 
 	const getButtonTitle = (): string => {
 		if (isWithdrawing) {
@@ -476,7 +532,11 @@ export function EarnWizard(): ReactElement {
 		<div className={'col-span-12 mt-6'}>
 			<Button
 				isBusy={
-					depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
+					depositStatus.pending ||
+					withdrawStatus.pending ||
+					approvalStatus.pending ||
+					isFetchingAllowance ||
+					configuration.quote.isLoading
 				}
 				isDisabled={!isValid}
 				onClick={onAction}

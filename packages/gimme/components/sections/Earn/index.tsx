@@ -1,27 +1,20 @@
-import {type ReactElement, useCallback, useEffect, useMemo, useRef} from 'react';
+import {type ReactElement, useCallback, useEffect, useRef} from 'react';
 import {useRouter} from 'next/router';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {isAddressEqual} from 'viem';
-import {mainnet, polygon} from 'viem/chains';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {ETH_TOKEN_ADDRESS, isAddress, isZeroAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {isAddress, isZeroAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TAddress, TNDict} from '@builtbymom/web3/types';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
-
-const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
-	[mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-	[polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
-};
 
 export function Earn(): ReactElement {
 	const router = useRouter();
@@ -32,23 +25,16 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 
+	const isZapNeeded =
+		isAddress(configuration.asset.token?.address) &&
+		isAddress(configuration.opportunity?.token.address) &&
+		configuration.asset.token?.address !== configuration.opportunity?.token.address;
+
 	const onSetAsset = useCallback(
 		(value: Partial<TTokenAmountInputElement>): void => {
 			dispatchConfiguration({type: 'SET_ASSET', payload: value});
-
-			/**************************************************************************************
-			 * Remove opportunity selection only if new token is selected that is not linked to
-			 * selected opportunity
-			 *************************************************************************************/
-			if (
-				value.token &&
-				configuration.asset.token?.address !== value.token.address &&
-				configuration.opportunity?.token.address !== value.token?.address
-			) {
-				dispatchConfiguration({type: 'SET_OPPORTUNITY', payload: undefined});
-			}
 		},
-		[configuration.asset.token?.address, configuration.opportunity?.token.address, dispatchConfiguration]
+		[dispatchConfiguration]
 	);
 
 	const onSetOpportunity = useCallback(
@@ -57,28 +43,6 @@ export function Earn(): ReactElement {
 		},
 		[dispatchConfiguration]
 	);
-
-	/**********************************************************************************************
-	 * The list of vaults that are linked to the currently selected token to be displayed in the
-	 * Select Opportunity modal
-	 *********************************************************************************************/
-	const filteredVaults = useMemo(() => {
-		if (!configuration.asset.token?.address) {
-			return vaultsArray;
-		}
-
-		/******************************************************************************************
-		 * If native token is selected, wrapped token vaults should be displayed
-		 *****************************************************************************************/
-		if (isAddressEqual(configuration.asset.token.address, ETH_TOKEN_ADDRESS)) {
-			return vaultsArray.filter(
-				rawVault =>
-					configuration.asset.token &&
-					isAddressEqual(rawVault.token.address, WRAPPED_TOKEN_ADDRESS[configuration.asset.token?.chainID])
-			);
-		}
-		return vaultsArray.filter(rawVault => rawVault.token.address === toAddress(configuration.asset.token?.address));
-	}, [configuration.asset.token, vaultsArray]);
 
 	/**********************************************************************************************
 	 ** The user can come to this page with a bunch of query arguments. If this is the case, we
@@ -138,29 +102,64 @@ export function Earn(): ReactElement {
 		});
 	}, [dispatchConfiguration]);
 
+	const getZapsBadgeContent = useCallback(() => {
+		if (configuration.quote.isLoading) {
+			return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
+		}
+		if (!configuration.quote.data) {
+			return <p className={'text-neutral-600'}>{'Sorry! No possible routes found for this configuration!'}</p>;
+		}
+		return (
+			<>
+				<p className={'text-xxs leading-2 mb-10 text-neutral-600'}>
+					{'Hey! We gonna swap your tokens so you can use this opportunity'}
+				</p>
+				<p className={'mb-2 text-lg font-bold leading-8'}>
+					{`${configuration.asset.token?.symbol} -> ${configuration.opportunity?.token.symbol}`}
+				</p>
+				<p className={'text-xxs leading-2 text-neutral-600'}>{"Don't worry! No extra clicks needed"}</p>
+			</>
+		);
+	}, [
+		configuration.asset.token?.symbol,
+		configuration.opportunity?.token.symbol,
+		configuration.quote.data,
+		configuration.quote.isLoading
+	]);
+
 	return (
-		<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>
-			<div className={'w-full'}>
-				<div className={'mb-1 flex items-center justify-between text-xs font-medium'}>
-					<p>{'Asset'}</p>
-					<button
-						onClick={onClearAsset}
-						className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
-						{'Clear asset'}
-					</button>
+		<div className={'flex w-full flex-col items-center gap-10'}>
+			<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>
+				<div className={'w-full'}>
+					<div className={'mb-1 flex items-center justify-between text-xs font-medium'}>
+						<p>{'Asset'}</p>
+						<button
+							onClick={onClearAsset}
+							className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
+							{'Clear asset'}
+						</button>
+					</div>
+					<SmolTokenAmountInput
+						onSetValue={onSetAsset}
+						value={configuration.asset}
+						displayNetworkIcon
+					/>
+					<p className={'mb-2 mt-6 text-xs font-medium '}>{'Opportunity'}</p>
+					<SelectOpportunityButton
+						onSetOpportunity={onSetOpportunity}
+						filteredVaults={vaultsArray}
+					/>
+					<EarnWizard />
 				</div>
-				<SmolTokenAmountInput
-					onSetValue={onSetAsset}
-					value={configuration.asset}
-					displayNetworkIcon
-				/>
-				<p className={'mb-2 mt-6 text-xs font-medium '}>{'Opportunity'}</p>
-				<SelectOpportunityButton
-					onSetOpportunity={onSetOpportunity}
-					filteredVaults={filteredVaults}
-				/>
-				<EarnWizard />
 			</div>
+			{isZapNeeded && (
+				<div
+					className={
+						'flex h-[168px] w-full max-w-[472px] flex-col items-center justify-center rounded-2xl bg-neutral-300'
+					}>
+					{getZapsBadgeContent()}
+				</div>
+			)}
 		</div>
 	);
 }

@@ -11,9 +11,9 @@ import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
 import {useSwapFlow} from './useSwapFlow.lifi';
 
+import type {TLifiStatusResponse} from 'lib/utils/api.lifi';
 import type {ReactElement} from 'react';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
-import type {TLifiStatusResponse} from './api.lifi';
 
 function SendSuccessModal(props: {
 	swapStatus: TTxStatus & {data?: TLifiStatusResponse};
