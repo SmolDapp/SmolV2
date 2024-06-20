@@ -3,10 +3,12 @@ import {isAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus, type TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 
+import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
 import {useVanilaSolver} from '../hooks/solvers/useVanilaSolver';
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 export type TSolverContext = {
 	/** Approval part */
@@ -26,6 +28,8 @@ export type TSolverContext = {
 	depositStatus: TTxStatus;
 	onExecuteDeposit: (onSuccess: () => void) => Promise<void>;
 	set_depositStatus: (value: TTxStatus) => void;
+
+	quote: TPortalsEstimate | null;
 };
 
 const SolverContext = createContext<TSolverContext>({
@@ -42,14 +46,18 @@ const SolverContext = createContext<TSolverContext>({
 
 	depositStatus: defaultTxStatus,
 	set_depositStatus: (): void => undefined,
-	onExecuteDeposit: async (): Promise<void> => undefined
+	onExecuteDeposit: async (): Promise<void> => undefined,
+
+	quote: null
 });
 
 export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
 	const {configuration} = useEarnFlow();
 
 	const vanila = useVanilaSolver();
+	const portals = usePortalsSolver();
 
+	// TODO: optimize by adding init
 	const currentSolver = useMemo(() => {
 		const isZapNeeded =
 			isAddress(configuration.asset.token?.address) &&
@@ -59,8 +67,13 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 		if (!isZapNeeded) {
 			return vanila;
 		}
-		if (isZapNeeded && configuration.asset.token?.chainID === configuration.opportunity?.chainID) {
-			//return portals
+		if (configuration.asset.token?.chainID === configuration.opportunity?.chainID) {
+			return {
+				...portals,
+				onExecuteWithdraw: vanila.onExecuteWithdraw,
+				set_withdrawStatus: vanila.set_withdrawStatus,
+				withdrawStatus: vanila.withdrawStatus
+			};
 		}
 		// return lifi;
 		return vanila; // temp
@@ -69,6 +82,7 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 		configuration.asset.token?.chainID,
 		configuration.opportunity?.chainID,
 		configuration.opportunity?.token.address,
+		portals,
 		vanila
 	]);
 	return <SolverContext.Provider value={currentSolver}>{children}</SolverContext.Provider>;

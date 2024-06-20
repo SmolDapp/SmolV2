@@ -1,6 +1,7 @@
 import {type ReactElement, useCallback, useEffect, useRef} from 'react';
 import {useRouter} from 'next/router';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
+import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
@@ -24,6 +25,8 @@ export function Earn(): ReactElement {
 	const {vaultsArray, userVaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
+
+	const {quote} = useSolvers();
 
 	const isZapNeeded =
 		isAddress(configuration.asset.token?.address) &&
@@ -103,10 +106,10 @@ export function Earn(): ReactElement {
 	}, [dispatchConfiguration]);
 
 	const getZapsBadgeContent = useCallback(() => {
-		if (configuration.quote.isLoading) {
-			return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
-		}
-		if (!configuration.quote.data) {
+		// if (!quote) {
+		// 	return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
+		// }
+		if (!quote) {
 			return <p className={'text-neutral-600'}>{'Sorry! No possible routes found for this configuration!'}</p>;
 		}
 		return (
@@ -120,12 +123,7 @@ export function Earn(): ReactElement {
 				<p className={'text-xxs leading-2 text-neutral-600'}>{"Don't worry! No extra clicks needed"}</p>
 			</>
 		);
-	}, [
-		configuration.asset.token?.symbol,
-		configuration.opportunity?.token.symbol,
-		configuration.quote.data,
-		configuration.quote.isLoading
-	]);
+	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, quote]);
 
 	return (
 		<div className={'flex w-full flex-col items-center gap-10'}>

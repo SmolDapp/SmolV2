@@ -182,7 +182,8 @@ export function EarnWizard(): ReactElement {
 		depositStatus,
 
 		onExecuteWithdraw,
-		withdrawStatus
+		withdrawStatus,
+		quote
 	} = useSolvers();
 
 	const isWithdrawing = configuration.asset.token ? !!vaults[configuration.asset.token?.address] : false;
@@ -212,7 +213,7 @@ export function EarnWizard(): ReactElement {
 			configuration.opportunity?.address &&
 			configuration.asset.token.address !== configuration.opportunity.token.address;
 
-		if (isZapNeeded && !configuration.quote.data) {
+		if (isZapNeeded && !quote) {
 			return false;
 		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -223,13 +224,7 @@ export function EarnWizard(): ReactElement {
 		}
 
 		return true;
-	}, [
-		configuration.asset.amount,
-		configuration.asset.token,
-		configuration.opportunity,
-		configuration.quote.data,
-		isWithdrawing
-	]);
+	}, [configuration.asset.amount, configuration.asset.token, configuration.opportunity, isWithdrawing, quote]);
 
 	const getButtonTitle = (): string => {
 		if (isWithdrawing) {
@@ -245,11 +240,7 @@ export function EarnWizard(): ReactElement {
 		<div className={'col-span-12 mt-6'}>
 			<Button
 				isBusy={
-					depositStatus.pending ||
-					withdrawStatus.pending ||
-					approvalStatus.pending ||
-					isFetchingAllowance ||
-					configuration.quote.isLoading
+					depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
 				}
 				isDisabled={!isValid}
 				onClick={onAction}

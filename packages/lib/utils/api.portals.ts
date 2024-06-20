@@ -1,8 +1,19 @@
+import {zeroAddress} from 'viem';
 import {z} from 'zod';
 import {addressSchema, type TAddress} from '@builtbymom/web3/types';
-import {ETH_TOKEN_ADDRESS, fetch, ZERO_ADDRESS} from '@builtbymom/web3/utils';
+import {
+	ETH_TOKEN_ADDRESS,
+	fetch,
+	isEthAddress,
+	isZero,
+	isZeroAddress,
+	toAddress,
+	toBigInt,
+	ZERO_ADDRESS
+} from '@builtbymom/web3/utils';
 
 import type {TFetchReturn} from '@builtbymom/web3/utils';
+import type {TInitSolverArgs} from '@lib/types/solvers';
 
 export const portalsEstimateResponseSchema = z.object({
 	outputToken: z.string(),
@@ -35,7 +46,6 @@ type TGetEstimateProps = {
 type TGetTransactionProps = Omit<TGetEstimateProps, 'params'> & {
 	params: Required<Pick<TGetEstimateProps, 'params'>['params']> & {
 		sender: TAddress;
-		partner: TAddress;
 		validate?: string;
 		feePercentage?: string;
 	};
@@ -62,7 +72,6 @@ const portalsTransactionSchema = z.object({
 		outputToken: z.string(),
 		outputAmount: z.string(),
 		outputAmountUsd: z.number(),
-		partner: z.string(),
 		feeToken: z.string(),
 		feeAmount: z.string(),
 		feeAmountUsd: z.number(),
@@ -170,5 +179,32 @@ export async function getPortalsApproval({params}: TGetApprovalProps): TFetchRet
 	return fetch<TPortalsApproval>({
 		endpoint: `${url}?${new URLSearchParams(params)}`,
 		schema: portalsApprovalSchema
+	});
+}
+
+export async function getQuote(
+	request: TInitSolverArgs,
+	zapSlippage: number
+): Promise<{result: TPortalsEstimate | null; error?: string}> {
+	const network = PORTALS_NETWORK.get(request.chainID);
+	let {inputToken} = request;
+
+	if (isEthAddress(request.inputToken)) {
+		inputToken = zeroAddress;
+	}
+	if (isZeroAddress(request.outputToken)) {
+		return {result: null, error: 'Invalid buy token'};
+	}
+	if (isZero(request.inputAmount)) {
+		return {result: null, error: 'Invalid sell amount'};
+	}
+
+	return getPortalsEstimate({
+		params: {
+			inputToken: `${network}:${toAddress(inputToken)}`,
+			outputToken: `${network}:${toAddress(request.outputToken)}`,
+			inputAmount: toBigInt(request.inputAmount).toString(),
+			slippageTolerancePercentage: String(zapSlippage)
+		}
 	});
 }

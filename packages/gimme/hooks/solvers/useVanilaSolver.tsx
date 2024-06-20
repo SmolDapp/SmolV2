@@ -11,6 +11,7 @@ import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 export const useVanilaSolver = (): {
 	/** Approval part */
@@ -30,6 +31,8 @@ export const useVanilaSolver = (): {
 	depositStatus: TTxStatus;
 	onExecuteDeposit: (onSuccess: () => void) => Promise<void>;
 	set_depositStatus: (value: TTxStatus) => void;
+
+	quote: TPortalsEstimate | null;
 } => {
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
@@ -275,6 +278,8 @@ export const useVanilaSolver = (): {
 		isFetchingAllowance,
 		isApproved: isAboveAllowance,
 		isDisabled: !approvalStatus.none,
-		onApprove
+		onApprove,
+
+		quote: null
 	};
 };
