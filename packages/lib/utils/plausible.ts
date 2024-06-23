@@ -17,6 +17,7 @@ export const PLAUSIBLE_EVENTS = {
 	// Send events
 	SEND_TOKENS: 'send',
 	ADD_TOKEN_OPTION: 'send: add token option',
+	ADD_ALL_TOKENS_OPTIONS: 'send: add all tokens option',
 
 	// Revoke events
 	REVOKE_ALLOWANCE: 'revoke',

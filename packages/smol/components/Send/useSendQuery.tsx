@@ -1,6 +1,6 @@
 import {createContext, useCallback, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {getNewInput, useSendFlow} from 'packages/smol/components/Send/useSendFlow';
+import {useSend} from 'packages/smol/components/Send/useSend';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
@@ -12,9 +12,11 @@ import {isString} from '@lib/types/utils';
 import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import {getStateFromUrlQuery} from '@lib/utils/url/getStateFromUrlQuery';
 
-import type {TSendQuery} from 'packages/smol/components/Send/useSendFlow';
+import {newSendVoidInput} from './useSend.helpers';
+
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
+import type {TSendQuery} from '@lib/types/app.send';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
@@ -33,13 +35,11 @@ const defaultProps = {
 
 const SendQueryManagementContext = createContext<TSendQueryManagement>(defaultProps);
 
-export const SendQueryManagement = ({
-	children
-}: {
+export const SendQueryManagement = (props: {
 	children: TOptionalRenderProps<TSendQueryManagement, ReactElement>;
 }): ReactElement => {
 	const {initialStateFromUrl, stateFromUrl, hasInitialInputs} = useSendQuery();
-	const {configuration} = useSendFlow();
+	const {configuration} = useSend();
 
 	/**
 	 * Update the url query on every change in the UI
@@ -63,7 +63,7 @@ export const SendQueryManagement = ({
 
 	return (
 		<SendQueryManagementContext.Provider value={contextValue}>
-			{optionalRenderProps(children, contextValue)}
+			{optionalRenderProps(props.children, contextValue)}
 		</SendQueryManagementContext.Provider>
 	);
 };
@@ -76,7 +76,7 @@ export function useSendQuery(): {
 	const router = useRouter();
 	const searchParams = new URLSearchParams(router.asPath.split('?')[1]);
 
-	const {dispatchConfiguration} = useSendFlow();
+	const {dispatchConfiguration} = useSend();
 	const {safeChainID} = useChainID();
 
 	const queryParams = Object.fromEntries(searchParams.entries());
@@ -140,7 +140,7 @@ export function useSendQuery(): {
 		tokens.forEach((token, index) => {
 			const amount = getInitialAmount(index, token);
 			const result = validateTokenAmount(amount, token);
-			onAddToken({...getNewInput(), ...result});
+			onAddToken({...newSendVoidInput(), ...result});
 		});
 	}, [initialTokens]);
 
