@@ -6,12 +6,11 @@ import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress, truncateHex} from '@builtbymom/web3/utils';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import {useIsMounted} from '@smolHooks/useIsMounted';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {IconCopy} from '@lib/icons/IconCopy';
 import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
-import {TooltipContent} from '@lib/primitives/Tooltip';
 import {useClusters} from '@lib/utils/tools.clusters';
 
 import {Avatar} from './Avatar';
@@ -54,9 +53,9 @@ export function AddressBookEntryAddress(props: {
 	ens: string | undefined;
 	isConnecting?: boolean;
 	shouldTruncateAddress?: boolean;
+	isAddressBookEntry?: boolean;
 }): ReactElement {
 	const isMounted = useIsMounted();
-	const isTooltipEnabled = false;
 
 	if (!isMounted || props.isConnecting) {
 		return (
@@ -67,80 +66,62 @@ export function AddressBookEntryAddress(props: {
 		);
 	}
 
-	if (isTooltipEnabled) {
-		return (
-			<div className={'grid w-full'}>
-				<b className={'text-left text-base'}>
-					{toSafeAddress({
-						address: props.address,
-						ens: props.ens,
-						addrOverride: props.address?.substring(0, 6)
-					})}
-				</b>
-				<Tooltip.Provider delayDuration={250}>
-					<Tooltip.Root>
-						<Tooltip.Trigger className={'flex w-full items-center'}>
-							<button
-								className={'z-10 w-full'}
-								onClick={e => {
-									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(props.address));
-									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-								}}>
-								<TextTruncate
-									value={
-										props.shouldTruncateAddress
-											? toSafeAddress({address: props.address})
-											: props.address
-									}
-									className={'text-xxs cursor-copy hover:underline'}
-								/>
-							</button>
-						</Tooltip.Trigger>
-						<TooltipContent
-							side={'left'}
-							className={'TooltipContent bg-primary !p-0'}>
-							<button
-								onClick={e => {
-									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(props.address));
-									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-								}}
-								className={'flex cursor-copy px-2 py-1.5'}>
-								<small className={'font-number text-xxs text-neutral-900/70'}>
-									{toAddress(props.address)}
-								</small>
-							</button>
-							<Tooltip.Arrow
-								className={'fill-primary'}
-								width={11}
-								height={5}
-							/>
-						</TooltipContent>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-			</div>
-		);
-	}
-
-	return (
+	/**********************************************************************************************
+	 ** AddressBookEntry that will be used in AddressBook, but not in the rest app.
+	 *********************************************************************************************/
+	const AddressBookEntry: ReactElement = (
 		<div className={'grid w-full'}>
 			<b className={'text-left text-base'}>
 				{toSafeAddress({address: props.address, ens: props.ens, addrOverride: props.address?.substring(0, 6)})}
 			</b>
-			<button
-				className={'z-10 w-full'}
-				onClick={e => {
-					e.stopPropagation();
-					navigator.clipboard.writeText(toAddress(props.address));
-					toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-				}}>
+			<div className={'flex'}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'text-xxs cursor-copy hover:underline'}
+					className={'text-xxs max-w-[255px] cursor-pointer'}
 				/>
-			</button>
+				<button
+					onClick={e => {
+						e.stopPropagation();
+						navigator.clipboard.writeText(toAddress(props.address));
+						toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+					}}
+					className={'z-20 cursor-copy'}>
+					<IconCopy className={'size-3'} />
+				</button>
+			</div>
 		</div>
+	);
+
+	return (
+		<>
+			{props.isAddressBookEntry ? (
+				AddressBookEntry
+			) : (
+				<div className={'grid w-full'}>
+					<b className={'text-left text-base'}>
+						{toSafeAddress({
+							address: props.address,
+							ens: props.ens,
+							addrOverride: props.address?.substring(0, 6)
+						})}
+					</b>
+					<button
+						className={'z-10 w-full'}
+						onClick={e => {
+							e.stopPropagation();
+							navigator.clipboard.writeText(toAddress(props.address));
+							toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+						}}>
+						<TextTruncate
+							value={
+								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
+							}
+							className={'text-xxs cursor-copy hover:underline'}
+						/>
+					</button>
+				</div>
+			)}
+		</>
 	);
 }
 
@@ -190,6 +171,7 @@ export function AddressBookEntry(props: {
 					src={avatar}
 				/>
 				<AddressBookEntryAddress
+					isAddressBookEntry={true}
 					address={toAddress(props.entry.address)}
 					ens={
 						ensName || clusters?.name
