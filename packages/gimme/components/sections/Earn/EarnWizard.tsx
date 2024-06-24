@@ -3,6 +3,7 @@ import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
@@ -84,9 +85,14 @@ import type {ReactElement} from 'react';
 
 export function EarnWizard(): ReactElement {
 	const {onRefresh} = useWallet();
+
+	const {address, openLoginModal} = useWeb3();
+
 	const {configuration, onResetEarn} = useEarnFlow();
-	const {safeChainID} = useChainID();
 	const {vaults, vaultsArray} = useVaults();
+
+	const {safeChainID} = useChainID();
+
 	const [transactionResult, set_transactionResult] = useState({
 		isExecuted: false,
 		message: ''
@@ -238,15 +244,25 @@ export function EarnWizard(): ReactElement {
 
 	return (
 		<div className={'col-span-12 mt-6'}>
-			<Button
-				isBusy={
-					depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
-				}
-				isDisabled={!isValid}
-				onClick={onAction}
-				className={'w-full'}>
-				<b>{getButtonTitle()}</b>
-			</Button>
+			{address ? (
+				<Button
+					isBusy={
+						depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
+					}
+					isDisabled={!isValid}
+					onClick={onAction}
+					className={'w-full'}>
+					<b>{getButtonTitle()}</b>
+				</Button>
+			) : (
+				<Button
+					className={
+						'w-full !border !border-neutral-900 !bg-white transition-colors hover:!border-neutral-600 hover:text-neutral-600'
+					}
+					onClick={openLoginModal}>
+					{'Connect'}
+				</Button>
+			)}
 
 			<SuccessModal
 				title={'It looks like a success!'}

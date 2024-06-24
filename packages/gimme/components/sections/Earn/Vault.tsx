@@ -97,11 +97,13 @@ export function Vault({
 						<p className={'text-green text-xs'}>
 							{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
 						</p>
-						{configuration.asset.token?.address !== vault.token.address && (
-							<div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
-								{`${configuration.asset.token?.symbol} -> ${vault.token.symbol}`}
-							</div>
-						)}
+						{configuration.asset.token &&
+							vault.token.address &&
+							configuration.asset.token?.address !== vault.token.address && (
+								<div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
+									{`${configuration.asset.token?.symbol} -> ${vault.token.symbol}`}
+								</div>
+							)}
 					</div>
 				</div>
 			</div>
