@@ -27,7 +27,7 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
-import {useSendFlow} from './useSendFlow';
+import {useSend} from './useSend';
 
 import type {ReactElement} from 'react';
 import type {Hex} from 'viem';
@@ -41,7 +41,7 @@ type TInputWithToken = TModify<TTokenAmountInputElement, {token: TToken}>;
 export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement {
 	const {safeChainID, chainID} = useChainID();
 	const {address} = useWeb3();
-	const {configuration, dispatchConfiguration} = useSendFlow();
+	const {configuration, dispatchConfiguration} = useSend();
 	const {getToken, getBalance, onRefresh} = useWallet();
 	const {bumpEntryInteractions} = useAddressBook();
 	const {isWalletSafe, provider} = useWeb3();
@@ -308,6 +308,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 	return (
 		<>
 			<Button
+				id={'send-button'}
 				className={'!h-8 w-full max-w-[240px] !text-xs'}
 				isBusy={migrateStatus.pending}
 				isDisabled={isSendButtonDisabled}

@@ -1,17 +1,22 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {useCallback, useRef} from 'react';
 import {usePlausible} from 'next-plausible';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl} from '@builtbymom/web3/utils';
+import {cl, isEthAddress} from '@builtbymom/web3/utils';
+import {useMountEffect} from '@react-hookz/web';
+import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
+import {IconAppMigrate} from '@lib/icons/IconApps';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconCross} from '@lib/icons/IconCross';
 import {IconSpinner} from '@lib/icons/IconSpinner';
+import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {SendStatus} from './SendStatus';
-import {useSendFlow} from './useSendFlow';
+import {useSend} from './useSend';
+import {newSendVoidInput} from './useSend.helpers';
 import {useSendQueryManagement} from './useSendQuery';
 import {SendWizard} from './Wizard';
 
@@ -20,7 +25,7 @@ import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
-	const {configuration, dispatchConfiguration} = useSendFlow();
+	const {configuration, dispatchConfiguration} = useSend();
 
 	const onSetValue = (value: Partial<TTokenAmountInputElement>): void => {
 		dispatchConfiguration({type: 'SET_VALUE', payload: {...value, UUID: input.UUID}});
@@ -69,34 +74,99 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 
 export function Send(): ReactElement {
 	const plausible = usePlausible();
-	const {configuration, dispatchConfiguration} = useSendFlow();
+	const {configuration, dispatchConfiguration} = useSend();
 	const {hasInitialInputs} = useSendQueryManagement();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const {currentNetworkTokenList} = useTokenList();
+	const {listTokensWithBalance} = useTokensWithBalance();
 
 	const isReceiverERC20 = Boolean(
 		configuration.receiver.address && currentNetworkTokenList[configuration.receiver.address]
 	);
 
-	const onAddToken = useCallback((): void => {
+	/**********************************************************************************************
+	 ** This useCallback is used to add a new input to the configuration. It will dispatch the
+	 ** ADD_INPUT action with the new input. The new input will be empty and will need to be
+	 ** populated later.
+	 *********************************************************************************************/
+	const onAddToken = useCallback(() => {
 		plausible(PLAUSIBLE_EVENTS.ADD_TOKEN_OPTION);
 		dispatchConfiguration({type: 'ADD_INPUT', payload: undefined});
 	}, [dispatchConfiguration, plausible]);
 
-	const onSetRecipient = (value: Partial<TInputAddressLike>): void => {
-		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
-	};
+	/**********************************************************************************************
+	 ** This useCallback is used to set the recipient address in the configuration. It will
+	 ** dispatch the SET_RECEIVER action with the new value.
+	 *********************************************************************************************/
+	const onSetRecipient = useCallback(
+		(value: Partial<TInputAddressLike>) => {
+			dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
+		},
+		[dispatchConfiguration]
+	);
 
-	//Add initial input
-	useEffect(() => {
+	/**********************************************************************************************
+	 ** This effect is used to add an initial input when the component is mounted. If the
+	 ** configuration.inputs is empty, it will add a new input. This is used to always have at
+	 ** least one input in the configuration.inputs array.
+	 *********************************************************************************************/
+	useMountEffect(() => {
 		if (!hasInitialInputs) {
 			onAddToken();
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [hasInitialInputs]);
+	});
+
+	/**********************************************************************************************
+	 ** onAddTokens will grad all the tokens from the listTokensWithBalance function and add them
+	 ** to the configuration.inputs array. The ADD_INPUTS action will be dispatched with the new
+	 ** inputs and remove all the empty inputs.
+	 ** If we have a receiver already set, we will scroll to the send button.
+	 *********************************************************************************************/
+	const onAddAllTokens = useCallback((): void => {
+		plausible(PLAUSIBLE_EVENTS.ADD_ALL_TOKENS_OPTIONS);
+		const allTokens = listTokensWithBalance();
+		const newInputs: TTokenAmountInputElement[] = [];
+
+		for (const token of allTokens) {
+			if (isEthAddress(token.address)) {
+				continue;
+			}
+			const newItem = newSendVoidInput();
+			newItem.token = token;
+			newItem.amount = token.balance.display;
+			newItem.normalizedBigAmount = token.balance;
+			newItem.isValid = true;
+			newInputs.push(newItem);
+		}
+		const ethValue = allTokens.find(token => isEthAddress(token.address));
+		if (ethValue) {
+			const newItem = newSendVoidInput();
+			newItem.token = ethValue;
+			newItem.amount = ethValue.balance.display;
+			newItem.normalizedBigAmount = ethValue.balance;
+			newItem.isValid = true;
+			newInputs.push(newItem);
+		}
+		dispatchConfiguration({type: 'ADD_INPUTS', payload: newInputs});
+
+		if (configuration.receiver.address) {
+			setTimeout(() => {
+				const element = document.getElementById('send-button');
+				element?.scrollIntoView({behavior: 'smooth', block: 'start'});
+			}, 100);
+		}
+	}, [configuration.receiver.address, dispatchConfiguration, listTokensWithBalance, plausible]);
 
 	return (
 		<div className={'max-w-108 w-full'}>
+			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
+				<Button
+					onClick={onAddAllTokens}
+					className={'!h-8 py-1.5 !text-xs'}>
+					<IconAppMigrate className={'mr-2 size-3 text-neutral-900'} />
+					{'Migrate all'}
+				</Button>
+			</div>
 			<div className={'mb-6'}>
 				<p className={'mb-2 font-medium'}>{'Receiver'}</p>
 				<SmolAddressInput
