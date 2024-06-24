@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {getNewInput} from 'packages/smol/components/Send/useSendFlow';
+import {newSendVoidInput} from 'packages/smol/components/Send/useSend.helpers';
 import InputNumber from 'rc-input-number';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
@@ -15,7 +15,7 @@ import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
-export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
+export const defaultTokenInputLike: TTokenAmountInputElement = newSendVoidInput();
 
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;

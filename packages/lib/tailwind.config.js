@@ -53,14 +53,16 @@ module.exports = {
 				sidebar: '280px',
 				main: '1000px',
 				22: '88px',
-				108: '432px'
+				108: '432px',
+				123: '492px'
 			},
 			maxWidth: {
 				'4xl': '888px',
 				'5xl': '992px',
 				'6xl': '1200px',
 				22: '88px',
-				108: '432px'
+				108: '432px',
+				123: '492px'
 			},
 			fontSize: {
 				xxs: ['10px', '16px'],
