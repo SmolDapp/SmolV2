@@ -57,13 +57,13 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 	const vanila = useVanilaSolver();
 	const portals = usePortalsSolver();
 
+	const isZapNeeded =
+		isAddress(configuration.asset.token?.address) &&
+		isAddress(configuration.opportunity?.token.address) &&
+		configuration.asset.token?.address !== configuration.opportunity?.token.address;
+
 	// TODO: optimize by adding init
 	const currentSolver = useMemo(() => {
-		const isZapNeeded =
-			isAddress(configuration.asset.token?.address) &&
-			isAddress(configuration.opportunity?.token.address) &&
-			configuration.asset.token?.address !== configuration.opportunity?.token.address;
-
 		if (!isZapNeeded) {
 			return vanila;
 		}
@@ -77,14 +77,7 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 		}
 		// return lifi;
 		return vanila; // temp
-	}, [
-		configuration.asset.token?.address,
-		configuration.asset.token?.chainID,
-		configuration.opportunity?.chainID,
-		configuration.opportunity?.token.address,
-		portals,
-		vanila
-	]);
+	}, [configuration.asset.token?.chainID, configuration.opportunity?.chainID, isZapNeeded, portals, vanila]);
 	return <SolverContext.Provider value={currentSolver}>{children}</SolverContext.Provider>;
 }
 export const useSolvers = (): TSolverContext => useContext(SolverContext);

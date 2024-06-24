@@ -109,9 +109,11 @@ export function Earn(): ReactElement {
 		// if (!quote) {
 		// 	return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
 		// }
+
 		if (!quote) {
 			return <p className={'text-neutral-600'}>{'Sorry! No possible routes found for this configuration!'}</p>;
 		}
+
 		return (
 			<>
 				<p className={'text-xxs leading-2 mb-10 text-neutral-600'}>
@@ -151,7 +153,7 @@ export function Earn(): ReactElement {
 					<EarnWizard />
 				</div>
 			</div>
-			{isZapNeeded && (
+			{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
 				<div
 					className={
 						'flex h-[168px] w-full max-w-[472px] flex-col items-center justify-center rounded-2xl bg-neutral-300'

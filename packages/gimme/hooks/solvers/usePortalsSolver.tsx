@@ -59,7 +59,7 @@ export const usePortalsSolver = (): {
 
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 
-	const latestQuote = useRef<TPortalsEstimate>();
+	const [latestQuote, set_latestQuote] = useState<TPortalsEstimate>();
 
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
@@ -86,7 +86,7 @@ export const usePortalsSolver = (): {
 			}
 			return undefined;
 		}
-		latestQuote.current = result;
+		set_latestQuote(result);
 
 		return result;
 	}, [address, configuration.asset.normalizedBigAmount.raw, configuration.asset.token, configuration.opportunity]);
@@ -111,7 +111,7 @@ export const usePortalsSolver = (): {
 	 **********************************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (!latestQuote.current || !configuration.asset.token || !configuration.opportunity) {
+			if (!latestQuote || !configuration.asset.token || !configuration.opportunity) {
 				return zeroNormalizedBN;
 			}
 
@@ -159,7 +159,13 @@ export const usePortalsSolver = (): {
 				return zeroNormalizedBN;
 			}
 		},
-		[address, configuration]
+		[
+			address,
+			configuration.asset.normalizedBigAmount.raw,
+			configuration.asset.token,
+			configuration.opportunity,
+			latestQuote
+		]
 	);
 
 	/**********************************************************************************************
@@ -167,7 +173,6 @@ export const usePortalsSolver = (): {
 	 * is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		console.log('trigger');
 		set_allowance(await onRetrieveAllowance(true));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,7 +249,7 @@ export const usePortalsSolver = (): {
 	 *********************************************************************************************/
 	const execute = useCallback(async (): Promise<TTxResponse> => {
 		assert(provider, 'Provider is not set');
-		assert(latestQuote.current, 'Quote is not set');
+		assert(latestQuote, 'Quote is not set');
 		assert(configuration.asset.token, 'Input token is not set');
 		assert(configuration.opportunity, 'Output token is not set');
 
@@ -323,6 +328,7 @@ export const usePortalsSolver = (): {
 		configuration.asset.normalizedBigAmount.raw,
 		configuration.asset.token,
 		configuration.opportunity,
+		latestQuote,
 		provider
 	]);
 
@@ -361,6 +367,6 @@ export const usePortalsSolver = (): {
 		isDisabled: !approvalStatus.none,
 		onApprove,
 
-		quote: latestQuote.current || null
+		quote: latestQuote || null
 	};
 };

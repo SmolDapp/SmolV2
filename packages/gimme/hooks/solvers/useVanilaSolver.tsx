@@ -6,10 +6,10 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {assert, ETH_TOKEN_ADDRESS, toAddress, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {allowanceOf, approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
-import {approveViaRouter, deposit, depositViaRouter, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
+import {deposit, redeemV3Shares, withdrawShares} from '@lib/utils/actions';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
-import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
@@ -110,35 +110,6 @@ export const useVanilaSolver = (): {
 			assert(configuration.asset.token, 'Input token is not set');
 			assert(configuration.opportunity, 'Output token is not set');
 
-			/**************************************************************************************
-			 ** If we are dealing with the Yearn 4626 Router:
-			 ** - The router must be approved to spend the vault token. This actions is required
-			 **   only one time, but is required anyway. In our case, this should be part of our
-			 **   testing. But just in case, we are adding this check so the user can approve it
-			 **   and continue as if it was a normal approve.
-			 ** - If the address is ETH_TOKEN_ADDRESS and we have a router, we can proceed,
-			 **   otherwise we throw an error, preventing the user to continue.
-			 *************************************************************************************/
-			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
-				if ((configuration.opportunity as {router?: TAddress}).router) {
-					const result = await approveViaRouter({
-						connector: provider,
-						chainID: configuration.opportunity.chainID,
-						contractAddress: (configuration.opportunity as {router?: TAddress}).router,
-						amount: configuration.asset.normalizedBigAmount.raw,
-						vault: configuration.opportunity?.address,
-						tokenAddress: configuration.opportunity.token.address,
-						statusHandler: set_approvalStatus
-					});
-					if (result.isSuccessful) {
-						onSuccess();
-					}
-					triggerRetreiveAllowance();
-					return;
-				}
-				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
-			}
-
 			const result = await approveERC20({
 				connector: provider,
 				chainID: configuration.opportunity.chainID,
@@ -171,26 +142,6 @@ export const useVanilaSolver = (): {
 			assert(configuration.asset.token?.address, 'Input amount is not set');
 
 			set_depositStatus({...defaultTxStatus, pending: true});
-
-			if (configuration.asset.token.address === ETH_TOKEN_ADDRESS) {
-				if ((configuration.opportunity as {router?: TAddress}).router) {
-					const result = await depositViaRouter({
-						connector: provider,
-						chainID: configuration.opportunity.chainID,
-						contractAddress: (configuration.opportunity as {router?: TAddress}).router,
-						amount: configuration.asset.normalizedBigAmount.raw,
-						vault: configuration.opportunity?.address
-					});
-					if (result.isSuccessful) {
-						set_depositStatus({...defaultTxStatus, success: true});
-						onSuccess();
-						return;
-					}
-					set_depositStatus({...defaultTxStatus, error: true});
-					return;
-				}
-				throw new Error(`No router for ${configuration.opportunity?.name} vault`);
-			}
 
 			const result = await deposit({
 				connector: provider,

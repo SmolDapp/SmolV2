@@ -192,8 +192,10 @@ export function EarnWizard(): ReactElement {
 		quote
 	} = useSolvers();
 
-	const isWithdrawing = configuration.asset.token ? !!vaults[configuration.asset.token?.address] : false;
-
+	const isWithdrawing =
+		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
+	const isMigrating =
+		configuration.asset.token && !!vaults[configuration.asset.token?.address] && configuration.opportunity;
 	/**********************************************************************************************
 	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
 	 *********************************************************************************************/
@@ -229,6 +231,10 @@ export function EarnWizard(): ReactElement {
 			return false;
 		}
 
+		if (configuration.asset.token.address === configuration.opportunity?.address) {
+			return false;
+		}
+
 		return true;
 	}, [configuration.asset.amount, configuration.asset.token, configuration.opportunity, isWithdrawing, quote]);
 
@@ -237,6 +243,9 @@ export function EarnWizard(): ReactElement {
 			return 'Withdraw';
 		}
 		if (isApproved) {
+			if (isMigrating) {
+				return 'Migrate';
+			}
 			return 'Deposit';
 		}
 		return 'Approve';
