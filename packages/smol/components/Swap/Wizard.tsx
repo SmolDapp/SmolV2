@@ -84,7 +84,7 @@ function SendSuccessModal(props: {
 								href={`${data.receiving.txLink.split('/tx/')[0]}/address/${data.toAddress}`}
 								target={'_blank'}>
 								<p className={'cursor-alias font-mono text-sm hover:underline'}>
-									{toAddress(data.toAddress)}
+									{truncateHexTx(toAddress(data.toAddress), 8)}
 								</p>
 							</Link>
 						</div>
