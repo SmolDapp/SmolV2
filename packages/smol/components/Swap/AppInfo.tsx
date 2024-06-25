@@ -92,6 +92,13 @@ function SwapAppInfo(): ReactElement {
 				</div>
 
 				<br />
+				<p className={'text-sm text-neutral-900'}>{'Amount to receive!'}</p>
+				<p className={'text-sm'}>
+					{
+						"Smol swap displays the EXPECTED amount of tokens you'll receive. So you might end up with a bit more or a bit fewer tokens - this depends on your slippage settings."
+					}
+				</p>
+				<br />
 				<p className={'text-sm text-neutral-900'}>{'We have a fee'}</p>
 				<p className={'text-sm'}>{'Smol charges a 0.3% fee on swaps to fund starving devs. Ty'}</p>
 			</div>
