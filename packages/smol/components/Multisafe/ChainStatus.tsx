@@ -54,6 +54,7 @@ type TChainStatusArgs = {
 	threshold: number;
 	salt: bigint;
 	singleton?: TAddress;
+	fallbackHandler: TAddress;
 };
 
 function ChainStatus({
@@ -62,6 +63,7 @@ function ChainStatus({
 	originalTx,
 	owners,
 	threshold,
+	fallbackHandler,
 	salt,
 	singleton
 }: TChainStatusArgs): ReactElement {
@@ -109,13 +111,24 @@ function ChainStatus({
 		try {
 			const signletonToUse = singleton || SINGLETON_L2;
 			if (signletonToUse === SINGLETON_L1) {
-				return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
+				// Check if every contracts required are deployed on the chain
+				const publicClient = getClient(chain.id);
+				const singletonBc = await publicClient.getBytecode({address: getProxyFromSingleton(signletonToUse)});
+				if (!singletonBc) {
+					console.error(`Singleton not deployed on chain ${chain.id}`);
+					return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
+				}
+				const fallbackHandlerBc = await publicClient.getBytecode({address: fallbackHandler});
+				if (!fallbackHandlerBc) {
+					console.error(`Fallback handler not deployed on chain ${chain.id}`);
+					return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
+				}
 			}
 
 			/**************************************************************************************
 			 ** First try to clone with the regular FALLBACK_HANDLER
 			 **************************************************************************************/
-			const argInitializers = generateArgInitializers(owners, threshold);
+			const argInitializers = generateArgInitializers(owners, threshold, fallbackHandler);
 			const prepareWriteResult = await publicClient.simulateContract({
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -126,23 +139,6 @@ function ChainStatus({
 			prepareWriteAddress = toAddress(prepareWriteResult.result);
 			if (prepareWriteAddress === safeAddress) {
 				return set_canDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contract'});
-			}
-
-			/**************************************************************************************
-			 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
-			 **************************************************************************************/
-			const argInitializersAlt = generateArgInitializers(owners, threshold, true);
-			const prepareWriteResultAlt = await publicClient.simulateContract({
-				account: address,
-				address: getProxyFromSingleton(signletonToUse),
-				abi: GNOSIS_SAFE_PROXY_FACTORY,
-				functionName: 'createProxyWithNonce',
-				args: [signletonToUse, `0x${argInitializersAlt}`, salt]
-			});
-			prepareWriteAddress = toAddress(prepareWriteResultAlt.result);
-
-			if (prepareWriteAddress === safeAddress) {
-				return set_canDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contractAlt'});
 			}
 		} catch (err) {
 			console.log(err);
@@ -166,7 +162,18 @@ function ChainStatus({
 			//
 		}
 		return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
-	}, [address, chain, originalTx, owners, safeAddress, salt, singleton, threshold]);
+	}, [
+		address,
+		chain.id,
+		fallbackHandler,
+		originalTx?.input,
+		originalTx?.to,
+		owners,
+		safeAddress,
+		salt,
+		singleton,
+		threshold
+	]);
 
 	useEffect((): void => {
 		checkIfDeployedOnThatChain();
@@ -251,14 +258,10 @@ function ChainStatus({
 		 ** If the method is contract, we can clone the safe using the proxy factory with the same
 		 ** arguments as the original transaction.
 		 ******************************************************************************************/
-		if (canDeployOnThatChain.method === 'contract' || canDeployOnThatChain.method === 'contractAlt') {
+		if (canDeployOnThatChain.method === 'contract') {
 			const fee = parseEther((DEFAULT_FEES_USD / coinPrice).toString());
 			const signletonToUse = singleton || SINGLETON_L2;
-			const argInitializers = generateArgInitializers(
-				owners,
-				threshold,
-				canDeployOnThatChain.method === 'contractAlt'
-			);
+			const argInitializers = generateArgInitializers(owners, threshold, fallbackHandler);
 			const callDataDisperseEth = {
 				target: CHAINS[chain.id].disperseAddress,
 				value: fee,
@@ -314,6 +317,7 @@ function ChainStatus({
 		singleton,
 		owners,
 		threshold,
+		fallbackHandler,
 		salt,
 		provider
 	]);

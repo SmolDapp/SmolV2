@@ -5,6 +5,7 @@ import assert from 'assert';
 import {MultisafeAppInfo} from 'packages/smol/components/Multisafe/AppInfo';
 import {ConfigurationStatus} from 'packages/smol/components/Multisafe/ConfigurationStatus';
 import {
+	FALLBACK_HANDLER,
 	GNOSIS_SAFE_PROXY_CREATION_CODE,
 	PROXY_FACTORY_L2,
 	PROXY_FACTORY_L2_DDP,
@@ -205,7 +206,7 @@ function Safe(): ReactElement {
 			seed = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));
 		}
 		const ownersAddresses = owners.map(owner => toAddress(owner.address));
-		const argInitializers = generateArgInitializers(ownersAddresses, threshold);
+		const argInitializers = generateArgInitializers(ownersAddresses, threshold, FALLBACK_HANDLER);
 		const singletonFactory = hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
 		const bytecode = encodePacked(['bytes', 'uint256'], [GNOSIS_SAFE_PROXY_CREATION_CODE, singletonFactory]);
 		const result = await compute({

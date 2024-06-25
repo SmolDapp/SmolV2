@@ -2,7 +2,6 @@ import {Toaster} from 'react-hot-toast';
 import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
@@ -110,7 +109,7 @@ function MyApp(props: AppProps): ReactElement {
 			/>
 			<IndexedDB>
 				<WithMom
-					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+					supportedChains={[...supportedNetworks, ...supportedTestNetworks]}
 					tokenLists={[
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'

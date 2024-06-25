@@ -360,6 +360,7 @@ const CHAINS: TSmolChains = {
 if (isDev) {
 	CHAINS[localhost.id] = {
 		...localhost,
+		testnet: true,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeUIURI: 'https://app.safe.global/home?safe=eth:',

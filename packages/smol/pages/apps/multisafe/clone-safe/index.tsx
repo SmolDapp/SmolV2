@@ -143,9 +143,9 @@ function Safe(): ReactElement {
 				}
 				const tx = await getTransaction(retrieveConfig(), {hash, chainId: chainID});
 				const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
-				const {owners, threshold, salt, singleton} = decodeArgInitializers(input as Hex);
+				const args = decodeArgInitializers(input as Hex);
 
-				set_existingSafeArgs({owners, threshold, isLoading: false, address, salt, singleton, tx: tx});
+				set_existingSafeArgs({...args, isLoading: false, address, tx});
 			} else {
 				set_existingSafeArgs({
 					...defaultExistingSafeArgs,

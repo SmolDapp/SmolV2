@@ -4,7 +4,7 @@ import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {MultisafeAppInfo} from 'packages/smol/components/Multisafe/AppInfo';
 import ChainStatus from 'packages/smol/components/Multisafe/ChainStatus';
-import {SINGLETON_L2, SINGLETON_L2_DDP} from 'packages/smol/components/Multisafe/constants';
+import {FALLBACK_HANDLER, SINGLETON_L2, SINGLETON_L2_DDP} from 'packages/smol/components/Multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'packages/smol/components/Multisafe/useMultisafe';
 import {toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
@@ -106,6 +106,7 @@ function Safe(): ReactElement {
 											threshold={threshold || 0}
 											singleton={singleton}
 											salt={salt || 0n}
+											fallbackHandler={FALLBACK_HANDLER}
 										/>
 									)
 								)}
@@ -124,6 +125,7 @@ function Safe(): ReactElement {
 												threshold={threshold || 0}
 												singleton={singleton}
 												salt={salt || 0n}
+												fallbackHandler={FALLBACK_HANDLER}
 											/>
 										)
 									)}

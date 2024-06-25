@@ -1,5 +1,4 @@
 import {
-	ALTERNATE_FALLBACK_HANDLER,
 	FALLBACK_HANDLER,
 	SAFE_CREATION_SIGNATURE,
 	SINGLETON_L1,
@@ -9,16 +8,12 @@ import {
 } from 'packages/smol/components/Multisafe/constants';
 import {fromHex, pad, toHex} from 'viem';
 import XXH from 'xxhashjs';
-import {toAddress, ZERO_ADDRESS} from '@builtbymom/web3/utils';
+import {isZeroAddress, toAddress, ZERO_ADDRESS} from '@builtbymom/web3/utils';
 
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
 
-export function generateArgInitializers(
-	owners: TAddress[],
-	threshold: number,
-	shouldUseAlternateFallbackHandler?: boolean
-): string {
+export function generateArgInitializers(owners: TAddress[], threshold: number, fallbackHandler: TAddress): string {
 	return (
 		'b63e800d' + //Function signature
 		'100'.padStart(64, '0') + // Version
@@ -27,9 +22,7 @@ export function generateArgInitializers(
 		pad(toHex(0x120 + 0x20 * owners.length))
 			.substring(2)
 			.padStart(64, '0') + // Data length
-		(shouldUseAlternateFallbackHandler ? ALTERNATE_FALLBACK_HANDLER : FALLBACK_HANDLER)
-			.substring(2)
-			.padStart(64, '0') +
+		fallbackHandler.substring(2).padStart(64, '0') +
 		ZERO_ADDRESS.substring(2).padStart(64, '0') + // paymentToken
 		ZERO.padStart(64, '0') + // payment
 		ZERO_ADDRESS.substring(2).padStart(64, '0') + // paymentReceiver
@@ -49,6 +42,7 @@ export function decodeArgInitializers(argsHex: Hex): {
 	threshold: number;
 	salt: bigint;
 	singleton: TAddress;
+	fallbackHandler: TAddress;
 } {
 	const allParts = argsHex.substring(10).match(/.{1,64}/g);
 	if (!allParts) {
@@ -61,6 +55,7 @@ export function decodeArgInitializers(argsHex: Hex): {
 		throw new Error('Invalid args');
 	}
 	const threshold = Number(parts[1]);
+	const fallbackHandler = toAddress(`0x${parts[4].substring(24)}`);
 	const ownersLength = Number(parts[8]);
 	const owners = parts.slice(9, 9 + ownersLength).map((owner): TAddress => toAddress(`0x${owner.substring(24)}`));
 
@@ -70,5 +65,20 @@ export function decodeArgInitializers(argsHex: Hex): {
 	} else if (argsHex.toLowerCase().includes('d9db270c1b5e3bd161e8c8503c55ceabee709552')) {
 		singleton = SINGLETON_L1;
 	}
-	return {owners, threshold, salt: fromHex(salt, 'bigint'), singleton};
+
+	console.warn(argsHex, allParts, parts, {
+		owners,
+		threshold,
+		salt: fromHex(salt, 'bigint'),
+		singleton,
+		fallbackHandler: isZeroAddress(fallbackHandler) ? FALLBACK_HANDLER : fallbackHandler
+	});
+
+	return {
+		owners,
+		threshold,
+		salt: fromHex(salt, 'bigint'),
+		singleton,
+		fallbackHandler: isZeroAddress(fallbackHandler) ? FALLBACK_HANDLER : fallbackHandler
+	};
 }

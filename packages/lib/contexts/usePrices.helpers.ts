@@ -33,10 +33,10 @@ export function prepareQueryStringForYDaemon(tokens: TPriceTokens): string {
 export function prepareQueryStringForLlama(tokens: TPriceTokens): string {
 	const allTokens = [];
 	for (const token of tokens) {
-		if (!CHAINS[token.chainID].llamaChainName) {
+		if (!CHAINS[token.chainID]?.llamaChainName) {
 			continue;
 		}
-		allTokens.push(`${CHAINS[token.chainID].llamaChainName}:${token.address}`);
+		allTokens.push(`${CHAINS[token.chainID]?.llamaChainName}:${token.address}`);
 	}
 	return allTokens.join(',');
 }
@@ -105,7 +105,7 @@ export function assignLlamaPrices(
 
 			let chainID = storedChainsToID[chainName];
 			if (!storedChainsToID[chainName]) {
-				const chain = Object.values(CHAINS).find(chain => chain.llamaChainName === chainName);
+				const chain = Object.values(CHAINS).find(chain => chain?.llamaChainName === chainName);
 				if (!chain) {
 					continue;
 				}

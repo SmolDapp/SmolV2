@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@builtbymom/web3": "0.0.121",
+    "@builtbymom/web3": "^0.0.122",
     "@clustersxyz/sdk": "^0.2.1",
     "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@headlessui/react": "^2.0.4",
@@ -26,7 +26,7 @@
     "@tanstack/react-query": "^5.45.0",
     "@types/dompurify": "^3.0.5",
     "@types/qrcode": "^1.5.5",
-    "@wagmi/core": "^2.11.2",
+    "@wagmi/core": "^2.11.4",
     "axios": "^1.7.2",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
@@ -54,8 +54,8 @@
     "use-indexeddb": "^2.0.2",
     "usehooks-ts": "^3.1.0",
     "vaul": "^0.9.1",
-    "viem": "^2.13.10",
-    "wagmi": "^2.10.2",
+    "viem": "^2.16.1",
+    "wagmi": "^2.10.4",
     "web3-eth-abi": "1.10.0",
     "xxhashjs": "^0.2.2"
   },
