@@ -17,3 +17,9 @@ WalletPage.AppInfo = (
 		<p>{'I don’t get paid by the word so… that’s about it.'}</p>
 	</>
 );
+WalletPage.MetadataTitle = 'Wallet';
+WalletPage.MetadataDescription = 'Wallet';
+WalletPage.MetadataURI = 'https://smold.app/apps/wallet';
+WalletPage.MetadataOG = 'https://smold.app/og.png';
+WalletPage.MetadataTitleColor = '#000000';
+WalletPage.MetadataThemeColor = '#FFD915';

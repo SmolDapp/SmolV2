@@ -316,3 +316,9 @@ export default function MultisafeCloneWrapper(): ReactElement {
 MultisafeCloneWrapper.AppName = 'Make your Safe a Multisafe';
 MultisafeCloneWrapper.AppDescription = 'Clone your existing Safe and give it the same address on every chain.';
 MultisafeCloneWrapper.AppInfo = <MultisafeAppInfo />;
+MultisafeCloneWrapper.MetadataTitle = 'Clone safe';
+MultisafeCloneWrapper.MetadataDescription = 'Multisafe clone safe';
+MultisafeCloneWrapper.MetadataURI = 'https://smold.app/apps/multisafe/clone-safe';
+MultisafeCloneWrapper.MetadataOG = 'https://smold.app/og.png';
+MultisafeCloneWrapper.MetadataTitleColor = '#000000';
+MultisafeCloneWrapper.MetadataThemeColor = '#FFD915';

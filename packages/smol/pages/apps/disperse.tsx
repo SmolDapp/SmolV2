@@ -49,5 +49,11 @@ DispersePage.AppInfo = (
 		<br />
 	</>
 );
+DispersePage.MetadataTitle = 'Disperse';
+DispersePage.MetadataDescription = 'Disperse smth';
+DispersePage.MetadataURI = 'https://smold.app/apps/disperse';
+DispersePage.MetadataOG = 'https://smold.app/og.png';
+DispersePage.MetadataTitleColor = '#000000';
+DispersePage.MetadataThemeColor = '#FFD915';
 
 export default DispersePage;

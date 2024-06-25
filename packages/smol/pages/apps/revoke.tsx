@@ -62,3 +62,9 @@ RevokePage.AppInfo = (
 		</p>
 	</>
 );
+RevokePage.MetadataTitle = 'Revoke';
+RevokePage.MetadataDescription = 'Revoke';
+RevokePage.MetadataURI = 'https://smold.app/apps/revoke';
+RevokePage.MetadataOG = 'https://smold.app/og.png';
+RevokePage.MetadataTitleColor = '#000000';
+RevokePage.MetadataThemeColor = '#FFD915';

@@ -24,5 +24,11 @@ SwapPage.AppName = 'Swap';
 SwapPage.AppDescription =
 	'Swap tokens on the same chain, or across different chains. It’s the future, but like… right now.';
 SwapPage.AppInfo = <SwapAppInfo />;
+SwapPage.MetadataTitle = 'Swap';
+SwapPage.MetadataDescription = 'Swap';
+SwapPage.MetadataURI = 'https://smold.app/apps/swap';
+SwapPage.MetadataOG = 'https://smold.app/og.png';
+SwapPage.MetadataTitleColor = '#000000';
+SwapPage.MetadataThemeColor = '#FFD915';
 
 export default SwapPage;

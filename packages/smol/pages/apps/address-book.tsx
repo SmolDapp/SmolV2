@@ -23,5 +23,11 @@ AddressBookPage.AppInfo = (
 		<p>{'Thanks anon, now go forth and send thy digital tokens.'}</p>
 	</>
 );
+AddressBookPage.MetadataTitle = 'Address book';
+AddressBookPage.MetadataDescription = 'Address book';
+AddressBookPage.MetadataURI = 'https://smold.app/apps/address-book';
+AddressBookPage.MetadataOG = 'https://smold.app/og.png';
+AddressBookPage.MetadataTitleColor = '#000000';
+AddressBookPage.MetadataThemeColor = '#FFD915';
 
 export default AddressBookPage;

@@ -7,6 +7,8 @@ import {SideMenuMobile} from '@lib/common/SideMenu/SideMenuMobile';
 import {WithAddressBook} from '@lib/contexts/useAddressBook';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
+import {Meta} from './Meta';
+
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
 import type {TSideMenuItem} from './SideMenu/SideMenuNav';
@@ -60,12 +62,24 @@ type TComponent = NextComponentType & {
 	AppName: string;
 	AppDescription: string;
 	AppInfo: string;
+	MetadataTitle: string;
+	MetadataDescription: string;
+	MetadataURI: string;
+	MetadataOG: string;
+	MetadataTitleColor: string;
+	MetadataThemeColor: string;
 };
 export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): ReactElement {
 	const {Component, router} = props;
 	const appName = (Component as TComponent).AppName || 'App';
 	const appDescription = (Component as TComponent).AppDescription || '';
 	const appInfo = (Component as TComponent).AppInfo || '';
+	const metadataTitle = (Component as TComponent).MetadataTitle || '';
+	const metadataDescription = (Component as TComponent).MetadataDescription || '';
+	const metadataTitleColor = (Component as TComponent).MetadataTitleColor || '';
+	const metadataThemeColor = (Component as TComponent).MetadataThemeColor || '';
+	const metadataURI = (Component as TComponent).MetadataURI || '';
+	const metadataOG = (Component as TComponent).MetadataOG || '';
 
 	return (
 		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
@@ -103,6 +117,14 @@ export default function Layout(props: AppProps & {menu?: TSideMenuItem[]}): Reac
 											ease: 'easeInOut'
 										}}>
 										<Component {...props} />
+										<Meta
+											title={metadataTitle}
+											titleColor={metadataTitleColor}
+											themeColor={metadataThemeColor}
+											description={metadataDescription}
+											og={metadataOG}
+											uri={metadataURI}
+										/>
 									</motion.div>
 								</AnimatePresence>
 							</App>

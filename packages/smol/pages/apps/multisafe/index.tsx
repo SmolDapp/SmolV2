@@ -45,3 +45,9 @@ MultisafeWrapper.AppName = 'Welcome to Multisafe';
 MultisafeWrapper.AppDescription =
 	'Get the same Safe address on every chain. Either create a new safe, or clone an existing one to start.';
 MultisafeWrapper.AppInfo = <MultisafeAppInfo />;
+MultisafeWrapper.MetadataTitle = 'Multisafe';
+MultisafeWrapper.MetadataDescription = 'Multisafe';
+MultisafeWrapper.MetadataURI = 'https://smold.app/apps/multisafe';
+MultisafeWrapper.MetadataOG = 'https://smold.app/og.png';
+MultisafeWrapper.MetadataTitleColor = '#000000';
+MultisafeWrapper.MetadataThemeColor = '#FFD915';

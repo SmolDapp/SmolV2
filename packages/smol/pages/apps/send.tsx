@@ -38,3 +38,9 @@ SendPage.AppInfo = (
 		</p>
 	</>
 );
+SendPage.MetadataTitle = 'Send';
+SendPage.MetadataDescription = 'Send';
+SendPage.MetadataURI = 'https://smold.app/apps/send';
+SendPage.MetadataOG = 'https://smold.app/og.png';
+SendPage.MetadataTitleColor = '#000000';
+SendPage.MetadataThemeColor = '#FFD915';
