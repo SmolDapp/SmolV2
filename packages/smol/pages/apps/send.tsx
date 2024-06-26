@@ -1,5 +1,5 @@
 import {Send} from 'packages/smol/components/Send';
-import {SendContextApp} from 'packages/smol/components/Send/useSendFlow';
+import {SendContextApp} from 'packages/smol/components/Send/useSendContext';
 import {SendQueryManagement} from 'packages/smol/components/Send/useSendQuery';
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 

@@ -11,14 +11,14 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 
 import {useSend} from './useSend';
-import {useSendFlow} from './useSendFlow';
+import {useSendContext} from './useSendContext';
 
 import type {ReactElement} from 'react';
 
 export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement {
 	const {chainID} = useChainID();
 	const {address} = useWeb3();
-	const {configuration, dispatchConfiguration} = useSendFlow();
+	const {configuration, dispatchConfiguration} = useSendContext();
 	const [migrateStatus, set_migrateStatus] = useState(defaultTxStatus);
 	const {migratedTokens, onHandleMigration} = useSend(undefined, undefined, set_migrateStatus);
 
@@ -50,6 +50,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 	return (
 		<>
 			<Button
+				id={'send-button'}
 				className={'!h-8 w-full max-w-[240px] !text-xs'}
 				isBusy={migrateStatus.pending}
 				isDisabled={isSendButtonDisabled}

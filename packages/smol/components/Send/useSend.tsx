@@ -19,7 +19,7 @@ import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {notifySend} from '@lib/utils/notifier';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 
-import {useSendFlow} from './useSendFlow';
+import {useSendContext} from './useSendContext';
 
 import type {Hex} from 'viem';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
@@ -36,7 +36,7 @@ export const useSend = (
 ): {onHandleMigration: () => void; migratedTokens: TTokenAmountInputElement[]} => {
 	const {safeChainID, chainID} = useChainID();
 	const {address} = useWeb3();
-	const {configuration, dispatchConfiguration} = useSendFlow();
+	const {configuration, dispatchConfiguration} = useSendContext();
 	const {bumpEntryInteractions} = useAddressBook();
 	const {isWalletSafe, provider} = useWeb3();
 	const {sdk} = useSafeAppsSDK();

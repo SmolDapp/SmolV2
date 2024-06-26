@@ -7,14 +7,14 @@ import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {getIsSmartContract} from '@lib/utils/tools.address';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
-import {useSendFlow} from './useSendFlow';
+import {useSendContext} from './useSendContext';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {TWarningType} from '@lib/common/Warning';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {
 	const {set_curtainStatus, dispatchConfiguration} = useAddressBook();
-	const {configuration} = useSendFlow();
+	const {configuration} = useSendContext();
 
 	const validLabel = useMemo(() => {
 		if (configuration.receiver.label.endsWith('.eth')) {
@@ -46,7 +46,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 }
 
 export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement | null {
-	const {configuration} = useSendFlow();
+	const {configuration} = useSendContext();
 	const {safeChainID} = useChainID();
 	const {getEntry} = useAddressBook();
 	const [status, set_status] = useState<{type: TWarningType; message: string | ReactElement} | null>(null);
