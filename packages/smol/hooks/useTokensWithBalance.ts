@@ -8,15 +8,19 @@ import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
-import type {TDict, TNDict, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TDict, TNDict, TToken} from '@builtbymom/web3/types';
 
 export function useTokensWithBalance(): {
+	listAllTokensWithBalance: () => TToken[];
 	listTokensWithBalance: (chainID?: number) => TToken[];
 	listTokens: (chainID?: number) => TToken[];
 	isLoading: boolean;
+	isLoadingOnCurrentChain: boolean;
+	isLoadingOnChain: (chainID?: number) => boolean;
+	onRefresh: () => Promise<TChainTokens>;
 } {
 	const {chainID} = useWeb3();
-	const {balances, getBalance, isLoading} = useWallet();
+	const {balances, getBalance, isLoading, isLoadingOnCurrentChain, isLoadingOnChain, onRefresh} = useWallet();
 	const [allTokens, set_allTokens] = useState<TNDict<TDict<TToken>>>({});
 	const {tokenLists, isCustomToken} = useTokenList();
 
@@ -122,5 +126,34 @@ export function useTokensWithBalance(): {
 		[allTokens, getBalance, currentIdentifier, chainID]
 	);
 
-	return {listTokensWithBalance, listTokens, isLoading};
+	/**********************************************************************************************
+	 ** The listAllTokensWithBalance is similar to the listTokensWithBalance function, but it will
+	 ** return all tokens from all networks. It will be triggered when the allTokens or getBalance
+	 ** or currentIdentifier changes.
+	 *********************************************************************************************/
+	const listAllTokensWithBalance = useCallback((): TToken[] => {
+		currentIdentifier; // Only used to trigger the useEffect hook
+
+		const withBalance = [];
+		for (const eachNetwork of Object.values(allTokens)) {
+			for (const dest of Object.values(eachNetwork)) {
+				const balance = getBalance({address: dest.address, chainID: dest.chainID});
+				// force displaying extra tokens along with other tokens with balance
+				if (balance.raw > 0n || isCustomToken({address: dest.address, chainID: dest.chainID})) {
+					withBalance.push({...dest, balance});
+				}
+			}
+		}
+		return withBalance;
+	}, [allTokens, getBalance, isCustomToken, currentIdentifier]);
+
+	return {
+		listAllTokensWithBalance,
+		listTokensWithBalance,
+		listTokens,
+		isLoading,
+		isLoadingOnCurrentChain,
+		isLoadingOnChain,
+		onRefresh
+	};
 }

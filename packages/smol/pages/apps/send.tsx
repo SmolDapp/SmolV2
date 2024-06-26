@@ -1,7 +1,6 @@
-import {Fragment} from 'react';
-import {Send} from '@smolSections/Send';
-import {SendContextApp} from '@smolSections/Send/useSendFlow';
-import {SendQueryManagement} from '@smolSections/Send/useSendQuery';
+import {Send} from 'packages/smol/components/Send';
+import {SendContextApp} from 'packages/smol/components/Send/useSend';
+import {SendQueryManagement} from 'packages/smol/components/Send/useSendQuery';
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
 import type {ReactElement} from 'react';
@@ -39,6 +38,3 @@ SendPage.AppInfo = (
 		</p>
 	</>
 );
-SendPage.getLayout = function getLayout(page: ReactElement): ReactElement {
-	return <Fragment>{page}</Fragment>;
-};

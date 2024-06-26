@@ -1,5 +1,5 @@
 import type {ReactElement} from 'react';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TChainTokens, TToken} from '@builtbymom/web3/types';
 
 /**************************************************************************************************
  ** The TSelectCallback type is an helper type used to type the callback function that is called
@@ -13,10 +13,9 @@ export type TSelectCallback = (item: TToken) => void;
 export type TWalletLayoutProps = {
 	filteredTokens: TToken[];
 	selectedTokens?: TToken[];
-	isLoading: boolean;
-	onSelect?: TSelectCallback;
 	searchTokenAddress?: TAddress;
 	chainID: number;
+	onSelect?: TSelectCallback;
 	onOpenChange: (isOpen: boolean) => void;
 };
 
@@ -27,11 +26,11 @@ export type TBalancesCurtain = {
 	isOpen: boolean;
 	tokensWithBalance: TToken[];
 	allTokens: TToken[];
-	isLoading: boolean;
-	onSelect: TSelectCallback | undefined;
 	selectedTokens?: TToken[];
-	onOpenChange: (isOpen: boolean) => void;
 	options: TBalancesCurtainOptions;
+	onOpenChange: (isOpen: boolean) => void;
+	onSelect: TSelectCallback | undefined;
+	onRefresh: () => Promise<TChainTokens>;
 };
 
 /**************************************************************************************************
@@ -40,6 +39,7 @@ export type TBalancesCurtain = {
 export type TBalancesCurtainOptions = {
 	chainID?: number;
 	withTabs?: boolean;
+	appearAs?: 'modal' | 'curtain';
 };
 /**************************************************************************************************
  ** The TBalancesCurtainContextProps type is used to type the props of the BalancesCurtainContext
@@ -48,7 +48,6 @@ export type TBalancesCurtainOptions = {
 export type TBalancesCurtainContextProps = {
 	shouldOpenCurtain: boolean;
 	tokensWithBalance: TToken[];
-	isLoading: boolean;
 	onOpenCurtain: (callbackFn: TSelectCallback, options?: TBalancesCurtainOptions) => void;
 	onCloseCurtain: () => void;
 };
@@ -60,4 +59,19 @@ export type TBalancesCurtainContextProps = {
 export type TBalancesCurtainContextAppProps = {
 	children: ReactElement;
 	selectedTokens?: TToken[];
+	appearAs?: 'modal' | 'curtain';
+};
+
+/**************************************************************************************************
+ ** The TBalancesCurtainContextAppProps type is used to type the props of the
+ ** BalancesCurtainContextApp context component.
+ *************************************************************************************************/
+export type TTokenListSummary = {
+	lists: {
+		URI: string;
+		decription: string;
+		logoURI: string;
+		name: string;
+		tokenCount: number;
+	}[];
 };

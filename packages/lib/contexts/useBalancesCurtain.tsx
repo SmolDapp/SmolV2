@@ -1,45 +1,47 @@
 'use client';
 
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, Fragment, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {usePlausible} from 'next-plausible';
+import {ImageWithFallback} from 'lib/common/ImageWithFallback';
+import {IconGears} from 'lib/icons/IconGears';
+import {IconLoader} from 'lib/icons/IconLoader';
+import {CurtainContent} from 'lib/primitives/Curtain';
 import {isAddressEqual} from 'viem';
 import useSWR from 'swr';
 import {LayoutGroup, motion} from 'framer-motion';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {usePrices} from '@builtbymom/web3/hooks/usePrices';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {baseFetcher} from '@builtbymom/web3/utils/fetchers';
+import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {useDeepCompareMemo} from '@react-hookz/web';
+import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
-import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
 import {usePopularTokens} from '@lib/contexts/usePopularTokens';
-import {IconGears} from '@lib/icons/IconGears';
-import {IconLoader} from '@lib/icons/IconLoader';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {IconAppSwap} from '@lib/icons/IconApps';
+import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
+import {usePrices} from './usePrices';
+
 import type {ReactElement, ReactNode} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
 	TBalancesCurtainContextProps,
 	TBalancesCurtainOptions,
 	TSelectCallback,
+	TTokenListSummary,
 	TWalletLayoutProps
 } from '@lib/types/curtain.balances';
-import type {TPrice} from '@lib/utils/types/types';
 
 const defaultProps: TBalancesCurtainContextProps = {
 	shouldOpenCurtain: false,
 	tokensWithBalance: [],
-	isLoading: false,
 	onOpenCurtain: (): void => undefined,
 	onCloseCurtain: (): void => undefined
 };
@@ -51,8 +53,22 @@ const defaultProps: TBalancesCurtainContextProps = {
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
-	const {safeChainID} = useChainID();
-	const {data: prices} = usePrices({tokens: props.filteredTokens, chainId: safeChainID}) as TPrice;
+	const {isLoadingOnChain} = useTokensWithBalance();
+	const {getPrices, pricingHash} = usePrices();
+	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect(() => {
+		if (props.filteredTokens.length === 0) {
+			return;
+		}
+		set_prices(getPrices(props.filteredTokens, props.chainID));
+	}, [props.filteredTokens, props.chainID, pricingHash]);
 
 	/**********************************************************************************************
 	 ** If the wallet is not connected, we want to display a message and a button to connect.
@@ -79,7 +95,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
 	 *********************************************************************************************/
-	if (props.isLoading) {
+	if (isLoadingOnChain(props.chainID)) {
 		return <IconLoader className={'mt-2 size-4 animate-spin text-neutral-900'} />;
 	}
 
@@ -109,7 +125,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<SmolTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
-				price={prices ? prices[token.address] : undefined}
+				price={prices ? prices[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
 						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
@@ -135,17 +151,18 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
  ** anywhere. After every app refresh, the user will need to select the lists again.
  *************************************************************************************************/
 function TokenListSelectorLayout(): ReactNode {
+	const plausible = usePlausible();
 	const {listsURI, onChangeListsURI} = usePopularTokens();
-	const {data} = useSWR('https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json', baseFetcher);
+	const {data} = useSWR<TTokenListSummary>(
+		'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/summary.json',
+		baseFetcher
+	);
 
 	const relevantData = useMemo(() => {
-		const lists = ((data as any)?.lists || []) as {
-			URI: string;
-			decription: string;
-			logoURI: string;
-			name: string;
-			tokenCount: number;
-		}[];
+		if (!data) {
+			return [];
+		}
+		const {lists} = data;
 		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
 		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
 		return filteredLists;
@@ -167,8 +184,10 @@ function TokenListSelectorLayout(): ReactNode {
 						key={e.URI}
 						onClick={() => {
 							if (listsURI.includes(e.URI)) {
+								plausible(PLAUSIBLE_EVENTS.REMOVE_TOKEN_LIST, {props: {list: e.URI}});
 								onChangeListsURI(prev => prev.filter(el => el !== e.URI));
 							} else {
+								plausible(PLAUSIBLE_EVENTS.ADD_TOKEN_LIST, {props: {list: e.URI}});
 								onChangeListsURI(prev => [...prev, e.URI]);
 							}
 						}}
@@ -202,6 +221,100 @@ function TokenListSelectorLayout(): ReactNode {
 				))}
 			</div>
 		</LayoutGroup>
+	);
+}
+
+/**********************************************************************************************
+ ** The BalancesCurtainWrapper component is responsible for displaying the BalancesCurtain either
+ ** as a modal or a curtain, depending on 'appearAs' prop
+ *************************************************************************************************/
+function BalancesCurtainWrapper(props: {
+	isOpen: boolean;
+	onOpenChange: (isOpen: boolean) => void;
+	onRefresh: () => Promise<TChainTokens>;
+	appearAs: 'modal' | 'curtain';
+	children: ReactNode;
+}): ReactElement {
+	if (props.appearAs === 'curtain') {
+		return (
+			<Dialog.Root
+				open={props.isOpen}
+				onOpenChange={props.onOpenChange}>
+				<CurtainContent>
+					<aside
+						style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
+						className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
+						<div className={'mb-4 flex flex-row items-center justify-between'}>
+							<div className={'flex items-center'}>
+								<h3 className={'mr-2 font-bold'}>{'Your Wallet'}</h3>
+								<button
+									onClick={props.onRefresh}
+									className={'text-neutral-600 hover:text-neutral-900'}>
+									<IconAppSwap className={'size-3'} />
+								</button>
+							</div>
+							<CloseCurtainButton />
+						</div>
+						{props.children}
+					</aside>
+				</CurtainContent>
+			</Dialog.Root>
+		);
+	}
+
+	return (
+		<Transition
+			show={props.isOpen}
+			as={Fragment}>
+			<HeadlessUiDialog
+				as={'div'}
+				className={'relative z-[1000]'}
+				onClose={() => props.onOpenChange(false)}>
+				<TransitionChild
+					as={Fragment}
+					enter={'ease-out duration-300'}
+					enterFrom={'opacity-0'}
+					enterTo={'opacity-100'}
+					leave={'ease-in duration-200'}
+					leaveFrom={'opacity-100'}
+					leaveTo={'opacity-0'}>
+					<div className={'fixed inset-0 backdrop-blur-sm transition-opacity'} />
+				</TransitionChild>
+
+				<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
+					<div className={'flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0'}>
+						<TransitionChild
+							as={Fragment}
+							enter={'ease-out duration-300'}
+							enterFrom={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}
+							enterTo={'opacity-100 translate-y-0 sm:scale-100'}
+							leave={'ease-in duration-200'}
+							leaveFrom={'opacity-100 translate-y-0 sm:scale-100'}
+							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
+							<DialogPanel
+								className={cl(
+									'relative overflow-hidden w-full flex flex-col items-center justify-center rounded-md !bg-white !p-6 transition-all',
+									'sm:my-8 sm:max-w-lg sm:p-6 shadow-lg'
+								)}>
+								<div className={'mb-4 flex w-full justify-between'}>
+									<p className={'font-bold'}>{'Select Token'}</p>
+									<button
+										className={'group'}
+										onClick={() => props.onOpenChange(false)}>
+										<IconCross
+											className={
+												'size-4 text-neutral-900 transition-colors group-hover:text-neutral-600'
+											}
+										/>
+									</button>
+								</div>
+								<div className={'h-108 w-full'}>{props.children}</div>
+							</DialogPanel>
+						</TransitionChild>
+					</div>
+				</div>
+			</HeadlessUiDialog>
+		</Transition>
 	);
 }
 
@@ -289,84 +402,79 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	}, [tab, props.tokensWithBalance, props.allTokens, searchValue]);
 
 	return (
-		<Dialog.Root
-			open={props.isOpen}
-			onOpenChange={props.onOpenChange}>
-			<CurtainContent>
-				<aside
-					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
-					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Your Wallet'}</h3>
-						<CloseCurtainButton />
-					</div>
-					<div className={'flex h-full flex-col gap-4'}>
-						<input
+		<BalancesCurtainWrapper
+			isOpen={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			appearAs={props.options.appearAs || 'curtain'}
+			onRefresh={props.onRefresh}>
+			<div className={'flex h-full flex-col gap-4'}>
+				<input
+					className={cl(
+						'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 text-base',
+						'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
+						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
+						'focus:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40'
+					)}
+					type={'text'}
+					placeholder={'0x... or Name'}
+					autoComplete={'off'}
+					autoCorrect={'off'}
+					spellCheck={'false'}
+					value={searchValue}
+					disabled={!address}
+					onChange={e => set_searchValue(e.target.value)}
+				/>
+				{props.options.withTabs ? (
+					<div className={'flex items-center gap-2'}>
+						<button
+							onClick={() => set_tab(0)}
 							className={cl(
-								'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 text-base',
-								'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
-								'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-								'focus:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40'
-							)}
-							type={'text'}
-							placeholder={'0x... or Name'}
-							autoComplete={'off'}
-							autoCorrect={'off'}
-							spellCheck={'false'}
-							value={searchValue}
-							disabled={!address}
-							onChange={e => set_searchValue(e.target.value)}
-						/>
-						{props.options.withTabs ? (
-							<div className={'flex items-center gap-2'}>
-								<button
-									onClick={() => set_tab(0)}
-									className={cl(
-										'w-full',
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 0 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<p>{'Your tokens'}</p>
-								</button>
-								<button
-									onClick={() => set_tab(1)}
-									className={cl(
-										'w-full',
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 1 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<p>{'All tokens'}</p>
-								</button>
-								<button
-									onClick={() => set_tab(3)}
-									className={cl(
-										'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
-										tab === 3 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
-									)}>
-									<IconGears className={'size-4'} />
-								</button>
-							</div>
-						) : null}
-
-						{tab === 0 || tab === 1 ? (
-							<div className={'scrollable mb-8 flex flex-col items-center gap-2 pb-2'}>
-								<WalletLayout
-									filteredTokens={filteredTokens}
-									selectedTokens={props.selectedTokens}
-									isLoading={props.isLoading}
-									onSelect={props.onSelect}
-									searchTokenAddress={searchTokenAddress}
-									onOpenChange={props.onOpenChange}
-									chainID={Number(props.options.chainID)}
-								/>
-							</div>
-						) : (
-							<TokenListSelectorLayout />
-						)}
+								'w-full',
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 0 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<p>{'Your tokens'}</p>
+						</button>
+						<button
+							onClick={() => set_tab(1)}
+							className={cl(
+								'w-full',
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 1 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<p>{'All tokens'}</p>
+						</button>
+						<button
+							onClick={() => set_tab(3)}
+							className={cl(
+								'rounded-xl p-2 text-center text-sm transition-all hover:bg-neutral-300',
+								tab === 3 ? 'bg-neutral-300 text-neutral-900' : 'bg-neutral-0 text-neutral-600'
+							)}>
+							<IconGears className={'size-4'} />
+						</button>
 					</div>
-				</aside>
-			</CurtainContent>
-		</Dialog.Root>
+				) : null}
+
+				{tab === 0 || tab === 1 ? (
+					<div
+						className={cl(
+							'scrollable flex flex-col items-center gap-2 pb-2',
+							props.options.appearAs === 'modal' ? '' : 'mb-8'
+						)}>
+						<WalletLayout
+							filteredTokens={filteredTokens}
+							selectedTokens={props.selectedTokens}
+							onSelect={props.onSelect}
+							searchTokenAddress={searchTokenAddress}
+							onOpenChange={props.onOpenChange}
+							chainID={Number(props.options.chainID)}
+						/>
+					</div>
+				) : (
+					<TokenListSelectorLayout />
+				)}
+			</div>
+		</BalancesCurtainWrapper>
 	);
 }
 
@@ -375,11 +483,12 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
-	const {listTokensWithBalance, isLoading} = useTokensWithBalance();
+	const {listTokensWithBalance, onRefresh} = useTokensWithBalance();
 	const {listTokens} = usePopularTokens();
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
+	const {appearAs = 'curtain'} = props;
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -429,11 +538,10 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 		(): TBalancesCurtainContextProps => ({
 			shouldOpenCurtain,
 			tokensWithBalance: tokensToUse,
-			isLoading,
 			onOpenCurtain,
 			onCloseCurtain: (): void => set_shouldOpenCurtain(false)
 		}),
-		[isLoading, shouldOpenCurtain, tokensToUse, onOpenCurtain]
+		[shouldOpenCurtain, tokensToUse, onOpenCurtain]
 	);
 
 	return (
@@ -441,15 +549,16 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 			{props.children}
 			<BalancesCurtain
 				isOpen={shouldOpenCurtain}
+				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
 				allTokens={allTokensToUse}
-				isLoading={isLoading}
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}
 				options={{
 					chainID: options.chainID || chainID,
-					withTabs: options.withTabs || false
+					withTabs: options.withTabs || false,
+					appearAs
 				}}
 			/>
 		</BalancesCurtainContext.Provider>

@@ -1,4 +1,3 @@
-import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
@@ -8,19 +7,25 @@ import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
 import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
+import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
+import {WithPrices} from '@lib/contexts/usePrices';
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
 	IconAppEarn,
+	IconAppRevoke,
 	IconAppSend,
 	IconAppStream,
 	IconAppSwap
 } from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {IconClone} from '@lib/icons/IconClone';
+import IconMultisafe from '@lib/icons/IconMultisafe';
+import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -28,6 +33,11 @@ import type {ReactElement} from 'react';
 import '../style.css';
 
 const MENU = [
+	{
+		href: '/apps/wallet',
+		label: 'Wallet',
+		icon: <IconWallet />
+	},
 	{
 		href: '/apps/send',
 		label: 'Send',
@@ -40,8 +50,36 @@ const MENU = [
 	},
 	{
 		href: '/apps/swap',
-		label: 'Swap',
+		label: 'Swap/Bridge',
 		icon: <IconAppSwap />
+	},
+
+	{
+		href: '/apps/address-book',
+		label: 'Address Book',
+		icon: <IconAppAddressBook />
+	},
+	{
+		href: '/apps/revoke',
+		label: 'Revoke',
+		icon: <IconAppRevoke />
+	},
+	{
+		href: '/apps/multisafe',
+		label: 'Multisafe',
+		icon: <IconMultisafe />,
+		subMenu: [
+			{
+				href: '/apps/multisafe/new-safe',
+				label: 'Create a Safe',
+				icon: <IconSquarePlus />
+			},
+			{
+				href: '/apps/multisafe/clone-safe',
+				label: 'Clone a Safe',
+				icon: <IconClone />
+			}
+		]
 	},
 	{
 		href: '/apps/earn',
@@ -54,16 +92,6 @@ const MENU = [
 		label: 'Stream',
 		isDisabled: true,
 		icon: <IconAppStream />
-	},
-	{
-		href: '/apps/address-book',
-		label: 'Address Book',
-		icon: <IconAppAddressBook />
-	},
-	{
-		href: '/apps/wallet',
-		label: 'Wallet',
-		icon: <IconWallet />
 	}
 ];
 
@@ -80,32 +108,36 @@ function MyApp(props: AppProps): ReactElement {
 				og={'https://smold.app/og.png'}
 				uri={'https://smold.app'}
 			/>
-			<WithMom
-				supportedChains={[...supportedNetworks, localhost]}
-				tokenLists={[
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-					'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
-				]}>
-				<WalletContextApp
-					shouldWorkOnTestnet={
-						process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
-					}>
-					<WithPopularTokens>
-						<SafeProvider>
-							<PlausibleProvider
-								domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
-								enabled={true}>
-								<main className={'h-app flex flex-col'}>
-									<Layout
-										{...(props as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
-										menu={MENU}
-									/>
-								</main>
-							</PlausibleProvider>
-						</SafeProvider>
-					</WithPopularTokens>
-				</WalletContextApp>
-			</WithMom>
+			<IndexedDB>
+				<WithMom
+					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+					tokenLists={[
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+					]}>
+					<WalletContextApp
+						shouldWorkOnTestnet={
+							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
+						}>
+						<WithPopularTokens>
+							<WithPrices>
+								<SafeProvider>
+									<PlausibleProvider
+										domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}
+										enabled={true}>
+										<main className={'h-app flex flex-col'}>
+											<Layout
+												{...props}
+												menu={MENU}
+											/>
+										</main>
+									</PlausibleProvider>
+								</SafeProvider>
+							</WithPrices>
+						</WithPopularTokens>
+					</WalletContextApp>
+				</WithMom>
+			</IndexedDB>
 			<Toaster
 				toastOptions={{
 					duration: 5_000,

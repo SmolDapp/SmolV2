@@ -5,18 +5,14 @@
 		"paths": {
 			"@lib/*": ["packages/lib/*"],
 
-			"@multisafeCommons/*": ["packages/multisafe/components/common/*"],
-			"@multisafeIcons/*": ["packages/multisafe/components/icons/*"],
-			"@multisafeUtils/*": ["packages/multisafe/utils/*"],
-			"@multisafe/*": ["packages/multisafe/*"],
-
 			"@gimmecommon/*": ["packages/gimme/components/common/*"],
 			"@gimmeicons/*": ["packages/gimme/components/icons/*"],
 			"@gimmeutils/*": ["packages/gimme/utils/*"],
 			"@gimmetypes": ["packages/gimme/utils/types"],
+			"@gimmeDesignSystem/*": ["packages/gimme/components/designSystem/*"],
+			"@gimmmeSections/*": ["packages/gimme/components/sections/*"],
 
 			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
-			"@smolSections/*": ["packages/smol/components/sections/*"],
 			"@smolContexts/*": ["packages/smol/contexts/*"],
 			"@smolHooks/*": ["packages/smol/hooks/*"]
 		},

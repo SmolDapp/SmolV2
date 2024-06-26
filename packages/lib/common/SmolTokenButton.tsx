@@ -13,6 +13,7 @@ export function SmolTokenButton(props: {
 	displayChevron?: boolean;
 	onClick?: () => void;
 	price?: TNormalizedBN;
+	className?: string;
 }): ReactElement {
 	const {getToken} = useTokenList();
 
@@ -75,7 +76,8 @@ export function SmolTokenButton(props: {
 			className={cl(
 				'flex flex-row gap-2 items-center justify-between rounded-[4px] py-4 w-full h-full cursor-default',
 				'disabled:cursor-not-allowed disabled:hover:bg-neutral-200 disabled:opacity-20',
-				props.onClick && 'px-4 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer'
+				props.onClick && 'px-4 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer',
+				props.className
 			)}
 			disabled={props.isDisabled}>
 			<div className={'flex w-full items-center justify-between'}>

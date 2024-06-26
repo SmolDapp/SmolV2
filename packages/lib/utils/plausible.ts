@@ -5,6 +5,7 @@ export const PLAUSIBLE_EVENTS = {
 	OPEN_TOKEN_SELECTOR_CURTAIN: 'open token selector curtain',
 	OPEN_AB_CURTAIN: 'open address book curtain',
 	OPEN_SWAP_SETTINGS_CURTAIN: 'open swap settings curtain',
+	OPEN_MULTISAFE_FAQ_CURTAIN: 'open multisafe FAQ curtain',
 
 	// Address Book events
 	AB_ADD_FIRST_CONTACT: 'ab: add 1st contact',
@@ -16,6 +17,10 @@ export const PLAUSIBLE_EVENTS = {
 	// Send events
 	SEND_TOKENS: 'send',
 	ADD_TOKEN_OPTION: 'send: add token option',
+	ADD_ALL_TOKENS_OPTIONS: 'send: add all tokens option',
+
+	// Revoke events
+	REVOKE_ALLOWANCE: 'revoke',
 
 	// Disperse events
 	DISPERSE_TOKENS: 'disperse',
@@ -40,5 +45,15 @@ export const PLAUSIBLE_EVENTS = {
 	NAVIGATE_TO_DUMP_SERVICES: 'navigate: dump.services',
 	NAVIGATE_TO_MULTISAFE: 'navigate: multisafe',
 	NAVIGATE_TO_GITHUB: 'navigate: github',
-	NAVIGATE_TO_TWITTER: 'navigate: twitter'
+	NAVIGATE_TO_TWITTER: 'navigate: twitter',
+
+	//Tokenlists
+	REMOVE_TOKEN_LIST: 'tokenLists: remove',
+	ADD_TOKEN_LIST: 'tokenLists: add',
+
+	// Multisafe events
+	PREPARE_NEW_SAFE: 'multisafe: prepare new safe',
+	PREPARE_CLONE_SAFE: 'multisafe: prepare clone safe',
+	CREATE_NEW_SAFE: 'multisafe: create new safe',
+	CREATE_CLONE_SAFE: 'multisafe: create clone safe'
 };

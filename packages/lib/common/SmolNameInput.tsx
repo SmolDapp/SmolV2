@@ -1,26 +1,32 @@
 import {type InputHTMLAttributes, type ReactElement, type RefObject, useCallback, useState} from 'react';
 import {cl} from '@builtbymom/web3/utils';
+import {useMountEffect} from '@react-hookz/web';
 import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useValidateNameInput} from '@lib/hooks/useValidateNameInput';
 
 type TSmolNameInputProps = {
-	onSetValue: (value: string) => void;
-	value: string;
 	set_isValid?: (value: boolean | 'undetermined') => void;
 	inputRef: RefObject<HTMLInputElement>;
 	disabled: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNameInputProps): ReactElement => {
+export const SmolNameInput = ({set_isValid, ...rest}: TSmolNameInputProps): ReactElement => {
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const [isTouched, set_isTouched] = useState<boolean>(false);
-	const onChangeValue = (value: string): void => {
-		onSetValue(value);
-	};
+	const [inputName, set_inputName] = useState<string>('');
 
+	const {dispatchConfiguration: dispatch, selectedEntry} = useAddressBook();
 	const {validate} = useValidateNameInput();
+	const validation = validate(inputName, isTouched, set_isValid);
 
-	const validation = validate(value, isTouched, set_isValid);
+	/**********************************************************************************************
+	 ** If we already have some label in "selectedEntry", we want to use it first. And then we let
+	 ** the user to change it by themselves
+	 *********************************************************************************************/
+	useMountEffect(() => {
+		selectedEntry?.label && set_inputName(selectedEntry.label);
+	});
 
 	const getBorderColor = useCallback((): string => {
 		if (isFocused) {
@@ -44,7 +50,7 @@ export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNa
 					'flex flex-col justify-center h-full'
 				)}>
 				<input
-					value={value}
+					value={inputName}
 					type={'text'}
 					minLength={1}
 					maxLength={22}
@@ -57,8 +63,11 @@ export const SmolNameInput = ({onSetValue, value, set_isValid, ...rest}: TSmolNa
 						set_isFocused(true);
 						set_isTouched(true);
 					}}
-					onBlur={() => set_isFocused(false)}
-					onChange={e => onChangeValue(e.target.value)}
+					onBlur={() => {
+						dispatch({type: 'SET_LABEL', payload: inputName});
+						set_isFocused(false);
+					}}
+					onChange={e => set_inputName(e.target.value)}
 					className={cl(
 						'w-full border-none bg-transparent p-0 text-xl transition-all pr-6',
 						'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',

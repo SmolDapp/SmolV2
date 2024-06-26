@@ -13,6 +13,7 @@ export function SmolTokenSelectorButton(props: {
 	token: TToken | undefined;
 	chainID?: number;
 	shouldUseCurtainWithTabs?: boolean;
+	displayNetworkIcon?: boolean;
 }): JSX.Element {
 	const {onOpenCurtain} = useBalancesCurtain();
 	const {getToken} = useTokenList();
@@ -48,17 +49,29 @@ export function SmolTokenSelectorButton(props: {
 				'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 			)}>
 			<div className={'flex w-full items-center gap-2'}>
-				<div className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
+				<div className={'realtive bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 					{props.token && isAddress(props.token.address) ? (
-						<ImageWithFallback
-							alt={props.token.symbol}
-							unoptimized
-							src={tokenIcon}
-							altSrc={`${process.env.SMOL_ASSETS_URL}/token/${props.token.chainID}/${props.token.address}/logo-32.png`}
-							quality={90}
-							width={32}
-							height={32}
-						/>
+						<div className={'relative'}>
+							{props.displayNetworkIcon && (
+								<div className={'absolute -left-1 -top-1'}>
+									<ImageWithFallback
+										width={16}
+										height={16}
+										alt={props.token.chainID.toString()}
+										src={`${process.env.SMOL_ASSETS_URL}/chain/${props.token.chainID}/logo-32.png`}
+									/>
+								</div>
+							)}
+							<ImageWithFallback
+								alt={props.token.symbol}
+								unoptimized
+								src={tokenIcon}
+								altSrc={`${process.env.SMOL_ASSETS_URL}/token/${props.token.chainID}/${props.token.address}/logo-128.png`}
+								quality={90}
+								width={32}
+								height={32}
+							/>
+						</div>
 					) : (
 						<IconWallet className={'size-4 text-neutral-600'} />
 					)}

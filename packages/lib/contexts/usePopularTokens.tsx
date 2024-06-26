@@ -7,6 +7,7 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {ETH_TOKEN_ADDRESS, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect} from '@react-hookz/web';
+import {isDev} from '@lib/utils/tools.chains';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import type {AxiosResponse} from 'axios';
@@ -88,11 +89,7 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 			 ** If we are in development mode, we also want to add the token to our list, but only
 			 ** if the token's chainID is 1 (Ethereum).
 			 *************************************************************************************/
-			if (
-				process.env.NODE_ENV === 'development' &&
-				Boolean(process.env.SHOULD_USE_FORKNET) &&
-				eachToken.chainId === 1
-			) {
+			if (isDev && eachToken.chainId === 1) {
 				if (!tokenListTokens[1337]) {
 					tokenListTokens[1337] = {};
 				}

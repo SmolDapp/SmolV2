@@ -6,12 +6,12 @@ import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, toAddress, toSafeAddress, truncateHex} from '@builtbymom/web3/utils';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import {useIsMounted} from '@smolHooks/useIsMounted';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {IconCopy} from '@lib/icons/IconCopy';
 import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
-import {TooltipContent} from '@lib/primitives/Tooltip';
+import {useClusters} from '@lib/utils/tools.clusters';
 
 import {Avatar} from './Avatar';
 
@@ -53,9 +53,9 @@ export function AddressBookEntryAddress(props: {
 	ens: string | undefined;
 	isConnecting?: boolean;
 	shouldTruncateAddress?: boolean;
+	isAddressBookEntry?: boolean;
 }): ReactElement {
 	const isMounted = useIsMounted();
-	const isTooltipEnabled = false;
 
 	if (!isMounted || props.isConnecting) {
 		return (
@@ -66,80 +66,62 @@ export function AddressBookEntryAddress(props: {
 		);
 	}
 
-	if (isTooltipEnabled) {
-		return (
-			<div className={'grid w-full'}>
-				<b className={'text-left text-base'}>
-					{toSafeAddress({
-						address: props.address,
-						ens: props.ens,
-						addrOverride: props.address?.substring(0, 6)
-					})}
-				</b>
-				<Tooltip.Provider delayDuration={250}>
-					<Tooltip.Root>
-						<Tooltip.Trigger className={'flex w-full items-center'}>
-							<button
-								className={'z-10 w-full'}
-								onClick={e => {
-									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(props.address));
-									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-								}}>
-								<TextTruncate
-									value={
-										props.shouldTruncateAddress
-											? toSafeAddress({address: props.address})
-											: props.address
-									}
-									className={'text-xxs cursor-copy hover:underline'}
-								/>
-							</button>
-						</Tooltip.Trigger>
-						<TooltipContent
-							side={'left'}
-							className={'TooltipContent bg-primary !p-0'}>
-							<button
-								onClick={e => {
-									e.stopPropagation();
-									navigator.clipboard.writeText(toAddress(props.address));
-									toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-								}}
-								className={'flex cursor-copy px-2 py-1.5'}>
-								<small className={'font-number text-xxs text-neutral-900/70'}>
-									{toAddress(props.address)}
-								</small>
-							</button>
-							<Tooltip.Arrow
-								className={'fill-primary'}
-								width={11}
-								height={5}
-							/>
-						</TooltipContent>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-			</div>
-		);
-	}
-
-	return (
+	/**********************************************************************************************
+	 ** AddressBookEntry that will be used in AddressBook, but not in the rest app.
+	 *********************************************************************************************/
+	const AddressBookEntry: ReactElement = (
 		<div className={'grid w-full'}>
 			<b className={'text-left text-base'}>
 				{toSafeAddress({address: props.address, ens: props.ens, addrOverride: props.address?.substring(0, 6)})}
 			</b>
-			<button
-				className={'z-10 w-full'}
-				onClick={e => {
-					e.stopPropagation();
-					navigator.clipboard.writeText(toAddress(props.address));
-					toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
-				}}>
+			<div className={'flex'}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'text-xxs cursor-copy hover:underline'}
+					className={'text-xxs !max-w-[264px] cursor-pointer tabular-nums'}
 				/>
-			</button>
+				<button
+					onClick={e => {
+						e.stopPropagation();
+						navigator.clipboard.writeText(toAddress(props.address));
+						toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+					}}
+					className={'z-20 cursor-copy'}>
+					<IconCopy className={'mb-1 size-3'} />
+				</button>
+			</div>
 		</div>
+	);
+
+	return (
+		<>
+			{props.isAddressBookEntry ? (
+				AddressBookEntry
+			) : (
+				<div className={'grid w-full'}>
+					<b className={'text-left text-base'}>
+						{toSafeAddress({
+							address: props.address,
+							ens: props.ens,
+							addrOverride: props.address?.substring(0, 6)
+						})}
+					</b>
+					<button
+						className={'z-10 w-full'}
+						onClick={e => {
+							e.stopPropagation();
+							navigator.clipboard.writeText(toAddress(props.address));
+							toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
+						}}>
+						<TextTruncate
+							value={
+								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
+							}
+							className={'text-xxs cursor-copy hover:underline'}
+						/>
+					</button>
+				</div>
+			)}
+		</>
 	);
 }
 
@@ -150,10 +132,7 @@ export function AddressBookEntry(props: {
 }): ReactElement {
 	const {chainID} = useChainID();
 	const {updateEntry} = useAddressBook();
-	const {data: ensName} = useEnsName({
-		chainId: mainnet.id,
-		address: toAddress(props.entry.address)
-	});
+	const {data: ensName} = useEnsName({chainId: mainnet.id, address: toAddress(props.entry.address)});
 	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
 		chainId: mainnet.id,
 		name: ensName || props.entry.ens,
@@ -161,18 +140,21 @@ export function AddressBookEntry(props: {
 			enabled: Boolean(ensName || props.entry.ens)
 		}
 	});
+	const clusters = useClusters(toAddress(props.entry.address));
 
 	useEffect((): void => {
 		if ((ensName && !props.entry.ens) || (ensName && props.entry.ens !== ensName)) {
 			updateEntry({...props.entry, ens: ensName});
+		} else if (clusters?.name && !props.entry.ens) {
+			updateEntry({...props.entry, ens: clusters.name});
 		}
-	}, [ensName, props.entry, updateEntry]);
+	}, [clusters, ensName, props.entry, updateEntry]);
 
 	return (
 		<div
 			role={'button'}
 			onClick={() => {
-				props.onSelect({...props.entry, ens: ensName || undefined});
+				props.onSelect({...props.entry, ens: ensName || clusters?.name || undefined});
 			}}
 			className={cl(
 				'mb-2 flex flex-row items-center justify-between rounded-lg p-4 w-full group',
@@ -189,8 +171,13 @@ export function AddressBookEntry(props: {
 					src={avatar}
 				/>
 				<AddressBookEntryAddress
+					isAddressBookEntry={true}
 					address={toAddress(props.entry.address)}
-					ens={ensName ? `${props.entry.label} (${ensName})` : props.entry.label}
+					ens={
+						ensName || clusters?.name
+							? `${props.entry.label} (${ensName || clusters?.name})`
+							: props.entry.label
+					}
 				/>
 				<div className={'absolute inset-y-0 right-0 flex items-center'}>
 					<EntryBookEntryFavorite
@@ -213,10 +200,7 @@ export function AddressBookEntry(props: {
  *************************************************************************************************/
 export function AddressEntry(props: {address: TAddress}): ReactElement {
 	const {getCachedEntry} = useAddressBook();
-	const {data: ensName} = useEnsName({
-		chainId: mainnet.id,
-		address: toAddress(props.address)
-	});
+	const {data: ensName} = useEnsName({chainId: mainnet.id, address: toAddress(props.address)});
 	const {data: avatar, isLoading: isLoadingAvatar} = useEnsAvatar({
 		chainId: mainnet.id,
 		name: ensName || '',
@@ -224,6 +208,8 @@ export function AddressEntry(props: {address: TAddress}): ReactElement {
 			enabled: Boolean(ensName)
 		}
 	});
+	const clusters = useClusters(toAddress(props.address));
+
 	const cached = useMemo(
 		() => getCachedEntry({address: props.address, label: ensName || truncateHex(props.address, 5)}),
 		[ensName, getCachedEntry, props.address]
@@ -245,7 +231,11 @@ export function AddressEntry(props: {address: TAddress}): ReactElement {
 				/>
 				<AddressBookEntryAddress
 					address={toAddress(props.address)}
-					ens={ensName ? ensName : cached?.label || truncateHex(props.address, 5)}
+					ens={
+						ensName || clusters?.name
+							? ensName || clusters?.name
+							: cached?.label || truncateHex(props.address, 5)
+					}
 				/>
 			</div>
 		</div>

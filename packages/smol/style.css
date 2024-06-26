@@ -57,7 +57,7 @@
 	margin-right: -5px;
 	border-width: 5px;
 	border-style: solid;
-	border-color: hsl(var(--color-neutral-0)) transparent transparent transparent;
+	border-color: hsl(var(--color-neutral-0)) transparent transparent;
 	transform: rotate(180deg);
 }
 
@@ -96,18 +96,37 @@
 }
 
 * {
-	scrollbar-color: #f7f7f7;
+	scrollbar-color: rgba(247, 247, 247, 1);
 	scroll-behavior: smooth;
 
 	&::-webkit-scrollbar {
-		background: #f7f7f7;
+		@apply transition-all;
+		background: rgba(247, 247, 247, 0.5);
 		border-radius: 14px;
 		width: 4px;
 		height: 4px;
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background: #dcdddd;
+		@apply transition-all;
+		background-color: rgba(220, 221, 221, 0.5);
+		border-radius: 14px;
+		background-clip: padding-box;
+	}
+}
+
+.scrollable:hover {
+	&::-webkit-scrollbar {
+		@apply transition-all;
+		background: rgba(247, 247, 247, 1);
+		border-radius: 14px;
+		width: 4px;
+		height: 4px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		@apply transition-all;
+		background-color: rgba(220, 221, 221, 1);
 		border-radius: 14px;
 		background-clip: padding-box;
 	}

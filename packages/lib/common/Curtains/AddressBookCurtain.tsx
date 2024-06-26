@@ -4,17 +4,17 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
+import {AddressBookStatus} from 'packages/smol/components/AddressBook/AddressBookStatus';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress, toSafeAddress} from '@builtbymom/web3/utils';
-import {IconLinkOut} from '@multisafeIcons/IconLinkOut';
 import * as Dialog from '@radix-ui/react-dialog';
-import {AddressBookStatus} from '@smolSections/AddressBook/AddressBookStatus';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {IconEdit} from '@lib/icons/IconEdit';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
+import {IconLinkOut} from '@lib/icons/IconLinkOut';
 import {IconTrash} from '@lib/icons/IconTrash';
 import {Button} from '@lib/primitives/Button';
 import {CurtainContent} from '@lib/primitives/Curtain';
@@ -118,7 +118,6 @@ function NameInput(props: {
 	selectedEntry: TAddressBookEntry;
 	isEditMode: boolean;
 	onEdit: (shouldEdit: boolean) => void;
-	onChange: (value: string) => void;
 	onRefresh?: VoidFunction;
 	set_isValid?: (valud: boolean | 'undetermined') => void;
 }): ReactElement {
@@ -134,8 +133,6 @@ function NameInput(props: {
 			<SmolNameInput
 				inputRef={inputRef}
 				id={'name'}
-				onSetValue={props.onChange}
-				value={props.selectedEntry.label}
 				disabled={!props.isEditMode}
 				set_isValid={props.set_isValid}
 			/>
@@ -206,7 +203,7 @@ export function AddressBookCurtain(props: {
 }): ReactElement {
 	const router = useRouter();
 	const plausible = usePlausible();
-	const {updateEntry, listCachedEntries} = useAddressBook();
+	const {updateEntry, listCachedEntries, set_curtainStatus} = useAddressBook();
 	const formRef = useRef<HTMLFormElement>(null);
 	const {safeChainID} = useChainID();
 	const [currentEntry, set_currentEntry] = useState<TAddressBookEntry>(props.selectedEntry);
@@ -336,10 +333,6 @@ export function AddressBookCurtain(props: {
 									selectedEntry={currentEntry}
 									isEditMode={isEditMode}
 									onEdit={set_isEditMode}
-									onChange={(label: string) => {
-										set_currentEntry({...currentEntry, label});
-										props.dispatch({type: 'SET_LABEL', payload: label});
-									}}
 									set_isValid={set_isValidName}
 								/>
 								<small className={'pl-1'}>&nbsp;</small>
@@ -394,6 +387,7 @@ export function AddressBookCurtain(props: {
 											onResetAddressLike();
 											set_isEditMode(false);
 										}
+										set_curtainStatus({isOpen: false, isEditing: false});
 									}}
 									type={'button'}
 									variant={'light'}
