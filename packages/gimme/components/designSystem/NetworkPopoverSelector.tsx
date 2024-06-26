@@ -20,8 +20,11 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 	const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 
 	const currentNetwork = useMemo(
-		() => networks.find((network): boolean => network.id === safeChainID || (isDev && network.id === chainID)),
-		[networks, safeChainID, isDev, chainID]
+		() =>
+			supportedNetworks.find(
+				(network): boolean => network.id === safeChainID || (isDev && network.id === chainID)
+			),
+		[safeChainID, isDev, chainID]
 	);
 
 	const [isOpen, set_isOpen] = useState(false);
