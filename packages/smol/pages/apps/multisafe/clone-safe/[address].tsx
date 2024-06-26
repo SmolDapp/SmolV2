@@ -305,3 +305,14 @@ export default function MultisafeClonableWrapper(): ReactElement {
 MultisafeClonableWrapper.AppName = 'Make your Safe a Multisafe';
 MultisafeClonableWrapper.AppDescription = 'Clone your existing Safe and give it the same address on every chain.';
 MultisafeClonableWrapper.AppInfo = <MultisafeAppInfo />;
+
+/**************************************************************************************************
+ ** Metadata for the page: /apps/multisafe/clone-safe/[address]
+ *************************************************************************************************/
+MultisafeClonableWrapper.MetadataTitle = 'Multisafe - Built by MOM';
+MultisafeClonableWrapper.MetadataDescription =
+	'Get the same Safe address on every chain. Either create a new safe, or clone an existing one to start.';
+MultisafeClonableWrapper.MetadataURI = 'https://smold.app/apps/multisafe/clone-safe';
+MultisafeClonableWrapper.MetadataOG = 'https://smold.app/og.png';
+MultisafeClonableWrapper.MetadataTitleColor = '#000000';
+MultisafeClonableWrapper.MetadataThemeColor = '#FFD915';

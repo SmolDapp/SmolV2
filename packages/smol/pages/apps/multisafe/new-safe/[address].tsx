@@ -161,3 +161,14 @@ MultisafeDeployNewWrapper.AppName = 'One new Safe, coming right up.';
 MultisafeDeployNewWrapper.AppDescription =
 	'Create your Multisafe by choosing it’s owners, and setting the amount of signers needed for transactions. (P.s you can customise your safe with a prefix and suffix if you want).';
 MultisafeDeployNewWrapper.AppInfo = <MultisafeAppInfo />;
+
+/**************************************************************************************************
+ ** Metadata for the page: /apps/multisafe/new-safe/[address]
+ *************************************************************************************************/
+MultisafeDeployNewWrapper.MetadataTitle = 'Multisafe - Built by MOM';
+MultisafeDeployNewWrapper.MetadataDescription =
+	'Get the same Safe address on every chain. Either create a new safe, or clone an existing one to start.';
+MultisafeDeployNewWrapper.MetadataURI = 'https://smold.app/apps/multisafe/clone-safe';
+MultisafeDeployNewWrapper.MetadataOG = 'https://smold.app/og.png';
+MultisafeDeployNewWrapper.MetadataTitleColor = '#000000';
+MultisafeDeployNewWrapper.MetadataThemeColor = '#FFD915';

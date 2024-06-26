@@ -1,0 +1,25 @@
+import type {ReactElement} from 'react';
+
+function DisperseAppInfo(): ReactElement {
+	return (
+		<>
+			<p>{'The OG disperse app with a fancy UI facelift.'}</p>
+			<br />
+			<p>
+				{
+					'Whether you’re sharing project funds between contributors, or just sending tokens to more than one address. '
+				}
+				{'Disperse lets you do it all in one transaction.'}
+			</p>
+			<br />
+			<p>
+				{
+					'With the time you saved you could start writing a novel or open a vegan bakery? If it’s the latter, send '
+				}
+				{'cakes blz.'}
+			</p>
+		</>
+	);
+}
+
+export {DisperseAppInfo};
