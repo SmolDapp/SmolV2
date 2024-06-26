@@ -24,8 +24,13 @@ SwapPage.AppName = 'Swap';
 SwapPage.AppDescription =
 	'Swap tokens on the same chain, or across different chains. It’s the future, but like… right now.';
 SwapPage.AppInfo = <SwapAppInfo />;
-SwapPage.MetadataTitle = 'Swap';
-SwapPage.MetadataDescription = 'Swap';
+
+/**************************************************************************************************
+ ** Metadata for the page: /apps/swap
+ *************************************************************************************************/
+SwapPage.MetadataTitle = 'Smol Swap - Built by MOM';
+SwapPage.MetadataDescription =
+	'Swap tokens on the same chain, or across different chains. It’s the future, but like… right now.';
 SwapPage.MetadataURI = 'https://smold.app/apps/swap';
 SwapPage.MetadataOG = 'https://smold.app/og.png';
 SwapPage.MetadataTitleColor = '#000000';

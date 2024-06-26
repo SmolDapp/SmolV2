@@ -1,4 +1,5 @@
 import React from 'react';
+import {DisperseAppInfo} from 'packages/smol/components/Disperse/AppInfo';
 import Disperse from 'packages/smol/components/Disperse/index';
 import {DisperseContextApp} from 'packages/smol/components/Disperse/useDisperse';
 import {DisperseQueryManagement} from 'packages/smol/components/Disperse/useDisperseQuery';
@@ -29,28 +30,13 @@ function DispersePage(): ReactElement {
 
 DispersePage.AppName = 'Disperse';
 DispersePage.AppDescription = 'Transfer funds to multiple receivers';
-DispersePage.AppInfo = (
-	<>
-		<p>{'The OG disperse app with a fancy UI facelift.'}</p>
-		<br />
-		<p>
-			{
-				'Whether you’re sharing project funds between contributors, or just sending tokens to more than one address. '
-			}
-			{'Disperse lets you do it all in one transaction.'}
-		</p>
-		<br />
-		<p>
-			{
-				'With the time you saved you could start writing a novel or open a vegan bakery? If it’s the latter, send '
-			}
-			{'cakes blz.'}
-		</p>
-		<br />
-	</>
-);
-DispersePage.MetadataTitle = 'Disperse';
-DispersePage.MetadataDescription = 'Disperse smth';
+DispersePage.AppInfo = <DisperseAppInfo />;
+
+/**************************************************************************************************
+ ** Metadata for the page: /apps/disperse
+ *************************************************************************************************/
+DispersePage.MetadataTitle = 'Smol Disperse - Built by MOM';
+DispersePage.MetadataDescription = 'Transfer funds to multiple receivers';
 DispersePage.MetadataURI = 'https://smold.app/apps/disperse';
 DispersePage.MetadataOG = 'https://smold.app/og.png';
 DispersePage.MetadataTitleColor = '#000000';
