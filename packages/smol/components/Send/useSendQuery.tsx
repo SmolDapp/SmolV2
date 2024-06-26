@@ -1,6 +1,5 @@
 import {createContext, useCallback, useContext, useEffect, useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {useSend} from 'packages/smol/components/Send/useSend';
 import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
@@ -13,6 +12,7 @@ import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import {getStateFromUrlQuery} from '@lib/utils/url/getStateFromUrlQuery';
 
 import {newSendVoidInput} from './useSend.helpers';
+import {useSendContext} from './useSendContext';
 
 import type {ReactElement} from 'react';
 import type {TToken} from '@builtbymom/web3/types';
@@ -39,7 +39,7 @@ export const SendQueryManagement = (props: {
 	children: TOptionalRenderProps<TSendQueryManagement, ReactElement>;
 }): ReactElement => {
 	const {initialStateFromUrl, stateFromUrl, hasInitialInputs} = useSendQuery();
-	const {configuration} = useSend();
+	const {configuration} = useSendContext();
 
 	/**
 	 * Update the url query on every change in the UI
@@ -76,7 +76,7 @@ export function useSendQuery(): {
 	const router = useRouter();
 	const searchParams = new URLSearchParams(router.asPath.split('?')[1]);
 
-	const {dispatchConfiguration} = useSend();
+	const {dispatchConfiguration} = useSendContext();
 	const {safeChainID} = useChainID();
 
 	const queryParams = Object.fromEntries(searchParams.entries());
