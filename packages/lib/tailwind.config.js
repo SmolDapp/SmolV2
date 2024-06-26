@@ -32,7 +32,11 @@ module.exports = {
 				900: '#060B11'
 			},
 			red: '#D42600',
-			green: '#0C9000'
+			green: '#0C9000',
+			cucumber: {
+				100: '#C8E2C6',
+				500: '#0C9000'
+			}
 		},
 		extend: {
 			fontFamily: {

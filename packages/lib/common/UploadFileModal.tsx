@@ -107,8 +107,10 @@ export const UploadFileModal = (props: TUploadFileModalProps): ReactElement => {
 									<div
 										{...getRootProps()}
 										className={cl(
-											'flex size-full h-80 items-center justify-center rounded-lg border border-dashed',
-											isDragActive ? 'bg-neutral-300' : 'bg-neutral-400'
+											'flex size-full h-80 items-center justify-center rounded-lg border',
+											isDragActive
+												? 'bg-cucumber-100 border-2 border-solid border-cucumber-500'
+												: 'bg-neutral-400 border-dashed'
 										)}>
 										<div>
 											<div className={'mb-2 flex justify-center'}>
