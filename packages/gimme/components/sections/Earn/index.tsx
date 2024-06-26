@@ -105,6 +105,13 @@ export function Earn(): ReactElement {
 		});
 	}, [dispatchConfiguration]);
 
+	const onClearOpportunity = useCallback(() => {
+		dispatchConfiguration({
+			type: 'SET_OPPORTUNITY',
+			payload: undefined
+		});
+	}, [dispatchConfiguration]);
+
 	const getZapsBadgeContent = useCallback(() => {
 		// if (!quote) {
 		// 	return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
@@ -145,7 +152,14 @@ export function Earn(): ReactElement {
 						variant={'gimme'}
 						displayNetworkIcon
 					/>
-					<p className={'mb-2 mt-6 text-xs font-medium '}>{'Opportunity'}</p>
+					<div className={'mb-1 mt-6 flex items-center justify-between text-xs font-medium'}>
+						<p>{'Opportunity'}</p>
+						<button
+							onClick={onClearOpportunity}
+							className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
+							{'Clear Opportunity'}
+						</button>
+					</div>
 					<SelectOpportunityButton
 						onSetOpportunity={onSetOpportunity}
 						filteredVaults={vaultsArray}
