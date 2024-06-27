@@ -5,7 +5,6 @@ import {type BaseError, erc20Abi, type Hex, zeroAddress} from 'viem';
 import {useReadContract} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {
 	ETH_TOKEN_ADDRESS,
@@ -320,13 +319,12 @@ export function DisperseWizard(): ReactElement {
 	const {getBalance} = useWallet();
 	const plausible = usePlausible();
 	const {safeChainID} = useChainID();
-	const [isEnoughAllowanceToDisperse, set_isEnoughAllowanceToDisprese] = useState(false);
 
 	const totalToDisperse = useMemo((): bigint => {
 		return configuration.inputs.reduce((acc, row): bigint => acc + row.value.normalizedBigAmount.raw, 0n);
 	}, [configuration.inputs]);
 
-	const {allowance, refetch, approvalStatus, onApproveToken, shouldUseSend} = useApproveDisperse({
+	const {isApproved, refetch, approvalStatus, onApproveToken, shouldUseSend} = useApproveDisperse({
 		onSuccess: () => {
 			set_disperseStatus(defaultTxStatus);
 		},
@@ -380,28 +378,15 @@ export function DisperseWizard(): ReactElement {
 	});
 
 	/**********************************************************************************************
-	 ** After calling approve contract we want to update information from chain and make sure we
-	 ** have enough allowances for disperse.
-	 *********************************************************************************************/
-	const refreshSolverAllowance = useAsyncTrigger(async (): Promise<void> => {
-		set_isEnoughAllowanceToDisprese(false);
-		refetch();
-
-		if (allowance >= totalToDisperse) {
-			set_isEnoughAllowanceToDisprese(true);
-		}
-	}, [allowance, refetch, totalToDisperse]);
-
-	/**********************************************************************************************
 	 ** handleApprove function is designed to call 2 transactions one by one. First we call
 	 ** approve function then we disperse tokens.
 	 *********************************************************************************************/
 	const handleApprove = useCallback(async () => {
 		await onApproveToken();
 
-		await refreshSolverAllowance();
+		refetch();
 		onDisperseTokens();
-	}, [onApproveToken, onDisperseTokens, refreshSolverAllowance]);
+	}, [onApproveToken, onDisperseTokens, refetch]);
 
 	const isAboveBalance =
 		totalToDisperse >
@@ -464,7 +449,7 @@ export function DisperseWizard(): ReactElement {
 					if (shouldUseSend) {
 						return onSendSingleToken();
 					}
-					if (isEnoughAllowanceToDisperse) {
+					if (isApproved) {
 						return onDisperseTokens();
 					}
 					return handleApprove();
