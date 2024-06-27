@@ -1,5 +1,6 @@
 import {type ReactElement} from 'react';
 import {AddressBook} from 'packages/smol/components/AddressBook';
+import {AddressBookAppInfo} from 'packages/smol/components/AddressBook/AppInfo';
 
 function AddressBookPage(): ReactElement {
 	return <AddressBook />;
@@ -7,21 +8,16 @@ function AddressBookPage(): ReactElement {
 
 AddressBookPage.AppName = 'Address Book';
 AddressBookPage.AppDescription = 'Keep your friends close and your enemies closer';
-AddressBookPage.AppInfo = (
-	<>
-		<p>
-			{
-				'The Smol address book was designed to make your life easier, but more importantly, protect you from common '
-			}
-			{'address mimicking scams.'}{' '}
-		</p>
-		<br />
-		<p>{'Addresses are saved locally on your browser so no one but you ever sees them! '}</p>
-		<br />
-		<p>{'“Wow, privacy and functionality, you Smol guys rock!” '}</p>
-		<br />
-		<p>{'Thanks anon, now go forth and send thy digital tokens.'}</p>
-	</>
-);
+AddressBookPage.AppInfo = <AddressBookAppInfo />;
+
+/**************************************************************************************************
+ ** Metadata for the page: /apps/address-book
+ *************************************************************************************************/
+AddressBookPage.MetadataTitle = 'Smol Address Book - Built by MOM';
+AddressBookPage.MetadataDescription = 'Keep your friends close and your enemies closer';
+AddressBookPage.MetadataURI = 'https://smold.app/apps/address-book';
+AddressBookPage.MetadataOG = 'https://smold.app/og.png';
+AddressBookPage.MetadataTitleColor = '#000000';
+AddressBookPage.MetadataThemeColor = '#FFD915';
 
 export default AddressBookPage;

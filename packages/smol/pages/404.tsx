@@ -29,3 +29,14 @@ export default function NotFoundPage(): ReactElement {
 
 NotFoundPage.AppName = 'Nothing here!';
 NotFoundPage.AppDescription = 'We can’t find the page you’re looking for. But here’s a smol mouse!';
+
+/**************************************************************************************************
+ ** Metadata for the page: 404
+ *************************************************************************************************/
+NotFoundPage.MetadataTitle = 'Smol - Built by MOM';
+NotFoundPage.MetadataDescription =
+	'Simple, smart and elegant dapps, designed to make your crypto journey a little bit easier.';
+NotFoundPage.MetadataURI = 'https://smold.app';
+NotFoundPage.MetadataOG = 'https://smold.app/og.png';
+NotFoundPage.MetadataTitleColor = '#000000';
+NotFoundPage.MetadataThemeColor = '#FFD915';
