@@ -314,6 +314,7 @@ const useConfirmDisperse = ({
 };
 
 export function DisperseWizard(): ReactElement {
+	const {isWalletSafe} = useWeb3();
 	const {configuration, onResetDisperse} = useDisperse();
 	const [disperseStatus, set_disperseStatus] = useState(defaultTxStatus);
 	const {getBalance} = useWallet();
@@ -383,10 +384,30 @@ export function DisperseWizard(): ReactElement {
 	 *********************************************************************************************/
 	const handleApprove = useCallback(async () => {
 		await onApproveToken();
-
-		refetch();
-		onDisperseTokens();
+		await refetch();
+		await onDisperseTokens();
 	}, [onApproveToken, onDisperseTokens, refetch]);
+
+	/**********************************************************************************************
+	 ** getButtonTitle function is designed to return the title of the button based on the current
+	 ** state of the wizard. If the token isn't approved, the button will show "Approve & Disperse"
+	 ** otherwise it will show "Disperse". If the token is ETH, the button will show "Disperse".
+	 *********************************************************************************************/
+	const getButtonTitle = (): string => {
+		if (shouldUseSend) {
+			return 'Disperse';
+		}
+		if (isWalletSafe) {
+			return 'Disperse';
+		}
+		if (toAddress(configuration.tokenToSend?.address) === ETH_TOKEN_ADDRESS) {
+			return 'Disperse';
+		}
+		if (isApproved) {
+			return 'Disperse';
+		}
+		return 'Approve & Disperse';
+	};
 
 	const isAboveBalance =
 		totalToDisperse >
@@ -455,7 +476,7 @@ export function DisperseWizard(): ReactElement {
 					return handleApprove();
 				}}
 				className={'mt-2 !h-8 w-full max-w-[240px] !text-xs'}>
-				<b>{'Disperse'}</b>
+				<b>{getButtonTitle()}</b>
 			</Button>
 
 			<SuccessModal
