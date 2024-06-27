@@ -112,19 +112,24 @@ export const RevokeContextApp = (props: {
 						isAddressEqual(item.address, entry.address) &&
 						isAddressEqual(item.sender, entry.sender) &&
 						item.blockNumber === entry.blockNumber &&
-						item.logIndex === entry.logIndex
+						item.logIndex === entry.logIndex &&
+						item.transactionIndex === entry.transactionIndex
 				);
 				if (duplicateAllowance) {
 					return;
 				}
 
-				const deprecateAllowance = entriesFromDB.find(
-					item =>
+				const deprecateAllowance = entriesFromDB.find(item => {
+					const hasTheSameBlock = entry.blockNumber === item.blockNumber;
+					const hasTheSameLogIndex = entry.logIndex === item.logIndex;
+					return (
 						(isAddressEqual(item.address, entry.address) &&
 							isAddressEqual(item.sender, entry.sender) &&
 							entry.blockNumber > item.blockNumber) ||
-						(entry.blockNumber === item.blockNumber && entry.logIndex > item.logIndex)
-				);
+						(hasTheSameBlock && entry.logIndex > item.logIndex) ||
+						(hasTheSameBlock && hasTheSameLogIndex && entry.transactionIndex > item.transactionIndex)
+					);
+				});
 
 				if (deprecateAllowance) {
 					await deleteByID(deprecateAllowance.id);
@@ -239,10 +244,11 @@ export const RevokeContextApp = (props: {
 				logIndex: allowance.logIndex,
 				spenderName: dictionaries.spenderDictionary[allowance.args.sender]?.name
 					? dictionaries.spenderDictionary[allowance.args.sender]?.name
-					: 'Unknown'
+					: 'Unknown',
+				transactionIndex: allowance.transactionIndex
 			};
 			return addApproveEventEntry({
-				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.logIndex}`,
+				UID: `${item.chainID}_${item.address}_${item.args.sender}_${item.blockNumber}_${item.transactionIndex}`,
 				address: item.address,
 				blockNumber: item.blockNumber,
 				symbol: item.symbol,
@@ -254,6 +260,7 @@ export const RevokeContextApp = (props: {
 				balanceOf: item.balanceOf,
 				name: item.name,
 				logIndex: item.logIndex,
+				transactionIndex: item.transactionIndex,
 				spenderName: item.spenderName
 			});
 		});
