@@ -55,8 +55,9 @@ const useApproveDisperse = ({
 	allowance: bigint;
 	isApproved: boolean;
 	isDisabled: boolean;
-	onApproveToken: () => void;
+	onApproveToken: () => Promise<void>;
 	shouldUseSend: boolean;
+	refetch: VoidFunction;
 } => {
 	const {provider} = useWeb3();
 	const {safeChainID, chainID} = useChainID();
@@ -82,11 +83,11 @@ const useApproveDisperse = ({
 
 	const isApproved = allowance >= totalToDisperse;
 	const shouldUseSend = configuration.inputs.length === 1;
-	const onApproveToken = useCallback((): void => {
+	const onApproveToken = useCallback(async (): Promise<void> => {
 		if (isApproved) {
 			return;
 		}
-		approveERC20({
+		await approveERC20({
 			connector: provider,
 			chainID: chainID,
 			contractAddress: toAddress(configuration.tokenToSend?.address),
@@ -117,7 +118,8 @@ const useApproveDisperse = ({
 		isApproved,
 		isDisabled: !approvalStatus.none || !configuration.tokenToSend,
 		onApproveToken,
-		shouldUseSend
+		shouldUseSend,
+		refetch
 	};
 };
 
@@ -323,7 +325,7 @@ export function DisperseWizard(): ReactElement {
 		return configuration.inputs.reduce((acc, row): bigint => acc + row.value.normalizedBigAmount.raw, 0n);
 	}, [configuration.inputs]);
 
-	const {isApproved, approvalStatus, onApproveToken, shouldUseSend} = useApproveDisperse({
+	const {isApproved, refetch, approvalStatus, onApproveToken, shouldUseSend} = useApproveDisperse({
 		onSuccess: () => {
 			set_disperseStatus(defaultTxStatus);
 		},
@@ -376,6 +378,37 @@ export function DisperseWizard(): ReactElement {
 		totalToDisperse
 	});
 
+	/**********************************************************************************************
+	 ** handleApprove function is designed to call 2 transactions one by one. First we call
+	 ** approve function then we disperse tokens.
+	 *********************************************************************************************/
+	const handleApprove = useCallback(async () => {
+		await onApproveToken();
+		await refetch();
+		await onDisperseTokens();
+	}, [onApproveToken, onDisperseTokens, refetch]);
+
+	/**********************************************************************************************
+	 ** getButtonTitle function is designed to return the title of the button based on the current
+	 ** state of the wizard. If the token isn't approved, the button will show "Approve & Disperse"
+	 ** otherwise it will show "Disperse". If the token is ETH, the button will show "Disperse".
+	 *********************************************************************************************/
+	const getButtonTitle = (): string => {
+		if (shouldUseSend) {
+			return 'Disperse';
+		}
+		if (isWalletSafe) {
+			return 'Disperse';
+		}
+		if (toAddress(configuration.tokenToSend?.address) === ETH_TOKEN_ADDRESS) {
+			return 'Disperse';
+		}
+		if (isApproved) {
+			return 'Disperse';
+		}
+		return 'Approve & Disperse';
+	};
+
 	const isAboveBalance =
 		totalToDisperse >
 		getBalance({
@@ -411,22 +444,6 @@ export function DisperseWizard(): ReactElement {
 		});
 	}, [configuration.inputs, checkAlreadyExists]);
 
-	const getButtonTitle = (): string => {
-		if (shouldUseSend) {
-			return 'Disperse';
-		}
-		if (isWalletSafe) {
-			return 'Disperse';
-		}
-		if (toAddress(configuration.tokenToSend?.address) === ETH_TOKEN_ADDRESS) {
-			return 'Disperse';
-		}
-		if (isApproved) {
-			return 'Disperse';
-		}
-		return 'Approve';
-	};
-
 	const getTotalToDisperseLabel = (): string => {
 		if (totalToDisperse) {
 			return `Total to Disperse: ${formatAmount(
@@ -449,20 +466,14 @@ export function DisperseWizard(): ReactElement {
 			<Button
 				isBusy={disperseStatus.pending || approvalStatus.pending}
 				isDisabled={isAboveBalance || configuration.inputs.length === 0 || !isValid}
-				onClick={(): void => {
+				onClick={(): void | Promise<void> => {
 					if (shouldUseSend) {
 						return onSendSingleToken();
-					}
-					if (isWalletSafe) {
-						return onDisperseTokens();
-					}
-					if (toAddress(configuration.tokenToSend?.address) === ETH_TOKEN_ADDRESS) {
-						return onDisperseTokens();
 					}
 					if (isApproved) {
 						return onDisperseTokens();
 					}
-					return onApproveToken();
+					return handleApprove();
 				}}
 				className={'mt-2 !h-8 w-full max-w-[240px] !text-xs'}>
 				<b>{getButtonTitle()}</b>
