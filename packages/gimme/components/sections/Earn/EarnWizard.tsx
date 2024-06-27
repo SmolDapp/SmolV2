@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useState} from 'react';
 import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -189,8 +190,12 @@ export function EarnWizard(): ReactElement {
 
 		onExecuteWithdraw,
 		withdrawStatus,
+
+		isFetchingQuote,
 		quote
 	} = useSolvers();
+
+	const isZapNeeded = useIsZapNeeded();
 
 	const isWithdrawing =
 		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
@@ -215,12 +220,6 @@ export function EarnWizard(): ReactElement {
 	}, [isApproved, isWithdrawing, onApprove, onExecuteDeposit, onExecuteWithdraw, onRefreshTokens]);
 
 	const isValid = useMemo((): boolean => {
-		// TODO: probably move to util this check
-		const isZapNeeded =
-			configuration.asset.token?.address &&
-			configuration.opportunity?.address &&
-			configuration.asset.token.address !== configuration.opportunity.token.address;
-
 		if (isZapNeeded && !quote) {
 			return false;
 		}
@@ -236,7 +235,14 @@ export function EarnWizard(): ReactElement {
 		}
 
 		return true;
-	}, [configuration.asset.amount, configuration.asset.token, configuration.opportunity, isWithdrawing, quote]);
+	}, [
+		configuration.asset.amount,
+		configuration.asset.token,
+		configuration.opportunity,
+		isWithdrawing,
+		isZapNeeded,
+		quote
+	]);
 
 	const getButtonTitle = (): string => {
 		if (isWithdrawing) {
@@ -256,7 +262,11 @@ export function EarnWizard(): ReactElement {
 			{address ? (
 				<Button
 					isBusy={
-						depositStatus.pending || withdrawStatus.pending || approvalStatus.pending || isFetchingAllowance
+						depositStatus.pending ||
+						withdrawStatus.pending ||
+						approvalStatus.pending ||
+						isFetchingAllowance ||
+						isFetchingQuote
 					}
 					isDisabled={!isValid}
 					onClick={onAction}

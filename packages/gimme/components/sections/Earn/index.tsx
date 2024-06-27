@@ -3,6 +3,7 @@ import {useRouter} from 'next/router';
 import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -26,12 +27,8 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 
-	const {quote} = useSolvers();
-
-	const isZapNeeded =
-		isAddress(configuration.asset.token?.address) &&
-		isAddress(configuration.opportunity?.token.address) &&
-		configuration.asset.token?.address !== configuration.opportunity?.token.address;
+	const {quote, isFetchingQuote} = useSolvers();
+	const isZapNeeded = useIsZapNeeded();
 
 	const onSetAsset = useCallback(
 		(value: Partial<TTokenAmountInputElement>): void => {
@@ -113,9 +110,9 @@ export function Earn(): ReactElement {
 	}, [dispatchConfiguration]);
 
 	const getZapsBadgeContent = useCallback(() => {
-		// if (!quote) {
-		// 	return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
-		// }
+		if (isFetchingQuote) {
+			return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
+		}
 
 		if (!quote) {
 			return <p className={'text-neutral-600'}>{'Sorry! No possible routes found for this configuration!'}</p>;
@@ -132,7 +129,7 @@ export function Earn(): ReactElement {
 				<p className={'text-xxs leading-2 text-neutral-600'}>{"Don't worry! No extra clicks needed"}</p>
 			</>
 		);
-	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, quote]);
+	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
 	return (
 		<div className={'flex w-full flex-col items-center gap-10'}>

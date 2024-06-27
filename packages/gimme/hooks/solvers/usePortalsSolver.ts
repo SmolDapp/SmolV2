@@ -25,30 +25,22 @@ import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
+import {useIsZapNeeded} from '../helpers/useIsZapNeeded';
 
+import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
-import type {TTxResponse, TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
-export const usePortalsSolver = (): {
-	/** Approval part */
-	approvalStatus: TTxStatus;
-	onApprove: (onSuccess: () => void) => Promise<void>;
-	allowance: TNormalizedBN;
-	isDisabled: boolean;
-	isApproved: boolean;
-	isFetchingAllowance: boolean;
-
-	/** Deposit part */
-	depositStatus: TTxStatus;
-	onExecuteDeposit: (onSuccess: () => void) => Promise<void>;
-	set_depositStatus: (value: TTxStatus) => void;
-
-	quote: TPortalsEstimate | null;
-} => {
+export const usePortalsSolver = (): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
+
+	/**********************************************************************************************
+	 * Used to skip all the fetches if zap is not needed
+	 *********************************************************************************************/
+	const isZapNeeded = useIsZapNeeded();
 
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
@@ -60,6 +52,7 @@ export const usePortalsSolver = (): {
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 
 	const [latestQuote, set_latestQuote] = useState<TPortalsEstimate>();
+	const [isFetchingQuote, set_isFetchingQuote] = useState(false);
 
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
@@ -67,6 +60,7 @@ export const usePortalsSolver = (): {
 		if (!configuration.asset.token || !configuration.opportunity) {
 			return;
 		}
+
 		const request: TInitSolverArgs = {
 			chainID: configuration.asset.token.chainID,
 			version: configuration.opportunity.version,
@@ -78,6 +72,8 @@ export const usePortalsSolver = (): {
 			stakingPoolAddress: undefined
 		};
 
+		set_isFetchingQuote(true);
+
 		const {result, error} = await getQuote(request, 0.01);
 		if (!result) {
 			const errorMessage = (error as any)?.response?.data?.message || error;
@@ -86,24 +82,22 @@ export const usePortalsSolver = (): {
 			}
 			return undefined;
 		}
+
 		set_latestQuote(result);
+		set_isFetchingQuote(false);
 
 		return result;
 	}, [address, configuration.asset.normalizedBigAmount.raw, configuration.asset.token, configuration.opportunity]);
 
 	useAsyncTrigger(async (): Promise<void> => {
 		/******************************************************************************************
-		 * Skip quote fetching if for is not populdatet fully or zap is not needed
+		 * Skip quote fetching if form is not populated fully or zap is not needed
 		 *****************************************************************************************/
-		if (
-			!configuration.asset.token ||
-			!configuration.opportunity ||
-			configuration.asset.token?.address === configuration.opportunity?.token.address
-		) {
+		if (!isZapNeeded) {
 			return;
 		}
 		onRetrieveQuote();
-	}, [configuration.asset.token, configuration.opportunity, onRetrieveQuote]);
+	}, [isZapNeeded, onRetrieveQuote]);
 
 	/**********************************************************************************************
 	 * Retrieve the allowance for the token to be used by the solver. This will be used to
@@ -173,10 +167,14 @@ export const usePortalsSolver = (): {
 	 * is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
+		/******************************************************************************************
+		 * Skip allowance fetching if form is not populated fully or zap is not needed
+		 *****************************************************************************************/
+		if (!isZapNeeded) {
+			return;
+		}
 		set_allowance(await onRetrieveAllowance(true));
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [address, configuration.asset.token?.address, configuration.asset.token?.address, onRetrieveAllowance]);
+	}, [isZapNeeded, onRetrieveAllowance]);
 
 	/**********************************************************************************************
 	 * Trigger an signature to approve the token to be used by the Portals
@@ -367,6 +365,7 @@ export const usePortalsSolver = (): {
 		isDisabled: !approvalStatus.none,
 		onApprove,
 
+		isFetchingQuote,
 		quote: latestQuote || null
 	};
 };
