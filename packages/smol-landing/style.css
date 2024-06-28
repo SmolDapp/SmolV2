@@ -16,6 +16,24 @@ body {
 **************************************************************************/
 * {
 	@apply scroll-smooth font-sans;
+
+	scrollbar-color: rgba(247, 247, 247, 1);
+	scroll-behavior: smooth;
+
+	&::-webkit-scrollbar {
+		@apply transition-all;
+		background: rgba(247, 247, 247, 0.5);
+		border-radius: 14px;
+		width: 4px;
+		height: 4px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		@apply transition-all;
+		background-color: rgba(220, 221, 221, 0.5);
+		border-radius: 14px;
+		background-clip: padding-box;
+	}
 }
 
 label[aria-invalid='true'] {
@@ -141,26 +159,6 @@ select.smol--input {
 .scrollable {
 	@apply -mr-2 pr-1 overflow-y-auto;
 	scrollbar-gutter: stable;
-}
-
-* {
-	scrollbar-color: rgba(247, 247, 247, 1);
-	scroll-behavior: smooth;
-
-	&::-webkit-scrollbar {
-		@apply transition-all;
-		background: rgba(247, 247, 247, 0.5);
-		border-radius: 14px;
-		width: 4px;
-		height: 4px;
-	}
-
-	&::-webkit-scrollbar-thumb {
-		@apply transition-all;
-		background-color: rgba(220, 221, 221, 0.5);
-		border-radius: 14px;
-		background-clip: padding-box;
-	}
 }
 
 .scrollable:hover {
