@@ -25,6 +25,7 @@ export type TAllowance = {
 	blockNumber: bigint;
 	chainID: number;
 	logIndex: number;
+	transactionIndex: number;
 };
 export type TUnlimitedFilter = 'unlimited' | 'limited' | undefined;
 export type TWithBalanceFilter = 'with-balance' | 'without-balance' | undefined;
@@ -133,6 +134,7 @@ export type TApproveEventEntry = {
 	chainID: number;
 	decimals: number;
 	logIndex: number;
+	transactionIndex: number;
 	name: string;
 	owner: TAddress;
 	sender: TAddress;

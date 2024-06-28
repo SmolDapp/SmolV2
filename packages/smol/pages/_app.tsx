@@ -5,7 +5,6 @@ import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
-import {Meta} from '@lib/common/Meta';
 import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
@@ -98,16 +97,6 @@ const MENU = [
 function MyApp(props: AppProps): ReactElement {
 	return (
 		<WithFonts>
-			<Meta
-				title={'SmolDapp'}
-				description={
-					'Simple, smart and elegant dapps, designed to make your crypto journey a little bit easier.'
-				}
-				titleColor={'#000000'}
-				themeColor={'#FFD915'}
-				og={'https://smold.app/og.png'}
-				uri={'https://smold.app'}
-			/>
 			<IndexedDB>
 				<WithMom
 					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}

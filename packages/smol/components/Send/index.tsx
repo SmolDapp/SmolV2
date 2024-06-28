@@ -15,8 +15,8 @@ import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {SendStatus} from './SendStatus';
-import {useSend} from './useSend';
 import {newSendVoidInput} from './useSend.helpers';
+import {useSendContext} from './useSendContext';
 import {useSendQueryManagement} from './useSendQuery';
 import {SendWizard} from './Wizard';
 
@@ -25,7 +25,7 @@ import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
-	const {configuration, dispatchConfiguration} = useSend();
+	const {configuration, dispatchConfiguration} = useSendContext();
 
 	const onSetValue = (value: Partial<TTokenAmountInputElement>): void => {
 		dispatchConfiguration({type: 'SET_VALUE', payload: {...value, UUID: input.UUID}});
@@ -74,7 +74,7 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 
 export function Send(): ReactElement {
 	const plausible = usePlausible();
-	const {configuration, dispatchConfiguration} = useSend();
+	const {configuration, dispatchConfiguration} = useSendContext();
 	const {hasInitialInputs} = useSendQueryManagement();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const {currentNetworkTokenList} = useTokenList();

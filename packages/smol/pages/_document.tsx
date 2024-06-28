@@ -12,7 +12,9 @@ class MyDocument extends Document {
 
 	render(): ReactElement {
 		return (
-			<Html lang={'en'}>
+			<Html
+				lang={'en'}
+				className={'scrollbar-none'}>
 				<Head>
 					<link
 						rel={'preconnect'}

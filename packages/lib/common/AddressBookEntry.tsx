@@ -77,7 +77,7 @@ export function AddressBookEntryAddress(props: {
 			<div className={'flex'}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'text-xxs max-w-[255px] cursor-pointer'}
+					className={'text-xxs !max-w-[264px] cursor-pointer tabular-nums'}
 				/>
 				<button
 					onClick={e => {
@@ -86,7 +86,7 @@ export function AddressBookEntryAddress(props: {
 						toast.success(`Address copied to clipboard: ${toAddress(props.address)}`);
 					}}
 					className={'z-20 cursor-copy'}>
-					<IconCopy className={'size-3'} />
+					<IconCopy className={'mb-1 size-3'} />
 				</button>
 			</div>
 		</div>

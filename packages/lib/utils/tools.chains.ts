@@ -160,7 +160,7 @@ const CHAINS: TSmolChains = {
 	},
 	[fantom.id]: {
 		...fantom,
-		isLifiSwapSupported: false,
+		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.fantom.network/home?safe=ftm:',
@@ -181,7 +181,7 @@ const CHAINS: TSmolChains = {
 	},
 	[mantle.id]: {
 		...mantle,
-		isLifiSwapSupported: false,
+		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://multisig.mantle.xyz/home?safe=mantle:',
@@ -336,7 +336,7 @@ const CHAINS: TSmolChains = {
 	},
 	[blast.id]: {
 		...blast,
-		isLifiSwapSupported: false,
+		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://blast-safe.io/home?safe=blast:',

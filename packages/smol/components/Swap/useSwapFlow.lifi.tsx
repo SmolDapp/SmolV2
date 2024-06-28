@@ -292,7 +292,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	const handleQuoteResponse = useCallback(
 		(result: TLifiQuoteResponse, expectedIdentifier: string): void => {
 			const decimals = configuration.output.token?.decimals || 18;
-			const out = toNormalizedBN(toBigInt(result.estimate.toAmountMin), decimals);
+			const out = toNormalizedBN(toBigInt(result.estimate.toAmount), decimals);
 			if (currentIdentifier !== expectedIdentifier) {
 				return;
 			}
