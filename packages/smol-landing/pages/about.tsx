@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {useRive} from '@rive-app/react-canvas';
 import {Cutaway} from '@smolLandingDesignSystem/CutAway';
 import {Button} from '@lib/primitives/Button';
@@ -11,8 +12,8 @@ export default function About(): ReactElement {
 	});
 	return (
 		<div className={'calc(h-screen-74px) flex flex-col justify-between'}>
-			<div className={'mb-24 flex items-center justify-between'}>
-				<div className={'w-1/2'}>
+			<div className={'mb-24 flex flex-col items-center justify-between md:flex-row'}>
+				<div className={'w-full md:w-1/2'}>
 					<span className={'mb-4 text-[56px] font-extrabold leading-[64px]'}>{'MAKING CRYPTO SIMPLER'}</span>
 					<p className={'mb-10 text-base text-neutral-700'}>
 						{
@@ -20,9 +21,13 @@ export default function About(): ReactElement {
 						}
 					</p>
 
-					<Button className={'!h-14 text-base font-bold leading-6 text-neutral-900'}>{'Launch App'}</Button>
+					<Link href={'https://smold.app/'}>
+						<Button className={'!h-14 text-base font-bold leading-6 text-neutral-900'}>
+							{'Launch App'}
+						</Button>
+					</Link>
 				</div>
-				<div className={'size-[420px]'}>
+				<div className={'mt-10 size-[300px] md:mt-0 md:size-[420px]'}>
 					<RiveComponent
 						onMouseEnter={() => rive && rive.play()}
 						onMouseLeave={() => rive && rive.pause()}
