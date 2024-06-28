@@ -3,6 +3,7 @@
 .font-mono {
 	font-family: 'Source Code Pro', monospace !important;
 }
+
 @layer base {
 	.max-w-4xl,
 	.max-w-5xl,
