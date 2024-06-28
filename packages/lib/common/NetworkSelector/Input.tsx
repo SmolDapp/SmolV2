@@ -3,12 +3,13 @@ import {usePlausible} from 'next-plausible';
 import {CommandList} from 'cmdk';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
+import {localhost} from '@builtbymom/web3/utils/wagmi';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {isDev, supportedNetworks} from '@lib/utils/tools.chains';
+import {isDev, supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
 
 export function NetworkInputSelector(props: {
 	value: number;
@@ -131,5 +132,46 @@ export function NetworkInputSelector(props: {
 				</Command>
 			</Popover.Content>
 		</Popover.Root>
+	);
+}
+
+export function ReadonlyNetworkInputSelector(props: {value: number}): ReactElement {
+	const isMounted = useIsMounted();
+	const safeChainID = toSafeChainID(props.value, Number(process.env.BASE_CHAINID));
+
+	/**********************************************************************************************
+	 ** currentNetwork returns the current network object from the list of networks to use. We will
+	 ** use the safeChainID or the value provided by the user if we are in development mode.
+	 *********************************************************************************************/
+	const currentNetwork = useMemo(() => {
+		const allNetworks = [...supportedNetworks, ...supportedTestNetworks, localhost];
+		return allNetworks.find(
+			(network): boolean => network.id === safeChainID || (isDev && network.id === props.value)
+		);
+	}, [safeChainID, props.value]);
+
+	return (
+		<div className={'relative size-full h-20 rounded-lg'}>
+			<div
+				className={cl(
+					'z-20 relative border transition-all',
+					'flex justify-center items-center',
+					'aspect-square bg-neutral-0 rounded-lg border-neutral-400 size-full'
+				)}>
+				<div className={'flex size-10 items-center justify-center'}>
+					{isMounted() && currentNetwork?.name ? (
+						<ImageWithFallback
+							width={40}
+							height={40}
+							alt={currentNetwork.name}
+							className={'size-10'}
+							src={`${process.env.SMOL_ASSETS_URL}/chain/${currentNetwork.id}/logo-128.png`}
+						/>
+					) : (
+						<div className={'size-10 rounded-full bg-neutral-400'} />
+					)}
+				</div>
+			</div>
+		</div>
 	);
 }

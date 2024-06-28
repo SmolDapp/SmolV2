@@ -30,7 +30,7 @@ import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-function ReadonlySwapTokenRow(props: {
+export function ReadonlySwapTokenRow(props: {
 	value: TTokenAmountInputElement;
 	isFetchingQuote: boolean;
 	onChangeValue: (value: Partial<TTokenAmountInputElement>) => void;
@@ -40,7 +40,11 @@ function ReadonlySwapTokenRow(props: {
 	const {result, validate} = useValidateAmountInput();
 	const {getPrice, pricingHash} = usePrices();
 	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
-	const selectedToken = props.value.token;
+	const [selectedToken, set_selectedToken] = useState(props.value.token);
+
+	useEffect(() => {
+		set_selectedToken(props.value.token);
+	}, [props.value.token]);
 
 	/**********************************************************************************************
 	 ** This useDeepCompareEffect hook will be triggered when the selectedToken, safeChainID or
@@ -128,7 +132,7 @@ function ReadonlySwapTokenRow(props: {
 	);
 }
 
-function SwapTokenRow(props: {
+export function SwapTokenRow(props: {
 	input: TTokenAmountInputElement;
 	onChangeValue: (value: Partial<TTokenAmountInputElement>) => void;
 	chainIDToUse?: number;
