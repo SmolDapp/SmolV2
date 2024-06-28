@@ -26,6 +26,7 @@ export function NavBar(): ReactElement {
 		<div className={'flex w-full items-center justify-center gap-x-6'}>
 			{TOP_NAV.map(item => (
 				<Link
+					key={item.label}
 					className={'font-semibold text-neutral-600 hover:text-neutral-900'}
 					href={item.href}
 					target={'_blank'}>

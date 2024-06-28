@@ -18,8 +18,8 @@ function MyApp(props: AppProps): ReactElement {
 				og={''}
 				uri={''}
 			/>
-			<div className={'flex w-full flex-col justify-center'}>
-				<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
+			<div className={'flex w-full flex-col justify-center bg-white'}>
+				<main className={'relative mb-0 flex min-h-screen w-full flex-col pb-8 md:pb-0'}>
 					<Layout {...props} />
 				</main>
 			</div>

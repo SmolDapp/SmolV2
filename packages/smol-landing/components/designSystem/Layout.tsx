@@ -14,7 +14,7 @@ type TAppProps = {
 };
 
 function App(props: TAppProps): ReactElement {
-	return <section className={'mt-24 flex w-full justify-center px-2'}>{props.children}</section>;
+	return <section className={'mt-16 flex w-full justify-center px-2'}>{props.children}</section>;
 }
 
 type TComponent = NextComponentType & {
@@ -37,7 +37,7 @@ export default function Layout(props: AppProps): ReactElement {
 				<div className={'flex justify-end md:hidden'}>
 					<Button
 						onClick={() => set_isNavBarOpen(true)}
-						className={' !h-8 w-min justify-end py-1.5 !text-xs'}>
+						className={'!h-8 w-min justify-end py-1.5 !text-xs'}>
 						{'Menu'}
 					</Button>
 				</div>
