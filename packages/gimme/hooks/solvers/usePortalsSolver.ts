@@ -76,9 +76,8 @@ export const usePortalsSolver = (): TSolverContextBase => {
 
 		const {result, error} = await getQuote(request, 0.01);
 		if (!result) {
-			const errorMessage = (error as any)?.response?.data?.message || error;
-			if (errorMessage) {
-				console.error(errorMessage);
+			if (error) {
+				console.error(error);
 			}
 			return undefined;
 		}

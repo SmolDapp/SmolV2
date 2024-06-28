@@ -137,9 +137,10 @@ export async function getPortalsEstimate({params}: TGetEstimateProps): Promise<{
 	if (result.data) {
 		result.data.outputToken = result.data.outputToken.toLowerCase().replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
 	}
+
 	return {
 		result: result.data,
-		error: (result?.error as any)?.response?.data?.message || (result?.error as any)?.response?.data || result.error
+		error: result.error?.message
 	};
 }
 
@@ -169,7 +170,7 @@ export async function getPortalsTx({params}: TGetTransactionProps): Promise<{
 	}
 	return {
 		result: result.data,
-		error: (result?.error as any)?.response?.data?.message || (result?.error as any)?.response?.data || result.error
+		error: result?.error?.message
 	};
 }
 
