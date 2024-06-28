@@ -8,16 +8,16 @@ export const TOP_NAV = [
 		label: 'About'
 	},
 	{
-		href: '#',
-		label: 'Docs'
+		href: 'https://smold.app/',
+		label: 'App'
 	},
 	{
 		href: 'https://twitter.com',
 		label: 'Twitter'
 	},
 	{
-		href: '#',
-		label: 'Discord'
+		href: 'https://github.com/SmolDapp/SmolV2',
+		label: 'Github'
 	}
 ];
 
@@ -29,7 +29,7 @@ export function NavBar(): ReactElement {
 					key={item.label}
 					className={'font-semibold text-neutral-600 hover:text-neutral-900'}
 					href={item.href}
-					target={'_blank'}>
+					target={item.label === 'About' ? '_self' : '_blank'}>
 					{item.label}
 				</Link>
 			))}

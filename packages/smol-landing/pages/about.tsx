@@ -1,18 +1,23 @@
 import Link from 'next/link';
-import {useRive} from '@rive-app/react-canvas';
+import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 import {Cutaway} from '@smolLandingDesignSystem/CutAway';
+import {IconAppAddressBook, IconAppDisperse, IconAppSwap} from '@lib/icons/IconApps';
 import {Button} from '@lib/primitives/Button';
 
 import type {ReactElement} from 'react';
 
 export default function About(): ReactElement {
-	const {RiveComponent, rive} = useRive({
+	const {RiveComponent} = useRive({
 		src: 'smol-lp.riv',
-		autoplay: true
+		autoplay: true,
+		layout: new Layout({
+			fit: Fit.Cover,
+			alignment: Alignment.Center
+		})
 	});
 	return (
 		<div className={'calc(h-screen-74px) flex flex-col justify-between'}>
-			<div className={'mb-24 flex flex-col items-center justify-between md:flex-row'}>
+			<div className={'mb-16 flex flex-col items-center justify-between md:flex-row'}>
 				<div className={'w-full md:w-1/2'}>
 					<span className={'mb-4 text-[56px] font-extrabold leading-[64px]'}>{'MAKING CRYPTO SIMPLER'}</span>
 					<p className={'mb-10 text-base text-neutral-700'}>
@@ -27,15 +32,12 @@ export default function About(): ReactElement {
 						</Button>
 					</Link>
 				</div>
-				<div className={'mt-10 size-[300px] md:mt-0 md:size-[420px]'}>
-					<RiveComponent
-						onMouseEnter={() => rive && rive.play()}
-						onMouseLeave={() => rive && rive.pause()}
-					/>
+				<div className={'mt-6 size-[300px] md:mt-0 md:size-[420px]'}>
+					<RiveComponent />
 				</div>
 			</div>
 
-			<div className={'flex flex-col gap-y-6 md:flex-row md:gap-x-6'}>
+			<div className={'flex flex-col items-center gap-y-6 md:flex-row md:items-center md:gap-x-6'}>
 				<Cutaway
 					title={
 						<span>
@@ -45,6 +47,9 @@ export default function About(): ReactElement {
 						</span>
 					}
 					description={'Never forget and address or fail for an injected address scam again!'}
+					link={'https://smold.app/apps/address-book'}
+					buttonTitle={'Add Contact'}
+					icon={<IconAppAddressBook className={'size-4'} />}
 				/>
 				<Cutaway
 					title={
@@ -55,6 +60,9 @@ export default function About(): ReactElement {
 						</span>
 					}
 					description={'Enjoy crosschain swaps lightening fast with Smol Swap'}
+					link={'https://smold.app/apps/swap'}
+					buttonTitle={'Make a swap'}
+					icon={<IconAppSwap className={'size-4'} />}
 				/>
 				<Cutaway
 					title={
@@ -66,6 +74,9 @@ export default function About(): ReactElement {
 					description={
 						'Beloved by projects and individuals, send tokens to multiple addresses at the same time with disperse'
 					}
+					link={'https://smold.app/apps/disperse'}
+					buttonTitle={'Disperse tokens'}
+					icon={<IconAppDisperse className={'size-4'} />}
 				/>
 			</div>
 		</div>

@@ -1,4 +1,101 @@
-@import './style.base.css';
+@import '@rainbow-me/rainbowkit/styles.css';
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@tailwind base;
+
+body {
+	@apply text-neutral-900;
+}
+
+/***************************************************************************
+** Overwritting the defaults to match our needs
+**************************************************************************/
+* {
+	@apply scroll-smooth font-sans;
+}
+
+label[aria-invalid='true'] {
+	@apply text-neutral-600 transition-colors;
+	& > form > div {
+		@apply border-[#FE0000] focus-within:border-[#FE0000] text-[#FE0000] focus-within:text-[#FE0000];
+	}
+	& > p {
+		@apply text-[#FF0000];
+	}
+}
+
+/* -- Button.tsx ------------------------------------------------------- */
+.smol--input-wrapper {
+	@apply flex h-10 w-full items-center rounded-md border border-neutral-200 bg-neutral-0 transition-colors;
+
+	&:has(input:focus) {
+		@apply border-primary;
+	}
+}
+.smol--input {
+	@apply w-full overflow-x-scroll border-none bg-transparent text-sm outline-none scrollbar-none p-2;
+}
+
+select.smol--input {
+	@apply pr-7 truncate;
+}
+
+/***************************************************************************
+** Then, we import the tailwind class. They will be able to overwrite all
+** the previous classes, not the next ones directly.
+**************************************************************************/
+@tailwind components;
+@tailwind utilities;
+
+/***************************************************************************
+** Some accessibilities fixes
+**************************************************************************/
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+.scrollbar-none {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+.hover-fix::before {
+	display: block;
+	content: attr(title);
+	font-weight: bold;
+	height: 0;
+	overflow: hidden;
+	visibility: hidden;
+}
+
+.font-number {
+	@apply font-mono tabular-nums;
+}
+
+.button {
+	@apply cursor-pointer px-5 flex justify-center items-center h-14 text-base transition-all relative rounded-lg;
+
+	&[data-variant='filled'] {
+		@apply text-neutral-900 bg-primary font-normal border border-transparent;
+		&:disabled {
+			@apply bg-neutral-600 opacity-40;
+		}
+		&:not(:disabled):not([aria-busy='true']):hover {
+			@apply bg-primaryHover;
+		}
+	}
+
+	&[aria-busy='true'] {
+		@apply cursor-wait;
+		color: transparent !important;
+	}
+	&:disabled {
+		@apply cursor-not-allowed;
+	}
+}
 
 .font-mono {
 	font-family: 'Source Code Pro', monospace !important;
@@ -21,56 +118,6 @@
 	&.hover {
 		@apply transition-colors hover:bg-neutral-200;
 	}
-}
-
-.tooltip {
-	@apply relative cursor-help;
-}
-.tooltip .tooltiptext,
-.tooltip .tooltiptextsmall {
-	@apply text-xs text-center invisible bg-neutral-0 text-neutral-900 absolute z-50 right-1 opacity-0 transition-opacity p-2 rounded;
-	box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.16);
-}
-.tooltip .tooltipLight {
-	@apply invisible absolute z-50 opacity-0 transition-opacity flex justify-center items-center;
-}
-.tooltiptext {
-	top: 110%;
-	width: 16rem;
-	margin-right: calc(-122px + 50%);
-}
-.tooltiptextsmall {
-	top: 150%;
-	width: 10rem;
-	margin-right: calc(-5rem + 4px);
-}
-.tooltip:hover .tooltiptext,
-.tooltip:hover .tooltiptextsmall,
-.tooltip:hover .tooltipLight {
-	@apply visible opacity-100;
-}
-.tooltip .tooltiptext::after,
-.tooltip .tooltiptextsmall::after {
-	content: '';
-	position: absolute;
-	bottom: 98%;
-	right: 50%;
-	margin-right: -5px;
-	border-width: 5px;
-	border-style: solid;
-	border-color: hsl(var(--color-neutral-0)) transparent transparent;
-	transform: rotate(180deg);
-}
-
-.tooltip.top .tooltiptext,
-.tooltip.top .tooltiptextsmall {
-	top: -105%;
-	bottom: unset;
-}
-.tooltip.top .tooltiptext::after,
-.tooltip.top .tooltiptextsmall::after {
-	top: 98%;
-	transform: rotate(0deg);
 }
 
 .addr > span {
@@ -130,11 +177,5 @@
 		background-color: rgba(220, 221, 221, 1);
 		border-radius: 14px;
 		background-clip: padding-box;
-	}
-}
-
-:root {
-	.toast {
-		@apply rounded-lg border-0 bg-primary flex items-start justify-between p-2 text-xs min-w-[300px] max-w-[600px];
 	}
 }
