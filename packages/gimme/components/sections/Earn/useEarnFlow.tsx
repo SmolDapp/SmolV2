@@ -57,6 +57,7 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 					opportunity: action.payload
 				};
 			}
+
 			case 'RESET':
 				return {
 					asset: {
@@ -73,6 +74,7 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 	};
 
 	const [configuration, dispatch] = useReducer(configurationReducer, defaultProps.configuration);
+
 	const [isDeposited, set_isDeposited] = useState<boolean>(false);
 
 	const onResetEarn = (): void => {

@@ -23,6 +23,7 @@ type TTokenAmountInput = {
 	chainIDToUse?: number;
 	showPercentButtons?: boolean;
 	displayNetworkIcon?: boolean;
+	variant?: 'gimme' | 'smol';
 };
 
 const percentIntervals = [25, 50, 75];
@@ -32,7 +33,8 @@ export function SmolTokenAmountInput({
 	value,
 	showPercentButtons = false,
 	displayNetworkIcon = false,
-	chainIDToUse
+	chainIDToUse,
+	variant = 'smol'
 }: TTokenAmountInput): ReactElement {
 	const {safeChainID} = useChainID();
 	const {getPrice, pricingHash} = usePrices();
@@ -222,6 +224,7 @@ export function SmolTokenAmountInput({
 						displayNetworkIcon={displayNetworkIcon}
 						token={selectedToken}
 						chainID={chainIDToUse}
+						variant={variant}
 					/>
 				</div>
 			</label>
