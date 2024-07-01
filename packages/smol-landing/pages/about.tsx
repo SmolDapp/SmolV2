@@ -18,16 +18,23 @@ export default function About(): ReactElement {
 	return (
 		<div className={'calc(h-screen-74px) flex flex-col justify-between'}>
 			<div className={'mb-16 flex flex-col items-center justify-between md:flex-row'}>
-				<div className={'w-full md:w-1/2'}>
-					<span className={'mb-4 text-[56px] font-extrabold leading-[64px]'}>{'MAKING CRYPTO SIMPLER'}</span>
+				<div className={'mb-10 w-full md:mb-0 md:w-1/2'}>
+					<span
+						className={
+							'mb-4 w-full font-[Monument] text-[40px] font-extrabold leading-[40px] md:text-[54px] md:leading-[64px]'
+						}>
+						{'MAKING CRYPTO SIMPLER'}
+					</span>
 					<p className={'mb-10 text-base text-neutral-700'}>
 						{
 							'MOM HUB adds super powers to your wallet, to make your crypto journey faster, simpler and maybe even a little bit sexier.'
 						}
 					</p>
 
-					<Link href={'https://smold.app/'}>
-						<Button className={'!h-14 text-base font-bold leading-6 text-neutral-900'}>
+					<Link
+						href={'https://smold.app/'}
+						className={'flex max-w-min whitespace-nowrap'}>
+						<Button className={'!h-14 !px-8 text-base !font-bold leading-6 text-neutral-900 md:!px-12'}>
 							{'Launch App'}
 						</Button>
 					</Link>
@@ -37,10 +44,13 @@ export default function About(): ReactElement {
 				</div>
 			</div>
 
-			<div className={'flex flex-col items-center gap-y-6 md:flex-row md:items-center md:gap-x-6'}>
+			<div
+				className={
+					'mb-3 grid grid-cols-1 grid-rows-3 place-content-center gap-y-6 md:grid-cols-3 md:grid-rows-1 md:items-center md:gap-x-6'
+				}>
 				<Cutaway
 					title={
-						<span>
+						<span className={'font-[Monument] font-extrabold'}>
 							{'NATIVE'}
 							<br />
 							{'ADDRESS BOOK'}
@@ -53,7 +63,7 @@ export default function About(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span>
+						<span className={'font-[Monument] font-extrabold'}>
 							{'SWAP'}
 							<br />
 							{'AND BRIDGE'}
@@ -66,7 +76,7 @@ export default function About(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span>
+						<span className={'font-[Monument] font-extrabold'}>
 							{'DID YOU SAY'}
 							<br /> {'"DISPERSE?"'}
 						</span>

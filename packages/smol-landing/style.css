@@ -129,6 +129,20 @@ select.smol--input {
 	.font-number {
 		@apply font-mono tabular-nums;
 	}
+
+	@font-face {
+		font-family: 'Monument';
+		font-style: normal;
+		src: url('./public/MonumentExtended-Regular.otf');
+		font-weight: 400;
+	}
+
+	@font-face {
+		font-family: 'Monument';
+		font-style: normal;
+		src: url('./public/MonumentExtended-Ultrabold.otf');
+		font-weight: 800;
+	}
 }
 
 .box-0 {

@@ -30,7 +30,9 @@ export default function Layout(props: AppProps): ReactElement {
 		<div className={'mx-auto mt-10 flex w-full max-w-6xl flex-col justify-center px-6 md:px-0'}>
 			{isNavBarOpen && <MobileNavBar set_isNavBarOpen={set_isNavBarOpen} />}
 			<div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
-				<span className={'flex items-center text-2xl font-extrabold leading-snug'}>{'MOM HUB'}</span>
+				<span className={'flex items-center font-[Monument] text-lg font-extrabold leading-snug md:text-2xl'}>
+					{'MOM HUB'}
+				</span>
 				<div className={'hidden md:flex'}>
 					<NavBar />
 				</div>
