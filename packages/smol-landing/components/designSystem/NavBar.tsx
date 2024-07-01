@@ -4,7 +4,7 @@ import type {ReactElement} from 'react';
 
 export const TOP_NAV = [
 	{
-		href: '#',
+		href: '/',
 		label: 'About'
 	},
 	{
