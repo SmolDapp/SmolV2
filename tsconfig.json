@@ -14,7 +14,9 @@
 
 			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
 			"@smolContexts/*": ["packages/smol/contexts/*"],
-			"@smolHooks/*": ["packages/smol/hooks/*"]
+			"@smolHooks/*": ["packages/smol/hooks/*"],
+
+			"@smolLandingDesignSystem/*": ["packages/smol-landing/components/designSystem/*"]
 		},
 		"types": ["bun-types"],
 		"target": "esnext",
