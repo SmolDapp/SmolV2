@@ -46,7 +46,9 @@ export default function Layout(props: AppProps): ReactElement {
 				<div className={'hidden w-full items-center justify-end md:flex'}>
 					<Link
 						href={'https://smold.app/'}
-						className={'w-fit rounded-lg border px-4 py-2 text-xs font-bold transition-colors'}>
+						className={
+							'w-fit rounded-lg border px-4 py-2 text-xs font-bold transition-colors hover:bg-neutral-300'
+						}>
 						{'Launch App'}
 					</Link>
 				</div>
