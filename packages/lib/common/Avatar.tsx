@@ -6,6 +6,7 @@ import Identicon from 'identicon.js';
 import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {useAccountModal} from '@rainbow-me/rainbowkit';
 import {useUpdateEffect} from '@react-hookz/web';
 
 import type {ReactElement} from 'react';
@@ -31,6 +32,7 @@ export function Avatar(props: {
 	const [imageSrc, set_imageSrc] = useState(props.src);
 	const hasAvatar = useMemo(() => imageSrc !== undefined, [imageSrc]);
 	const sizeClassname = props.sizeClassname || 'h-8 w-8 min-w-[32px]';
+	const {openAccountModal} = useAccountModal();
 
 	useUpdateEffect((): void => {
 		set_imageSrc(props.src);
@@ -56,8 +58,9 @@ export function Avatar(props: {
 				)}>
 				<Image
 					src={`data:image/png;base64,${data}`}
-					className={'size-full rounded-full'}
+					className={'size-full cursor-pointer rounded-full'}
 					width={128}
+					onClick={openAccountModal}
 					height={128}
 					alt={''}
 				/>
@@ -68,8 +71,9 @@ export function Avatar(props: {
 		<div className={cl('rounded-full bg-neutral-200/40', sizeClassname)}>
 			<Image
 				key={imageSrc}
-				className={'rounded-full'}
+				className={'cursor-pointer rounded-full'}
 				unoptimized
+				onClick={openAccountModal}
 				src={imageSrc || ''}
 				width={128}
 				height={128}
