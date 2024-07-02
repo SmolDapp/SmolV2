@@ -37,10 +37,7 @@ function WalletSection(): ReactElement {
 		if (clusters) {
 			return clusters.name;
 		}
-		if (address) {
-			return truncateHex(address, 5);
-		}
-		return 'Connect wallet';
+		return truncateHex(address, 5);
 	}, [address, clusters, ens]);
 
 	if (!address) {
@@ -50,7 +47,7 @@ function WalletSection(): ReactElement {
 					openLoginModal();
 				}}
 				className={'bg-primary hover:bg-primaryHover h-14 rounded-2xl font-medium transition-colors'}>
-				{buttonLabel}
+				{'Connect wallet'}
 			</button>
 		);
 	}

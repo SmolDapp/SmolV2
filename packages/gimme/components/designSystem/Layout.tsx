@@ -24,17 +24,6 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<div className={'mx-auto mt-10 max-w-5xl'}>
-			{/* <div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
-				<div className={'flex items-center gap-4'}>
-					<div className={'size-10 rounded-full bg-black'} />
-					<div className={'font-bold'}>{'GIMME'}</div>
-				</div>
-				<NavBar router={router} />
-				<div className={'flex justify-end gap-2'}>
-					<NetworkPopoverSelector networks={[polygon]} />
-					<ConnectButton />
-				</div>
-			</div> */}
 			<TopBar router={router} />
 			<App>
 				<AnimatePresence>

@@ -23,7 +23,7 @@ export function Background(): ReactElement {
 				height={469}
 			/>
 
-			{/*  */}
+			{/* Bottom Left *********************************************************************/}
 			<Image
 				className={'none invisible absolute bottom-0 left-0 -z-10 h-[599px] object-cover md:visible'}
 				src={'/bottom-left.svg'}
@@ -38,9 +38,9 @@ export function Background(): ReactElement {
 				width={346}
 				height={240}
 			/>
-			{/*  */}
+			{/***********************************************************************************/}
 
-			{/*  */}
+			{/* Top Right ***********************************************************************/}
 			<Image
 				className={'none invisible absolute right-0 top-0 -z-10 h-[460px] object-cover md:visible'}
 				src={'/top-right.svg'}
@@ -55,7 +55,7 @@ export function Background(): ReactElement {
 				width={383}
 				height={184}
 			/>
-			{/*  */}
+			{/***********************************************************************************/}
 
 			<Image
 				className={'none invisible absolute left-0 top-0 -z-10 h-[278px] object-cover md:visible'}
