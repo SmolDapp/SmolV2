@@ -32,7 +32,7 @@ export function ConnectButton(): ReactElement {
 					openLoginModal();
 				}
 			}}
-			className={'rounded-lg border px-4 py-2 text-xs font-bold transition-colors'}>
+			className={'bg-primary hover:bg-primaryHover h-14 rounded-2xl font-medium transition-colors'}>
 			{buttonLabel}
 		</button>
 	);

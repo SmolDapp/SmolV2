@@ -1,11 +1,8 @@
 import {type ReactElement, type ReactNode} from 'react';
 import {type NextRouter} from 'next/router';
-import {polygon} from 'viem/chains';
 import {AnimatePresence, motion} from 'framer-motion';
 
-import {ConnectButton} from './ConnectButton';
-import {NavBar} from './NavBar';
-import {NetworkPopoverSelector} from './NetworkPopoverSelector';
+import {TopBar} from './TopBar';
 
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
@@ -26,8 +23,8 @@ export default function Layout(props: AppProps): ReactElement {
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 
 	return (
-		<div className={'mx-auto mt-10 w-full max-w-6xl'}>
-			<div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
+		<div className={'mx-auto mt-10 max-w-5xl'}>
+			{/* <div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
 				<div className={'flex items-center gap-4'}>
 					<div className={'size-10 rounded-full bg-black'} />
 					<div className={'font-bold'}>{'GIMME'}</div>
@@ -37,7 +34,8 @@ export default function Layout(props: AppProps): ReactElement {
 					<NetworkPopoverSelector networks={[polygon]} />
 					<ConnectButton />
 				</div>
-			</div>
+			</div> */}
+			<TopBar router={router} />
 			<App>
 				<AnimatePresence>
 					<motion.div

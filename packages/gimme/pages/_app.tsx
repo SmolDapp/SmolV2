@@ -7,6 +7,7 @@ import {mainnet, polygon} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
+import {Background} from '@gimmeDesignSystem/Background';
 import Layout from '@gimmeDesignSystem/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
 import {WithPrices} from '@lib/contexts/usePrices';
@@ -36,9 +37,12 @@ function MyApp(props: AppProps): ReactElement {
 				<WalletContextApp>
 					<WithPrices>
 						<VaultsContextApp>
-							<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
-								<Layout {...props} />
-							</main>
+							<div className={'relative'}>
+								<Background />
+								<main className={'relative mb-0 flex size-full min-h-screen flex-col'}>
+									<Layout {...props} />
+								</main>
+							</div>
 						</VaultsContextApp>
 					</WithPrices>
 				</WalletContextApp>
