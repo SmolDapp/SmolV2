@@ -1,13 +1,14 @@
 import {type ReactElement, useCallback, useEffect, useRef} from 'react';
+import Image from 'next/image';
 import {useRouter} from 'next/router';
-import {SmolTokenAmountInput} from 'lib/common/SmolTokenAmountInput';
 import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {isAddress, isZeroAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {isAddress, isZeroAddress} from '@builtbymom/web3/utils';
+import {GimmeTokenAmountInput} from '@gimmeDesignSystem/GimmeTokenAmountInput';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
@@ -88,27 +89,6 @@ export function Earn(): ReactElement {
 		};
 	}, []);
 
-	const onClearAsset = useCallback(() => {
-		dispatchConfiguration({
-			type: 'SET_ASSET',
-			payload: {
-				amount: '',
-				normalizedBigAmount: zeroNormalizedBN,
-				isValid: 'undetermined',
-				token: undefined,
-				status: 'none',
-				UUID: crypto.randomUUID()
-			}
-		});
-	}, [dispatchConfiguration]);
-
-	const onClearOpportunity = useCallback(() => {
-		dispatchConfiguration({
-			type: 'SET_OPPORTUNITY',
-			payload: undefined
-		});
-	}, [dispatchConfiguration]);
-
 	const getZapsBadgeContent = useCallback(() => {
 		if (isFetchingQuote) {
 			return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
@@ -119,59 +99,48 @@ export function Earn(): ReactElement {
 		}
 
 		return (
-			<>
-				<p className={'text-xxs leading-2 mb-10 text-neutral-600'}>
-					{'Hey! We gonna swap your tokens so you can use this opportunity'}
+			<div className={'flex w-full justify-between'}>
+				<p className={'max-w-[357px]'}>
+					{'Hey! We gonna swap your tokens so you can use this opportunity. Don’t worry, no extra clicks.'}
 				</p>
-				<p className={'mb-2 text-lg font-bold leading-8'}>
-					{`${configuration.asset.token?.symbol} -> ${configuration.opportunity?.token.symbol}`}
-				</p>
-				<p className={'text-xxs leading-2 text-neutral-600'}>{"Don't worry! No extra clicks needed"}</p>
-			</>
+				<div className={'flex items-center gap-2'}>
+					<p>{configuration.asset.token?.symbol}</p>
+					<Image
+						src={'/arrow.svg'}
+						alt={'arrow'}
+						width={16}
+						height={10}
+					/>
+					<p>{configuration.opportunity?.token.symbol}</p>
+				</div>
+			</div>
 		);
 	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
 	return (
 		<div className={'flex w-full flex-col items-center gap-10'}>
-			<div className={'w-full max-w-[504px] rounded-2xl bg-white p-8 shadow-xl'}>
-				<div className={'w-full'}>
-					<div className={'mb-1 flex items-center justify-between text-xs font-medium'}>
-						<p>{'Asset'}</p>
-						<button
-							onClick={onClearAsset}
-							className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
-							{'Clear asset'}
-						</button>
-					</div>
-					<SmolTokenAmountInput
+			<div className={'w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-xl'}>
+				<div className={'flex w-full flex-col gap-2'}>
+					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}
 						value={configuration.asset}
-						variant={'gimme'}
-						displayNetworkIcon
 					/>
-					<div className={'mb-1 mt-6 flex items-center justify-between text-xs font-medium'}>
-						<p>{'Opportunity'}</p>
-						<button
-							onClick={onClearOpportunity}
-							className={'rounded-sm  p-1 text-neutral-600 transition-colors hover:text-neutral-700'}>
-							{'Clear Opportunity'}
-						</button>
-					</div>
+
 					<SelectOpportunityButton
 						onSetOpportunity={onSetOpportunity}
 						filteredVaults={vaultsArray}
 					/>
+					{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
+						<div
+							className={
+								'bg-grey-100 border-grey-200 text-grey-700 w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs'
+							}>
+							{getZapsBadgeContent()}
+						</div>
+					)}
 					<EarnWizard />
 				</div>
 			</div>
-			{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
-				<div
-					className={
-						'flex h-[168px] w-full max-w-[472px] flex-col items-center justify-center rounded-2xl bg-neutral-300'
-					}>
-					{getZapsBadgeContent()}
-				</div>
-			)}
 		</div>
 	);
 }

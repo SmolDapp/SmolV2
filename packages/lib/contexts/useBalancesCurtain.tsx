@@ -294,7 +294,7 @@ function BalancesCurtainWrapper(props: {
 							<DialogPanel
 								className={cl(
 									'relative overflow-hidden w-full flex flex-col items-center justify-center rounded-md !bg-white !p-6 transition-all',
-									'sm:my-8 sm:max-w-lg sm:p-6 shadow-lg'
+									'sm:my-8 sm:max-w-[560px] sm:p-6 shadow-lg'
 								)}>
 								<div className={'mb-4 flex w-full justify-between'}>
 									<p className={'font-bold'}>{'Select Token'}</p>

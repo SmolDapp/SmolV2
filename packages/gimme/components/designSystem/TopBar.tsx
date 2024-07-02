@@ -89,9 +89,9 @@ export function TopBar(props: {router: Router}): ReactElement {
 						<LinkOrDiv
 							key={item.label}
 							className={cl(
-								'rounded-2xl text-center px-6 py-2 leading-6 transition-colors text-neutral-600 font-medium',
-								!item.isDisabled ? 'hover:text-neutral-900 hover:bg-neutral-300' : '',
-								props.router.pathname === item.href ? 'text-neutral-900 bg-neutral-300' : ''
+								'rounded-2xl text-center px-6 py-2 leading-6 transition-colors text-grey-800 font-medium',
+								!item.isDisabled ? 'hover:text-neutral-800 hover:bg-neutral-300' : '',
+								props.router.pathname === item.href ? '!text-neutral-900 bg-neutral-300' : ''
 							)}
 							href={item.href}
 							isDisabled={item.isDisabled}>
