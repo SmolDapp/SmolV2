@@ -9,9 +9,9 @@ import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Background} from '@gimmeDesignSystem/Background';
 import Layout from '@gimmeDesignSystem/Layout';
-import {WithFonts} from '@lib/common/WithFonts';
 import {WithPrices} from '@lib/contexts/usePrices';
 
+import {WithFonts} from '../components/WithFonts';
 import {VaultsContextApp} from '../contexts/useVaults';
 
 import type {AppProps} from 'next/app';

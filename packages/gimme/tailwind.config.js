@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const config = require('../lib/tailwind.config');
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
 	...config,
@@ -10,5 +11,16 @@ module.exports = {
 		'./pages/**/*.{js,ts,jsx,tsx}',
 		...config.content
 	],
-	plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('tailwindcss-animate')]
+	plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('tailwindcss-animate')],
+	theme: {
+		...config.theme,
+		extend: {
+			...config.theme.extend,
+			fontFamily: {
+				aeonik: ['var(--aeonik-font)', 'Aeonik', ...defaultTheme.fontFamily.sans],
+				sans: ['var(--aeonik-font)', 'Aeonik', ...defaultTheme.fontFamily.sans],
+				mono: ['var(--font-aeonik-mono)', 'Aeonik Mono', ...defaultTheme.fontFamily.mono]
+			}
+		}
+	}
 };
