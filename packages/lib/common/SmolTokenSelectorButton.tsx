@@ -14,6 +14,7 @@ export function SmolTokenSelectorButton(props: {
 	chainID?: number;
 	shouldUseCurtainWithTabs?: boolean;
 	displayNetworkIcon?: boolean;
+	isReadOnly?: boolean;
 }): JSX.Element {
 	const {onOpenCurtain} = useBalancesCurtain();
 	const {getToken} = useTokenList();
@@ -38,6 +39,7 @@ export function SmolTokenSelectorButton(props: {
 
 	return (
 		<button
+			disabled={props.isReadOnly}
 			onClick={() =>
 				onOpenCurtain(token => props.onSelectToken(token), {
 					chainID: props.chainID,
@@ -46,7 +48,7 @@ export function SmolTokenSelectorButton(props: {
 			}
 			className={cl(
 				'flex items-center justify-between gap-2 rounded-[4px] py-4 pl-4 pr-2 w-full',
-				'bg-neutral-200 hover:bg-neutral-300 transition-colors'
+				'bg-neutral-200 hover:bg-neutral-300 disabled:hover:bg-neutral-200 transition-colors'
 			)}>
 			<div className={'flex w-full items-center gap-2'}>
 				<div className={'realtive bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
@@ -87,7 +89,7 @@ export function SmolTokenSelectorButton(props: {
 				</p>
 			</div>
 
-			<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
+			{props.isReadOnly ? null : <IconChevron className={'size-4 min-w-4 text-neutral-600'} />}
 		</button>
 	);
 }

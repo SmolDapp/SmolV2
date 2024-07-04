@@ -33,6 +33,8 @@ import type {TInputAddressLike} from '@lib/utils/tools.address';
 export function ReadonlySwapTokenRow(props: {
 	value: TTokenAmountInputElement;
 	isFetchingQuote: boolean;
+	canChangeToken: boolean;
+	shouldDisplayTokenSelector: boolean;
 	onChangeValue: (value: Partial<TTokenAmountInputElement>) => void;
 	chainIDToUse?: number;
 }): ReactElement {
@@ -115,14 +117,17 @@ export function ReadonlySwapTokenRow(props: {
 							)}
 						</div>
 					</div>
-					<div className={'w-full max-w-[176px]'}>
-						<SmolTokenSelectorButton
-							onSelectToken={token => validate(props.value.amount, token)}
-							token={props.value.token}
-							chainID={props.chainIDToUse}
-							shouldUseCurtainWithTabs
-						/>
-					</div>
+					{props.shouldDisplayTokenSelector ? (
+						<div className={'w-full max-w-[176px]'}>
+							<SmolTokenSelectorButton
+								onSelectToken={token => validate(props.value.amount, token)}
+								token={props.value.token}
+								chainID={props.chainIDToUse}
+								shouldUseCurtainWithTabs
+								isReadOnly={!props.canChangeToken}
+							/>
+						</div>
+					) : null}
 				</label>
 			</div>
 			<div className={'absolute -right-6 top-1/2 -translate-y-1/2'}>
@@ -291,6 +296,8 @@ export function Swap(): ReactElement {
 						<div className={'w-full'}>
 							<ReadonlySwapTokenRow
 								value={configuration.output}
+								canChangeToken={true}
+								shouldDisplayTokenSelector={true}
 								isFetchingQuote={isFetchingQuote}
 								chainIDToUse={toNetwork}
 								onChangeValue={value => {

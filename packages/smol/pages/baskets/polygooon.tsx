@@ -31,52 +31,49 @@ export default function Basket(): ReactElement {
 		token: {
 			address: ETH_TOKEN_ADDRESS,
 			balance: {raw: 0n, normalized: 0, display: '0'},
-			chainID: 1,
+			chainID: 137,
 			decimals: 18,
-			logoURI: 'https://assets.smold.app/api/token/1/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/logo-128.png',
-			name: 'Ethereum',
-			symbol: 'ETH',
+			logoURI: 'https://assets.smold.app/api/token/137/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/logo-128.png',
+			name: 'Matic',
+			symbol: 'MATIC',
 			value: 0
 		}
 	});
 	const [toTokens, set_toTokens] = useState<TBasketToken[]>([
 		{
 			...getNewInputToken(),
-			share: 100,
+			share: 40,
 			token: {
-				address: toAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F'),
+				address: toAddress('0xc2132D05D31c914a87C6611C10748AEb04B58e8F'),
 				balance: zeroNormalizedBN,
-				chainID: 1,
-				decimals: 18,
-				logoURI: `${process.env.SMOL_ASSETS_URL}/token/1/0x6b175474e89094c44da98b954eedeac495271d0f/logo-128.png`,
-				name: 'Dai Stablecoin',
-				symbol: 'DAI',
+				chainID: 137,
+				decimals: 6,
+				logoURI: `${process.env.SMOL_ASSETS_URL}/token/137/0xc2132D05D31c914a87C6611C10748AEb04B58e8F/logo-128.png`,
+				name: 'Tether USD',
+				symbol: 'USDT',
+				value: 0
+			}
+		},
+		{
+			...getNewInputToken(),
+			share: 60,
+			token: {
+				address: toAddress('0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'),
+				balance: zeroNormalizedBN,
+				chainID: 137,
+				decimals: 6,
+				logoURI:
+					'https://raw.githubusercontent.com/SmolDapp/tokenAssets/main/tokens/137/0x3c499c542cef5e3811e1192ce70d8cc03d5c3359/logo-128.png',
+				name: 'USD Coin',
+				symbol: 'USDC',
 				value: 0
 			}
 		}
-		// {
-		// 	...getNewInputToken(),
-		// 	share: 40,
-		// 	token: {
-		// 		address: toAddress('0x83F20F44975D03b1b09e64809B757c47f942BEeA'),
-		// 		balance: zeroNormalizedBN,
-		// 		chainID: 1,
-		// 		decimals: 18,
-		// 		logoURI: `${process.env.SMOL_ASSETS_URL}/token/1/0x83F20F44975D03b1b09e64809B757c47f942BEeA/logo-128.png`,
-		// 		name: 'Saving DAI',
-		// 		symbol: 'sDAI',
-		// 		value: 0
-		// 	}
-		// }
 	]);
 
 	return (
 		<div className={'grid max-w-screen-sm gap-4'}>
-			<BasketHeader
-				title={'The Facu'}
-				description={'sDAI is your savings, and the rest is to buy beers'}
-				toTokens={toTokens}
-			/>
+			<BasketHeader toTokens={toTokens} />
 
 			<div className={'pt-6'}>
 				<BalancesCurtainContextApp>
