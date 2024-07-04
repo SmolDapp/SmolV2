@@ -10,30 +10,6 @@ import {useEarnFlow} from './useEarnFlow';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-// function VaultRisk({value}: {value: number}): ReactElement {
-// 	const heights = ['3', '9', '15', '21', '27'];
-
-// 	return (
-// 		<div className={'flex size-full items-end gap-[6px]'}>
-// 			{Array(5)
-// 				.fill(null)
-// 				.map((_, index) => {
-// 					if (index === 0) {
-// 						return <div className={`size-[${heights[index]}px] rounded-sm bg-neutral-900`} />;
-// 					}
-// 					return (
-// 						<div
-// 							className={cl(
-// 								`h-[${heights[index]}px] w-[3px] rounded-sm bg-neutral-900`,
-// 								index + 1 > value ? '!bg-neutral-600' : ''
-// 							)}
-// 						/>
-// 					);
-// 				})}
-// 		</div>
-// 	);
-// }
-
 export function Vault({
 	vault,
 	price,
@@ -50,6 +26,7 @@ export function Vault({
 	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
+
 	const {token, name, apr} = vault;
 
 	const {chainID} = useWeb3();
@@ -77,7 +54,7 @@ export function Vault({
 	return (
 		<div
 			className={cl(
-				'flex w-full justify-between rounded-md px-4 py-3 transition-colors hover:bg-neutral-200',
+				'flex w-full justify-between rounded-md px-4 py-3 transition-colors hover:bg-grey-100',
 				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
 			)}
 			onClick={isDisabled ? undefined : onSelectVault}>
@@ -94,7 +71,7 @@ export function Vault({
 				<div className={'flex flex-col items-start gap-0.5 text-left'}>
 					<p>{name}</p>
 					<div className={'flex items-start gap-1'}>
-						<p className={'text-green text-xs'}>
+						<p className={'text-grey-600 text-xs'}>
 							{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
 						</p>
 						{configuration.asset.token &&
@@ -111,9 +88,6 @@ export function Vault({
 				<p className={'mr-2 text-lg font-medium'}>
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
-				{/* <div className={'mr-3'}>
-					<VaultRisk value={vault.info.riskLevel || 5} />
-				</div> */}
 
 				<div
 					className={'ml-4'}

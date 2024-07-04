@@ -1,34 +1,61 @@
 import React, {useMemo, useState} from 'react';
 import Image from 'next/image';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {cl, formatCounterValue, formatTAmount, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
+import {mainnet, polygon} from 'wagmi/chains';
+import {cl, formatCounterValue, formatTAmount, isEthAddress, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconChevron} from '@lib/icons/IconChevron';
 
 import {SelectVault} from './SelectVault';
 import {useEarnFlow} from './useEarnFlow';
 
+import type {TAddress, TNDict} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
+const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
+	[mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+	[polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+};
+
 export function SelectOpportunityButton({
-	onSetOpportunity,
-	filteredVaults
+	onSetOpportunity
 }: {
 	onSetOpportunity: (value: TYDaemonVault) => void;
-	filteredVaults: TYDaemonVault[];
 }): JSX.Element {
 	const {configuration} = useEarnFlow();
 	const {vaultsArray} = useVaults();
 	const {getPrice} = usePrices();
 
+	const {getIsStablecoin} = useGetIsStablecoin();
+	const isStablecoin = getIsStablecoin({
+		address: configuration.asset.token?.address,
+		chainID: configuration.asset.token?.chainID
+	});
+
 	const [isOpen, set_isOpen] = useState(false);
 
+	const availableVaults = configuration.asset.token
+		? vaultsArray.filter(vault => {
+				if (isStablecoin && vault.category === 'Stablecoin') {
+					return true;
+				}
+				if (vault.token.address === configuration.asset.token?.address) {
+					return true;
+				}
+				if (isEthAddress(configuration.asset.token?.address) && configuration.asset.token?.chainID) {
+					return vault.token.address === WRAPPED_TOKEN_ADDRESS[configuration.asset.token.chainID];
+				}
+				return false;
+			})
+		: vaultsArray;
+
 	const maxAPR = useMemo(() => {
-		const vaultsToUse = configuration.asset.token?.address ? filteredVaults : vaultsArray;
-		const APRs = vaultsToUse.map(vault => vault.apr.netAPR);
+		const APRs = availableVaults.map(vault => vault.apr.netAPR);
 		const max = Math.max(...APRs);
 		return max;
-	}, [configuration.asset.token?.address, filteredVaults, vaultsArray]);
+	}, [availableVaults]);
 
 	const earnings = configuration.opportunity
 		? percentOf(configuration.asset.normalizedBigAmount.normalized, configuration.opportunity.apr.netAPR * 100)
@@ -58,14 +85,29 @@ export function SelectOpportunityButton({
 									</div>
 								</div>
 								<div className={'flex gap-2'}>
-									<div className={'bg-primary flex size-8 items-center justify-center rounded-full'}>
-										<Image
-											src={'/vault-logo.svg'}
-											alt={'vault-logo'}
-											width={18}
-											height={18}
+									{configuration.opportunity.category === 'Stablecoin' ? (
+										<div
+											className={
+												'bg-primary flex size-8 items-center justify-center rounded-full'
+											}>
+											<Image
+												src={'/vault-logo.svg'}
+												alt={'vault-logo'}
+												width={18}
+												height={18}
+											/>
+										</div>
+									) : (
+										<ImageWithFallback
+											alt={configuration.opportunity.token?.symbol || 'token'}
+											unoptimized
+											src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+											altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+											quality={90}
+											width={32}
+											height={32}
 										/>
-									</div>
+									)}
 									<div className={'flex flex-col'}>
 										<p
 											className={
@@ -94,11 +136,11 @@ export function SelectOpportunityButton({
 								</p>
 								<button
 									className={
-										'bg-primary hover:bg-primaryHover flex w-[152px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+										'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
 									}
 									onClick={() => set_isOpen(true)}
-									disabled={filteredVaults.length === 0}>
-									{'Select Pool'}
+									disabled={availableVaults.length === 0}>
+									{'Select'}
 									<IconChevron className={'size-6 min-w-4'} />
 								</button>
 							</div>
@@ -110,7 +152,8 @@ export function SelectOpportunityButton({
 				isOpen={isOpen}
 				onClose={() => set_isOpen(false)}
 				onSelect={onSetOpportunity}
-				filteredVaults={filteredVaults}
+				availableVaults={availableVaults}
+				isStablecoin={isStablecoin}
 			/>
 		</>
 	);

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
@@ -15,7 +16,7 @@ import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TAddress} from '@builtbymom/web3/types';
+import type {TAddress, TToken} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
@@ -24,9 +25,11 @@ export function Earn(): ReactElement {
 	const {chainID} = useWeb3();
 
 	const {getToken} = useWallet();
-	const {vaultsArray, userVaults} = useVaults();
+	const {userVaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
+
+	const {getIsStablecoin} = useGetIsStablecoin();
 
 	const {quote, isFetchingQuote} = useSolvers();
 	const isZapNeeded = useIsZapNeeded();
@@ -117,6 +120,31 @@ export function Earn(): ReactElement {
 		);
 	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
+	const onSelectTokenCallback = useCallback(
+		(token: TToken) => {
+			const isStablecoin = getIsStablecoin({
+				address: token.address,
+				chainID: token.chainID
+			});
+
+			if (configuration.opportunity?.category === 'Stablecoin' && isStablecoin) {
+				return;
+			}
+
+			if (configuration.opportunity?.token.address === token.address) {
+				return;
+			}
+
+			onSetOpportunity(undefined);
+		},
+		[
+			configuration.opportunity?.category,
+			configuration.opportunity?.token.address,
+			getIsStablecoin,
+			onSetOpportunity
+		]
+	);
+
 	return (
 		<div className={'flex w-full flex-col items-center gap-10'}>
 			<div className={'w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-xl'}>
@@ -124,12 +152,10 @@ export function Earn(): ReactElement {
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}
 						value={configuration.asset}
+						onSelectTokenCallback={onSelectTokenCallback}
 					/>
 
-					<SelectOpportunityButton
-						onSetOpportunity={onSetOpportunity}
-						filteredVaults={vaultsArray}
-					/>
+					<SelectOpportunityButton onSetOpportunity={onSetOpportunity} />
 					{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
 						<div
 							className={

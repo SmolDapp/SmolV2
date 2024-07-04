@@ -13,17 +13,18 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {handleLowAmount} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
-import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
+	onSelectTokenCallback: (token: TToken) => void;
 	value: TTokenAmountInputElement;
 };
 
 const percentIntervals = [10, 50, 100];
 
-export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): ReactElement {
+export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesCurtain();
 
 	const {safeChainID} = useChainID();
@@ -231,7 +232,10 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								<button
 									className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
 									onClick={() =>
-										onOpenCurtain(token => validate(value.amount, token, token.balance))
+										onOpenCurtain(token => {
+											onSelectTokenCallback(token);
+											validate(value.amount, token, token.balance);
+										})
 									}>
 									<IconChevron className={'size-6 min-w-4'} />
 								</button>
@@ -239,12 +243,12 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								<div>
 									<button
 										className={
-											'bg-primary hover:bg-primaryHover flex w-[152px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+											'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
 										}
 										onClick={() =>
 											onOpenCurtain(token => validate(value.amount, token, token.balance))
 										}>
-										{'Select Token'}
+										{'Select'}
 										<IconChevron className={'size-6 min-w-4'} />
 									</button>
 								</div>

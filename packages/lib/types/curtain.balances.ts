@@ -15,6 +15,7 @@ export type TWalletLayoutProps = {
 	selectedTokens?: TToken[];
 	searchTokenAddress?: TAddress;
 	chainID: number;
+	appearAs: 'modal' | 'curtain';
 	onSelect?: TSelectCallback;
 	onOpenChange: (isOpen: boolean) => void;
 };

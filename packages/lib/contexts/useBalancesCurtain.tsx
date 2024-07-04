@@ -125,6 +125,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<SmolTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
+				appearAs={props.appearAs}
 				price={prices ? prices[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
@@ -278,7 +279,7 @@ function BalancesCurtainWrapper(props: {
 					leave={'ease-in duration-200'}
 					leaveFrom={'opacity-100'}
 					leaveTo={'opacity-0'}>
-					<div className={'fixed inset-0 backdrop-blur-sm transition-opacity'} />
+					<div className={'bg-grey-500/80 fixed inset-0 backdrop-blur-md  transition-opacity'} />
 				</TransitionChild>
 
 				<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto'}>
@@ -293,11 +294,11 @@ function BalancesCurtainWrapper(props: {
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
 							<DialogPanel
 								className={cl(
-									'relative overflow-hidden w-full flex flex-col items-center justify-center rounded-md !bg-white !p-6 transition-all',
-									'sm:my-8 sm:max-w-[560px] sm:p-6 shadow-lg'
+									'relative overflow-hidden w-full flex flex-col items-center justify-center rounded-3xl !bg-white !p-6 transition-all',
+									'sm:my-8 sm:max-w-[560px] sm:p-6'
 								)}>
 								<div className={'mb-4 flex w-full justify-between'}>
-									<p className={'font-bold'}>{'Select Token'}</p>
+									<p className={'text-grey-900 font-bold'}>{'Select Token'}</p>
 									<button
 										className={'group'}
 										onClick={() => props.onOpenChange(false)}>
@@ -410,10 +411,12 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 			<div className={'flex h-full flex-col gap-4'}>
 				<input
 					className={cl(
-						'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 text-base',
-						'text-neutral-900 placeholder:text-neutral-600 caret-neutral-700',
-						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-						'focus:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40'
+						'w-full rounded-lg py-3 px-4 text-base',
+						' placeholder:transition-colors',
+						' disabled:cursor-not-allowed disabled:opacity-40',
+						props.options.appearAs === 'modal'
+							? 'placeholder:text-grey-700 focus:border-grey-300 text-grey-800 caret-grey-800 border-transparent bg-grey-100'
+							: 'focus:placeholder:text-neutral-300 focus:border-neutral-400 placeholder:text-neutral-600 caret-neutral-700 text-neutral-900 border-neutral-400 bg-transparent'
 					)}
 					type={'text'}
 					placeholder={'0x... or Name'}
@@ -468,6 +471,7 @@ function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 							searchTokenAddress={searchTokenAddress}
 							onOpenChange={props.onOpenChange}
 							chainID={Number(props.options.chainID)}
+							appearAs={props.options.appearAs || 'curtain'}
 						/>
 					</div>
 				) : (
