@@ -11,7 +11,13 @@ import {Button} from '@lib/primitives/Button';
 
 import {NetworkPopoverSelector} from './NetworkPopoverSelector';
 
-const TOP_NAV = [
+type TNavBar = {
+	href: string;
+	label: string;
+	isDisabled?: boolean;
+}[];
+
+const TOP_NAV: TNavBar = [
 	{
 		href: '/earn',
 		label: 'Earn'
@@ -21,13 +27,12 @@ const TOP_NAV = [
 		label: 'Portfolio'
 	},
 	{
-		href: '/about',
-		label: 'About',
-		isDisabled: true
+		href: '/',
+		label: 'About'
 	}
 ];
 
-const LANDING_TOP_NAV = [
+const LANDING_TOP_NAV: TNavBar = [
 	{
 		href: '/',
 		label: 'Home'
