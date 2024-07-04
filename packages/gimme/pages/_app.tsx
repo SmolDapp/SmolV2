@@ -6,7 +6,6 @@ import {IconCircleCross} from 'lib/icons/IconCircleCross';
 import {mainnet, polygon} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Background} from '@gimmeDesignSystem/Background';
 import Layout from '@gimmeDesignSystem/Layout';
 import {WithPrices} from '@lib/contexts/usePrices';
@@ -31,7 +30,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[polygon, mainnet, localhost]}
+				supportedChains={[polygon, mainnet]}
 				defaultNetwork={polygon}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/137/yearn-min.json']}>
 				<WalletContextApp>
