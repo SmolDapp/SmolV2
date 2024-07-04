@@ -30,7 +30,7 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 			) : (
 				<>
 					<p>{'Your Portfolio is empty.'}</p>
-					<p>{'Select Token at Earn section and add opportunity.'}</p>
+					<p className={'text-center'}>{'Select Token at Earn section and add opportunity.'}</p>
 				</>
 			)}
 		</div>
