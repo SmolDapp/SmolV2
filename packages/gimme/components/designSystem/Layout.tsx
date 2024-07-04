@@ -24,7 +24,7 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<>
-			<div className={'mx-auto mt-10 max-w-6xl'}>
+			<div className={'z-20 mx-10 mt-10 md:mx-auto md:max-w-6xl'}>
 				<TopBar router={router} />
 			</div>
 			<App>

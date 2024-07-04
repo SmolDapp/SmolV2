@@ -160,7 +160,7 @@ export function Portfolio(): ReactNode {
 	}, [blockNumber, refetch]);
 
 	return (
-		<div className={'mb-12 w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
+		<div className={'z-20 mb-12 w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
 			<div className={'mb-12 font-medium'}>
 				<p className={'mb-2 text-xs'}>{'Total Deposited'}</p>
 				<p className={'text-4xl'}>

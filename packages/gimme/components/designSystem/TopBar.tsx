@@ -1,14 +1,15 @@
 import {type ReactElement, useMemo} from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import {type Router, useRouter} from 'next/router';
 import {polygon} from 'wagmi/chains';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, truncateHex} from '@builtbymom/web3/utils';
 import {useAccountModal} from '@rainbow-me/rainbowkit';
 import {LinkOrDiv} from '@lib/common/LinkOrDiv';
+import {Button} from '@lib/primitives/Button';
 
 import {NetworkPopoverSelector} from './NetworkPopoverSelector';
-
-import type {Router} from 'next/router';
 
 const TOP_NAV = [
 	{
@@ -22,6 +23,23 @@ const TOP_NAV = [
 	{
 		href: '/about',
 		label: 'About',
+		isDisabled: true
+	}
+];
+
+const LANDING_TOP_NAV = [
+	{
+		href: '/',
+		label: 'Home'
+	},
+	{
+		href: '/about',
+		label: 'About',
+		isDisabled: true
+	},
+	{
+		href: '/docs',
+		label: 'Docs',
 		isDisabled: true
 	}
 ];
@@ -66,6 +84,8 @@ function WalletSection(): ReactElement {
 }
 
 export function TopBar(props: {router: Router}): ReactElement {
+	const {pathname} = useRouter();
+	const isLandingPage = pathname === '/';
 	return (
 		<>
 			<div
@@ -80,7 +100,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 						height={40}
 					/>
 					<Image
-						src={'/gimme-text.svg'}
+						src={isLandingPage ? '/gimme-text-white.svg' : '/gimme-text.svg'}
 						alt={'gimme'}
 						width={107}
 						height={34}
@@ -88,7 +108,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				</div>
 				<div className={'mx-10 w-px bg-white'} />
 				<div className={'flex items-center gap-2'}>
-					{TOP_NAV.map(item => (
+					{(isLandingPage ? LANDING_TOP_NAV : TOP_NAV).map(item => (
 						<LinkOrDiv
 							key={item.label}
 							className={cl(
@@ -103,9 +123,15 @@ export function TopBar(props: {router: Router}): ReactElement {
 					))}
 				</div>
 				<div className={'mx-10 w-px bg-white'} />
-				<WalletSection />
+				{isLandingPage ? (
+					<Link href={'/earn'}>
+						<Button className={'!rounded-3xl'}>{'Launch App'}</Button>
+					</Link>
+				) : (
+					<WalletSection />
+				)}
 			</div>
-			<div className={'flex justify-between md:hidden'}>
+			<div className={'flex w-full justify-between md:hidden'}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
 						src={'/gimme-logo.png'}
@@ -120,14 +146,18 @@ export function TopBar(props: {router: Router}): ReactElement {
 						height={34}
 					/>
 				</div>
-				<div className={'rounded-3xl bg-white/60 px-2 backdrop-blur-md'}>
+				{isLandingPage ? (
+					<Link href={'/earn'}>
+						<Button className={'!rounded-3xl'}>{'Launch App'}</Button>
+					</Link>
+				) : (
 					<WalletSection />
-				</div>
+				)}
 				<div
 					className={
-						'bg-grey-500/30 border-grey-800/10 mb-22 fixed bottom-6 left-1/2 z-10 grid w-full max-w-[327px] -translate-x-1/2 grid-cols-3 gap-x-2 rounded-3xl border p-3 shadow-md backdrop-blur-md md:hidden'
+						'bg-grey-500/30 border-grey-800/10 mb-22 fixed bottom-6 left-1/2 grid w-full max-w-[327px] -translate-x-1/2 grid-cols-3 gap-x-2 rounded-3xl border p-3 shadow-md backdrop-blur-md md:hidden'
 					}>
-					{TOP_NAV.map(item => (
+					{(isLandingPage ? LANDING_TOP_NAV : TOP_NAV).map(item => (
 						<LinkOrDiv
 							key={item.label}
 							className={cl(

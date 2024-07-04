@@ -42,7 +42,7 @@ function MyApp(props: AppProps): ReactElement {
 						<VaultsContextApp>
 							<div className={'relative'}>
 								{isLandingPage ? <BackgroundLanding /> : <Background />}
-								<main className={'relative mb-0 flex size-full min-h-screen flex-col'}>
+								<main className={'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'}>
 									<Layout {...props} />
 								</main>
 							</div>
