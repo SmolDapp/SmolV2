@@ -23,8 +23,10 @@ export default function Layout(props: AppProps): ReactElement {
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
 
 	return (
-		<div className={'mx-auto mt-10 max-w-5xl'}>
-			<TopBar router={router} />
+		<>
+			<div className={'mx-auto mt-10 max-w-6xl'}>
+				<TopBar router={router} />
+			</div>
 			<App>
 				<AnimatePresence>
 					<motion.div
@@ -40,6 +42,6 @@ export default function Layout(props: AppProps): ReactElement {
 					</motion.div>
 				</AnimatePresence>
 			</App>
-		</div>
+		</>
 	);
 }

@@ -68,7 +68,10 @@ function WalletSection(): ReactElement {
 export function TopBar(props: {router: Router}): ReactElement {
 	return (
 		<>
-			<div className={'bg-grey-500/30 border-grey-800/10 hidden rounded-3xl border p-4 backdrop-blur-md md:flex'}>
+			<div
+				className={
+					'bg-grey-500/30 border-grey-800/10 hidden max-w-5xl rounded-3xl border p-4 backdrop-blur-md md:flex'
+				}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
 						src={'/gimme-logo.png'}

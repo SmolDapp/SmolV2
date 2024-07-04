@@ -34,11 +34,6 @@ module.exports = phase =>
 					source: '/github',
 					destination: 'https://github.com/BuiltByMom/LookMom',
 					permanent: true
-				},
-				{
-					source: '/',
-					destination: '/earn',
-					permanent: true
 				}
 			];
 		},

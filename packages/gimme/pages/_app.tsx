@@ -1,5 +1,6 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
+import {useRouter} from 'next/router';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
@@ -8,6 +9,7 @@ import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {Background} from '@gimmeDesignSystem/Background';
+import {BackgroundLanding} from '@gimmeDesignSystem/BackgroundLanding';
 import Layout from '@gimmeDesignSystem/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
 import {WithPrices} from '@lib/contexts/usePrices';
@@ -20,6 +22,8 @@ import type {ReactElement} from 'react';
 import '../style.css';
 
 function MyApp(props: AppProps): ReactElement {
+	const {pathname} = useRouter();
+	const isLandingPage = pathname === '/';
 	return (
 		<WithFonts>
 			<Meta
@@ -38,7 +42,7 @@ function MyApp(props: AppProps): ReactElement {
 					<WithPrices>
 						<VaultsContextApp>
 							<div className={'relative'}>
-								<Background />
+								{isLandingPage ? <BackgroundLanding /> : <Background />}
 								<main className={'relative mb-0 flex size-full min-h-screen flex-col'}>
 									<Layout {...props} />
 								</main>

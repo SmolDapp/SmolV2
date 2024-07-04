@@ -93,6 +93,10 @@ module.exports = {
 			gridColumn: {
 				sidebar: 'span 7 / span 7',
 				main: 'span 23 / span 23'
+			},
+			borderRadius: {
+				'4xl': '40px',
+				'5xl': '48px'
 			}
 		},
 		plugins: [
