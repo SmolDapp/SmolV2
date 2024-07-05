@@ -263,7 +263,7 @@ export const usePortalsSolver = (): TSolverContextBase => {
 					inputToken: `${network}:${toAddress(inputToken)}`,
 					outputToken: `${network}:${toAddress(outputToken)}`,
 					inputAmount: toBigInt(configuration.asset.normalizedBigAmount.raw).toString(),
-					slippageTolerancePercentage: String(0.08),
+					slippageTolerancePercentage: String(0.8),
 					// feePercentage: '0',
 					//partner: ?
 					validate: 'true'
