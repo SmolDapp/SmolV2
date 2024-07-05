@@ -1,4 +1,5 @@
 import {type ReactElement, useCallback} from 'react';
+import Image from 'next/image';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
@@ -59,15 +60,26 @@ export function Vault({
 			)}
 			onClick={isDisabled ? undefined : onSelectVault}>
 			<div className={'relative flex items-center gap-4'}>
-				<ImageWithFallback
-					alt={token.symbol}
-					unoptimized
-					src={'/opportunity.png'}
-					altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
-					quality={90}
-					width={32}
-					height={32}
-				/>
+				{vault.category === 'Stablecoin' ? (
+					<div className={'bg-primary flex size-8 items-center justify-center rounded-full'}>
+						<Image
+							src={'/vault-logo.svg'}
+							alt={'vault-logo'}
+							width={18}
+							height={18}
+						/>
+					</div>
+				) : (
+					<ImageWithFallback
+						alt={token.symbol}
+						unoptimized
+						src={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
+						altSrc={`${process.env.SMOL_ASSETS_URL}/token/${vault.chainID}/${token.address}/logo-128.png`}
+						quality={90}
+						width={32}
+						height={32}
+					/>
+				)}
 				<div className={'flex flex-col items-start gap-0.5 text-left'}>
 					<p>{name}</p>
 					<div className={'flex items-start gap-1'}>
