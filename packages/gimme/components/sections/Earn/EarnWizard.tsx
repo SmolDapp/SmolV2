@@ -8,7 +8,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {SuccessModal} from '@lib/common/SuccessModal';
+import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
 import {Button} from '@lib/primitives/Button';
 
 import {useEarnFlow} from './useEarnFlow';
@@ -298,7 +298,7 @@ export function EarnWizard(): ReactElement {
 			<SuccessModal
 				title={'It looks like a success!'}
 				content={transactionResult.message}
-				ctaLabel={isWithdrawing ? 'Deposit' : 'Another deposit'}
+				ctaLabel={'Ok'}
 				isOpen={transactionResult.isExecuted}
 				className={'!bg-white shadow-lg'}
 				onClose={onCloseModal}
