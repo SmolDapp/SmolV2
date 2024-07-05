@@ -107,7 +107,7 @@ export function SelectVault({
 											</button>
 										</div>
 									) : (
-										<p className={'mb-10 font-bold'}>{'Select Opportunity'}</p>
+										<p className={'text-grey-900 mb-10 font-bold'}>{'Select Opportunity'}</p>
 									)}
 									<button
 										className={'group'}
@@ -164,16 +164,16 @@ export function SelectVault({
 									className={
 										'flex w-full flex-col items-start overflow-hidden rounded-3xl !bg-white p-6 transition-all'
 									}>
-									<p className={'mb-2 font-bold lg:mb-6'}>
+									<p className={'text-grey-900 mb-2 font-bold lg:mb-6'}>
 										{vaultInfo.name}
 										{' Info'}
 									</p>
 									<p
-										className={'mb-4 text-left text-neutral-600 lg:mb-8'}
+										className={'text-grey-700 mb-4 text-left lg:mb-8'}
 										dangerouslySetInnerHTML={createMarkup(vaultInfo.description)}
 									/>
 
-									<div className={'flex flex-col items-start text-neutral-600'}>
+									<div className={'text-grey-700 flex flex-col items-start'}>
 										<p className={'font-bold'}>{'APY'}</p>
 										<div className={'flex  justify-start gap-6 text-xs'}>
 											<p className={'text-left'}>

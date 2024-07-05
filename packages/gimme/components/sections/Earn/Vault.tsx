@@ -69,7 +69,7 @@ export function Vault({
 					height={32}
 				/>
 				<div className={'flex flex-col items-start gap-0.5 text-left'}>
-					<p>
+					<p className={'text-grey-900'}>
 						{name}
 						{' Vault'}
 					</p>
@@ -96,7 +96,7 @@ export function Vault({
 					className={'ml-4'}
 					onMouseEnter={() => onChangeVaultInfo(vault)}
 					onMouseLeave={() => onChangeVaultInfo(undefined)}>
-					<IconQuestionMark className={'size-6 text-neutral-600'} />
+					<IconQuestionMark className={'text-grey-700 size-6'} />
 				</div>
 			</div>
 		</div>

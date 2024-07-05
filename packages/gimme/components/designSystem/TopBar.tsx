@@ -81,7 +81,7 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openAccountModal?.();
 				}}
-				className={'font-medium transition-all hover:opacity-70'}>
+				className={'text-grey-900 font-medium transition-all hover:opacity-70'}>
 				{buttonLabel}
 			</button>
 		</div>
