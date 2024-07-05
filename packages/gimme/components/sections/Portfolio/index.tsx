@@ -23,7 +23,7 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 	return (
 		<div
 			className={
-				'flex h-[248px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-neutral-600 text-neutral-600'
+				'text-grey-700 border-grey-600 flex h-[248px] w-full flex-col items-center justify-center rounded-lg border border-dashed'
 			}>
 			{isLoading ? (
 				<IconLoader className={'size-4 animate-spin text-neutral-900 transition-opacity'} />
@@ -162,13 +162,14 @@ export function Portfolio(): ReactNode {
 	return (
 		<div className={'z-20 mb-12 w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
 			<div className={'mb-12 font-medium'}>
-				<p className={'mb-2 text-xs'}>{'Total Deposited'}</p>
-				<p className={'text-4xl'}>
+				<p className={'text-grey-900 mb-2 text-xs'}>{'Your Savings'}</p>
+				<p className={'text-grey-800 text-4xl'}>
 					{'$'}
 					<Counter
 						value={totalDeposited}
 						decimals={4}
 						decimalsToDisplay={[4]}
+						decimalsClassName={'text-grey-200'}
 						shouldBeStylized
 					/>
 				</p>

@@ -289,11 +289,9 @@ export function EarnWizard(): ReactElement {
 				</Button>
 			) : (
 				<Button
-					className={
-						'w-full !border !border-neutral-900 !bg-white transition-colors hover:!border-neutral-600 hover:text-neutral-600'
-					}
+					className={'w-full !rounded-2xl'}
 					onClick={openLoginModal}>
-					{'Connect'}
+					{'Connect Wallet'}
 				</Button>
 			)}
 

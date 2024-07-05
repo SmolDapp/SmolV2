@@ -69,7 +69,7 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openLoginModal();
 				}}
-				className={'bg-primary hover:bg-primaryHover h-14 rounded-2xl font-medium transition-colors'}>
+				className={'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-3 font-medium transition-colors'}>
 				{'Connect wallet'}
 			</button>
 		);
