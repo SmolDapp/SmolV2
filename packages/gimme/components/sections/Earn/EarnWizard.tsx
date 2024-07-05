@@ -296,7 +296,7 @@ export function EarnWizard(): ReactElement {
 			)}
 
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={transactionResult.message}
 				ctaLabel={'Ok'}
 				isOpen={transactionResult.isExecuted}

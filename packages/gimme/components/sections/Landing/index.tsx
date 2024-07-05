@@ -14,7 +14,7 @@ const CARDS = [
 		description: 'Gimme is built on long running DeFi protocols with outstanding track records like Yearn.'
 	},
 	{
-		title: 'Spend less, earn more.',
+		title: 'Spend less, earn more',
 		description: 'Gimme is built on L2s to save you expensive gas costs. Faster, cheaper, and more yield for you.'
 	}
 ];
@@ -70,7 +70,7 @@ export function Landing(): ReactElement {
 				}>
 				{CARDS.map(card => (
 					<div className={'text-grey-800 max-w-[384px] rounded-[32px] bg-white p-8'}>
-						<p className={'mb-2 text-base font-bold'}>{card.title}</p>
+						<p className={'mb-2 text-[24px] font-bold'}>{card.title}</p>
 						<p className={'text-grey-800 font-medium'}>{card.description}</p>
 					</div>
 				))}

@@ -147,7 +147,7 @@ export function Earn(): ReactElement {
 
 	return (
 		<div className={'z-20 flex w-full flex-col items-center gap-10'}>
-			<div className={'w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-xl'}>
+			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-6 shadow-xl'}>
 				<div className={'flex w-full flex-col gap-2'}>
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}

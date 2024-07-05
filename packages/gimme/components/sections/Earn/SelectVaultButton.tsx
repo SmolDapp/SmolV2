@@ -1,5 +1,4 @@
 import React, {useMemo, useState} from 'react';
-import Image from 'next/image';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
 import {mainnet, polygon} from 'wagmi/chains';
@@ -85,35 +84,21 @@ export function SelectOpportunityButton({
 									</div>
 								</div>
 								<div className={'flex gap-2'}>
-									{configuration.opportunity.category === 'Stablecoin' ? (
-										<div
-											className={
-												'bg-primary flex size-8 items-center justify-center rounded-full'
-											}>
-											<Image
-												src={'/vault-logo.svg'}
-												alt={'vault-logo'}
-												width={18}
-												height={18}
-											/>
-										</div>
-									) : (
-										<ImageWithFallback
-											alt={configuration.opportunity.token?.symbol || 'token'}
-											unoptimized
-											src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
-											altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
-											quality={90}
-											width={32}
-											height={32}
-										/>
-									)}
+									<ImageWithFallback
+										alt={configuration.opportunity.token?.symbol || 'token'}
+										unoptimized
+										src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+										altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+										quality={90}
+										width={32}
+										height={32}
+									/>
 									<div className={'flex flex-col'}>
 										<p
 											className={
 												'text-grey-800 w-full break-normal text-left text-lg font-medium'
 											}>
-											{configuration.opportunity.name}
+											{configuration.opportunity.name} {'Vault'}
 										</p>
 										<p className={'text-grey-600 text-xs'}>
 											{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
@@ -124,7 +109,7 @@ export function SelectOpportunityButton({
 							<button
 								className={'hover:bg-grey-200 flex items-center rounded-full p-2 transition-colors'}
 								onClick={() => set_isOpen(true)}>
-								<IconChevron className={'size-6 min-w-4'} />
+								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
 							</button>
 						</div>
 					) : (

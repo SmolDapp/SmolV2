@@ -91,7 +91,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 		if (!selectedToken?.address) {
 			return (
 				<TextTruncate
-					className={'text-grey-700'}
+					className={'!text-grey-700'}
 					value={'No token selected'}
 				/>
 			);
@@ -237,7 +237,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 											validate(value.amount, token, token.balance);
 										})
 									}>
-									<IconChevron className={'size-6 min-w-4'} />
+									<IconChevron className={'text-grey-800 size-6 min-w-4'} />
 								</button>
 							) : (
 								<div>
