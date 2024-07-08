@@ -38,8 +38,8 @@ export type TGetPriceProps = {chainID: number; address: TAddress};
 export type TPricesProps = {
 	pricingHash: string;
 	prices: TPrices;
-	getPrice: (value: TGetPriceProps) => TNormalizedBN | undefined;
-	getPrices: (tokens: TToken[], chainID: number) => TDict<TNormalizedBN>;
+	getPrice: (value: TGetPriceProps, shouldFetch?: boolean) => TNormalizedBN | undefined;
+	getPrices: (tokens: TToken[]) => TNDict<TDict<TNormalizedBN>>;
 };
 
 /**************************************************************************************************

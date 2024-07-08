@@ -83,7 +83,11 @@ export function Wallet(): ReactElement {
 	 ** fetch them from an external endpoint (depending on the price availability).
 	 *********************************************************************************************/
 	useDeepCompareEffect(() => {
-		set_prices(getPrices(filteredTokens, safeChainID));
+		if (filteredTokens.length === 0) {
+			return;
+		}
+		const pricesForChain = getPrices(filteredTokens);
+		set_prices(pricesForChain[safeChainID] || {});
 	}, [filteredTokens, safeChainID, pricingHash]);
 
 	const walletLayout = useMemo(() => {

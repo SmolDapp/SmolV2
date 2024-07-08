@@ -67,7 +67,8 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 		if (props.filteredTokens.length === 0) {
 			return;
 		}
-		set_prices(getPrices(props.filteredTokens, props.chainID));
+		const pricesForChain = getPrices(props.filteredTokens);
+		set_prices(pricesForChain[props.chainID] || {});
 	}, [props.filteredTokens, props.chainID, pricingHash]);
 
 	/**********************************************************************************************
