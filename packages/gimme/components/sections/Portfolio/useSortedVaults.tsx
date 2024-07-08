@@ -6,15 +6,17 @@ import {deserialize, serialize} from 'wagmi';
 import {numberSort, percentOf} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useMountEffect} from '@react-hookz/web';
 import {usePrices} from '@lib/contexts/usePrices';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
-import type {TDict, TNormalizedBN, TSortDirection} from '@builtbymom/web3/types';
+import type {TDict, TNDict, TNormalizedBN, TSortDirection} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TPossibleSortBy = 'apy' | 'savings' | 'yield' | '';
 
 export const useSortedVaults = (
 	userVaultsArray: TYDaemonVault[],
-	balances: TDict<TNormalizedBN>
+	balances: TDict<TNormalizedBN>,
+	allPrices: TNDict<TDict<TNormalizedBN>>
 ): {
 	sortBy: TPossibleSortBy;
 	sortDirection: TSortDirection;
@@ -23,11 +25,8 @@ export const useSortedVaults = (
 } => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-
-	const {getPrice, prices} = usePrices();
-
+	const {pricingHash} = usePrices();
 	const {getStakingTokenBalance} = useVaults();
-
 	const [sortDirection, set_sortDirection] = useState<TSortDirection>('');
 	const [sortBy, set_sortBy] = useState<TPossibleSortBy>('');
 
@@ -50,6 +49,16 @@ export const useSortedVaults = (
 	}, []);
 
 	/**********************************************************************************************
+	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
+	 ** it to know when it changes. This new hash will be used to trigger the useEffect hook.
+	 ** We will use classic hash function to create a hash from the balances object.
+	 *********************************************************************************************/
+	const currentBalanceIdentifier = useMemo(() => {
+		const hash = createUniqueID(serialize(balances));
+		return hash;
+	}, [balances]);
+
+	/**********************************************************************************************
 	 * Initially populate sortBy and sortDirection states with query values
 	 *********************************************************************************************/
 	useMountEffect((): void | VoidFunction => {
@@ -61,26 +70,32 @@ export const useSortedVaults = (
 		handleQuery(searchParams);
 	}, [searchParams]);
 
-	const sortedByAPY = useMemo(
-		(): TYDaemonVault[] =>
-			userVaultsArray.toSorted((a, b): number =>
-				numberSort({
-					a: a.apr?.netAPR || 0,
-					b: b.apr?.netAPR || 0,
-					sortDirection
-				})
-			),
-		[sortDirection, userVaultsArray]
-	);
+	const sortedByAPY = useMemo((): TYDaemonVault[] => {
+		if (!userVaultsArray || sortBy !== 'apy') {
+			return userVaultsArray;
+		}
+		return userVaultsArray.toSorted((a, b): number =>
+			numberSort({
+				a: a.apr?.netAPR || 0,
+				b: b.apr?.netAPR || 0,
+				sortDirection
+			})
+		);
+	}, [sortBy, sortDirection, userVaultsArray]);
 
 	const sortyedBySavings = useMemo((): TYDaemonVault[] => {
-		if (Object.values(prices).length === 0 || Object.values(balances).length === 0) {
+		pricingHash;
+		currentBalanceIdentifier;
+		if (!userVaultsArray || sortBy !== 'savings') {
+			return userVaultsArray;
+		}
+		if (Object.values(allPrices).length === 0 || Object.values(balances).length === 0) {
 			return userVaultsArray;
 		}
 
 		return userVaultsArray.toSorted((a, b): number => {
-			const aTokenPrice = getPrice({address: a.token.address, chainID: a.chainID})?.normalized || 0;
-			const bTokenPrice = getPrice({address: b.token.address, chainID: b.chainID})?.normalized || 0;
+			const aTokenPrice = allPrices?.[a.chainID]?.[a.token.address] || 0;
+			const bTokenPrice = allPrices?.[b.chainID]?.[b.token.address] || 0;
 
 			const aBalance = a.staking.available
 				? getStakingTokenBalance({address: a.staking.address, chainID: a.chainID}).normalized
@@ -90,8 +105,8 @@ export const useSortedVaults = (
 				? getStakingTokenBalance({address: b.staking.address, chainID: b.chainID}).normalized
 				: balances?.[b.address]?.normalized || 0;
 
-			const aUsdValue = aBalance * aTokenPrice;
-			const bUsdValue = bBalance * bTokenPrice;
+			const aUsdValue = aBalance * aTokenPrice.normalized;
+			const bUsdValue = bBalance * bTokenPrice.normalized;
 
 			return numberSort({
 				a: aUsdValue || 0,
@@ -99,12 +114,30 @@ export const useSortedVaults = (
 				sortDirection
 			});
 		});
-	}, [balances, getPrice, getStakingTokenBalance, prices, sortDirection, userVaultsArray]);
+	}, [
+		allPrices,
+		balances,
+		currentBalanceIdentifier,
+		getStakingTokenBalance,
+		pricingHash,
+		sortBy,
+		sortDirection,
+		userVaultsArray
+	]);
 
 	const sortedByYield = useMemo(() => {
+		pricingHash;
+		if (!userVaultsArray || sortBy !== 'savings') {
+			return userVaultsArray;
+		}
+		if (Object.values(allPrices).length === 0) {
+			return userVaultsArray;
+		}
 		return userVaultsArray.toSorted((a, b): number => {
-			const aTokenPrice = getPrice({address: a.token.address, chainID: a.chainID})?.normalized || 0;
-			const bTokenPrice = getPrice({address: b.token.address, chainID: b.chainID})?.normalized || 0;
+			pricingHash;
+			currentBalanceIdentifier;
+			const aTokenPrice = allPrices?.[a.chainID]?.[a.token.address] || 0;
+			const bTokenPrice = allPrices?.[b.chainID]?.[b.token.address] || 0;
 
 			const aBalance = a.staking.available
 				? getStakingTokenBalance({address: a.staking.address, chainID: a.chainID}).normalized
@@ -114,8 +147,8 @@ export const useSortedVaults = (
 				? getStakingTokenBalance({address: b.staking.address, chainID: b.chainID}).normalized
 				: balances?.[b.address]?.normalized || 0;
 
-			const aYield = percentOf(aBalance, a.apr.netAPR * 100) * aTokenPrice;
-			const bYield = percentOf(bBalance, b.apr.netAPR * 100) * bTokenPrice;
+			const aYield = percentOf(aBalance, a.apr.netAPR * 100) * aTokenPrice.normalized;
+			const bYield = percentOf(bBalance, b.apr.netAPR * 100) * bTokenPrice.normalized;
 
 			return numberSort({
 				a: aYield || 0,
@@ -123,7 +156,16 @@ export const useSortedVaults = (
 				sortDirection
 			});
 		});
-	}, [balances, getPrice, getStakingTokenBalance, sortDirection, userVaultsArray]);
+	}, [
+		allPrices,
+		balances,
+		currentBalanceIdentifier,
+		getStakingTokenBalance,
+		pricingHash,
+		sortBy,
+		sortDirection,
+		userVaultsArray
+	]);
 
 	const stringifiedVaultList = serialize(userVaultsArray);
 	const sortedVaults = useMemo((): TYDaemonVault[] => {

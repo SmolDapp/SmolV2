@@ -16,13 +16,15 @@ import {
 } from './usePrices.helpers';
 
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
-import type {TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {Chain} from 'viem';
+import type {TDict, TNDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TGetPriceProps, TPrices, TPricesProps, TPriceTokens} from '@lib/types/context.usePrices';
 
 const PricesContext = createContext<TPricesProps>(usePricesDefaultProps);
-export const WithPrices = ({children}: {children: ReactElement}): ReactElement => {
+export const WithPrices = (props: {children: ReactElement; supportedNetworks?: Chain[]}): ReactElement => {
 	const [pricesFromList, set_pricesFromList] = useState<TPrices>({});
-	const [prices, set_prices] = useState<TPrices>({});
+	const [prices] = useState<TPrices>({});
+	const [fetchingQueue, set_fetchingQueue] = useState<TPriceTokens>([]);
 	const {listAllTokensWithBalance, listTokensWithBalance, isLoadingOnCurrentChain, isLoading} =
 		useTokensWithBalance();
 
@@ -47,8 +49,28 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 		if (isLoading) {
 			return [];
 		}
-		return tokens;
-	}, [isLoading, isLoadingOnCurrentChain, listAllTokensWithBalance, listTokensWithBalance]);
+		const supportedChainIDs = props.supportedNetworks?.map(chain => chain.id) || [];
+		const _tokensToUse = [];
+		for (const token of tokens) {
+			if (supportedChainIDs.includes(token.chainID) || !supportedChainIDs || supportedChainIDs.length === 0) {
+				_tokensToUse.push(token);
+			}
+		}
+
+		for (const token of fetchingQueue) {
+			if (!_tokensToUse.find(t => t.address === token.address)) {
+				_tokensToUse.push(token as TToken);
+			}
+		}
+		return _tokensToUse;
+	}, [
+		listAllTokensWithBalance,
+		listTokensWithBalance,
+		isLoadingOnCurrentChain,
+		isLoading,
+		props.supportedNetworks,
+		fetchingQueue
+	]);
 
 	/**********************************************************************************************
 	 ** This function will fetch the prices for the tokens we want to use on the different
@@ -84,12 +106,33 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 			}
 
 			/**************************************************************************************
+			 ** The ydaemon endpoint needs a GET request with some query arguments. In the web
+			 ** standard, URLs are limited in size. Thus, if we have a lot of tokens to fetch, we
+			 ** might have to split the request in multiple requests.
+			 ** Thus, we will create an array of requests to fetch the prices for the tokens with
+			 ** a batch of 100 tokens per request.
+			 *************************************************************************************/
+			// const ydaemonRequests = [];
+			// if (_tokensToUse.length > 100) {
+			// 	const tokens = _tokensToUse.slice();
+			// 	while (tokens.length) {
+			// 		const chunk = tokens.splice(0, 100);
+			// 		ydaemonRequests.push(
+			// 			axios.get(`https://ydaemon.yearn.fi/prices/some/${prepareQueryStringForYDaemon(chunk)}`)
+			// 		);
+			// 	}
+			// } else {
+			// 	ydaemonRequests.push(axios.get(`https://ydaemon.yearn.fi/prices/some/${queryStringForYDaemon}`));
+			// }
+
+			/**************************************************************************************
 			 ** Once we know what to fetch, we will use the Promise.allSettled function to fetch
 			 ** the prices from the yDaemon and llama endpoints, waiting for all requests to be
 			 ** resolved or rejected before updating the prices.
 			 *************************************************************************************/
 			const [pricesFromYDaemon, ...allPricesFromLlama] = await Promise.allSettled([
 				axios.post('https://ydaemon.yearn.fi/prices/some', {addresses: queryStringForYDaemon}),
+				// ydaemonRequests,
 				...llamaRequests
 			]);
 
@@ -129,17 +172,23 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 	 ** If the price is not available, it will trigger a fetch to get the price of this token.
 	 *********************************************************************************************/
 	const getPrice = useCallback(
-		({chainID, address}: TGetPriceProps): TNormalizedBN | undefined => {
+		({chainID, address}: TGetPriceProps, shouldFetch = true): TNormalizedBN | undefined => {
 			const tokenExists = prices[chainID]?.[toAddress(address)] || pricesFromList[chainID]?.[toAddress(address)];
 			const tokenPrice =
 				prices[chainID]?.[toAddress(address)] || pricesFromList[chainID]?.[toAddress(address)] || undefined;
 
-			if (!tokenExists) {
-				fetchLists([{chainID, address: toAddress(address)}], set_prices);
+			if (!tokenExists && shouldFetch) {
+				set_fetchingQueue(prev => {
+					const newFetchingQueue = prev;
+					if (!newFetchingQueue.find(t => t.address === address)) {
+						return [...prev, {chainID, address: toAddress(address)}];
+					}
+					return prev;
+				});
 			}
 			return tokenPrice;
 		},
-		[fetchLists, prices, pricesFromList]
+		[prices, pricesFromList]
 	);
 
 	/**********************************************************************************************
@@ -148,32 +197,50 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 	 ** trigger a fetch of the full list of unavailable prices at the end.
 	 *********************************************************************************************/
 	const getPrices = useCallback(
-		(tokens: TToken[], chainID: number): TDict<TNormalizedBN> => {
-			const missingPrices: TDict<TNormalizedBN> = {};
-			const allPrices: TDict<TNormalizedBN> = {};
+		(tokens: TToken[]): TNDict<TDict<TNormalizedBN>> => {
+			const missingPrices: TNDict<TDict<TNormalizedBN>> = {};
+			const allPrices: TNDict<TDict<TNormalizedBN>> = {};
 			for (const token of tokens) {
 				const tokenExists =
-					prices[chainID]?.[toAddress(token.address)] || pricesFromList[chainID]?.[toAddress(token.address)];
+					prices[token.chainID]?.[toAddress(token.address)] ||
+					pricesFromList[token.chainID]?.[toAddress(token.address)];
 				const tokenPrice =
-					prices[chainID]?.[toAddress(token.address)] ||
-					pricesFromList[chainID]?.[toAddress(token.address)] ||
+					prices[token.chainID]?.[toAddress(token.address)] ||
+					pricesFromList[token.chainID]?.[toAddress(token.address)] ||
 					toNormalizedBN(0, 6);
 
 				if (!tokenExists) {
-					missingPrices[toAddress(token.address)] = tokenPrice;
+					if (!missingPrices[token.chainID]) {
+						missingPrices[token.chainID] = {};
+					}
+					missingPrices[token.chainID][toAddress(token.address)] = tokenPrice;
 				} else {
-					allPrices[toAddress(token.address)] = tokenPrice;
+					if (!allPrices[token.chainID]) {
+						allPrices[token.chainID] = {};
+					}
+					allPrices[token.chainID][toAddress(token.address)] = tokenPrice;
 				}
 			}
 			if (Object.keys(missingPrices).length) {
-				fetchLists(
-					Object.keys(missingPrices).map(addr => ({chainID, address: toAddress(addr)})),
-					set_prices
-				);
+				const tokensToFetch: TPriceTokens = [];
+				for (const chainID in missingPrices) {
+					for (const address in missingPrices[chainID]) {
+						tokensToFetch.push({chainID: Number(chainID), address: toAddress(address)});
+					}
+				}
+				set_fetchingQueue(prev => {
+					const newFetchingQueue = prev;
+					for (const token of tokensToFetch) {
+						if (!newFetchingQueue.find(t => t.address === token.address)) {
+							newFetchingQueue.push(token);
+						}
+					}
+					return newFetchingQueue;
+				});
 			}
 			return allPrices;
 		},
-		[fetchLists, prices, pricesFromList]
+		[prices, pricesFromList]
 	);
 
 	/**********************************************************************************************
@@ -205,7 +272,7 @@ export const WithPrices = ({children}: {children: ReactElement}): ReactElement =
 
 	return (
 		<PricesContext.Provider value={{prices: mergedPrices, getPrice, getPrices, pricingHash}}>
-			{children}
+			{props.children}
 		</PricesContext.Provider>
 	);
 };

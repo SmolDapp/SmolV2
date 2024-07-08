@@ -44,8 +44,14 @@ export function Revoke(): ReactElement {
 	}, [serialize(allowances)]);
 
 	const {getPrices} = usePrices();
+	const prices = useMemo(() => {
+		if (uniqueAllowancesByToken.length === 0) {
+			return {};
+		}
+		const pricesForChain = getPrices(uniqueAllowancesByToken);
+		return pricesForChain[chainID] || {};
+	}, [getPrices, uniqueAllowancesByToken, chainID]);
 
-	const prices = getPrices(uniqueAllowancesByToken ? uniqueAllowancesByToken : [], chainID);
 	const totalValueAtRisk = getTotalAmountAtRisk(allowances || [], prices);
 
 	/**********************************************************************************************

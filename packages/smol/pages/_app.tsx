@@ -2,7 +2,6 @@ import {Toaster} from 'react-hot-toast';
 import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
@@ -99,7 +98,7 @@ function MyApp(props: AppProps): ReactElement {
 		<WithFonts>
 			<IndexedDB>
 				<WithMom
-					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+					supportedChains={[...supportedNetworks, ...supportedTestNetworks]}
 					tokenLists={[
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
@@ -109,7 +108,7 @@ function MyApp(props: AppProps): ReactElement {
 							process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET)
 						}>
 						<WithPopularTokens>
-							<WithPrices>
+							<WithPrices supportedNetworks={supportedNetworks}>
 								<SafeProvider>
 									<PlausibleProvider
 										domain={process.env.PLAUSIBLE_DOMAIN || 'smold.app'}

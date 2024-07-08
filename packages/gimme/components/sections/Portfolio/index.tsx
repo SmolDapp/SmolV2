@@ -4,7 +4,6 @@ import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {type TDict, type TNormalizedBN, type TSortDirection} from '@builtbymom/web3/types';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {readContracts} from '@wagmi/core';
@@ -17,6 +16,7 @@ import {useSortedVaults} from './useSortedVaults';
 import {VaultRow} from './VaultRow';
 import {VaultsListHead} from './VaultsListHead';
 
+import type {TDict, TNormalizedBN, TSortDirection, TToken} from '@builtbymom/web3/types';
 import type {TPossibleSortBy} from './useSortedVaults';
 
 function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
@@ -42,12 +42,19 @@ export function Portfolio(): ReactNode {
 	const {address} = useWeb3();
 	const [balances, set_balances] = useState<TDict<TNormalizedBN>>({});
 	const {data: blockNumber} = useBlockNumber({watch: true});
-
 	const isEmpty = userVaultsArray.length === 0;
+	const {getPrices, pricingHash} = usePrices();
+	const allPrices = useMemo(() => {
+		pricingHash;
+		const allTokens: TToken[] = [];
+		for (const vault of userVaultsArray) {
+			allTokens.push({address: vault.token.address, chainID: vault.chainID} as TToken);
+			allTokens.push({address: vault.address, chainID: vault.chainID} as TToken);
+		}
+		return getPrices(allTokens);
+	}, [pricingHash, getPrices, userVaultsArray]);
 
-	const {getPrice} = usePrices();
-
-	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances);
+	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances, allPrices);
 
 	/**********************************************************************************************
 	 * Function that should be triggered on every block update. This lets us display the up-to-date
@@ -111,7 +118,6 @@ export function Portfolio(): ReactNode {
 		}
 
 		const balancesUsd = [];
-
 		for (const balance in balances) {
 			if (!userVaults[balance]) {
 				continue;
@@ -119,16 +125,14 @@ export function Portfolio(): ReactNode {
 
 			const vaultTokenAddress = userVaults[balance].token.address;
 			const vaultChainId = userVaults[balance].chainID;
-
-			const price = getPrice({address: vaultTokenAddress, chainID: vaultChainId}) || zeroNormalizedBN;
-
+			const price = allPrices?.[vaultChainId]?.[vaultTokenAddress] || zeroNormalizedBN;
 			const usdValue = balances[balance].normalized * price.normalized;
 
 			balancesUsd.push(usdValue);
 		}
 
 		return balancesUsd.reduce((acc, current) => current + acc, 0);
-	}, [blockNumber, userVaults, balances, userVaultsArray.length, getPrice]);
+	}, [blockNumber, userVaults, balances, userVaultsArray.length, allPrices]);
 
 	const getLayout = (): ReactNode => {
 		if (!address) {
@@ -147,7 +151,7 @@ export function Portfolio(): ReactNode {
 					<VaultRow
 						key={vault.address}
 						vault={vault}
-						price={getPrice({address: vault.token.address, chainID: vault.chainID})}
+						price={allPrices?.[vault.chainID]?.[vault.token.address] || zeroNormalizedBN}
 						balance={balances[vault.address] || zeroNormalizedBN}
 					/>
 				))}
