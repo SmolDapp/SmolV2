@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import InputNumber from 'rc-input-number';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -6,7 +7,6 @@ import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from 
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
-import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
 import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconChevron} from '@lib/icons/IconChevron';
@@ -25,7 +25,7 @@ type TTokenAmountInput = {
 const percentIntervals = [10, 50, 100];
 
 export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}: TTokenAmountInput): ReactElement {
-	const {onOpenCurtain} = useBalancesCurtain();
+	const {onOpenCurtain} = useBalancesModal();
 
 	const {safeChainID} = useChainID();
 

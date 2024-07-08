@@ -12,7 +12,7 @@ type TAppProp = {
 };
 
 function App(props: TAppProp): ReactElement {
-	return <section className={'mt-24 flex w-full justify-center px-2'}>{props.children}</section>;
+	return <section className={'my-auto flex w-full justify-center px-2 pb-[130px]'}>{props.children}</section>;
 }
 
 type TComponent = NextComponentType & {

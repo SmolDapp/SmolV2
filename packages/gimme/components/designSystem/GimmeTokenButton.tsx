@@ -7,12 +7,13 @@ import {IconWallet} from '@lib/icons/IconWallet';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 
-export function SmolTokenButton(props: {
+export function GimmeTokenButton(props: {
 	token: TToken | undefined;
 	isDisabled?: boolean;
 	displayChevron?: boolean;
 	onClick?: () => void;
 	price?: TNormalizedBN;
+
 	className?: string;
 }): ReactElement {
 	const {getToken} = useTokenList();
@@ -74,20 +75,15 @@ export function SmolTokenButton(props: {
 		<button
 			onClick={props.onClick}
 			className={cl(
-				'flex flex-row gap-2 items-center justify-between rounded-[4px] py-4 w-full h-full cursor-default',
+				'flex flex-row gap-2 items-center justify-between rounded-lg py-4 w-full h-full cursor-default',
 				'disabled:cursor-not-allowed',
-				'bg-neutral-200 hover:bg-neutral-300 disabled:hover:bg-neutral-200 disabled:opacity-20',
-
+				'bg-white hover:bg-grey-100 disabled:opacity-20',
 				props.onClick && 'px-4 transition-colors cursor-pointer',
 				props.className
 			)}
 			disabled={props.isDisabled}>
 			<div className={cl('flex w-full justify-between')}>
-				<div
-					className={cl(
-						'flex w-full justify-between gap-2',
-						props.token?.address ? 'items-start' : 'items-center'
-					)}>
+				<div className={cl('flex w-full justify-between gap-2 items-center')}>
 					{props.token && isAddress(props.token.address) ? (
 						<ImageWithFallback
 							alt={props.token.symbol}
@@ -113,14 +109,14 @@ export function SmolTokenButton(props: {
 							{props.token?.symbol || 'Select token'}
 						</p>
 						{!!props.token?.address && (
-							<p className={cl('text-xs', 'text-neutral-600')}>{truncateHex(props.token.address, 5)}</p>
+							<p className={cl('text-xs', 'text-grey-700')}>{truncateHex(props.token.address, 5)}</p>
 						)}
 					</div>
 					{props.token && (
-						<div className={'h-full whitespace-nowrap text-right'}>
+						<div className={'size-full whitespace-nowrap text-right'}>
 							<b className={'text-left text-base'}>{tokenBalance}</b>
 
-							<p className={cl('text-xs', 'text-neutral-600')}>&nbsp;{balanceValue}</p>
+							<p className={cl('text-xs', 'text-grey-700')}>&nbsp;{balanceValue}</p>
 						</div>
 					)}
 				</div>

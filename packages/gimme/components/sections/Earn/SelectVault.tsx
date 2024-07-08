@@ -79,7 +79,7 @@ export function SelectVault({
 							leaveTo={'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}>
 							<DialogPanel
 								className={cl(
-									'relative overflow-hidden h-full flex flex-col items-center justify-center rounded-3xl !bg-white !px-2 !pt-2 !pb-6 transition-all',
+									'relative overflow-hidden  h-full flex flex-col items-center justify-center rounded-3xl !bg-white !px-2 !pt-2 !pb-2 transition-all',
 									'border border-grey-200',
 									'col-span-9 row-span-2 row-start-3',
 									'xl:col-span-3 xl:col-start-4',
@@ -87,16 +87,16 @@ export function SelectVault({
 									'md:col-span-5 md:col-start-3 md:row-start-2 md:row-span-2'
 								)}>
 								<div className={'flex w-full items-start justify-between px-4 pb-2 pt-4'}>
-									{isStablecoin && configuration.asset.token ? (
-										<div className={'mb-6 flex gap-2'}>
-											<button
-												className={cl(
-													'text-grey-800 border-grey-200 hover:bg-grey-200 rounded-2xl border px-6 py-1 font-medium',
-													filter === 'all' ? 'border-grey-800' : ''
-												)}
-												onClick={() => set_filter('all')}>
-												{'All'}
-											</button>
+									<div className={'mb-6 flex gap-2'}>
+										<button
+											className={cl(
+												'text-grey-800 border-grey-200 hover:bg-grey-200 rounded-2xl border px-6 py-1 font-medium',
+												filter === 'all' ? 'border-grey-800' : ''
+											)}
+											onClick={() => set_filter('all')}>
+											{'All'}
+										</button>
+										{isStablecoin && configuration.asset.token && (
 											<button
 												className={cl(
 													'text-grey-800 border-grey-200 hover:bg-grey-200 rounded-2xl border px-6 py-1 font-medium',
@@ -105,10 +105,9 @@ export function SelectVault({
 												onClick={() => set_filter('token')}>
 												{configuration.asset.token.symbol}
 											</button>
-										</div>
-									) : (
-										<p className={'text-grey-900 mb-10 font-bold'}>{'Select Opportunity'}</p>
-									)}
+										)}
+									</div>
+
 									<button
 										className={'group'}
 										onClick={onClose}>

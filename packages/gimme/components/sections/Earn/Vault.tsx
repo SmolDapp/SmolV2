@@ -54,7 +54,7 @@ export function Vault({
 	return (
 		<div
 			className={cl(
-				'flex w-full justify-between rounded-md px-4 py-3 transition-colors hover:bg-grey-100',
+				'flex w-full justify-between rounded-lg px-4 py-3 transition-colors hover:bg-grey-100',
 				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
 			)}
 			onClick={isDisabled ? undefined : onSelectVault}>
