@@ -12,7 +12,7 @@ export const TOP_NAV = [
 		label: 'App'
 	},
 	{
-		href: 'https://x.com/smoldapp',
+		href: 'https://x.com/built_by_mom',
 		label: 'Twitter'
 	},
 	{
