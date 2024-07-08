@@ -22,7 +22,7 @@ const CARDS = [
 export function Landing(): ReactElement {
 	return (
 		<div className={'z-10 max-w-6xl flex-col items-center justify-center'}>
-			<div className={'relative'}>
+			<div className={'relative mt-[84px]'}>
 				<Image
 					className={'rounded-5xl w-full'}
 					src={'/bg.svg'}
