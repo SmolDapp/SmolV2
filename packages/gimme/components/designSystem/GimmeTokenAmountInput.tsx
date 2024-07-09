@@ -178,6 +178,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 						<div className={'flex items-center gap-0.5'}>
 							{percentIntervals.map(percent => (
 								<button
+									key={percent}
 									className={
 										'text-grey-800 border-grey-200 rounded-full border bg-white px-2 py-0.5 text-xs transition-colors'
 									}
