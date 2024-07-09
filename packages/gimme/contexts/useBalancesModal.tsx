@@ -19,6 +19,7 @@ import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
+import {useVaults} from './useVaults';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
@@ -209,6 +210,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	const [filter, set_filter] = useState<'all' | 'stables' | 'other'>('all');
 
 	const {getIsStablecoin} = useGetIsStablecoin();
+	const {vaults} = useVaults();
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -278,19 +280,21 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		return sorted.slice(0, 20);
 	}, [props.tokensWithBalance, searchValue]);
 
+	const filteredVaultTokens = filteredTokens.filter(token => !vaults[toAddress(token.address)]);
+
 	const filteredByCategory = useDeepCompareMemo(() => {
 		if (filter === 'all') {
-			return filteredTokens;
+			return filteredVaultTokens;
 		}
 
-		return filteredTokens.filter(token => {
+		return filteredVaultTokens.filter(token => {
 			const isStablecoin = getIsStablecoin({address: token.address, chainID: token.chainID});
 			if (filter === 'stables') {
 				return isStablecoin;
 			}
 			return !isStablecoin;
 		});
-	}, [filter, filteredTokens, getIsStablecoin]);
+	}, [filter, filteredVaultTokens, getIsStablecoin]);
 
 	return (
 		<BalancesModalWrapper

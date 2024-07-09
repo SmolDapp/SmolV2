@@ -25,7 +25,7 @@ export function Earn(): ReactElement {
 	const {chainID} = useWeb3();
 
 	const {getToken} = useWallet();
-	const {userVaults} = useVaults();
+	const {userVaults, vaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 
@@ -33,6 +33,9 @@ export function Earn(): ReactElement {
 
 	const {quote, isFetchingQuote} = useSolvers();
 	const isZapNeeded = useIsZapNeeded();
+
+	const isWithdrawing =
+		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
 
 	const onSetAsset = useCallback(
 		(value: Partial<TTokenAmountInputElement>): void => {
@@ -155,7 +158,7 @@ export function Earn(): ReactElement {
 						onSelectTokenCallback={onSelectTokenCallback}
 					/>
 
-					<SelectOpportunityButton onSetOpportunity={onSetOpportunity} />
+					{!isWithdrawing && <SelectOpportunityButton onSetOpportunity={onSetOpportunity} />}
 					{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
 						<div
 							className={
