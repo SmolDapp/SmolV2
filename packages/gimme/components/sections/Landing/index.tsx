@@ -4,21 +4,6 @@ import Link from 'next/link';
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 import {Button} from '@lib/primitives/Button';
 
-const CARDS = [
-	{
-		title: 'DeFi Dumbed Down',
-		description: 'Get access to the best yields in DeFi without needing a PhD to understand what you’re looking at.'
-	},
-	{
-		title: 'Protocol Powered',
-		description: 'Gimme is built on long running DeFi protocols with outstanding track records like Yearn.'
-	},
-	{
-		title: 'Spend less, earn more',
-		description: 'Gimme is built on L2s to save you expensive gas costs. Faster, cheaper, and more yield for you.'
-	}
-];
-
 export function Landing(): ReactElement {
 	const {RiveComponent} = useRive({
 		src: 'gimme.riv',
@@ -28,6 +13,50 @@ export function Landing(): ReactElement {
 			alignment: Alignment.TopCenter
 		})
 	});
+	const {RiveComponent: Card1} = useRive({
+		src: 'gimme-img-1.riv',
+		autoplay: true,
+		layout: new Layout({
+			fit: Fit.Contain,
+			alignment: Alignment.TopCenter
+		})
+	});
+	const {RiveComponent: Card2} = useRive({
+		src: 'gimme-img-2.riv',
+		autoplay: true,
+		layout: new Layout({
+			fit: Fit.ScaleDown,
+			alignment: Alignment.TopCenter
+		})
+	});
+	const {RiveComponent: Card3} = useRive({
+		src: 'gimme-img-3.riv',
+		autoplay: true,
+		layout: new Layout({
+			fit: Fit.ScaleDown,
+			alignment: Alignment.TopCenter
+		})
+	});
+
+	const CARDS = [
+		{
+			title: 'DeFi Dumbed Down',
+			description:
+				'Get access to the best yields in DeFi without needing a PhD to understand what you’re looking at.',
+			Animation: Card1
+		},
+		{
+			title: 'Protocol Powered',
+			description: 'Gimme is built on long running DeFi protocols with outstanding track records like Yearn.',
+			Animation: Card2
+		},
+		{
+			title: 'Spend less, earn more',
+			description:
+				'Gimme is built on L2s to save you expensive gas costs. Faster, cheaper, and more yield for you.',
+			Animation: Card3
+		}
+	];
 
 	return (
 		<div className={'z-10 flex-col items-center justify-center'}>
@@ -35,16 +64,16 @@ export function Landing(): ReactElement {
 				<div className={'flex size-full flex-1'}>
 					<RiveComponent />
 				</div>
-				<Link href={'/earn'}>
-					<Button
-						className={
-							'!absolute !top-[68%] left-1/2 w-[206px] -translate-x-1/2 !rounded-[20px] md:!top-[72%]'
-						}>
-						{'Launch App'}
-					</Button>
-				</Link>
+				<div
+					className={
+						'invisible absolute left-1/2 top-[68%] w-[206px] -translate-x-1/2 md:visible md:top-[72%]'
+					}>
+					<Link href={'/earn'}>
+						<Button className={'w-full !rounded-[20px]'}>{'Launch App'}</Button>
+					</Link>
+				</div>
 			</div>
-			<div className={'mx-auto mt-[120px] flex w-full max-w-[800px] flex-col items-center gap-6'}>
+			<div className={'mx-auto mt-16 flex w-full max-w-[800px] flex-col items-center gap-6 md:mt-[120px]'}>
 				<Image
 					src={'/landing-description.svg'}
 					alt={'landing-description'}
@@ -62,10 +91,13 @@ export function Landing(): ReactElement {
 				className={
 					'mb-[320px] mt-20 grid grid-rows-3 place-content-center gap-6 md:grid-cols-3 md:grid-rows-1'
 				}>
-				{CARDS.map(card => (
-					<div className={'text-grey-800 max-w-[384px] rounded-[32px] bg-white p-8'}>
-						<p className={'mb-2 text-[24px] font-bold'}>{card.title}</p>
-						<p className={'text-grey-800 font-medium'}>{card.description}</p>
+				{CARDS.map(({title, description, Animation}) => (
+					<div className={'text-grey-800 max-w-[384px] rounded-[32px] bg-white px-8 pb-8 pt-2'}>
+						<div className={'h-full max-h-[180px] md:max-h-[120px] lg:max-h-[180px]'}>
+							<Animation />
+						</div>
+						<p className={'mb-2 text-[24px] font-bold'}>{title}</p>
+						<p className={'text-grey-800 font-medium'}>{description}</p>
 					</div>
 				))}
 			</div>
