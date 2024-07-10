@@ -101,11 +101,11 @@ export function TopBar(props: {router: Router}): ReactElement {
 	const isLandingPage = pathname === '/';
 
 	const getMargin = (): string => {
-		if (address) {
-			return 'mx-0';
-		}
 		if (isLandingPage) {
 			return 'mx-[46.5px]';
+		}
+		if (address) {
+			return 'mx-0';
 		}
 		return 'mx-[33px]';
 	};
