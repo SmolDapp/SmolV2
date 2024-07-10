@@ -1,20 +1,18 @@
 import {type ReactElement} from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
-import {Button} from '@lib/primitives/Button';
 
 export function Landing(): ReactElement {
 	const {RiveComponent} = useRive({
 		src: 'gimme.riv',
 		autoplay: true,
 		layout: new Layout({
-			fit: Fit.ScaleDown,
+			fit: Fit.Contain,
 			alignment: Alignment.TopCenter
 		})
 	});
 	const {RiveComponent: Card1} = useRive({
-		src: 'gimme-img-1.riv',
+		src: 'gimme_img-1.riv',
 		autoplay: true,
 		layout: new Layout({
 			fit: Fit.Contain,
@@ -22,7 +20,7 @@ export function Landing(): ReactElement {
 		})
 	});
 	const {RiveComponent: Card2} = useRive({
-		src: 'gimme-img-2.riv',
+		src: 'gimme_img-2.riv',
 		autoplay: true,
 		layout: new Layout({
 			fit: Fit.ScaleDown,
@@ -30,7 +28,7 @@ export function Landing(): ReactElement {
 		})
 	});
 	const {RiveComponent: Card3} = useRive({
-		src: 'gimme-img-3.riv',
+		src: 'gimme_img-3.riv',
 		autoplay: true,
 		layout: new Layout({
 			fit: Fit.ScaleDown,
@@ -63,14 +61,6 @@ export function Landing(): ReactElement {
 			<div className={'relative mt-[84px] h-full max-h-[260px] md:max-h-[480px] lg:max-h-[660px]'}>
 				<div className={'flex size-full flex-1'}>
 					<RiveComponent />
-				</div>
-				<div
-					className={
-						'invisible absolute left-1/2 top-[68%] w-[206px] -translate-x-1/2 md:visible md:top-[72%]'
-					}>
-					<Link href={'/earn'}>
-						<Button className={'w-full !rounded-[20px]'}>{'Launch App'}</Button>
-					</Link>
 				</div>
 			</div>
 			<div className={'mx-auto mt-16 flex w-full max-w-[800px] flex-col items-center gap-6 md:mt-[120px]'}>
