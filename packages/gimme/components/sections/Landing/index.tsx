@@ -4,8 +4,9 @@ import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 
 export function Landing(): ReactElement {
 	const {RiveComponent} = useRive({
-		src: 'gimme.riv',
+		src: 'gimme_hero.riv',
 		autoplay: true,
+		stateMachines: 'State Machine 1',
 		layout: new Layout({
 			fit: Fit.Contain,
 			alignment: Alignment.TopCenter
@@ -14,6 +15,7 @@ export function Landing(): ReactElement {
 	const {RiveComponent: Card1} = useRive({
 		src: 'gimme_img-1.riv',
 		autoplay: true,
+		stateMachines: 'State Machine 1',
 		layout: new Layout({
 			fit: Fit.Contain,
 			alignment: Alignment.TopCenter
@@ -22,6 +24,7 @@ export function Landing(): ReactElement {
 	const {RiveComponent: Card2} = useRive({
 		src: 'gimme_img-2.riv',
 		autoplay: true,
+		stateMachines: 'State Machine 1',
 		layout: new Layout({
 			fit: Fit.ScaleDown,
 			alignment: Alignment.TopCenter
@@ -30,6 +33,7 @@ export function Landing(): ReactElement {
 	const {RiveComponent: Card3} = useRive({
 		src: 'gimme_img-3.riv',
 		autoplay: true,
+		stateMachines: 'State Machine 1',
 		layout: new Layout({
 			fit: Fit.ScaleDown,
 			alignment: Alignment.TopCenter
