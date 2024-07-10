@@ -1,16 +1,18 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
+import {useRouter} from 'next/router';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {mainnet, polygon} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
+import {Background} from '@gimmeDesignSystem/Background';
+import {BackgroundLanding} from '@gimmeDesignSystem/BackgroundLanding';
 import Layout from '@gimmeDesignSystem/Layout';
-import {WithFonts} from '@lib/common/WithFonts';
+import {supportedNetworks} from '@gimmeutils/constants';
 import {WithPrices} from '@lib/contexts/usePrices';
 
+import {WithFonts} from '../components/WithFonts';
 import {VaultsContextApp} from '../contexts/useVaults';
 
 import type {AppProps} from 'next/app';
@@ -19,6 +21,8 @@ import type {ReactElement} from 'react';
 import '../style.css';
 
 function MyApp(props: AppProps): ReactElement {
+	const {pathname} = useRouter();
+	const isLandingPage = pathname === '/';
 	return (
 		<WithFonts>
 			<Meta
@@ -30,15 +34,18 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={[polygon, mainnet, localhost]}
-				defaultNetwork={polygon}
+				supportedChains={supportedNetworks}
+				defaultNetwork={supportedNetworks[0]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/137/yearn-min.json']}>
 				<WalletContextApp>
-					<WithPrices>
+					<WithPrices supportedNetworks={supportedNetworks}>
 						<VaultsContextApp>
-							<main className={'relative mb-0 flex min-h-screen w-full flex-col'}>
-								<Layout {...props} />
-							</main>
+							<div className={'relative'}>
+								{isLandingPage ? <BackgroundLanding /> : <Background />}
+								<main className={'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'}>
+									<Layout {...props} />
+								</main>
+							</div>
 						</VaultsContextApp>
 					</WithPrices>
 				</WalletContextApp>

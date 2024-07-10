@@ -28,17 +28,15 @@ export function VaultsListHead(props: {
 	const renderChevron = useCallback(
 		(shouldSortBy: boolean): ReactElement => {
 			if (shouldSortBy && props.sortDirection === 'desc') {
-				return <IconChevronPlain className={'size-4 min-w-[16px] cursor-pointer text-neutral-800'} />;
+				return <IconChevronPlain className={'text-grey-800 size-4 min-w-[16px] cursor-pointer'} />;
 			}
 			if (shouldSortBy && props.sortDirection === 'asc') {
-				return (
-					<IconChevronPlain className={'size-4 min-w-[16px] rotate-180 cursor-pointer text-neutral-800'} />
-				);
+				return <IconChevronPlain className={'text-grey-800 size-4 min-w-[16px] rotate-180 cursor-pointer'} />;
 			}
 			return (
 				<IconChevronPlain
 					className={
-						'size-4 min-w-[16px] cursor-pointer text-neutral-600 transition-colors group-hover:text-neutral-800'
+						'text-grey-700 group-hover:text-grey-800 size-4 min-w-[16px] cursor-pointer transition-colors'
 					}
 				/>
 			);
@@ -48,8 +46,10 @@ export function VaultsListHead(props: {
 
 	return (
 		<div className={'mb-4 hidden w-full grid-cols-12 border-neutral-200 pr-4 text-xs md:grid'}>
-			<p className={'col-span-5 flex flex-row items-center justify-between font-medium'}>{props.title}</p>
-			<div className={'col-span-7 grid grid-cols-8 gap-x-7 text-neutral-600'}>
+			<p className={'text-grey-900 col-span-5 flex flex-row items-center justify-between font-medium'}>
+				{props.title}
+			</p>
+			<div className={'text-grey-700 col-span-7 grid grid-cols-8 gap-x-7'}>
 				{props.items.map(item =>
 					item.isSortable ? (
 						<button
@@ -59,8 +59,8 @@ export function VaultsListHead(props: {
 							<p
 								className={
 									props.sortBy === item.value
-										? 'text-neutral-800'
-										: 'text-neutral-600 group-hover:text-neutral-800'
+										? 'text-grey-800'
+										: 'text-grey-700 group-hover:text-grey-800'
 								}>
 								{item.label}
 							</p>

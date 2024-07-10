@@ -39,7 +39,6 @@ export type TBalancesCurtain = {
 export type TBalancesCurtainOptions = {
 	chainID?: number;
 	withTabs?: boolean;
-	appearAs?: 'modal' | 'curtain';
 };
 /**************************************************************************************************
  ** The TBalancesCurtainContextProps type is used to type the props of the BalancesCurtainContext
@@ -59,7 +58,6 @@ export type TBalancesCurtainContextProps = {
 export type TBalancesCurtainContextAppProps = {
 	children: ReactElement;
 	selectedTokens?: TToken[];
-	appearAs?: 'modal' | 'curtain';
 };
 
 /**************************************************************************************************

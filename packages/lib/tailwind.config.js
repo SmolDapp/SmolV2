@@ -31,6 +31,18 @@ module.exports = {
 				800: '#272B30',
 				900: '#060B11'
 			},
+			grey: {
+				0: '#FFFFFF',
+				100: '#F2F9FF',
+				200: '#E3F2FE',
+				300: '#9ED3FB',
+				400: '#85C6F7',
+				500: '#6FB5F9',
+				600: '#339BFF',
+				700: '#8AA9C1',
+				800: '#2A5A7E',
+				900: '#09121A'
+			},
 			red: '#D42600',
 			green: '#0C9000'
 		},
@@ -81,6 +93,10 @@ module.exports = {
 			gridColumn: {
 				sidebar: 'span 7 / span 7',
 				main: 'span 23 / span 23'
+			},
+			borderRadius: {
+				'4xl': '40px',
+				'5xl': '48px'
 			}
 		},
 		plugins: [

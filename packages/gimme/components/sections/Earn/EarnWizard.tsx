@@ -8,7 +8,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {SuccessModal} from '@lib/common/SuccessModal';
+import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
 import {Button} from '@lib/primitives/Button';
 
 import {useEarnFlow} from './useEarnFlow';
@@ -85,7 +85,7 @@ import type {ReactElement} from 'react';
 // }, [canProceedWithSolverAllowanceFlow, configuration.quote.data, onSuccess, provider, triggerRetreiveAllowance]);
 
 export function EarnWizard(): ReactElement {
-	const {onRefresh} = useWallet();
+	const {onRefresh, getBalance} = useWallet();
 
 	const {address, openLoginModal} = useWeb3();
 
@@ -197,10 +197,16 @@ export function EarnWizard(): ReactElement {
 
 	const isZapNeeded = useIsZapNeeded();
 
+	const isAboveBalance =
+		configuration.asset.normalizedBigAmount.raw >
+		getBalance({
+			address: toAddress(configuration.asset.token?.address),
+			chainID: Number(configuration.asset.token?.chainID)
+		}).raw;
+
 	const isWithdrawing =
 		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
-	const isMigrating =
-		configuration.asset.token && !!vaults[configuration.asset.token?.address] && configuration.opportunity;
+
 	/**********************************************************************************************
 	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
 	 *********************************************************************************************/
@@ -220,6 +226,9 @@ export function EarnWizard(): ReactElement {
 	}, [isApproved, isWithdrawing, onApprove, onExecuteDeposit, onExecuteWithdraw, onRefreshTokens]);
 
 	const isValid = useMemo((): boolean => {
+		if (isAboveBalance) {
+			return false;
+		}
 		if (isZapNeeded && !quote) {
 			return false;
 		}
@@ -239,6 +248,7 @@ export function EarnWizard(): ReactElement {
 		configuration.asset.amount,
 		configuration.asset.token,
 		configuration.opportunity,
+		isAboveBalance,
 		isWithdrawing,
 		isZapNeeded,
 		quote
@@ -248,17 +258,20 @@ export function EarnWizard(): ReactElement {
 		if (isWithdrawing) {
 			return 'Withdraw';
 		}
+
+		if (!configuration.asset.token || !configuration.opportunity) {
+			return 'Select Token or Opportunity';
+		}
+
 		if (isApproved) {
-			if (isMigrating) {
-				return 'Migrate';
-			}
 			return 'Deposit';
 		}
+
 		return 'Approve';
 	};
 
 	return (
-		<div className={'col-span-12 mt-6'}>
+		<div className={'col-span-12'}>
 			{address ? (
 				<Button
 					isBusy={
@@ -270,23 +283,21 @@ export function EarnWizard(): ReactElement {
 					}
 					isDisabled={!isValid}
 					onClick={onAction}
-					className={'w-full'}>
-					<b>{getButtonTitle()}</b>
+					className={'disabled:!bg-grey-100 w-full disabled:!opacity-100'}>
+					{getButtonTitle()}
 				</Button>
 			) : (
 				<Button
-					className={
-						'w-full !border !border-neutral-900 !bg-white transition-colors hover:!border-neutral-600 hover:text-neutral-600'
-					}
+					className={'w-full !rounded-2xl'}
 					onClick={openLoginModal}>
-					{'Connect'}
+					{'Connect Wallet'}
 				</Button>
 			)}
 
 			<SuccessModal
-				title={'It looks like a success!'}
+				title={'Success!'}
 				content={transactionResult.message}
-				ctaLabel={isWithdrawing ? 'Deposit' : 'Another deposit'}
+				ctaLabel={'Ok'}
 				isOpen={transactionResult.isExecuted}
 				className={'!bg-white shadow-lg'}
 				onClose={onCloseModal}

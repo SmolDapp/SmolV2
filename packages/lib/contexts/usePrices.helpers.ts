@@ -100,6 +100,9 @@ export function assignLlamaPrices(
 	const storedChainsToID: TDict<number> = {};
 	if (pricesFromLlama.status === 'fulfilled' && pricesFromLlama.values) {
 		const {coins} = pricesFromLlama.values;
+		if (!coins) {
+			return newPrices;
+		}
 		for (const [chainNameAndTokenAddress, details] of Object.entries(coins)) {
 			const [chainName, tokenAddress] = chainNameAndTokenAddress.split(':');
 

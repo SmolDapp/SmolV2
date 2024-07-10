@@ -1,4 +1,5 @@
 import {type ReactElement, useMemo, useState} from 'react';
+import Image from 'next/image';
 import {CommandList} from 'cmdk';
 import {ImageWithFallback} from 'lib/common/ImageWithFallback';
 import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
@@ -6,7 +7,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
-import {useIsMounted} from '@react-hookz/web';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {Chain} from 'viem';
@@ -39,23 +40,20 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 						role={'combobox'}
 						aria-expanded={isOpen}
 						className={cl(
-							'z-20 relative border transition-all',
+							'z-20 relative transition-all size-10',
 							'flex justify-center items-center cursor-pointer',
-							'placeholder:transition-colors',
-							'aspect-square rounded-lg size-full',
-							'hover:border-neutral-600'
+							'hover:opacity-70'
 						)}>
-						<div className={'flex size-10 items-center justify-center'}>
-							{isMounted() && currentNetwork?.name ? (
-								<ImageWithFallback
-									width={20}
-									height={20}
+						<div className={'flex items-center justify-center '}>
+							{isMounted && currentNetwork?.name ? (
+								<Image
+									width={40}
+									height={40}
 									alt={currentNetwork.name}
-									className={'size-6'}
-									src={`${process.env.SMOL_ASSETS_URL}/chain/${currentNetwork.id}/logo-128.png`}
+									src={`${process.env.SMOL_ASSETS_URL}/chain/${currentNetwork.id}/logo.svg`}
 								/>
 							) : (
-								<div className={'size-10 rounded-full bg-neutral-400'} />
+								<div className={'rounded-full bg-neutral-400'} />
 							)}
 						</div>
 					</button>

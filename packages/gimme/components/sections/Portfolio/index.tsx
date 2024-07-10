@@ -4,7 +4,6 @@ import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {type TDict, type TNormalizedBN, type TSortDirection} from '@builtbymom/web3/types';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {readContracts} from '@wagmi/core';
@@ -17,20 +16,21 @@ import {useSortedVaults} from './useSortedVaults';
 import {VaultRow} from './VaultRow';
 import {VaultsListHead} from './VaultsListHead';
 
+import type {TDict, TNormalizedBN, TSortDirection, TToken} from '@builtbymom/web3/types';
 import type {TPossibleSortBy} from './useSortedVaults';
 
 function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 	return (
 		<div
 			className={
-				'flex h-[248px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-neutral-600 text-neutral-600'
+				'text-grey-700 border-grey-600 flex h-[248px] w-full flex-col items-center justify-center rounded-lg border border-dashed'
 			}>
 			{isLoading ? (
 				<IconLoader className={'size-4 animate-spin text-neutral-900 transition-opacity'} />
 			) : (
 				<>
 					<p>{'Your Portfolio is empty.'}</p>
-					<p>{'Select Token at Earn section and add opportunity.'}</p>
+					<p className={'text-center'}>{'Select Token at Earn section and add opportunity.'}</p>
 				</>
 			)}
 		</div>
@@ -42,12 +42,19 @@ export function Portfolio(): ReactNode {
 	const {address} = useWeb3();
 	const [balances, set_balances] = useState<TDict<TNormalizedBN>>({});
 	const {data: blockNumber} = useBlockNumber({watch: true});
-
 	const isEmpty = userVaultsArray.length === 0;
+	const {getPrices, pricingHash} = usePrices();
+	const allPrices = useMemo(() => {
+		pricingHash;
+		const allTokens: TToken[] = [];
+		for (const vault of userVaultsArray) {
+			allTokens.push({address: vault.token.address, chainID: vault.chainID} as TToken);
+			allTokens.push({address: vault.address, chainID: vault.chainID} as TToken);
+		}
+		return getPrices(allTokens);
+	}, [pricingHash, getPrices, userVaultsArray]);
 
-	const {getPrice} = usePrices();
-
-	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances);
+	const {sortedVaults, sortBy, sortDirection, onChangeSort} = useSortedVaults(userVaultsArray, balances, allPrices);
 
 	/**********************************************************************************************
 	 * Function that should be triggered on every block update. This lets us display the up-to-date
@@ -111,7 +118,6 @@ export function Portfolio(): ReactNode {
 		}
 
 		const balancesUsd = [];
-
 		for (const balance in balances) {
 			if (!userVaults[balance]) {
 				continue;
@@ -119,16 +125,14 @@ export function Portfolio(): ReactNode {
 
 			const vaultTokenAddress = userVaults[balance].token.address;
 			const vaultChainId = userVaults[balance].chainID;
-
-			const price = getPrice({address: vaultTokenAddress, chainID: vaultChainId}) || zeroNormalizedBN;
-
+			const price = allPrices?.[vaultChainId]?.[vaultTokenAddress] || zeroNormalizedBN;
 			const usdValue = balances[balance].normalized * price.normalized;
 
 			balancesUsd.push(usdValue);
 		}
 
 		return balancesUsd.reduce((acc, current) => current + acc, 0);
-	}, [blockNumber, userVaults, balances, userVaultsArray.length, getPrice]);
+	}, [blockNumber, userVaults, balances, userVaultsArray.length, allPrices]);
 
 	const getLayout = (): ReactNode => {
 		if (!address) {
@@ -147,7 +151,7 @@ export function Portfolio(): ReactNode {
 					<VaultRow
 						key={vault.address}
 						vault={vault}
-						price={getPrice({address: vault.token.address, chainID: vault.chainID})}
+						price={allPrices?.[vault.chainID]?.[vault.token.address] || zeroNormalizedBN}
 						balance={balances[vault.address] || zeroNormalizedBN}
 					/>
 				))}
@@ -160,15 +164,16 @@ export function Portfolio(): ReactNode {
 	}, [blockNumber, refetch]);
 
 	return (
-		<div className={'mb-12 w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
+		<div className={'z-20 mb-12 w-full max-w-6xl rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
 			<div className={'mb-12 font-medium'}>
-				<p className={'mb-2 text-xs'}>{'Total Deposited'}</p>
-				<p className={'text-4xl'}>
+				<p className={'text-grey-900 mb-2 text-xs'}>{'Your Savings'}</p>
+				<p className={'text-grey-800 text-4xl'}>
 					{'$'}
 					<Counter
 						value={totalDeposited}
 						decimals={4}
 						decimalsToDisplay={[4]}
+						decimalsClassName={'text-grey-200'}
 						shouldBeStylized
 					/>
 				</p>

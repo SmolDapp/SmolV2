@@ -1,104 +1,146 @@
 import React, {useMemo, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {ImageWithFallback} from 'packages/lib/common/ImageWithFallback';
-import {IconChevron} from 'packages/lib/icons/IconChevron';
-import {cl, formatTAmount} from '@builtbymom/web3/utils';
+import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
+import {mainnet, polygon} from 'wagmi/chains';
+import {cl, formatCounterValue, formatTAmount, isEthAddress, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {usePrices} from '@lib/contexts/usePrices';
+import {IconChevron} from '@lib/icons/IconChevron';
 
 import {SelectVault} from './SelectVault';
 import {useEarnFlow} from './useEarnFlow';
 
+import type {TAddress, TNDict} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
+const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
+	[mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+	[polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+};
+
 export function SelectOpportunityButton({
-	onSetOpportunity,
-	filteredVaults
+	onSetOpportunity
 }: {
 	onSetOpportunity: (value: TYDaemonVault) => void;
-	filteredVaults: TYDaemonVault[];
 }): JSX.Element {
 	const {configuration} = useEarnFlow();
 	const {vaultsArray} = useVaults();
+	const {getPrice} = usePrices();
+
+	const {getIsStablecoin} = useGetIsStablecoin();
+	const isStablecoin = getIsStablecoin({
+		address: configuration.asset.token?.address,
+		chainID: configuration.asset.token?.chainID
+	});
+
 	const [isOpen, set_isOpen] = useState(false);
 
+	const availableVaults = configuration.asset.token
+		? vaultsArray.filter(vault => {
+				if (isStablecoin && vault.category === 'Stablecoin') {
+					return true;
+				}
+				if (vault.token.address === configuration.asset.token?.address) {
+					return true;
+				}
+				if (isEthAddress(configuration.asset.token?.address) && configuration.asset.token?.chainID) {
+					return vault.token.address === WRAPPED_TOKEN_ADDRESS[configuration.asset.token.chainID];
+				}
+				return false;
+			})
+		: vaultsArray;
+
 	const maxAPR = useMemo(() => {
-		const vaultsToUse = configuration.asset.token?.address ? filteredVaults : vaultsArray;
-		const APRs = vaultsToUse.map(vault => vault.apr.netAPR);
+		const APRs = availableVaults.map(vault => vault.apr.netAPR);
 		const max = Math.max(...APRs);
 		return max;
-	}, [configuration.asset.token?.address, filteredVaults, vaultsArray]);
+	}, [availableVaults]);
+
+	const earnings = configuration.opportunity
+		? percentOf(configuration.asset.normalizedBigAmount.normalized, configuration.opportunity.apr.netAPR * 100)
+		: 0;
+
+	const price = configuration.opportunity
+		? getPrice({address: configuration.opportunity.token.address, chainID: configuration.opportunity.chainID})
+		: zeroNormalizedBN;
 
 	return (
 		<>
 			<div className={'relative size-full'}>
 				<div
 					className={cl(
-						'h-20 z-20 relative border transition-all w-full',
-						'flex flex-row items-center cursor-text',
+						'h-[120px] z-20 relative transition-all w-full',
+						'cursor-text',
 						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-						'p-2 group bg-neutral-0 rounded-[8px]',
-						'border-neutral-400'
+						'py-4 px-6 group bg-grey-100 rounded-2xl'
 					)}>
-					<button
-						className={cl(
-							'flex items-center justify-between gap-2 rounded-[4px] py-2 pl-4 pr-2 size-full',
-							'transition-colors',
-							'disabled:opacity-30 disabled:cursor-not-allowed',
-							configuration.opportunity
-								? 'bg-neutral-200 hover:bg-neutral-300'
-								: 'bg-primary hover:bg-primaryHover'
-						)}
-						onClick={() => set_isOpen(true)}
-						disabled={filteredVaults.length === 0}>
-						{configuration.opportunity ? (
-							<>
-								<div className={'relative flex w-full items-center gap-4'}>
-									<div className={'absolute -left-2 -top-2'}>
-										<ImageWithFallback
-											width={16}
-											height={16}
-											alt={configuration.opportunity.chainID.toString()}
-											src={`${process.env.SMOL_ASSETS_URL}/chain/${configuration.opportunity.chainID}/logo-32.png`}
-										/>
+					{configuration.opportunity ? (
+						<div className={'flex h-full items-center justify-between'}>
+							<div className={'flex h-full flex-col justify-between'}>
+								<div className={'flex items-center gap-2'}>
+									<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
+									<div className={'bg-primary rounded-2xl px-2 py-0.5 text-xs font-medium'}>
+										{`APY ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
 									</div>
-									<div
-										className={
-											'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'
-										}>
-										<ImageWithFallback
-											alt={configuration.opportunity.token.symbol}
-											unoptimized
-											src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
-											altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
-											quality={90}
-											width={40}
-											height={40}
-										/>
+								</div>
+								<div className={'flex gap-2'}>
+									<ImageWithFallback
+										alt={configuration.opportunity.token?.symbol || 'token'}
+										unoptimized
+										src={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+										altSrc={`${process.env.SMOL_ASSETS_URL}/token/${configuration.opportunity?.chainID}/${configuration.opportunity.token.address}/logo-128.png`}
+										quality={90}
+										width={32}
+										height={32}
+									/>
+									<div className={'flex flex-col'}>
+										<p
+											className={
+												'text-grey-800 w-full break-normal text-left text-lg font-medium'
+											}>
+											{configuration.opportunity.name} {'Vault'}
+										</p>
+										<p className={'text-grey-600 text-xs'}>
+											{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
+										</p>
 									</div>
-									<p className={'w-full break-normal text-left font-bold'}>
-										{configuration.opportunity.name}
-									</p>
 								</div>
-								<div className={'bg-primary max-w-22 w-full rounded-md p-1 text-xs font-bold'}>
-									{`APY ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
-								</div>
-								<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
-							</>
-						) : (
-							<div className={'flex size-full flex-col items-center'}>
-								<p className={'font-bold'}>{'Select Opportunity'}</p>
-								<p className={'text-xs'}>
-									{`Earn up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-								</p>
 							</div>
-						)}
-					</button>
+							<button
+								className={'hover:bg-grey-200 flex items-center rounded-full p-2 transition-colors'}
+								onClick={() => set_isOpen(true)}>
+								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
+							</button>
+						</div>
+					) : (
+						<>
+							<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
+							<div className={'mt-4 flex justify-between'}>
+								<TextTruncate
+									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
+									className={'!text-grey-800 !text-3xl'}
+								/>
+								<button
+									className={
+										'bg-primary hover:bg-primaryHover flex min-w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+									}
+									onClick={() => set_isOpen(true)}
+									disabled={availableVaults.length === 0}>
+									{'Select'}
+									<IconChevron className={'size-6 min-w-4'} />
+								</button>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 			<SelectVault
 				isOpen={isOpen}
 				onClose={() => set_isOpen(false)}
 				onSelect={onSetOpportunity}
-				filteredVaults={filteredVaults}
+				availableVaults={availableVaults}
+				isStablecoin={isStablecoin}
 			/>
 		</>
 	);

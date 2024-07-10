@@ -1,0 +1,20 @@
+<svg width="104" height="76" viewBox="0 0 104 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="check">
+<g id="cloud">
+<path id="Vector 229" d="M62.3508 65.2125C56.7555 66.0355 57.5779 72.9475 59.2239 74.5932C61.1988 76.7326 64.8194 75.2812 67.1238 74.0995C73.3773 70.8924 72.1433 68.0102 71.8964 67.5166C70.415 64.5542 64.655 64.8736 62.3508 65.2125Z" fill="white"/>
+<path id="Vector 250" d="M93.9202 0.120841C89.9556 1.03575 90.8705 3.93294 91.8236 5.26718C92.2683 5.96607 93.8439 6.79203 96.5886 4.50476C96.9798 4.18709 97.5416 3.74234 97.7322 2.78931C97.7322 -0.0698017 95.2544 -0.196834 93.9202 0.120841Z" fill="white"/>
+<path id="Vector 249" d="M5.74737 46.3053C3.07906 49.5456 8.22523 52.5952 10.7031 53.167C11.1477 53.2941 12.2657 53.3577 13.1806 52.5953C15.4679 50.613 12.99 46.5594 11.4652 44.7804C8.7967 42.4931 6.12823 45.924 5.74737 46.3053Z" fill="white"/>
+<path id="Vector 240" d="M3.99385 38.1034C-1.21177 37.3147 -0.423328 41.2583 1.31216 42.5203C1.83795 42.9935 3.205 43.6245 4.46697 42.3625C6.23374 39.9648 5.25584 38.2946 3.99385 38.1034Z" fill="white"/>
+<circle id="Ellipse 27" cx="40" cy="29" r="27" fill="white"/>
+<ellipse id="Ellipse 37" cx="35" cy="33" rx="21" ry="27" fill="#E3F2FE"/>
+<circle id="Ellipse 28" cx="64" cy="27" r="27" fill="white"/>
+<circle id="Ellipse 30" cx="39" cy="43" r="27" fill="white"/>
+<ellipse id="Ellipse 31" cx="76" cy="50" rx="27" ry="20" fill="white"/>
+<ellipse id="Ellipse 35" cx="46" cy="56" rx="27" ry="16" fill="#E3F2FE"/>
+<ellipse id="Ellipse 32" cx="47" cy="49" rx="27" ry="16" fill="white"/>
+<ellipse id="Ellipse 36" cx="77.5" cy="34" rx="24.5" ry="27" fill="#E3F2FE"/>
+<circle id="Ellipse 29" cx="77" cy="32" r="27" fill="white"/>
+</g>
+<path id="Vector" d="M40 36L52.3333 48L77 24" stroke="#6FB5F9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

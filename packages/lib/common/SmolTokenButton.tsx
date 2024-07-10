@@ -75,12 +75,14 @@ export function SmolTokenButton(props: {
 			onClick={props.onClick}
 			className={cl(
 				'flex flex-row gap-2 items-center justify-between rounded-[4px] py-4 w-full h-full cursor-default',
-				'disabled:cursor-not-allowed disabled:hover:bg-neutral-200 disabled:opacity-20',
-				props.onClick && 'px-4 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer',
+				'disabled:cursor-not-allowed',
+				'bg-neutral-200 hover:bg-neutral-300 disabled:hover:bg-neutral-200 disabled:opacity-20',
+
+				props.onClick && 'px-4 transition-colors cursor-pointer',
 				props.className
 			)}
 			disabled={props.isDisabled}>
-			<div className={'flex w-full items-center justify-between'}>
+			<div className={cl('flex w-full justify-between')}>
 				<div
 					className={cl(
 						'flex w-full justify-between gap-2',
@@ -111,14 +113,14 @@ export function SmolTokenButton(props: {
 							{props.token?.symbol || 'Select token'}
 						</p>
 						{!!props.token?.address && (
-							<p className={'text-xs text-neutral-600'}>{truncateHex(props.token.address, 5)}</p>
+							<p className={cl('text-xs', 'text-neutral-600')}>{truncateHex(props.token.address, 5)}</p>
 						)}
 					</div>
 					{props.token && (
 						<div className={'h-full whitespace-nowrap text-right'}>
 							<b className={'text-left text-base'}>{tokenBalance}</b>
 
-							<p className={'text-xs text-neutral-600'}>&nbsp;{balanceValue}</p>
+							<p className={cl('text-xs', 'text-neutral-600')}>&nbsp;{balanceValue}</p>
 						</div>
 					)}
 				</div>

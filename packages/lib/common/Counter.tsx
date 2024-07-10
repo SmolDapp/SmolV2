@@ -1,6 +1,6 @@
 import {useLayoutEffect, useRef, useState} from 'react';
 import {animate} from 'framer-motion';
-import {formatAmount, parseAmount} from '@builtbymom/web3/utils';
+import {cl, formatAmount, parseAmount} from '@builtbymom/web3/utils';
 
 import type {MutableRefObject, ReactElement} from 'react';
 
@@ -10,6 +10,7 @@ export function Counter({
 	idealDecimals,
 	decimalsToDisplay,
 	className,
+	decimalsClassName,
 	shouldBeStylized
 }: {
 	value: number; // Value to animate
@@ -17,6 +18,7 @@ export function Counter({
 	idealDecimals?: number; // Ideal decimals to display
 	decimalsToDisplay?: number[]; // Decimals to display
 	className?: string;
+	decimalsClassName?: string;
 	shouldBeStylized?: boolean; // Whether the counter should be stylized
 }): ReactElement {
 	const nodeRef = useRef() as MutableRefObject<HTMLSpanElement | undefined>;
@@ -87,7 +89,7 @@ export function Counter({
 						set_innerContent(
 							<span>
 								{parts[0]}
-								<span className={'text-neutral-400'}>
+								<span className={cl('text-neutral-400', decimalsClassName)}>
 									{'.'}
 									{parts[1]}
 								</span>
@@ -101,7 +103,7 @@ export function Counter({
 			return () => controls.stop();
 		}
 		return () => undefined;
-	}, [value, decimals, decimalsToDisplay, idealDecimals, shouldBeStylized]);
+	}, [value, decimals, decimalsToDisplay, idealDecimals, shouldBeStylized, decimalsClassName]);
 
 	return (
 		<span
