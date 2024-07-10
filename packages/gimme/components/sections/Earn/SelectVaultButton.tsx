@@ -123,7 +123,7 @@ export function SelectOpportunityButton({
 								/>
 								<button
 									className={
-										'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+										'bg-primary hover:bg-primaryHover flex min-w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
 									}
 									onClick={() => set_isOpen(true)}
 									disabled={availableVaults.length === 0}>
