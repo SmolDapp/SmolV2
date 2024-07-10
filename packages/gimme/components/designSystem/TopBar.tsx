@@ -69,19 +69,21 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openLoginModal();
 				}}
-				className={'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-3 font-medium transition-colors'}>
+				className={
+					'bg-primary hover:bg-primaryHover h-14 w-fit rounded-2xl px-[13px] font-medium transition-colors'
+				}>
 				{'Connect wallet'}
 			</button>
 		);
 	}
 	return (
-		<div className={'flex gap-4 py-2'}>
+		<div className={'flex gap-2 py-2'}>
 			<NetworkPopoverSelector networks={[polygon]} />
 			<button
 				onClick={(): void => {
 					openAccountModal?.();
 				}}
-				className={'text-grey-900 font-medium transition-all hover:opacity-70'}>
+				className={'text-grey-900 px-4 font-medium transition-all hover:opacity-70'}>
 				{buttonLabel}
 			</button>
 		</div>
@@ -89,13 +91,26 @@ function WalletSection(): ReactElement {
 }
 
 export function TopBar(props: {router: Router}): ReactElement {
+	const {address} = useWeb3();
+
 	const {pathname} = useRouter();
 	const isLandingPage = pathname === '/';
+
+	const getMargin = (): string => {
+		if (address) {
+			return 'mx-0';
+		}
+		if (isLandingPage) {
+			return 'mx-[46.5px]';
+		}
+		return 'mx-[33px]';
+	};
+
 	return (
 		<>
 			<div
 				className={
-					'bg-grey-500/30 border-grey-800/10 hidden max-w-5xl rounded-3xl border p-4 backdrop-blur-md md:flex'
+					'bg-grey-500/30 border-grey-800/10 hidden max-w-5xl rounded-3xl border px-6 py-4 backdrop-blur-md md:flex'
 				}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
@@ -112,7 +127,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 					/>
 				</div>
 				<div className={'mx-10 w-px bg-white'} />
-				<div className={'flex items-center gap-2'}>
+				<div className={cl('flex items-center gap-2', getMargin())}>
 					{(isLandingPage ? LANDING_TOP_NAV : TOP_NAV).map(item => (
 						<LinkOrDiv
 							key={item.label}
@@ -130,7 +145,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				<div className={'mx-10 w-px bg-white'} />
 				{isLandingPage ? (
 					<Link href={'/earn'}>
-						<Button className={'!rounded-3xl'}>{'Launch App'}</Button>
+						<Button className={'!rounded-3xl !px-4'}>{'Launch App'}</Button>
 					</Link>
 				) : (
 					<WalletSection />
