@@ -7,7 +7,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
 import * as Popover from '@radix-ui/react-popover';
-import {useIsMounted} from '@react-hookz/web';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {Chain} from 'viem';
@@ -45,7 +45,7 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 							'hover:opacity-70'
 						)}>
 						<div className={'flex items-center justify-center '}>
-							{isMounted() && currentNetwork?.name ? (
+							{isMounted && currentNetwork?.name ? (
 								<Image
 									width={40}
 									height={40}

@@ -2,7 +2,7 @@ import {Fragment, type ReactElement, type ReactNode} from 'react';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import * as Dialog from '@radix-ui/react-dialog';
-import {useIsMounted} from '@smolHooks/useIsMounted';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {IconCross} from '@lib/icons/IconCross';
 import {CurtainContent} from '@lib/primitives/Curtain';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';

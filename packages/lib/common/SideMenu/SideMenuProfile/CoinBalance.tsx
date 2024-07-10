@@ -3,8 +3,8 @@ import {useBalance} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {useIsMounted} from '@smolHooks/useIsMounted';
 import {Counter} from '@lib/common/Counter';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 
 export function CoinBalance(): ReactElement {
 	const isMounted = useIsMounted();
