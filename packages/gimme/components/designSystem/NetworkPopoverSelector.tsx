@@ -44,7 +44,7 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 							'flex justify-center items-center cursor-pointer',
 							'hover:opacity-70'
 						)}>
-						<div className={'flex items-center justify-center'}>
+						<div className={'flex items-center justify-center '}>
 							{isMounted() && currentNetwork?.name ? (
 								<Image
 									width={40}

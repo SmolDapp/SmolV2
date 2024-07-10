@@ -77,7 +77,11 @@ function WalletSection(): ReactElement {
 		);
 	}
 	return (
-		<div className={'flex gap-2 py-2'}>
+		<div
+			className={cl(
+				'flex items-center gap-2 rounded-2xl border border-white bg-white/60 p-2 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
+				'md:py-2 md:backdrop-filter-none'
+			)}>
 			<NetworkPopoverSelector networks={[polygon]} />
 			<button
 				onClick={(): void => {
