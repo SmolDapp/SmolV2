@@ -4,6 +4,7 @@ import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoi
 import {mainnet, polygon} from 'wagmi/chains';
 import {cl, formatCounterValue, formatTAmount, isEthAddress, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {TextTruncate} from '@lib/common/TextTruncate';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconChevron} from '@lib/icons/IconChevron';
 
@@ -116,9 +117,10 @@ export function SelectOpportunityButton({
 						<>
 							<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
 							<div className={'mt-4 flex justify-between'}>
-								<p className={'text-grey-800 text-3xl'}>
-									{`Up to  ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-								</p>
+								<TextTruncate
+									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
+									className={'!text-grey-800 !text-3xl'}
+								/>
 								<button
 									className={
 										'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
