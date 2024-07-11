@@ -118,7 +118,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
-						src={'/gimme-logo.png'}
+						src={'/gimme-logo.svg'}
 						alt={'gimme-logo'}
 						width={40}
 						height={40}
@@ -157,13 +157,6 @@ export function TopBar(props: {router: Router}): ReactElement {
 			</div>
 			<div className={'flex w-full justify-between md:hidden'}>
 				<div className={'flex gap-1 py-2'}>
-					<Image
-						src={'/gimme-logo.png'}
-						className={'hidden md:block'}
-						alt={'gimme-logo'}
-						width={40}
-						height={40}
-					/>
 					<Image
 						src={'/gimme-text.svg'}
 						alt={'gimme'}
