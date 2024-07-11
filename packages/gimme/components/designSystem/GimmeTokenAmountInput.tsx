@@ -210,8 +210,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 								<div className={'flex gap-1'}>
 									<InputNumber
 										prefixCls={cl(
-											// inputWidth,
-											'w-full border-none bg-transparent p-0 text-3xl transition-all',
+											'w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
 											'text-grey-800 placeholder:text-grey-700 focus:placeholder:text-grey-400/30',
 											'placeholder:transition-colors overflow-hidden'
 										)}
