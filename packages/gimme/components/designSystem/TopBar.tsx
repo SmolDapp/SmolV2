@@ -159,6 +159,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				<div className={'flex gap-1 py-2'}>
 					<Image
 						src={'/gimme-logo.png'}
+						className={'hidden md:block'}
 						alt={'gimme-logo'}
 						width={40}
 						height={40}
