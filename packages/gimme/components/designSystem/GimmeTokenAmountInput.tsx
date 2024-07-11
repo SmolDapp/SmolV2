@@ -166,7 +166,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 		<div className={'relative size-full rounded-lg'}>
 			<label
 				className={cl(
-					'z-20 relative border transition-all h-[120px]',
+					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
 					'py-4 px-6 bg-grey-100 rounded-2xl',
@@ -192,8 +192,8 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 					)}
 				</div>
 				<div>
-					<div className={'flex justify-between'}>
-						<div className={'flex gap-2'}>
+					<div className={'flex justify-between gap-2'}>
+						<div className={'flex w-full gap-2'}>
 							{selectedToken && (
 								<ImageWithFallback
 									className={'mt-1'}
@@ -206,11 +206,12 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 									height={32}
 								/>
 							)}
-							<div className={'flex flex-col'}>
+							<div className={'flex w-full flex-col'}>
 								<div className={'flex gap-1'}>
 									<InputNumber
+										className={'w-full'}
 										prefixCls={cl(
-											'w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
+											'!w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
 											'text-grey-800 placeholder:text-grey-700 focus:placeholder:text-grey-400/30',
 											'placeholder:transition-colors overflow-hidden'
 										)}
