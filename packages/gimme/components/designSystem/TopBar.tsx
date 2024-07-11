@@ -124,7 +124,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 						height={40}
 					/>
 					<Image
-						src={isLandingPage ? '/gimme-text-white.svg' : '/gimme-text.svg'}
+						src={'/gimme-text.svg'}
 						alt={'gimme'}
 						width={107}
 						height={34}
