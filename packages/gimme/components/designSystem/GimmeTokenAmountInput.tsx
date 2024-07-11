@@ -169,7 +169,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'py-4 px-6 bg-grey-100 rounded-2xl',
+					'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pl-6  bg-grey-100 rounded-2xl',
 					getBorderColor()
 				)}>
 				<div className={'flex items-center gap-2'}>
@@ -244,13 +244,13 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 								<div>
 									<button
 										className={
-											'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+											'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
 										}
 										onClick={() =>
 											onOpenCurtain(token => validate(value.amount, token, token.balance))
 										}>
-										{'Select'}
-										<IconChevron className={'size-6 min-w-4'} />
+										<p className={'hidden md:inline'}>{'Select'}</p>
+										<IconChevron className={'size-6'} />
 									</button>
 								</div>
 							)}

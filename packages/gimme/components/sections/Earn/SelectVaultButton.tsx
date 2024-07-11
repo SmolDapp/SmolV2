@@ -73,7 +73,7 @@ export function SelectOpportunityButton({
 						'h-[120px] z-20 relative transition-all w-full',
 						'cursor-text',
 						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-						'py-4 px-6 group bg-grey-100 rounded-2xl'
+						'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pb-8 md:pl-6 group bg-grey-100 rounded-2xl'
 					)}>
 					{configuration.opportunity ? (
 						<div className={'flex h-full items-center justify-between'}>
@@ -116,19 +116,19 @@ export function SelectOpportunityButton({
 					) : (
 						<>
 							<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
-							<div className={'mt-4 flex justify-between'}>
+							<div className={'flex h-[74px] items-end justify-between md:mt-4 md:items-start'}>
 								<TextTruncate
 									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-									className={'!text-grey-800 !text-3xl'}
+									className={'!text-grey-800 !text-lg md:mt-1.5 md:max-h-8 md:!text-3xl'}
 								/>
 								<button
 									className={
-										'bg-primary hover:bg-primaryHover flex min-w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+										'bg-primary hover:bg-primaryHover self-top mt-[10px] flex items-center justify-between self-baseline rounded-2xl p-2 md:mt-0 md:min-w-[102px] md:pl-4'
 									}
 									onClick={() => set_isOpen(true)}
 									disabled={availableVaults.length === 0}>
-									{'Select'}
-									<IconChevron className={'size-6 min-w-4'} />
+									<p className={'hidden md:inline'}>{'Select'}</p>
+									<IconChevron className={'size-6'} />
 								</button>
 							</div>
 						</>
