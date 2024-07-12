@@ -166,10 +166,10 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 		<div className={'relative size-full rounded-lg'}>
 			<label
 				className={cl(
-					'z-20 relative border transition-all h-[120px]',
+					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'py-4 px-6 bg-grey-100 rounded-2xl',
+					'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pl-6  bg-grey-100 rounded-2xl',
 					getBorderColor()
 				)}>
 				<div className={'flex items-center gap-2'}>
@@ -192,8 +192,8 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 					)}
 				</div>
 				<div>
-					<div className={'flex justify-between'}>
-						<div className={'flex gap-2'}>
+					<div className={'flex justify-between gap-2'}>
+						<div className={'flex w-full gap-2'}>
 							{selectedToken && (
 								<ImageWithFallback
 									className={'mt-1'}
@@ -206,12 +206,12 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 									height={32}
 								/>
 							)}
-							<div className={'flex flex-col'}>
+							<div className={'flex w-full flex-col'}>
 								<div className={'flex gap-1'}>
 									<InputNumber
+										className={'w-full'}
 										prefixCls={cl(
-											// inputWidth,
-											'w-full border-none bg-transparent p-0 text-3xl transition-all',
+											'!w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
 											'text-grey-800 placeholder:text-grey-700 focus:placeholder:text-grey-400/30',
 											'placeholder:transition-colors overflow-hidden'
 										)}
@@ -244,13 +244,13 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 								<div>
 									<button
 										className={
-											'bg-primary hover:bg-primaryHover flex w-[102px] items-center justify-between rounded-2xl py-2 pl-4 pr-2'
+											'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
 										}
 										onClick={() =>
 											onOpenCurtain(token => validate(value.amount, token, token.balance))
 										}>
-										{'Select'}
-										<IconChevron className={'size-6 min-w-4'} />
+										<p className={'hidden md:inline'}>{'Select'}</p>
+										<IconChevron className={'size-6'} />
 									</button>
 								</div>
 							)}

@@ -30,6 +30,7 @@ export function SelectVault({
 	const {getPrice} = usePrices();
 
 	const [vaultInfo, set_vaultInfo] = useState<TYDaemonVault | undefined>(undefined);
+	const [isHoveringInfo, set_isHoveringInfo] = useState(false);
 
 	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
 
@@ -145,31 +146,34 @@ export function SelectVault({
 											onSelect={onSelect}
 											onClose={onClose}
 											onChangeVaultInfo={onChangeVaultInfo}
+											set_isHoveringInfo={set_isHoveringInfo}
 										/>
 									))}
 								</div>
 							</DialogPanel>
 						</TransitionChild>
 
-						{vaultInfo && (
-							<div
-								className={cl(
-									'col-span-9 col-start-1 row-start-1 items-end row-span-2 flex sm:text-base',
-									'xl: col-span-2 xl:col-start-7',
-									'lg:col-span-2 lg:col-start-8 lg:row-span-2 lg:row-start-2 lg:max-w-[424px] lg:text-base lg:items-start',
-									'md:col-span-5 md:col-start-3 md:row-span-1 md:row-start-1 items-start md:text-xs'
-								)}>
+						<div
+							className={cl(
+								'col-span-9 col-start-1 row-start-1 items-end row-span-2 flex sm:text-base',
+								'xl: col-span-2 xl:col-start-7',
+								'lg:col-span-2 lg:col-start-8 lg:row-span-2 lg:row-start-2 lg:max-w-[424px] lg:text-base lg:items-start',
+								'md:col-span-5 md:col-start-3 md:row-span-1 md:row-start-1 items-start md:text-xs',
+								'transition-opacity duration-150 ease-in',
+								isHoveringInfo ? 'opacity-100' : 'opacity-0'
+							)}>
+							{vaultInfo && (
 								<div
 									className={
 										'flex w-full flex-col items-start overflow-hidden rounded-3xl !bg-white p-6 transition-all'
 									}>
 									<p className={'text-grey-900 mb-2 font-bold lg:mb-6'}>
-										{vaultInfo.name}
+										{vaultInfo?.name || 'Vault'}
 										{' Info'}
 									</p>
 									<p
 										className={'text-grey-700 mb-4 text-left lg:mb-8'}
-										dangerouslySetInnerHTML={createMarkup(vaultInfo.description)}
+										dangerouslySetInnerHTML={createMarkup(vaultInfo?.description || '')}
 									/>
 
 									<div className={'text-grey-700 flex flex-col items-start'}>
@@ -177,21 +181,21 @@ export function SelectVault({
 										<div className={'flex  justify-start gap-6 text-xs'}>
 											<p className={'text-left'}>
 												{'Last week '}
-												{formatPercent(vaultInfo.apr.points.weekAgo * 100)}
+												{formatPercent((vaultInfo?.apr.points.weekAgo || 0) * 100)}
 											</p>
 											<p className={'text-left'}>
 												{'Last Month '}
-												{formatPercent(vaultInfo.apr.points.monthAgo * 100)}
+												{formatPercent((vaultInfo?.apr.points.monthAgo || 0) * 100)}
 											</p>
 											<p className={'text-left'}>
 												{'Inception '}
-												{formatPercent(vaultInfo.apr.points.inception * 100)}
+												{formatPercent((vaultInfo?.apr.points.inception || 0) * 100)}
 											</p>
 										</div>
 									</div>
 								</div>
-							</div>
-						)}
+							)}
+						</div>
 					</div>
 				</div>
 			</Dialog>

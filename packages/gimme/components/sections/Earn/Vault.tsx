@@ -1,4 +1,4 @@
-import {type ReactElement, useCallback} from 'react';
+import {type ReactElement, useCallback, useState} from 'react';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
@@ -16,7 +16,8 @@ export function Vault({
 	isDisabled = false,
 	onSelect,
 	onClose,
-	onChangeVaultInfo
+	onChangeVaultInfo,
+	set_isHoveringInfo
 }: {
 	vault: TYDaemonVault;
 	price: TNormalizedBN | undefined;
@@ -24,6 +25,7 @@ export function Vault({
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
 	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
+	set_isHoveringInfo: (value: boolean) => void;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
 
@@ -50,6 +52,8 @@ export function Vault({
 		onSelect(vault);
 		onClose();
 	}, [chainID, connector, onClose, onSelect, switchChainAsync, vault]);
+
+	const [timeoutId, set_timeoutId] = useState<Timer | undefined>(undefined);
 
 	return (
 		<div
@@ -94,8 +98,15 @@ export function Vault({
 
 				<div
 					className={'ml-4'}
-					onMouseEnter={() => onChangeVaultInfo(vault)}
-					onMouseLeave={() => onChangeVaultInfo(undefined)}>
+					onMouseEnter={() => {
+						clearTimeout(timeoutId);
+						onChangeVaultInfo(vault);
+						set_isHoveringInfo(true);
+					}}
+					onMouseLeave={() => {
+						set_isHoveringInfo(false);
+						set_timeoutId(setTimeout(() => onChangeVaultInfo(undefined), 150));
+					}}>
 					<IconQuestionMark className={'text-grey-700 size-6'} />
 				</div>
 			</div>

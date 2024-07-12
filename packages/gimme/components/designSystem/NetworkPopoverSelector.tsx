@@ -40,11 +40,11 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 						role={'combobox'}
 						aria-expanded={isOpen}
 						className={cl(
-							'z-20 relative transition-all size-10',
+							'z-20 relative transition-all size-6 md:size-10',
 							'flex justify-center items-center cursor-pointer',
 							'hover:opacity-70'
 						)}>
-						<div className={'flex items-center justify-center '}>
+						<div className={'flex size-6 items-center justify-center md:size-10'}>
 							{isMounted && currentNetwork?.name ? (
 								<Image
 									width={40}

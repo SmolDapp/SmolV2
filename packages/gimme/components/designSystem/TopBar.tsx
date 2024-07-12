@@ -118,13 +118,13 @@ export function TopBar(props: {router: Router}): ReactElement {
 				}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
-						src={'/gimme-logo.png'}
+						src={'/gimme-logo.svg'}
 						alt={'gimme-logo'}
 						width={40}
 						height={40}
 					/>
 					<Image
-						src={isLandingPage ? '/gimme-text-white.svg' : '/gimme-text.svg'}
+						src={'/gimme-text.svg'}
 						alt={'gimme'}
 						width={107}
 						height={34}
@@ -158,12 +158,6 @@ export function TopBar(props: {router: Router}): ReactElement {
 			<div className={'flex w-full justify-between md:hidden'}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
-						src={'/gimme-logo.png'}
-						alt={'gimme-logo'}
-						width={40}
-						height={40}
-					/>
-					<Image
 						src={'/gimme-text.svg'}
 						alt={'gimme'}
 						width={107}
@@ -179,7 +173,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				)}
 				<div
 					className={
-						'bg-grey-500/30 border-grey-800/10 mb-22 fixed bottom-6 left-1/2 grid w-full max-w-[327px] -translate-x-1/2 grid-cols-3 gap-x-2 rounded-3xl border p-3 shadow-md backdrop-blur-md md:hidden'
+						'bg-grey-500/30 border-grey-800/10 mb-22 fixed bottom-6 left-1/2 grid w-full max-w-[327px] -translate-x-1/2 grid-cols-3 gap-x-2 rounded-3xl border p-3 backdrop-blur-md md:hidden'
 					}>
 					{(isLandingPage ? LANDING_TOP_NAV : TOP_NAV).map(item => (
 						<LinkOrDiv

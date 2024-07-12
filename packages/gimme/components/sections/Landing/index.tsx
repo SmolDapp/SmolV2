@@ -86,7 +86,10 @@ export function Landing(): ReactElement {
 					'mb-[320px] mt-20 grid grid-rows-3 place-content-center gap-6 md:grid-cols-3 md:grid-rows-1'
 				}>
 				{CARDS.map(({title, description, Animation}) => (
-					<div className={'text-grey-800 max-w-[384px] rounded-[32px] bg-white px-8 pb-8 pt-2'}>
+					<div
+						className={
+							'text-grey-800 border-grey-200 max-w-[384px] rounded-[32px] border bg-white px-8 pb-8 pt-2'
+						}>
 						<div className={'h-full max-h-[180px] md:max-h-[120px] lg:max-h-[180px]'}>
 							<Animation />
 						</div>

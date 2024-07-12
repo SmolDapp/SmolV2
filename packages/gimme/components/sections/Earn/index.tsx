@@ -97,15 +97,15 @@ export function Earn(): ReactElement {
 
 	const getZapsBadgeContent = useCallback(() => {
 		if (isFetchingQuote) {
-			return <p className={'text-neutral-600'}>{'Checking possible routes...'}</p>;
+			return <p>{'Checking possible routes...'}</p>;
 		}
 
 		if (!quote) {
-			return <p className={'text-neutral-600'}>{'Sorry! No possible routes found for this configuration!'}</p>;
+			return <p>{'Sorry! No possible routes found for this configuration!'}</p>;
 		}
 
 		return (
-			<div className={'flex w-full justify-between'}>
+			<div className={'flex w-full justify-between gap-4'}>
 				<p className={'max-w-[357px]'}>
 					{'Hey! We gonna swap your tokens so you can use this opportunity. Don’t worry, no extra clicks.'}
 				</p>
@@ -150,7 +150,7 @@ export function Earn(): ReactElement {
 
 	return (
 		<div className={'z-20 flex w-full flex-col items-center gap-10'}>
-			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-6 shadow-xl'}>
+			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-4 shadow-xl md:p-6'}>
 				<div className={'flex w-full flex-col gap-2'}>
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}
@@ -162,7 +162,7 @@ export function Earn(): ReactElement {
 					{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
 						<div
 							className={
-								'bg-grey-100 border-grey-200 text-grey-700 w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs'
+								'bg-grey-100 border-grey-200 text-grey-700 min-h-[82px] w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs md:min-h-[66px]'
 							}>
 							{getZapsBadgeContent()}
 						</div>
