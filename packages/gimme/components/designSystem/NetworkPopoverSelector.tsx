@@ -1,8 +1,7 @@
 import {type ReactElement, useMemo, useState} from 'react';
 import Image from 'next/image';
-import {CommandList} from 'cmdk';
-import {ImageWithFallback} from 'lib/common/ImageWithFallback';
-import {Command, CommandEmpty, CommandInput, CommandItem} from 'lib/primitives/Commands';
+import {CommandInput, CommandList} from 'cmdk';
+import {Command, CommandEmpty, CommandItem} from 'lib/primitives/Commands';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {toSafeChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl} from '@builtbymom/web3/utils';
@@ -62,28 +61,42 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 
 			<Popover.Content
 				className={cl(
-					'z-30 min-w-[8rem] overflow-hidden rounded-md border border-neutral-400 bg-neutral-0 p-1',
+					'z-30 min-w-[8rem] overflow-hidden rounded-3xl bg-neutral-0 p-1.5',
 					'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
 					'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
 					'data-[side=bottom]:slide-in-from-top-2',
 					'DropdownMenuContent'
 				)}
-				style={{boxShadow: 'rgba(36, 40, 51, 0.08) 0px 0px 20px 8px'}}>
+				style={{
+					boxShadow: 'rgba(9, 18, 26, 0.08) 0px 8px 20px 0px '
+				}}>
 				<Command>
-					<CommandInput placeholder={'Search chain...'} />
-					<CommandEmpty>{'No chain found.'}</CommandEmpty>
+					<div className={'p-2.5 pb-3'}>
+						<CommandInput
+							className={cl(
+								'rounded-2xl py-3 px-4 text-base',
+								'placeholder:transition-colors transition-all',
+								'disabled:cursor-not-allowed disabled:opacity-40',
+								'placeholder:text-grey-700 focus:border-grey-300 text-grey-800 caret-grey-800 border-transparent bg-grey-100'
+							)}
+							placeholder={'Search chain...'}
+						/>
+					</div>
+					<CommandEmpty className={'text-grey-700 pb-4 pt-2 text-center text-xs'}>
+						{'No chains found.'}
+					</CommandEmpty>
 					<CommandList className={'max-h-48 overflow-y-auto'}>
 						{networks.map(network => (
 							<CommandItem
 								key={network.id}
 								value={network.name}
 								className={cl(
-									'relative flex cursor-pointer items-center rounded-lg p-2',
+									'relative flex cursor-pointer items-center !rounded-lg !p-2.5 mt-1',
 									'outline-none select-none transition-colors',
 									'text-xs text-neutral-800 group',
-									'focus:bg-neutral-300',
-									'hover:bg-neutral-200',
-									currentNetwork?.id === network.id ? 'bg-neutral-200' : ''
+									'focus:bg-grey-100',
+									'hover:bg-grey-100',
+									currentNetwork?.id === network.id ? 'bg-grey-100 !cursor-default' : ''
 								)}
 								onSelect={selectedNetwork => {
 									if (selectedNetwork === currentNetwork?.name) {
@@ -95,14 +108,13 @@ export function NetworkPopoverSelector(props: {networks?: Chain[]}): ReactElemen
 									onSwitchChain(chain?.id || 1);
 									set_isOpen(false);
 								}}>
-								<ImageWithFallback
-									width={16}
-									height={16}
-									className={'mr-2'}
+								<Image
+									width={20}
+									height={20}
 									alt={network.name}
-									src={`${process.env.SMOL_ASSETS_URL}/chain/${network.id}/logo-32.png`}
+									src={`${process.env.SMOL_ASSETS_URL}/chain/${network.id}/logo.svg`}
 								/>
-								{network.name}
+								<p className={'ml-2'}>{network.name}</p>
 							</CommandItem>
 						))}
 					</CommandList>
