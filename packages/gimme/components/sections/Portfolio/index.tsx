@@ -30,26 +30,29 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 			}>
 			{isLoading ? (
 				<IconLoader className={'size-4 animate-spin text-neutral-900 transition-opacity'} />
-			) : (
-				<>
+			) : address ? (
+				<div className={'flex w-full flex-col items-center px-1'}>
 					<p>{'Your Portfolio is empty.'}</p>
-					<p className={'text-center'}>{'Select Token at Earn section and add opportunity.'}</p>
-					{address ? (
-						<Link href={'/earn'}>
-							<Button className={'mt-2 !rounded-2xl'}>{'Add opportunity'}</Button>
-						</Link>
-					) : (
-						<button
-							onClick={(): void => {
-								openLoginModal();
-							}}
-							className={
-								'bg-primary hover:bg-primaryHover text-grey-900 mt-2 h-14 w-fit rounded-2xl px-[13px] font-medium transition-colors'
-							}>
-							{'Connect wallet'}
-						</button>
-					)}
-				</>
+					<p className={'max-w-[380px] text-center'}>{'Select Token at Earn section and add opportunity.'}</p>
+					<Link
+						className={'w-full max-w-[320px]'}
+						href={'/earn'}>
+						<Button className={'mt-6 !w-full !rounded-2xl'}>{'Add opportunity'}</Button>
+					</Link>
+				</div>
+			) : (
+				<div className={'flex w-full max-w-[320px] flex-col items-center px-1'}>
+					<p className={'text-center'}>{'Get started by connecting your wallet'}</p>
+					<button
+						onClick={(): void => {
+							openLoginModal();
+						}}
+						className={
+							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-medium transition-colors'
+						}>
+						{'Connect wallet'}
+					</button>
+				</div>
 			)}
 		</div>
 	);
