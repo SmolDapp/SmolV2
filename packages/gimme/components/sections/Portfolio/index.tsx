@@ -1,4 +1,5 @@
 import {type ReactElement, type ReactNode, useEffect, useMemo, useState} from 'react';
+import Link from 'next/link';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
@@ -10,6 +11,7 @@ import {readContracts} from '@wagmi/core';
 import {Counter} from '@lib/common/Counter';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconLoader} from '@lib/icons/IconLoader';
+import {Button} from '@lib/primitives/Button';
 import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
 import {useSortedVaults} from './useSortedVaults';
@@ -20,6 +22,7 @@ import type {TDict, TNormalizedBN, TSortDirection, TToken} from '@builtbymom/web
 import type {TPossibleSortBy} from './useSortedVaults';
 
 function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
+	const {address, openLoginModal} = useWeb3();
 	return (
 		<div
 			className={
@@ -31,6 +34,21 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 				<>
 					<p>{'Your Portfolio is empty.'}</p>
 					<p className={'text-center'}>{'Select Token at Earn section and add opportunity.'}</p>
+					{address ? (
+						<Link href={'/earn'}>
+							<Button className={'mt-2 !rounded-2xl'}>{'Add opportunity'}</Button>
+						</Link>
+					) : (
+						<button
+							onClick={(): void => {
+								openLoginModal();
+							}}
+							className={
+								'bg-primary hover:bg-primaryHover text-grey-900 mt-2 h-14 w-fit rounded-2xl px-[13px] font-medium transition-colors'
+							}>
+							{'Connect wallet'}
+						</button>
+					)}
 				</>
 			)}
 		</div>
