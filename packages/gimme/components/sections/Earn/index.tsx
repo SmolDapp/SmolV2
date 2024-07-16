@@ -5,9 +5,9 @@ import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
+import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {isAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {GimmeTokenAmountInput} from '@gimmeDesignSystem/GimmeTokenAmountInput';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
@@ -22,17 +22,14 @@ import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVa
 
 export function Earn(): ReactElement {
 	const router = useRouter();
-	const {chainID} = useWeb3();
-
 	const {getToken} = useWallet();
 	const {userVaults, vaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
-
 	const {getIsStablecoin} = useGetIsStablecoin();
-
 	const {quote, isFetchingQuote} = useSolvers();
 	const isZapNeeded = useIsZapNeeded();
+	const chain = useCurrentChain();
 
 	const isWithdrawing =
 		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
@@ -66,7 +63,7 @@ export function Earn(): ReactElement {
 			return;
 		}
 		if (tokenAddress && !isZeroAddress(tokenAddress as string) && isAddress(tokenAddress as string)) {
-			const token = getToken({address: tokenAddress as TAddress, chainID});
+			const token = getToken({address: tokenAddress as TAddress, chainID: chain.id});
 
 			dispatchConfiguration({
 				type: 'SET_ASSET',
@@ -87,7 +84,7 @@ export function Earn(): ReactElement {
 		}
 
 		uniqueIdentifier.current = createUniqueID(serialize(router.query));
-	}, [chainID, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router, router.query, userVaults]);
+	}, [chain.id, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router, router.query, userVaults]);
 
 	useEffect(() => {
 		return () => {

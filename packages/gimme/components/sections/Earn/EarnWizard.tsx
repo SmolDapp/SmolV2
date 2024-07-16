@@ -2,10 +2,10 @@ import {useCallback, useMemo, useState} from 'react';
 import {useSolvers} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
+import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
@@ -86,13 +86,10 @@ import type {ReactElement} from 'react';
 
 export function EarnWizard(): ReactElement {
 	const {onRefresh, getBalance} = useWallet();
-
 	const {address, openLoginModal} = useWeb3();
-
 	const {configuration, onResetEarn} = useEarnFlow();
 	const {vaults, vaultsArray} = useVaults();
-
-	const {safeChainID} = useChainID();
+	const chain = useCurrentChain();
 
 	const [transactionResult, set_transactionResult] = useState({
 		isExecuted: false,
@@ -162,8 +159,7 @@ export function EarnWizard(): ReactElement {
 				tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
 			}
 
-			const currentChainID =
-				configuration.opportunity?.chainID || configuration.asset.token?.chainID || safeChainID;
+			const currentChainID = configuration.opportunity?.chainID || configuration.asset.token?.chainID || chain.id;
 			const {nativeCurrency} = getNetwork(Number(currentChainID));
 			if (nativeCurrency) {
 				tokensToRefresh.push({
@@ -176,7 +172,7 @@ export function EarnWizard(): ReactElement {
 			}
 			onRefresh(tokensToRefresh, false, true);
 		},
-		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, safeChainID, vaults]
+		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, chain.id, vaults]
 	);
 
 	const {

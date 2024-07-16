@@ -1,6 +1,6 @@
 import {type ReactElement, useCallback, useState} from 'react';
+import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -28,13 +28,10 @@ export function Vault({
 	set_isHoveringInfo: (value: boolean) => void;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
-
 	const {token, name, apr} = vault;
-
-	const {chainID} = useWeb3();
 	const {switchChainAsync} = useSwitchChain();
 	const {connector} = useAccount();
-
+	const chain = useCurrentChain();
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
 
 	/**********************************************************************************************
@@ -45,13 +42,13 @@ export function Vault({
 	 * vault manually.
 	 *********************************************************************************************/
 	const onSelectVault = useCallback(async () => {
-		if (vault.chainID !== chainID) {
+		if (vault.chainID !== chain.id) {
 			await switchChainAsync({connector, chainId: vault.chainID});
 		}
 
 		onSelect(vault);
 		onClose();
-	}, [chainID, connector, onClose, onSelect, switchChainAsync, vault]);
+	}, [chain.id, connector, onClose, onSelect, switchChainAsync, vault]);
 
 	const [timeoutId, set_timeoutId] = useState<Timer | undefined>(undefined);
 

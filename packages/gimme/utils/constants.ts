@@ -1,3 +1,3 @@
-import {mainnet, polygon} from 'viem/chains';
+import {polygon} from 'viem/chains';
 
-export const supportedNetworks = [polygon, mainnet];
+export const supportedNetworks = [polygon];

@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
+import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import InputNumber from 'rc-input-number';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
@@ -26,11 +26,9 @@ const percentIntervals = [10, 50, 100];
 
 export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesModal();
-
-	const {safeChainID} = useChainID();
-
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
+	const chain = useCurrentChain();
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
@@ -160,7 +158,7 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 	 *********************************************************************************************/
 	useUpdateEffect(() => {
 		validate(value.amount, undefined);
-	}, [safeChainID]);
+	}, [chain.id]);
 
 	return (
 		<div className={'relative size-full rounded-lg'}>

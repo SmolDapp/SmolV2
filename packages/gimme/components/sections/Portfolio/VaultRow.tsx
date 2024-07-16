@@ -1,8 +1,8 @@
 import {type ReactElement} from 'react';
 import toast from 'react-hot-toast';
 import {useRouter} from 'next/router';
+import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
@@ -17,11 +17,9 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 	const vaultChainName = supportedNetworks.find(network => network.id === props.vault.chainID)?.name;
 	const tokenNetworkString = `${props.vault.token.symbol} on ${vaultChainName}`.toLocaleUpperCase();
 	const router = useRouter();
-	const {chainID} = useWeb3();
-
 	const {connector} = useAccount();
-
 	const {switchChainAsync} = useSwitchChain();
+	const chain = useCurrentChain();
 
 	/**********************************************************************************************
 	 * Function that is used to handle redirecting to the earn page with proper query params.
@@ -47,7 +45,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 			URLQueryParam.set('tokenAddress', toAddress(tokenAddress));
 			vaultAddress && URLQueryParam.set('vaultAddress', toAddress(vaultAddress));
 
-			if (props.vault.chainID !== chainID) {
+			if (props.vault.chainID !== chain.id) {
 				await switchChainAsync({connector, chainId: props.vault.chainID});
 			}
 

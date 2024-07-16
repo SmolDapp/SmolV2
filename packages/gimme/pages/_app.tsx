@@ -4,6 +4,7 @@ import {useRouter} from 'next/router';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
+import {mainnet} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {Background} from '@gimmeDesignSystem/Background';
@@ -34,7 +35,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://smold.app'}
 			/>
 			<WithMom
-				supportedChains={supportedNetworks}
+				supportedChains={[...supportedNetworks, mainnet]}
 				defaultNetwork={supportedNetworks[0]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/137/yearn-min.json']}>
 				<WalletContextApp>

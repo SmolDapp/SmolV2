@@ -57,7 +57,6 @@ export const VaultsContextApp = memo(function VaultsContextApp({children}: {chil
 	);
 
 	const {balances, isLoading: isLoadingBalance, getBalance} = useWallet();
-
 	const {getStakingTokenBalance} = useStakingTokens(gimmeVaultsDict);
 
 	const userVaults = useMemo(() => {

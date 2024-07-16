@@ -62,12 +62,9 @@ const SolverContext = createContext<TSolverContext>({
 
 export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
 	const {configuration} = useEarnFlow();
-
 	const vanila = useVanilaSolver();
 	const portals = usePortalsSolver();
-
 	const withdrawHelper = useWithdraw();
-
 	const isZapNeeded = useIsZapNeeded();
 
 	const currentSolver = useMemo(() => {

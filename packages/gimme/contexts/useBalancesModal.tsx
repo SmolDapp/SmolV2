@@ -19,6 +19,7 @@ import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
+import {useCurrentChain} from '../hooks/useCurrentChain';
 import {useVaults} from './useVaults';
 
 import type {ReactElement, ReactNode} from 'react';
@@ -363,7 +364,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 
 const BalancesModalContext = createContext<TBalancesCurtainContextProps>(defaultProps);
 export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps): React.ReactElement => {
-	const {chainID} = useWeb3();
 	const [shouldOpenCurtain, set_shouldOpenCurtain] = useState(false);
 	const [currentCallbackFunction, set_currentCallbackFunction] = useState<TSelectCallback | undefined>(undefined);
 	const {listTokensWithBalance, onRefresh} = useTokensWithBalance();
@@ -371,6 +371,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const [tokensToUse, set_tokensToUse] = useState<TToken[]>([]);
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
+	const chain = useCurrentChain();
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -378,8 +379,8 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	 ** when we are getting new tokens from the listTokensWithBalance hook.
 	 *********************************************************************************************/
 	useEffect((): void => {
-		set_options(prev => ({...prev, chainID}));
-	}, [chainID]);
+		set_options(prev => ({...prev, chainID: chain.id}));
+	}, [chain.id]);
 
 	/**********************************************************************************************
 	 ** When the listTokensWithBalance hook is updated, we are getting a new list of tokens for
@@ -438,7 +439,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}
 				options={{
-					chainID: options.chainID || chainID
+					chainID: options.chainID || chain.id
 				}}
 			/>
 		</BalancesModalContext.Provider>
