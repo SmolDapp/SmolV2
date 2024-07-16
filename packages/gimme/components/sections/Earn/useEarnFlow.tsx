@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {isAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import type {Dispatch, ReactElement} from 'react';
@@ -8,6 +8,7 @@ import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TEarnConfiguration = {
+	action: 'DEPOSIT' | 'WITHDRAW' | undefined;
 	asset: TTokenAmountInputElement;
 	opportunity: TYDaemonVault | undefined;
 };
@@ -26,6 +27,7 @@ export type TEarn = {
 
 const defaultProps: TEarn = {
 	configuration: {
+		action: undefined,
 		asset: {
 			amount: '',
 			normalizedBigAmount: zeroNormalizedBN,
@@ -48,18 +50,31 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 			case 'SET_ASSET': {
 				return {
 					...state,
+					action:
+						!isAddress(state.opportunity?.address) || !isAddress(action.payload.token?.address)
+							? undefined
+							: toAddress(state.opportunity.address) === toAddress(action.payload.token.address)
+								? 'WITHDRAW'
+								: 'DEPOSIT',
 					asset: {...state.asset, ...action.payload}
 				};
 			}
 			case 'SET_OPPORTUNITY': {
 				return {
 					...state,
+					action:
+						!isAddress(state.asset.token?.address) || !isAddress(action.payload?.address)
+							? undefined
+							: toAddress(state.asset.token.address) === toAddress(action.payload?.address)
+								? 'WITHDRAW'
+								: 'DEPOSIT',
 					opportunity: action.payload
 				};
 			}
 
 			case 'RESET':
 				return {
+					action: 'DEPOSIT',
 					asset: {
 						amount: '',
 						normalizedBigAmount: zeroNormalizedBN,

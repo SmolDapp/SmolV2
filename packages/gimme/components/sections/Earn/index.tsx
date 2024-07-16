@@ -1,7 +1,7 @@
 import {type ReactElement, useCallback, useEffect, useRef} from 'react';
 import Image from 'next/image';
 import {useRouter} from 'next/router';
-import {useSolvers} from 'packages/gimme/contexts/useSolver';
+import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
@@ -27,8 +27,8 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 	const {getIsStablecoin} = useGetIsStablecoin();
-	const {quote, isFetchingQuote} = useSolvers();
-	const isZapNeeded = useIsZapNeeded();
+	const {quote, isFetchingQuote} = useSolver();
+	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
 	const chain = useCurrentChain();
 
 	const isWithdrawing =
@@ -156,14 +156,14 @@ export function Earn(): ReactElement {
 					/>
 
 					{!isWithdrawing && <SelectOpportunityButton onSetOpportunity={onSetOpportunity} />}
-					{isZapNeeded && configuration.asset.token?.address !== configuration.opportunity?.address && (
+					{isZapNeededForDeposit || isZapNeededForWithdraw ? (
 						<div
 							className={
 								'bg-grey-100 border-grey-200 text-grey-700 min-h-[82px] w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs md:min-h-[66px]'
 							}>
 							{getZapsBadgeContent()}
 						</div>
-					)}
+					) : null}
 					<EarnWizard />
 				</div>
 			</div>

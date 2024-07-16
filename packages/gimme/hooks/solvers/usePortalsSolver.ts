@@ -1,5 +1,5 @@
 import {useCallback, useRef, useState} from 'react';
-import {BaseError, isHex, zeroAddress} from 'viem';
+import {BaseError, erc20Abi, isHex, zeroAddress} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {
@@ -12,20 +12,13 @@ import {
 	toNormalizedBN,
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
-import {
-	allowanceOf,
-	approveERC20,
-	defaultTxStatus,
-	retrieveConfig,
-	toWagmiProvider
-} from '@builtbymom/web3/utils/wagmi';
+import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
-import {sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
-import {useIsZapNeeded} from '../helpers/useIsZapNeeded';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
@@ -33,70 +26,72 @@ import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
-export const usePortalsSolver = (): TSolverContextBase => {
+export const usePortalsSolver = (
+	isZapNeededForDeposit: boolean,
+	isZapNeededForWithdraw: boolean
+): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
-	const {provider, address} = useWeb3();
-
-	/**********************************************************************************************
-	 * Used to skip all the fetches if zap is not needed
-	 *********************************************************************************************/
-	const isZapNeeded = useIsZapNeeded();
-
+	const {address, provider} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
-
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
-
-	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
-
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
-
 	const [latestQuote, set_latestQuote] = useState<TPortalsEstimate>();
 	const [isFetchingQuote, set_isFetchingQuote] = useState(false);
-
+	const spendAmount = configuration?.asset.normalizedBigAmount?.raw ?? 0n;
+	const isAboveAllowance = allowance.raw >= spendAmount;
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
 	const onRetrieveQuote = useCallback(async () => {
-		if (!configuration.asset.token || !configuration.opportunity) {
+		if (
+			!configuration?.asset.token ||
+			!configuration?.opportunity ||
+			configuration?.asset.normalizedBigAmount === zeroNormalizedBN
+		) {
 			return;
 		}
 
 		const request: TInitSolverArgs = {
-			chainID: configuration.asset.token.chainID,
-			version: configuration.opportunity.version,
-			from: toAddress(address || ''),
-			inputToken: configuration.asset.token.address,
-			outputToken: configuration.opportunity.address,
-			inputAmount: configuration.asset.normalizedBigAmount.raw,
+			chainID: configuration?.asset.token.chainID,
+			version: configuration?.opportunity.version,
+			from: toAddress(address),
+			inputToken: configuration?.asset.token.address,
+			outputToken: configuration?.opportunity.address,
+			inputAmount: configuration?.asset.normalizedBigAmount?.raw ?? 0n,
 			isDepositing: true,
 			stakingPoolAddress: undefined
 		};
 
 		set_isFetchingQuote(true);
 
-		const {result, error} = await getQuote(request, 0.01);
+		const {result, error} = await getQuote(
+			request,
+			configuration.opportunity.category === 'Stablecoin' ? 0.1 : 0.5
+		);
 		if (!result) {
 			if (error) {
 				console.error(error);
 			}
 			return undefined;
 		}
-
 		set_latestQuote(result);
 		set_isFetchingQuote(false);
 
 		return result;
-	}, [address, configuration.asset.normalizedBigAmount.raw, configuration.asset.token, configuration.opportunity]);
+	}, [address, configuration?.asset.normalizedBigAmount, configuration?.asset.token, configuration?.opportunity]);
 
 	useAsyncTrigger(async (): Promise<void> => {
-		/******************************************************************************************
-		 * Skip quote fetching if form is not populated fully or zap is not needed
-		 *****************************************************************************************/
-		if (!isZapNeeded) {
+		if (!configuration?.action) {
+			return;
+		}
+		if (configuration.action === 'DEPOSIT' && !isZapNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
 			return;
 		}
 		onRetrieveQuote();
-	}, [isZapNeeded, onRetrieveQuote]);
+	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveQuote]);
 
 	/**********************************************************************************************
 	 * Retrieve the allowance for the token to be used by the solver. This will be used to
@@ -104,19 +99,22 @@ export const usePortalsSolver = (): TSolverContextBase => {
 	 **********************************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (!latestQuote || !configuration.asset.token || !configuration.opportunity) {
+			if (!latestQuote || !configuration?.asset.token || !configuration?.opportunity) {
+				return zeroNormalizedBN;
+			}
+			if (configuration.asset.normalizedBigAmount === zeroNormalizedBN) {
 				return zeroNormalizedBN;
 			}
 
-			const inputToken = configuration.asset.token.address;
-			const outputToken = configuration.opportunity.address;
+			const inputToken = configuration?.asset.token.address;
+			const outputToken = configuration?.opportunity.address;
 
 			if (isEthAddress(inputToken)) {
 				return toNormalizedBN(MAX_UINT_256, 18);
 			}
 
 			const key = allowanceKey(
-				configuration.asset.token?.chainID,
+				configuration?.asset.token?.chainID,
 				toAddress(inputToken),
 				toAddress(outputToken),
 				toAddress(address)
@@ -128,35 +126,37 @@ export const usePortalsSolver = (): TSolverContextBase => {
 			set_isFetchingAllowance(true);
 
 			try {
-				const network = PORTALS_NETWORK.get(configuration.asset.token.chainID);
+				const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
 				const {data: approval} = await getPortalsApproval({
 					params: {
 						sender: toAddress(address),
 						inputToken: `${network}:${toAddress(inputToken)}`,
-						inputAmount: toBigInt(configuration.asset.normalizedBigAmount.raw).toString()
+						inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString()
 					}
 				});
+
 				if (!approval) {
 					throw new Error('Portals approval not found');
 				}
 
 				existingAllowances.current[key] = toNormalizedBN(
 					toBigInt(approval.context.allowance),
-					configuration.asset.token.decimals
+					configuration?.asset.token.decimals
 				);
 
 				set_isFetchingAllowance(false);
+
 				return existingAllowances.current[key];
-			} catch (error) {
+			} catch (err) {
 				set_isFetchingAllowance(false);
 				return zeroNormalizedBN;
 			}
 		},
 		[
 			address,
-			configuration.asset.normalizedBigAmount.raw,
+			configuration.asset.normalizedBigAmount,
 			configuration.asset.token,
-			configuration.opportunity,
+			configuration?.opportunity,
 			latestQuote
 		]
 	);
@@ -166,14 +166,17 @@ export const usePortalsSolver = (): TSolverContextBase => {
 	 * is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		/******************************************************************************************
-		 * Skip allowance fetching if form is not populated fully or zap is not needed
-		 *****************************************************************************************/
-		if (!isZapNeeded) {
+		if (!configuration?.action) {
+			return;
+		}
+		if (configuration.action === 'DEPOSIT' && !isZapNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
 			return;
 		}
 		set_allowance(await onRetrieveAllowance(true));
-	}, [isZapNeeded, onRetrieveAllowance]);
+	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveAllowance]);
 
 	/**********************************************************************************************
 	 * Trigger an signature to approve the token to be used by the Portals
@@ -181,23 +184,23 @@ export const usePortalsSolver = (): TSolverContextBase => {
 	 * of the token by the Portals solver.
 	 *********************************************************************************************/
 	const onApprove = useCallback(
-		async (onSuccess: () => void): Promise<void> => {
+		async (onSuccess?: () => void): Promise<void> => {
 			if (!provider) {
 				return;
 			}
 
-			assert(configuration.asset.token, 'Input token is not set');
-			assert(configuration.asset.amount, 'Input amount is not set');
+			assert(configuration?.asset.token, 'Input token is not set');
+			assert(configuration?.asset.normalizedBigAmount, 'Input amount is not set');
 
-			const amount = configuration.asset.normalizedBigAmount.raw;
+			const amount = configuration?.asset.normalizedBigAmount.raw;
 
 			try {
-				const network = PORTALS_NETWORK.get(configuration.asset.token.chainID);
+				const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
 				const {data: approval} = await getPortalsApproval({
 					params: {
 						sender: toAddress(address),
-						inputToken: `${network}:${toAddress(configuration.asset.token.address)}`,
-						inputAmount: toBigInt(configuration.asset.normalizedBigAmount.raw).toString()
+						inputToken: `${network}:${toAddress(configuration?.asset.token.address)}`,
+						inputAmount: toBigInt(configuration?.asset.normalizedBigAmount.raw).toString()
 					}
 				});
 
@@ -205,30 +208,31 @@ export const usePortalsSolver = (): TSolverContextBase => {
 					return;
 				}
 
-				const allowance = await allowanceOf({
-					connector: provider,
-					chainID: configuration.asset.token.chainID,
-					tokenAddress: toAddress(configuration.asset.token.address), //token to approve
-					spenderAddress: toAddress(approval.context.spender) //contract to approve
+				const allowance = await readContract(retrieveConfig(), {
+					chainId: Number(configuration?.opportunity?.chainID),
+					abi: erc20Abi,
+					address: toAddress(configuration?.asset?.token.address),
+					functionName: 'allowance',
+					args: [toAddress(address), toAddress(approval.context.spender)]
 				});
 
 				if (allowance < amount) {
 					assertAddress(approval.context.spender, 'spender');
 					const result = await approveERC20({
 						connector: provider,
-						chainID: configuration.asset.token.chainID,
-						contractAddress: configuration.asset.token.address,
+						chainID: configuration?.asset.token.chainID,
+						contractAddress: configuration?.asset.token.address,
 						spenderAddress: approval.context.spender,
 						amount: amount,
 						statusHandler: set_approvalStatus
 					});
 					if (result.isSuccessful) {
-						onSuccess();
+						onSuccess?.();
 					}
 					triggerRetreiveAllowance();
 					return;
 				}
-				onSuccess();
+				onSuccess?.();
 				triggerRetreiveAllowance();
 				return;
 			} catch (error) {
@@ -247,28 +251,28 @@ export const usePortalsSolver = (): TSolverContextBase => {
 	const execute = useCallback(async (): Promise<TTxResponse> => {
 		assert(provider, 'Provider is not set');
 		assert(latestQuote, 'Quote is not set');
-		assert(configuration.asset.token, 'Input token is not set');
-		assert(configuration.opportunity, 'Output token is not set');
+		assert(configuration?.asset.token, 'Input token is not set');
+		assert(configuration?.opportunity, 'Output token is not set');
 
 		try {
-			let inputToken = configuration.asset.token.address;
-			const outputToken = configuration.opportunity.address;
+			let inputToken = configuration?.asset.token.address;
+			const outputToken = configuration?.opportunity.address;
 			if (isEthAddress(inputToken)) {
 				inputToken = zeroAddress;
 			}
-			const network = PORTALS_NETWORK.get(configuration.asset.token.chainID);
+			const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
 			const transaction = await getPortalsTx({
 				params: {
 					sender: toAddress(address),
 					inputToken: `${network}:${toAddress(inputToken)}`,
 					outputToken: `${network}:${toAddress(outputToken)}`,
-					inputAmount: toBigInt(configuration.asset.normalizedBigAmount.raw).toString(),
-					slippageTolerancePercentage: String(0.8),
-					// feePercentage: '0',
-					//partner: ?
-					validate: 'true'
+					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					slippageTolerancePercentage: String(0.1),
+					// TODO figure out what slippage do we need
+					validate: 'false'
 				}
 			});
+
 			if (!transaction.result) {
 				throw new Error('Transaction data was not fetched from Portals!');
 			}
@@ -278,9 +282,9 @@ export const usePortalsSolver = (): TSolverContextBase => {
 			} = transaction.result;
 			const wagmiProvider = await toWagmiProvider(provider);
 
-			if (wagmiProvider.chainId !== configuration.asset.token.chainID) {
+			if (wagmiProvider.chainId !== configuration?.asset.token.chainID) {
 				try {
-					await switchChain(retrieveConfig(), {chainId: configuration.asset.token.chainID});
+					await switchChain(retrieveConfig(), {chainId: configuration?.asset.token.chainID});
 				} catch (error) {
 					if (!(error instanceof BaseError)) {
 						return {isSuccessful: false, error};
@@ -297,7 +301,7 @@ export const usePortalsSolver = (): TSolverContextBase => {
 				value: toBigInt(value ?? 0),
 				to: toAddress(to),
 				data,
-				chainId: configuration.asset.token.chainID,
+				chainId: configuration?.asset.token.chainID,
 				...rest
 			});
 			const receipt = await waitForTransactionReceipt(retrieveConfig(), {
@@ -321,9 +325,9 @@ export const usePortalsSolver = (): TSolverContextBase => {
 		}
 	}, [
 		address,
-		configuration.asset.normalizedBigAmount.raw,
-		configuration.asset.token,
-		configuration.opportunity,
+		configuration?.asset.normalizedBigAmount?.raw,
+		configuration?.asset.token,
+		configuration?.opportunity,
 		latestQuote,
 		provider
 	]);

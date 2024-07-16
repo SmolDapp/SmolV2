@@ -1,31 +1,39 @@
 import {useCallback, useRef, useState} from 'react';
+import {erc20Abi} from 'viem';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
-import {assert, ETH_TOKEN_ADDRESS, toAddress, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {allowanceOf, approveERC20, defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
+import {
+	assert,
+	ETH_TOKEN_ADDRESS,
+	isEthAddress,
+	toAddress,
+	toBigInt,
+	toNormalizedBN,
+	zeroNormalizedBN
+} from '@builtbymom/web3/utils';
+import {approveERC20, defaultTxStatus, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {readContract} from '@wagmi/core';
 import {deposit} from '@lib/utils/actions';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
-
-import {useIsZapNeeded} from '../helpers/useIsZapNeeded';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 
-export const useVanilaSolver = (): TSolverContextBase => {
+export const useVanilaSolver = (
+	isZapNeededForDeposit: boolean,
+	isZapNeededForWithdraw: boolean
+): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
-	const isZapNeeded = useIsZapNeeded();
-
+	const {onRefresh} = useWallet();
+	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
-
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
-	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
-
-	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
-
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
+	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
 
 	/**********************************************************************************************
 	 ** Retrieve the allowance for the token to be used by the solver. This will
@@ -37,7 +45,7 @@ export const useVanilaSolver = (): TSolverContextBase => {
 				!configuration.asset.token ||
 				!configuration.opportunity ||
 				!provider ||
-				configuration.asset.token.address === ETH_TOKEN_ADDRESS
+				isEthAddress(configuration.asset.token.address)
 			) {
 				return zeroNormalizedBN;
 			}
@@ -53,33 +61,38 @@ export const useVanilaSolver = (): TSolverContextBase => {
 			}
 
 			set_isFetchingAllowance(true);
-
-			const allowance = await allowanceOf({
-				connector: provider,
-				chainID: configuration.opportunity.chainID,
-				tokenAddress: toAddress(configuration.asset.token.address),
-				spenderAddress: toAddress(configuration.opportunity.address)
+			const allowance = await readContract(retrieveConfig(), {
+				chainId: Number(configuration?.opportunity.chainID),
+				abi: erc20Abi,
+				address: toAddress(configuration?.asset?.token.address),
+				functionName: 'allowance',
+				args: [toAddress(address), toAddress(configuration?.opportunity.address)]
 			});
+
 			set_isFetchingAllowance(false);
-			existingAllowances.current[key] = toNormalizedBN(allowance, configuration.asset.token.decimals);
+
+			existingAllowances.current[key] = toNormalizedBN(allowance, configuration?.asset?.token.decimals);
 			return existingAllowances.current[key];
 		},
-		[configuration.asset.token, configuration.opportunity, provider, address]
+		[address, configuration?.asset.token, configuration?.opportunity, provider]
 	);
 
 	/**********************************************************************************************
 	 ** SWR hook to get the expected out for a given in/out pair with a specific amount. This hook
 	 ** is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
-	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		/******************************************************************************************
-		 * Skip allowance fetching if form is not populated fully or zap needed
-		 *****************************************************************************************/
-		if (isZapNeeded) {
+	useAsyncTrigger(async (): Promise<void> => {
+		if (!configuration?.action) {
 			return;
 		}
-		set_allowance(await onRetrieveAllowance(true));
-	}, [isZapNeeded, onRetrieveAllowance]);
+		if (configuration.action === 'DEPOSIT' && isZapNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && isZapNeededForWithdraw) {
+			return;
+		}
+		set_allowance(await onRetrieveAllowance(false));
+	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveAllowance]);
 
 	/**********************************************************************************************
 	 ** Trigger an approve web3 action, simply trying to approve `amount` tokens
@@ -88,29 +101,29 @@ export const useVanilaSolver = (): TSolverContextBase => {
 	 ** (not connected) or if the tx is still pending.
 	 *********************************************************************************************/
 	const onApprove = useCallback(
-		async (onSuccess: () => void): Promise<void> => {
-			assert(configuration.asset.token, 'Input token is not set');
-			assert(configuration.opportunity, 'Output token is not set');
+		async (onSuccess?: () => void): Promise<void> => {
+			assert(configuration?.asset.token, 'Input token is not set');
+			assert(configuration?.opportunity, 'Output token is not set');
 
 			const result = await approveERC20({
 				connector: provider,
-				chainID: configuration.opportunity.chainID,
-				contractAddress: configuration.asset.token.address,
-				spenderAddress: configuration.opportunity.address,
-				amount: configuration.asset.normalizedBigAmount.raw,
+				chainID: configuration?.opportunity.chainID,
+				contractAddress: configuration?.asset.token.address,
+				spenderAddress: configuration?.opportunity.address,
+				amount: configuration?.asset.normalizedBigAmount?.raw || 0n,
 				statusHandler: set_approvalStatus
 			});
+			set_allowance(await onRetrieveAllowance(true));
 			if (result.isSuccessful) {
-				onSuccess();
-				triggerRetreiveAllowance();
+				onSuccess?.();
 			}
 		},
 		[
-			configuration.asset.normalizedBigAmount.raw,
-			configuration.asset.token,
-			configuration.opportunity,
+			configuration?.asset.normalizedBigAmount?.raw,
+			configuration?.asset.token,
+			configuration?.opportunity,
 			provider,
-			triggerRetreiveAllowance
+			onRetrieveAllowance
 		]
 	);
 
@@ -120,17 +133,27 @@ export const useVanilaSolver = (): TSolverContextBase => {
 	 *********************************************************************************************/
 	const onExecuteDeposit = useCallback(
 		async (onSuccess: () => void): Promise<void> => {
-			assert(configuration.opportunity?.address, 'Output token is not set');
-			assert(configuration.asset.token?.address, 'Input amount is not set');
-
+			assert(configuration?.opportunity?.address, 'Output token is not set');
+			assert(configuration?.asset?.token?.address, 'Input amount is not set');
 			set_depositStatus({...defaultTxStatus, pending: true});
 
 			const result = await deposit({
 				connector: provider,
-				chainID: configuration.opportunity.chainID,
-				contractAddress: configuration.opportunity?.address,
-				amount: configuration.asset.normalizedBigAmount.raw
+				chainID: configuration?.opportunity?.chainID,
+				contractAddress: toAddress(configuration?.opportunity?.address),
+				amount: toBigInt(configuration?.asset?.normalizedBigAmount?.raw),
+				statusHandler: set_depositStatus
 			});
+			await onRefresh(
+				[
+					{chainID: configuration?.opportunity?.chainID, address: configuration?.opportunity?.address},
+					{chainID: configuration?.opportunity?.chainID, address: configuration?.opportunity?.token?.address},
+					{chainID: configuration?.opportunity?.chainID, address: ETH_TOKEN_ADDRESS}
+				],
+				false,
+				true
+			);
+			onRetrieveAllowance(true);
 			if (result.isSuccessful) {
 				onSuccess();
 				set_depositStatus({...defaultTxStatus, success: true});
@@ -139,9 +162,13 @@ export const useVanilaSolver = (): TSolverContextBase => {
 			set_depositStatus({...defaultTxStatus, error: true});
 		},
 		[
-			configuration.asset.normalizedBigAmount.raw,
-			configuration.asset.token?.address,
-			configuration.opportunity,
+			configuration?.asset?.normalizedBigAmount?.raw,
+			configuration?.asset?.token?.address,
+			configuration?.opportunity?.address,
+			configuration?.opportunity?.chainID,
+			configuration?.opportunity?.token?.address,
+			onRefresh,
+			onRetrieveAllowance,
 			provider
 		]
 	);

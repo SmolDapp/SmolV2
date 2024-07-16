@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useState} from 'react';
-import {useSolvers} from 'packages/gimme/contexts/useSolver';
+import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
@@ -189,10 +189,9 @@ export function EarnWizard(): ReactElement {
 
 		isFetchingQuote,
 		quote
-	} = useSolvers();
+	} = useSolver();
 
-	const isZapNeeded = useIsZapNeeded();
-
+	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
 	const isAboveBalance =
 		configuration.asset.normalizedBigAmount.raw >
 		getBalance({
@@ -225,7 +224,7 @@ export function EarnWizard(): ReactElement {
 		if (isAboveBalance) {
 			return false;
 		}
-		if (isZapNeeded && !quote) {
+		if ((isZapNeededForDeposit || isZapNeededForWithdraw) && !quote) {
 			return false;
 		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -246,7 +245,8 @@ export function EarnWizard(): ReactElement {
 		configuration.opportunity,
 		isAboveBalance,
 		isWithdrawing,
-		isZapNeeded,
+		isZapNeededForDeposit,
+		isZapNeededForWithdraw,
 		quote
 	]);
 

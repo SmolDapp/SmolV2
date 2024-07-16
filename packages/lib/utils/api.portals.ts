@@ -56,27 +56,26 @@ const portalsTxSchema = z.object({
 	from: z.string().optional(),
 	data: z.string(),
 	value: z.string().optional(),
-	gasLimit: z.string()
+	gasLimit: z.string().optional()
 });
 
 const portalsTransactionSchema = z.object({
 	context: z.object({
-		orderId: z.string(),
-		minOutputAmount: z.string(),
-		minOutputAmountUsd: z.number(),
-		slippageTolerancePercentage: z.number(),
-		gasLimit: z.string(),
+		feeAmount: z.string(),
+		feeAmountUsd: z.number(),
+		feeToken: z.string(),
 		inputAmount: z.string(),
 		inputAmountUsd: z.number(),
 		inputToken: z.string(),
-		outputToken: z.string(),
+		minOutputAmount: z.string(),
+		minOutputAmountUsd: z.number(),
+		orderId: z.string(),
 		outputAmount: z.string(),
 		outputAmountUsd: z.number(),
-		feeToken: z.string(),
-		feeAmount: z.string(),
-		feeAmountUsd: z.number(),
-		sender: z.string(),
+		outputToken: z.string(),
 		recipient: z.string(),
+		sender: z.string(),
+		slippageTolerancePercentage: z.number(),
 		target: z.string(),
 		value: z.string()
 	}),
@@ -152,26 +151,34 @@ export async function getPortalsTx({params}: TGetTransactionProps): Promise<{
 	params.inputToken = params.inputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 	params.outputToken = params.outputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 
-	const result = await fetch<TPortalsTransaction>({
-		endpoint: `${url}?${new URLSearchParams(params)}`,
-		schema: portalsTransactionSchema
-	});
+	try {
+		const result = await fetch<TPortalsTransaction>({
+			endpoint: `${url}?${new URLSearchParams(params)}`,
+			schema: portalsTransactionSchema
+		});
 
-	if (result.data) {
-		result.data.context.outputToken = result.data.context.outputToken
-			.toLowerCase()
-			.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
-		result.data.context.inputToken = result.data.context.inputToken
-			.toLowerCase()
-			.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
-		result.data.context.feeToken = result.data.context.feeToken
-			.toLowerCase()
-			.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
+		if (result.data) {
+			result.data.context.outputToken = result.data.context.outputToken
+				.toLowerCase()
+				.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
+			result.data.context.inputToken = result.data.context.inputToken
+				.toLowerCase()
+				.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
+			result.data.context.feeToken = result.data.context.feeToken
+				.toLowerCase()
+				.replaceAll(ZERO_ADDRESS, ETH_TOKEN_ADDRESS);
+		}
+		return {
+			result: result.data,
+			error: result?.error?.message
+		};
+	} catch (error) {
+		console.error(error);
+		return {
+			result: null,
+			error: (error as any)?.message ?? 'An error occured while fetching transaction'
+		};
 	}
-	return {
-		result: result.data,
-		error: result?.error?.message
-	};
 }
 
 export async function getPortalsApproval({params}: TGetApprovalProps): TFetchReturn<TPortalsApproval> {

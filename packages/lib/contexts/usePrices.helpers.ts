@@ -2,7 +2,7 @@ import {deepMerge, fromNormalized, toAddress, toBigInt, toNormalizedBN} from '@b
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import type {AxiosResponse} from 'axios';
-import type {TDict} from '@builtbymom/web3/types';
+import type {TDict, TNDict} from '@builtbymom/web3/types';
 import type {TLLamaPricesEndpointResponse, TPrices, TPricesProps, TPriceTokens} from '@lib/types/context.usePrices';
 
 export const usePricesDefaultProps: TPricesProps = {
@@ -42,6 +42,30 @@ export function prepareQueryStringForLlama(tokens: TPriceTokens): string {
 }
 
 /**************************************************************************************************
+ ** The mergeYDaemonResponse function will merge the responses from the ydaemon endpoint. It will
+ ** return an object containing the status of the response and the values.
+ ** It is used to merge multiple responses from the ydaemon endpoint.
+ ************************************************************************************************/
+export function mergeYDaemonResponse(allPricesFromYDaemon: PromiseSettledResult<AxiosResponse>[]): {
+	status: 'fulfilled' | 'rejected';
+	values: TNDict<TDict<string>>;
+} {
+	const pricesFromYDaemon = allPricesFromYDaemon.reduce(
+		(acc, current) => {
+			if (current.status === 'fulfilled') {
+				acc.value.data = deepMerge(acc.value.data, current.value.data) as TNDict<TDict<string>>;
+			}
+			return acc;
+		},
+		{status: 'fulfilled', value: {data: {}}}
+	);
+	return {
+		status: pricesFromYDaemon.status as 'fulfilled' | 'rejected',
+		values: pricesFromYDaemon.value.data
+	};
+}
+
+/**************************************************************************************************
  ** The mergeLlamaResponse function will merge the responses from the llama endpoint. It will return
  ** an object containing the status of the response and the values.
  ** It is used to merge multiple responses from the llama endpoint.
@@ -70,12 +94,15 @@ export function mergeLlamaResponse(allPricesFromLlama: PromiseSettledResult<Axio
  ** object. It will return the updated prices object.
  ************************************************************************************************/
 export function assignYDaemonPrices(
-	pricesFromYDaemon: PromiseSettledResult<AxiosResponse>,
+	pricesFromYDaemon: {
+		status: 'fulfilled' | 'rejected';
+		values: TNDict<TDict<string>>;
+	},
 	newPrices: TPrices
 ): TPrices {
 	if (pricesFromYDaemon.status === 'fulfilled') {
-		for (const chainID in pricesFromYDaemon.value.data) {
-			const item = pricesFromYDaemon.value.data[Number(chainID)];
+		for (const chainID in pricesFromYDaemon.values) {
+			const item = pricesFromYDaemon.values[Number(chainID)];
 			if (!newPrices[Number(chainID)]) {
 				newPrices[Number(chainID)] = {};
 			}
