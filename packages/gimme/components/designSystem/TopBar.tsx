@@ -70,7 +70,7 @@ function WalletSection(): ReactElement {
 					openLoginModal();
 				}}
 				className={
-					'bg-primary hover:bg-primaryHover h-14 w-fit rounded-2xl px-[13px] font-medium transition-colors'
+					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-medium transition-colors md:w-full'
 				}>
 				{'Connect wallet'}
 			</button>
@@ -79,7 +79,7 @@ function WalletSection(): ReactElement {
 	return (
 		<div
 			className={cl(
-				'flex items-center gap-2 rounded-2xl border border-white bg-white/60 p-2 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
+				'flex items-center justify-center gap-2 rounded-2xl border border-white bg-white/60 px-2 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
 				'md:py-2 md:backdrop-filter-none'
 			)}>
 			<NetworkPopoverSelector networks={[polygon]} />
@@ -95,28 +95,16 @@ function WalletSection(): ReactElement {
 }
 
 export function TopBar(props: {router: Router}): ReactElement {
-	const {address} = useWeb3();
-
 	const {pathname} = useRouter();
 	const isLandingPage = pathname === '/';
-
-	const getMargin = (): string => {
-		if (isLandingPage) {
-			return 'mx-[46.5px]';
-		}
-		if (address) {
-			return 'mx-0';
-		}
-		return 'mx-[33px]';
-	};
 
 	return (
 		<>
 			<div
 				className={
-					'bg-grey-500/30 border-grey-800/10 hidden max-w-5xl rounded-3xl border px-6 py-4 backdrop-blur-md md:flex'
+					'bg-grey-500/30 border-grey-800/10 hidden grid-flow-row grid-cols-12 divide-x divide-white rounded-3xl border px-6 py-4 backdrop-blur-md md:grid'
 				}>
-				<div className={'flex gap-1 py-2'}>
+				<div className={'col-span-3 flex gap-2 py-2'}>
 					<Image
 						src={'/gimme-logo.svg'}
 						alt={'gimme-logo'}
@@ -130,13 +118,16 @@ export function TopBar(props: {router: Router}): ReactElement {
 						height={34}
 					/>
 				</div>
-				<div className={'mx-10 w-px bg-white'} />
-				<div className={cl('flex items-center gap-2', getMargin())}>
+				{/* <div className={'mx-10 w-px bg-white'} /> */}
+				<div
+					className={cl(
+						'grid grid-cols-3 grid-flow-row place-content-stretch gap-2 items-center col-span-6 px-12'
+					)}>
 					{(isLandingPage ? LANDING_TOP_NAV : TOP_NAV).map(item => (
 						<LinkOrDiv
 							key={item.label}
 							className={cl(
-								'rounded-2xl text-center px-6 py-2 leading-6 transition-colors text-grey-800 font-medium',
+								'rounded-2xl text-center py-2 leading-6 transition-colors text-grey-800 font-medium',
 								!item.isDisabled ? 'hover:text-neutral-800 hover:bg-white' : '',
 								props.router.pathname === item.href ? '!text-neutral-900 bg-white' : ''
 							)}
@@ -146,16 +137,18 @@ export function TopBar(props: {router: Router}): ReactElement {
 						</LinkOrDiv>
 					))}
 				</div>
-				<div className={'mx-10 w-px bg-white'} />
-				{isLandingPage ? (
-					<Link href={'/earn'}>
-						<Button className={'!rounded-3xl !px-4'}>{'Launch App'}</Button>
-					</Link>
-				) : (
-					<WalletSection />
-				)}
+				{/* <div className={'mx-10 w-px bg-white'} /> */}
+				<div className={'col-span-3 w-full place-content-center pl-6'}>
+					{isLandingPage ? (
+						<Link href={'/earn'}>
+							<Button className={'w-full !rounded-3xl !px-4'}>{'Launch App'}</Button>
+						</Link>
+					) : (
+						<WalletSection />
+					)}
+				</div>
 			</div>
-			<div className={'flex w-full justify-between md:hidden'}>
+			<div className={'col-span-2 flex w-full justify-between md:hidden'}>
 				<div className={'flex gap-1 py-2'}>
 					<Image
 						src={'/gimme-text.svg'}
