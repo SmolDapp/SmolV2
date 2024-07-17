@@ -2,6 +2,13 @@
 
 @tailwind base;
 
+/***************************************************************************
+** Preventing the layout shift caused by scrollbars
+**************************************************************************/
+html {
+	padding-left: calc(100vw - 100%);
+}
+
 body {
 	@apply text-neutral-900;
 }
