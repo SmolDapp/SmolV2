@@ -1,10 +1,11 @@
 import {type ReactElement} from 'react';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
+import {IconMinus} from '@gimmeDesignSystem/IconMinus';
+import {IconPlus} from '@gimmeDesignSystem/IconPlus';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
@@ -125,12 +126,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						className={
 							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<Image
-							src={'/minus.svg'}
-							alt={'minus'}
-							width={12}
-							height={1}
-						/>
+						<IconMinus />
 					</button>
 					<button
 						onClick={async () =>
@@ -139,12 +135,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						className={
 							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<Image
-							src={'/add.svg'}
-							alt={'add'}
-							width={12}
-							height={12}
-						/>
+						<IconPlus />
 					</button>
 				</div>
 				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>
