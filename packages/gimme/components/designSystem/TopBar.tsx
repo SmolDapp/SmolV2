@@ -141,7 +141,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				<div className={'col-span-3 w-full place-content-center pl-6'}>
 					{isLandingPage ? (
 						<Link href={'/earn'}>
-							<Button className={'w-full !rounded-3xl !px-4'}>{'Launch App'}</Button>
+							<Button className={'w-full !rounded-2xl !px-4'}>{'Launch App'}</Button>
 						</Link>
 					) : (
 						<WalletSection />
@@ -159,7 +159,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				</div>
 				{isLandingPage ? (
 					<Link href={'/earn'}>
-						<Button className={'!rounded-3xl'}>{'Launch App'}</Button>
+						<Button className={'!rounded-2xl'}>{'Launch App'}</Button>
 					</Link>
 				) : (
 					<WalletSection />

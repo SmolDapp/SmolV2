@@ -26,7 +26,7 @@ export function Landing(): ReactElement {
 		autoplay: true,
 		stateMachines: 'State Machine 1',
 		layout: new Layout({
-			fit: Fit.ScaleDown,
+			fit: Fit.Contain,
 			alignment: Alignment.TopCenter
 		})
 	});
@@ -35,7 +35,7 @@ export function Landing(): ReactElement {
 		autoplay: true,
 		stateMachines: 'State Machine 1',
 		layout: new Layout({
-			fit: Fit.ScaleDown,
+			fit: Fit.Contain,
 			alignment: Alignment.TopCenter
 		})
 	});
@@ -61,7 +61,7 @@ export function Landing(): ReactElement {
 	];
 
 	return (
-		<div className={'z-10 flex-col items-center justify-center'}>
+		<div className={'scrollbar-hide z-10 flex-col items-center justify-center'}>
 			<div className={'relative mt-[84px] h-full max-h-[260px] md:max-h-[480px] lg:max-h-[660px]'}>
 				<div className={'flex size-full flex-1'}>
 					<RiveComponent />
