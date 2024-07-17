@@ -23,7 +23,9 @@ import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 
 export const useVanilaSolver = (
 	isZapNeededForDeposit: boolean,
-	isZapNeededForWithdraw: boolean
+	isZapNeededForWithdraw: boolean,
+	isBridgeNeededForDeposit: boolean,
+	isBridgeNeededForWithdraw: boolean
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
@@ -91,8 +93,21 @@ export const useVanilaSolver = (
 		if (configuration.action === 'WITHDRAW' && isZapNeededForWithdraw) {
 			return;
 		}
+		if (configuration.action === 'DEPOSIT' && isBridgeNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && isBridgeNeededForWithdraw) {
+			return;
+		}
 		set_allowance(await onRetrieveAllowance(false));
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveAllowance]);
+	}, [
+		configuration.action,
+		isBridgeNeededForDeposit,
+		isBridgeNeededForWithdraw,
+		isZapNeededForDeposit,
+		isZapNeededForWithdraw,
+		onRetrieveAllowance
+	]);
 
 	/**********************************************************************************************
 	 ** Trigger an approve web3 action, simply trying to approve `amount` tokens

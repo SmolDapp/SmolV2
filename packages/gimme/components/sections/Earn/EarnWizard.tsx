@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useState} from 'react';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
+import {useIsBridgeNeeded} from 'packages/gimme/hooks/helpers/useIsBridgeNeeded';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {isAddressEqual} from 'viem';
@@ -14,75 +15,6 @@ import {Button} from '@lib/primitives/Button';
 import {useEarnFlow} from './useEarnFlow';
 
 import type {ReactElement} from 'react';
-
-/**********************************************************************************************
- ** canProceedWithAllowanceFlow checks if the user can proceed with the allowance flow. It will
- ** check if the current transaction request, input token, and output token are valid. It will
- ** also check if the input amount is greater than 0 and if the input token is not an ETH token
- ** or the zero address.
- ** If all these conditions are met, it will return true meaning we can either retrieve the
- ** allowance or proceed allowance request.
- *********************************************************************************************/
-// const canProceedWithSolverAllowanceFlow = useMemo((): boolean => {
-// 	if (
-// 		!configuration.quote.data ||
-// 		!configuration.asset.token?.address ||
-// 		!configuration.opportunity?.token.address
-// 	) {
-// 		return false;
-// 	}
-
-// 	if (toBigInt(configuration.quote.data.action.fromAmount) === 0n) {
-// 		return false;
-// 	}
-
-// 	const tokenToSpend = configuration.quote.data.action.fromToken.address;
-// 	if (isEthAddress(tokenToSpend) || isZeroAddress(tokenToSpend)) {
-// 		return false;
-// 	}
-// 	return true;
-// }, [configuration.asset.token?.address, configuration.opportunity?.token.address, configuration.quote.data]);
-
-/**********************************************************************************************
- ** onRetrieveAllowance checks if the user has enough allowance to perform the swap. It will
- ** check the allowance of the input token to the contract that will perform the swap, contract
- ** which is provided by the Portals API.
- *********************************************************************************************/
-// const onRetrieveSolverAllowance = useCallback(async (): Promise<TNormalizedBN> => {
-// 	if (!configuration.quote.data || !canProceedWithSolverAllowanceFlow) {
-// 		return zeroNormalizedBN;
-// 	}
-// 	set_isFetchingAllowance(true);
-// 	const allowance = await allowanceOf({
-// 		connector: provider,
-// 		chainID: configuration.quote.data.action.fromChainId,
-// 		tokenAddress: toAddress(configuration.quote.data.action.fromToken.address),
-// 		spenderAddress: toAddress(configuration.quote.data.estimate.approvalAddress)
-// 	});
-// 	set_isFetchingAllowance(false);
-
-// 	return toNormalizedBN(allowance, configuration.asset.token?.decimals || 18);
-// }, [canProceedWithSolverAllowanceFlow, configuration.asset.token?.decimals, configuration.quote.data, provider]);
-
-// const onApproveSolver = useCallback(async (): Promise<void> => {
-// 	if (!configuration.quote.data || !canProceedWithSolverAllowanceFlow) {
-// 		return;
-// 	}
-
-// 	const result = await approveERC20({
-// 		connector: provider,
-// 		chainID: configuration.quote.data.action.fromChainId,
-// 		contractAddress: toAddress(configuration.quote.data.action.fromToken.address),
-// 		spenderAddress: toAddress(configuration.quote.data.estimate.approvalAddress),
-// 		amount: toBigInt(configuration.quote.data.action.fromAmount),
-// 		statusHandler: set_approvalStatus,
-// 		shouldDisplaySuccessToast: false
-// 	});
-// 	if (result.isSuccessful) {
-// 		onSuccess();
-// 		triggerRetreiveAllowance();
-// 	}
-// }, [canProceedWithSolverAllowanceFlow, configuration.quote.data, onSuccess, provider, triggerRetreiveAllowance]);
 
 export function EarnWizard(): ReactElement {
 	const {onRefresh, getBalance} = useWallet();
@@ -192,6 +124,8 @@ export function EarnWizard(): ReactElement {
 	} = useSolver();
 
 	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
+	const {isBridgeNeededForDeposit, isBridgeNeededForWithdraw} = useIsBridgeNeeded(configuration);
+
 	const isAboveBalance =
 		configuration.asset.normalizedBigAmount.raw >
 		getBalance({
@@ -227,6 +161,9 @@ export function EarnWizard(): ReactElement {
 		if ((isZapNeededForDeposit || isZapNeededForWithdraw) && !quote) {
 			return false;
 		}
+		if ((isBridgeNeededForDeposit || isBridgeNeededForWithdraw) && !quote) {
+			return false;
+		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
 			return false;
 		}
@@ -244,6 +181,8 @@ export function EarnWizard(): ReactElement {
 		configuration.asset.token,
 		configuration.opportunity,
 		isAboveBalance,
+		isBridgeNeededForDeposit,
+		isBridgeNeededForWithdraw,
 		isWithdrawing,
 		isZapNeededForDeposit,
 		isZapNeededForWithdraw,

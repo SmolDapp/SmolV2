@@ -1,6 +1,4 @@
 import {type ReactElement, useCallback, useState} from 'react';
-import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
-import {useAccount, useSwitchChain} from 'wagmi';
 import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -29,26 +27,13 @@ export function Vault({
 }): ReactElement {
 	const {configuration} = useEarnFlow();
 	const {token, name, apr} = vault;
-	const {switchChainAsync} = useSwitchChain();
-	const {connector} = useAccount();
-	const chain = useCurrentChain();
+
 	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
 
-	/**********************************************************************************************
-	 * Async funciton that allows us to set selected vault with some good side effects:
-	 * 1. Chain is asynchronously switched if it doesn't coinside with chain vault is on.
-	 * 2. Form is populated with token linked to the vault and user's balance of selected token.
-	 * Exception - user has already selected native token which needs to be linked to wrapped token
-	 * vault manually.
-	 *********************************************************************************************/
 	const onSelectVault = useCallback(async () => {
-		if (vault.chainID !== chain.id) {
-			await switchChainAsync({connector, chainId: vault.chainID});
-		}
-
 		onSelect(vault);
 		onClose();
-	}, [chain.id, connector, onClose, onSelect, switchChainAsync, vault]);
+	}, [onClose, onSelect, vault]);
 
 	const [timeoutId, set_timeoutId] = useState<Timer | undefined>(undefined);
 

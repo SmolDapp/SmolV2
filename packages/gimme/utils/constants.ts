@@ -1,3 +1,3 @@
-import {polygon} from 'viem/chains';
+import {arbitrum, polygon} from 'viem/chains';
 
-export const supportedNetworks = [polygon];
+export const supportedNetworks = [polygon, arbitrum];

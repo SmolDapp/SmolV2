@@ -28,7 +28,9 @@ import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 export const usePortalsSolver = (
 	isZapNeededForDeposit: boolean,
-	isZapNeededForWithdraw: boolean
+	isZapNeededForWithdraw: boolean,
+	isBridgeNeededForDeposit: boolean,
+	isBridgeNeededForWithdraw: boolean
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {address, provider} = useWeb3();
@@ -90,8 +92,21 @@ export const usePortalsSolver = (
 		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
 			return;
 		}
+		if (configuration.action === 'DEPOSIT' && isBridgeNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && isBridgeNeededForWithdraw) {
+			return;
+		}
 		onRetrieveQuote();
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveQuote]);
+	}, [
+		configuration.action,
+		isBridgeNeededForDeposit,
+		isBridgeNeededForWithdraw,
+		isZapNeededForDeposit,
+		isZapNeededForWithdraw,
+		onRetrieveQuote
+	]);
 
 	/**********************************************************************************************
 	 * Retrieve the allowance for the token to be used by the solver. This will be used to
@@ -175,8 +190,21 @@ export const usePortalsSolver = (
 		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
 			return;
 		}
+		if (configuration.action === 'DEPOSIT' && isBridgeNeededForDeposit) {
+			return;
+		}
+		if (configuration.action === 'WITHDRAW' && isBridgeNeededForWithdraw) {
+			return;
+		}
 		set_allowance(await onRetrieveAllowance(true));
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveAllowance]);
+	}, [
+		configuration.action,
+		isBridgeNeededForDeposit,
+		isBridgeNeededForWithdraw,
+		isZapNeededForDeposit,
+		isZapNeededForWithdraw,
+		onRetrieveAllowance
+	]);
 
 	/**********************************************************************************************
 	 * Trigger an signature to approve the token to be used by the Portals
