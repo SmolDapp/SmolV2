@@ -335,6 +335,7 @@ export const usePortalsSolver = (
 		configuration?.asset.normalizedBigAmount?.raw,
 		configuration?.asset.token,
 		configuration?.opportunity,
+		isStablecoin,
 		latestQuote,
 		provider
 	]);
