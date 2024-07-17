@@ -71,6 +71,10 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 	};
 
 	const onSetFractional = (percentage: number): void => {
+		if (percentage === 100) {
+			validate(selectedTokenBalance.display, selectedToken);
+			return;
+		}
 		const calculatedPercent = percentOf(+selectedTokenBalance.normalized, percentage);
 		validate(calculatedPercent.toString(), selectedToken);
 	};
