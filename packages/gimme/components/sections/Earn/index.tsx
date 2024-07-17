@@ -3,7 +3,6 @@ import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {serialize} from 'wagmi';
@@ -26,7 +25,6 @@ export function Earn(): ReactElement {
 	const {userVaults, vaults} = useVaults();
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
-	const {getIsStablecoin} = useGetIsStablecoin();
 	const {quote, isFetchingQuote} = useSolver();
 	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
 	const chain = useCurrentChain();
@@ -122,27 +120,13 @@ export function Earn(): ReactElement {
 
 	const onSelectTokenCallback = useCallback(
 		(token: TToken) => {
-			const isStablecoin = getIsStablecoin({
-				address: token.address,
-				chainID: token.chainID
-			});
-
-			if (configuration.opportunity?.category === 'Stablecoin' && isStablecoin) {
-				return;
-			}
-
 			if (configuration.opportunity?.token.address === token.address) {
 				return;
 			}
 
 			onSetOpportunity(undefined);
 		},
-		[
-			configuration.opportunity?.category,
-			configuration.opportunity?.token.address,
-			getIsStablecoin,
-			onSetOpportunity
-		]
+		[configuration.opportunity?.token.address, onSetOpportunity]
 	);
 
 	return (

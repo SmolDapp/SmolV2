@@ -1,8 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {useGetIsStablecoin} from 'packages/gimme/hooks/helpers/useGetIsStablecoin';
-import {mainnet, polygon} from 'wagmi/chains';
-import {cl, formatCounterValue, formatTAmount, isEthAddress, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatCounterValue, formatTAmount, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {usePrices} from '@lib/contexts/usePrices';
@@ -11,45 +9,14 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {SelectVault} from './SelectVault';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TAddress, TNDict} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-const WRAPPED_TOKEN_ADDRESS: TNDict<TAddress> = {
-	[mainnet.id]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-	[polygon.id]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
-};
-
-export function SelectOpportunityButton({
-	onSetOpportunity
-}: {
-	onSetOpportunity: (value: TYDaemonVault) => void;
-}): JSX.Element {
+export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaemonVault) => void}): JSX.Element {
 	const {configuration} = useEarnFlow();
 	const {vaultsArray} = useVaults();
 	const {getPrice} = usePrices();
-
-	const {getIsStablecoin} = useGetIsStablecoin();
-	const isStablecoin = getIsStablecoin({
-		address: configuration.asset.token?.address,
-		chainID: configuration.asset.token?.chainID
-	});
-
 	const [isOpen, set_isOpen] = useState(false);
-
-	const availableVaults = configuration.asset.token
-		? vaultsArray.filter(vault => {
-				if (isStablecoin && vault.category === 'Stablecoin') {
-					return true;
-				}
-				if (vault.token.address === configuration.asset.token?.address) {
-					return true;
-				}
-				if (isEthAddress(configuration.asset.token?.address) && configuration.asset.token?.chainID) {
-					return vault.token.address === WRAPPED_TOKEN_ADDRESS[configuration.asset.token.chainID];
-				}
-				return false;
-			})
-		: vaultsArray;
+	const availableVaults = vaultsArray;
 
 	const maxAPR = useMemo(() => {
 		const APRs = availableVaults.map(vault => vault.apr.netAPR);
@@ -138,9 +105,8 @@ export function SelectOpportunityButton({
 			<SelectVault
 				isOpen={isOpen}
 				onClose={() => set_isOpen(false)}
-				onSelect={onSetOpportunity}
+				onSelect={props.onSetOpportunity}
 				availableVaults={availableVaults}
-				isStablecoin={isStablecoin}
 			/>
 		</>
 	);

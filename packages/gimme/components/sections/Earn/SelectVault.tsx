@@ -15,26 +15,20 @@ export function SelectVault({
 	isOpen,
 	onClose,
 	onSelect,
-	availableVaults,
-	isStablecoin
+	availableVaults
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	onSelect: (value: TYDaemonVault) => void;
 	availableVaults: TYDaemonVault[];
-	isStablecoin: boolean;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
 	const {address} = useWeb3();
-
 	const {getPrice} = usePrices();
-
 	const [vaultInfo, set_vaultInfo] = useState<TYDaemonVault | undefined>(undefined);
 	const [isHoveringInfo, set_isHoveringInfo] = useState(false);
-
-	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
-
 	const [filter, set_filter] = useState<'all' | 'token'>('all');
+	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
 
 	const filteredVaults = useMemo(() => {
 		if (filter === 'token') {
@@ -97,7 +91,7 @@ export function SelectVault({
 											onClick={() => set_filter('all')}>
 											{'All'}
 										</button>
-										{isStablecoin && configuration.asset.token && (
+										{configuration.asset.token && (
 											<button
 												className={cl(
 													'text-grey-800 border-grey-200 hover:bg-grey-200 rounded-2xl border px-6 py-1 font-medium',

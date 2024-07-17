@@ -438,9 +438,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}
 				onSelect={currentCallbackFunction}
-				options={{
-					chainID: options.chainID || chain.id
-				}}
+				options={{chainID: options.chainID || chain.id}}
 			/>
 		</BalancesModalContext.Provider>
 	);
