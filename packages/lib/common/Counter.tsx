@@ -11,7 +11,8 @@ export function Counter({
 	decimalsToDisplay,
 	className,
 	decimalsClassName,
-	shouldBeStylized
+	shouldBeStylized,
+	shouldDustify
 }: {
 	value: number; // Value to animate
 	decimals: number; // Number of decimals of that token
@@ -20,6 +21,7 @@ export function Counter({
 	className?: string;
 	decimalsClassName?: string;
 	shouldBeStylized?: boolean; // Whether the counter should be stylized
+	shouldDustify?: boolean; // Whether the counter should dustify
 }): ReactElement {
 	const nodeRef = useRef() as MutableRefObject<HTMLSpanElement | undefined>;
 	const valueRef = useRef(value || 0);
@@ -96,14 +98,18 @@ export function Counter({
 							</span>
 						);
 					} else {
-						node.textContent = finalValue;
+						if (Number(finalValue) === 0 && Number(valueRef.current) !== 0 && shouldDustify) {
+							node.textContent = '< 0.0000';
+						} else {
+							node.textContent = finalValue;
+						}
 					}
 				}
 			});
 			return () => controls.stop();
 		}
 		return () => undefined;
-	}, [value, decimals, decimalsToDisplay, idealDecimals, shouldBeStylized, decimalsClassName]);
+	}, [value, decimals, decimalsToDisplay, idealDecimals, shouldBeStylized, decimalsClassName, shouldDustify]);
 
 	return (
 		<span

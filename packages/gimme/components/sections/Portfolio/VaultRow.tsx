@@ -95,8 +95,10 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						<p className={'font-bold'}>
 							<Counter
 								value={props.balance.normalized}
-								decimals={props.vault.decimals}
+								idealDecimals={4}
+								decimals={4}
 								decimalsToDisplay={[6, 12]}
+								shouldDustify
 							/>
 						</p>
 						<p className={'text-xs'}>
@@ -108,7 +110,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 										: 0
 								}
 								idealDecimals={2}
-								decimals={props.vault.decimals}
+								decimals={2}
 								decimalsToDisplay={[6]}
 							/>
 						</p>
