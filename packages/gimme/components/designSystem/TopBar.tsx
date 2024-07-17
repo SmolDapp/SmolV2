@@ -106,7 +106,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				}>
 				<div className={'col-span-3 flex gap-2 py-2'}>
 					<Image
-						src={'/gimme-logo.svg'}
+						src={'/favicons/favicon.png'}
 						alt={'gimme-logo'}
 						width={40}
 						height={40}

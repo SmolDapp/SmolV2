@@ -29,11 +29,11 @@ function MyApp(props: AppProps): ReactElement {
 		<WithFonts>
 			<Meta
 				title={'Gimme'}
-				description={'Just Gimme'}
+				description={'DeFi yields, designed for everyone.'}
 				titleColor={'#000000'}
 				themeColor={'#FFD915'}
-				og={'https://smold.app/og.png'}
-				uri={'https://smold.app'}
+				og={'https://gimme.yearn.farm/og.png'}
+				uri={'https://gimme.yearn.farm'}
 			/>
 			<WithMom
 				supportedChains={[...supportedNetworks, mainnet]}
