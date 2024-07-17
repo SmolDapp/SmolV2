@@ -209,7 +209,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	const {address} = useWeb3();
 	const [searchValue, set_searchValue] = useState('');
 	const [filter, set_filter] = useState<'all' | 'stables' | 'other'>('all');
-
 	const {getIsStablecoin} = useGetIsStablecoin();
 	const {vaults} = useVaults();
 
@@ -389,8 +388,10 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	 ** user's chainID is 1 which would result in displaying the tokens for chain 1 instead of 10.
 	 *********************************************************************************************/
 	useEffect((): void => {
-		set_tokensToUse(listTokensWithBalance(options.chainID));
-		set_allTokensToUse(listTokens(options.chainID));
+		const allPopularTokens = listTokens(options.chainID);
+		const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
+		set_tokensToUse(allPopularTokensWithBalance);
+		set_allTokensToUse(allPopularTokens);
 	}, [listTokensWithBalance, options.chainID, listTokens]);
 
 	/**********************************************************************************************
@@ -404,14 +405,16 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const onOpenCurtain: TBalancesCurtainContextProps['onOpenCurtain'] = useCallback(
 		(callbackFn, _options): void => {
 			if (_options?.chainID) {
-				set_tokensToUse(listTokensWithBalance(_options.chainID));
-				set_allTokensToUse(listTokens(_options.chainID));
+				const allPopularTokens = listTokens(_options.chainID);
+				const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
+				set_tokensToUse(allPopularTokensWithBalance);
+				set_allTokensToUse(allPopularTokens);
 				set_options(_options);
 			}
 			set_currentCallbackFunction(() => callbackFn);
 			set_shouldOpenCurtain(true);
 		},
-		[listTokensWithBalance, listTokens]
+		[listTokens]
 	);
 
 	/**********************************************************************************************

@@ -11,6 +11,7 @@ import {Background} from '@gimmeDesignSystem/Background';
 import {BackgroundLanding} from '@gimmeDesignSystem/BackgroundLanding';
 import Layout from '@gimmeDesignSystem/Layout';
 import {supportedNetworks} from '@gimmeutils/constants';
+import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
 
 import {WithFonts} from '../components/WithFonts';
@@ -39,16 +40,18 @@ function MyApp(props: AppProps): ReactElement {
 				defaultNetwork={supportedNetworks[0]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/137/yearn-min.json']}>
 				<WalletContextApp>
-					<WithPrices supportedNetworks={supportedNetworks}>
-						<VaultsContextApp>
-							<div className={'relative'}>
-								{isLandingPage ? <BackgroundLanding /> : <Background />}
-								<main className={'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'}>
-									<Layout {...props} />
-								</main>
-							</div>
-						</VaultsContextApp>
-					</WithPrices>
+					<WithPopularTokens>
+						<WithPrices supportedNetworks={supportedNetworks}>
+							<VaultsContextApp>
+								<div className={'relative'}>
+									{isLandingPage ? <BackgroundLanding /> : <Background />}
+									<main className={'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'}>
+										<Layout {...props} />
+									</main>
+								</div>
+							</VaultsContextApp>
+						</WithPrices>
+					</WithPopularTokens>
 				</WalletContextApp>
 			</WithMom>
 			<Toaster
