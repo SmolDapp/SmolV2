@@ -4,6 +4,8 @@ import {useRouter} from 'next/router';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
+import {IconMinus} from '@gimmeDesignSystem/IconMinus';
+import {IconPlus} from '@gimmeDesignSystem/IconPlus';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
@@ -93,8 +95,10 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						<p className={'font-bold'}>
 							<Counter
 								value={props.balance.normalized}
-								decimals={props.vault.decimals}
+								idealDecimals={4}
+								decimals={4}
 								decimalsToDisplay={[6, 12]}
+								shouldDustify
 							/>
 						</p>
 						<p className={'text-xs'}>
@@ -106,7 +110,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 										: 0
 								}
 								idealDecimals={2}
-								decimals={props.vault.decimals}
+								decimals={2}
 								decimalsToDisplay={[6]}
 							/>
 						</p>
@@ -118,22 +122,22 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						{`${formatCounterValue(percentOf(props.balance.normalized, props.vault.apr.netAPR * 100), props.price?.normalized || 0)}`}
 					</p>
 				</div>
-				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-2 md:flex'}>
+				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-4 md:flex'}>
 					<button
 						onClick={async () => onAction({tokenAddress: props.vault.address})}
 						className={
-							'relative flex size-6 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-200'
+							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<p className={'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}>{'-'}</p>
+						<IconMinus />
 					</button>
 					<button
 						onClick={async () =>
 							onAction({tokenAddress: props.vault.token.address, vaultAddress: props.vault.address})
 						}
 						className={
-							'relative mr-2 flex size-6 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-200'
+							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<p className={'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}>{'+'}</p>
+						<IconPlus />
 					</button>
 				</div>
 				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>

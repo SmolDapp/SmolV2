@@ -19,6 +19,7 @@ import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
+import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
@@ -43,6 +44,12 @@ export const usePortalsSolver = (
 	const spendAmount = configuration?.asset.normalizedBigAmount?.raw ?? 0n;
 	const isAboveAllowance = allowance.raw >= spendAmount;
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
+
+	const {getIsStablecoin} = useGetIsStablecoin();
+	const isStablecoin = getIsStablecoin({
+		address: configuration.asset.token?.address,
+		chainID: configuration.asset.token?.chainID
+	});
 
 	const onRetrieveQuote = useCallback(async () => {
 		if (
@@ -295,7 +302,7 @@ export const usePortalsSolver = (
 					inputToken: `${network}:${toAddress(inputToken)}`,
 					outputToken: `${network}:${toAddress(outputToken)}`,
 					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
-					slippageTolerancePercentage: String(0.1),
+					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
 					validate: 'false'
 				}

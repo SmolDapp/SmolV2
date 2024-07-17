@@ -1,5 +1,9 @@
 @import './style.base.css';
 
+html {
+	@apply scrollbar-none;
+}
+
 @layer base {
 	.max-w-4xl,
 	.max-w-5xl,
