@@ -1,5 +1,6 @@
 import {type ReactElement} from 'react';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
@@ -118,22 +119,32 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 						{`${formatCounterValue(percentOf(props.balance.normalized, props.vault.apr.netAPR * 100), props.price?.normalized || 0)}`}
 					</p>
 				</div>
-				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-2 md:flex'}>
+				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-4 md:flex'}>
 					<button
 						onClick={async () => onAction({tokenAddress: props.vault.address})}
 						className={
-							'relative flex size-6 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-200'
+							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<p className={'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}>{'-'}</p>
+						<Image
+							src={'/minus.svg'}
+							alt={'minus'}
+							width={12}
+							height={1}
+						/>
 					</button>
 					<button
 						onClick={async () =>
 							onAction({tokenAddress: props.vault.token.address, vaultAddress: props.vault.address})
 						}
 						className={
-							'relative mr-2 flex size-6 items-center justify-center rounded-full border border-neutral-600 transition-colors hover:bg-neutral-200'
+							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
-						<p className={'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}>{'+'}</p>
+						<Image
+							src={'/add.svg'}
+							alt={'add'}
+							width={12}
+							height={12}
+						/>
 					</button>
 				</div>
 				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>
