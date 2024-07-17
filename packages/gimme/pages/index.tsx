@@ -1,8 +1,8 @@
 import {type ReactElement} from 'react';
 import {Landing} from '@gimmmeSections/Landing';
 
-function EarnPage(): ReactElement {
+function LandingPage(): ReactElement {
 	return <Landing />;
 }
 
-export default EarnPage;
+export default LandingPage;

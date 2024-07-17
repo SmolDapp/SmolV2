@@ -61,7 +61,7 @@ export function Landing(): ReactElement {
 	];
 
 	return (
-		<div className={'scrollbar-hide z-10 flex-col items-center justify-center'}>
+		<div className={'scrollbar-hide z-10 min-h-[150vh] flex-col items-center justify-center'}>
 			<div className={'relative mt-[84px] h-full max-h-[260px] md:max-h-[480px] lg:max-h-[660px]'}>
 				<div className={'flex size-full flex-1'}>
 					<RiveComponent />
