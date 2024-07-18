@@ -297,7 +297,7 @@ export function EarnWizard(): ReactElement {
 					}
 					isDisabled={!isValid}
 					onClick={onAction}
-					className={'disabled:!bg-grey-100 w-full !font-bold disabled:!opacity-100'}>
+					className={'disabled:!bg-grey-100 !text-grey-800 w-full !font-bold disabled:!opacity-100'}>
 					{getButtonTitle()}
 				</Button>
 			) : (
