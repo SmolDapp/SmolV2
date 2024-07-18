@@ -194,7 +194,7 @@ export function Portfolio(): ReactNode {
 						value={totalDeposited}
 						decimals={4}
 						decimalsToDisplay={[4]}
-						decimalsClassName={'text-grey-200'}
+						decimalsClassName={'!text-grey-200'}
 						shouldBeStylized
 					/>
 				</p>
