@@ -91,24 +91,42 @@ export function EarnWizard(): ReactElement {
 	const {vaults, vaultsArray} = useVaults();
 	const chain = useCurrentChain();
 
-	const [transactionResult, set_transactionResult] = useState({
+	const [transactionResult, set_transactionResult] = useState<{isExecuted: boolean; message: ReactElement | null}>({
 		isExecuted: false,
-		message: ''
+		message: null
 	});
 
 	/**********************************************************************************************
 	 ** Based on the user action, we can display a different message in the success modal.
 	 *********************************************************************************************/
 	const getModalMessage = useCallback(
-		(kind: 'DEPOSIT' | 'WITHDRAW'): string => {
+		(kind: 'DEPOSIT' | 'WITHDRAW'): ReactElement => {
 			const vaultName = vaultsArray.find(vault =>
 				isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
 			)?.name;
 
 			if (kind === 'WITHDRAW') {
-				return `Successfully withdrawn ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} from ${configuration.opportunity?.name ?? vaultName}`;
+				return (
+					<span className={'text-pretty'}>
+						{'Successfully withdrawn '}
+						<span className={'text-grey-800'}>
+							{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
+						</span>
+						{' from '}
+						{configuration.opportunity?.name ?? vaultName}
+					</span>
+				);
 			}
-			return `Successfully deposited ${configuration.asset.normalizedBigAmount.display} ${configuration.asset.token?.symbol} to ${configuration.opportunity?.name ?? vaultName}`;
+			return (
+				<span>
+					{'Successfully deposited '}
+					<span className={'text-grey-800'}>
+						{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
+					</span>
+					{' to '}
+					{configuration.opportunity?.name ?? vaultName}
+				</span>
+			);
 		},
 		[
 			configuration.asset.normalizedBigAmount.display,
@@ -206,7 +224,7 @@ export function EarnWizard(): ReactElement {
 	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
 	 *********************************************************************************************/
 	const onCloseModal = useCallback(() => {
-		set_transactionResult({isExecuted: false, message: ''});
+		set_transactionResult({isExecuted: false, message: null});
 		onResetEarn();
 	}, [onResetEarn]);
 

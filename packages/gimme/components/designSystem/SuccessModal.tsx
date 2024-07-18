@@ -12,7 +12,7 @@ type TSuccessModal = {
 	isOpen: boolean;
 	onClose: VoidFunction;
 	title: string;
-	content: ReactElement | string;
+	content: ReactElement | string | null;
 	ctaLabel: string;
 	className?: string;
 };

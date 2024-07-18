@@ -81,7 +81,7 @@ export function Vault({
 						{configuration.asset.token &&
 							vault.token.address &&
 							configuration.asset.token?.address !== vault.token.address && (
-								<div className={'text-xxs rounded-sm bg-neutral-400 px-1 text-neutral-700'}>
+								<div className={'text-xxs bg-grey-100 text-grey-800 rounded-sm px-1'}>
 									{`${configuration.asset.token?.symbol} -> ${vault.token.symbol}`}
 								</div>
 							)}
