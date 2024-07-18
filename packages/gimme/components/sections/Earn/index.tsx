@@ -15,7 +15,7 @@ import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
@@ -118,17 +118,6 @@ export function Earn(): ReactElement {
 		);
 	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
-	const onSelectTokenCallback = useCallback(
-		(token: TToken) => {
-			if (configuration.opportunity?.token.address === token.address) {
-				return;
-			}
-
-			onSetOpportunity(undefined);
-		},
-		[configuration.opportunity?.token.address, onSetOpportunity]
-	);
-
 	return (
 		<div className={'z-20 flex w-full flex-col items-center gap-10'}>
 			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-4 shadow-xl md:p-6'}>
@@ -136,7 +125,6 @@ export function Earn(): ReactElement {
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}
 						value={configuration.asset}
-						onSelectTokenCallback={onSelectTokenCallback}
 					/>
 
 					{!isWithdrawing && <SelectOpportunityButton onSetOpportunity={onSetOpportunity} />}

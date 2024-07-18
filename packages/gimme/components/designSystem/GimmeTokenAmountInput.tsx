@@ -13,18 +13,17 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {handleLowAmount} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
-import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
-	onSelectTokenCallback: (token: TToken) => void;
 	value: TTokenAmountInputElement;
 };
 
 const percentIntervals = [10, 50, 100];
 
-export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}: TTokenAmountInput): ReactElement {
+export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesModal();
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
@@ -235,7 +234,6 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 								className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
 								onClick={() =>
 									onOpenCurtain(token => {
-										onSelectTokenCallback(token);
 										validate(value.amount, token, token.balance);
 									})
 								}>
