@@ -101,7 +101,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 								shouldDustify
 							/>
 						</p>
-						<p className={'text-xs'}>
+						<p className={'text-grey-700 text-xs'}>
 							{'$'}
 							<Counter
 								value={
