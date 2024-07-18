@@ -165,7 +165,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 
 	return (
 		<div className={'relative size-full rounded-lg'}>
-			<label
+			<div
 				className={cl(
 					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
@@ -173,15 +173,15 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 					'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pl-6 bg-grey-100 rounded-2xl',
 					getBorderColor()
 				)}>
-				<div className={'flex items-center gap-2'}>
+				<div className={'flex w-fit items-center gap-2 justify-self-start'}>
 					<p className={'text-grey-800 text-xs font-medium'}>{'Asset'}</p>
 					{selectedToken && (
-						<div className={'flex items-center gap-0.5'}>
+						<div className={'flex items-center justify-start gap-0.5'}>
 							{percentIntervals.map(percent => (
 								<button
 									key={percent}
 									className={
-										'text-grey-800 border-grey-200 rounded-full border bg-white px-2 py-0.5 text-xs transition-colors'
+										'text-grey-800 border-grey-200 hover:bg-grey-100 rounded-full border bg-white px-2 py-0.5 text-xs transition-colors'
 									}
 									onClick={() => onSetFractional(percent)}
 									onMouseDown={e => e.preventDefault()}>
@@ -251,7 +251,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 						)}
 					</div>
 				</div>
-			</label>
+			</div>
 		</div>
 	);
 }
