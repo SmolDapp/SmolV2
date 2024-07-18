@@ -76,7 +76,7 @@ export function Landing(): ReactElement {
 				/>
 				<p className={'text-wrap text-center text-lg text-white'}>
 					{
-						'DeFi offers some of the best yields available on the planet, but they’re often hidden behind complex'
+						'DeFi offers some of the best yields available on the planet, but they’re often hidden behind complex '
 					}
 					{'UIs designed for whales. GIMME is here to fix that.'}
 				</p>
