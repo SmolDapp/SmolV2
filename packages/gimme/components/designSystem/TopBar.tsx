@@ -79,7 +79,7 @@ function WalletSection(): ReactElement {
 	return (
 		<div
 			className={cl(
-				'flex items-center justify-center gap-2 rounded-2xl border border-white bg-white/60 px-2 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
+				'flex items-center justify-center gap-3 rounded-2xl border border-white bg-white/60 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
 				'md:py-2 md:backdrop-filter-none'
 			)}>
 			<NetworkPopoverSelector networks={[polygon]} />
@@ -87,7 +87,7 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openAccountModal?.();
 				}}
-				className={'text-grey-900 px-4 font-bold transition-all hover:opacity-70'}>
+				className={'text-grey-900  font-bold transition-all hover:opacity-70'}>
 				{buttonLabel}
 			</button>
 		</div>

@@ -94,7 +94,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 							<div className={'flex h-[74px] items-end justify-between md:mt-4 md:items-start'}>
 								<TextTruncate
 									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-									className={'!text-grey-800 !text-lg font-medium md:mt-1.5 md:max-h-8 md:!text-3xl'}
+									className={'!text-grey-800 !text-lg font-medium  md:max-h-10 md:!text-3xl'}
 								/>
 								<button
 									className={
