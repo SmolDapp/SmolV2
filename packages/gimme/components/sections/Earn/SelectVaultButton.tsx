@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {cl, formatCounterValue, formatTAmount, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatTAmount, formatUSD, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {usePrices} from '@lib/contexts/usePrices';
@@ -24,13 +24,18 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 		return max;
 	}, [availableVaults]);
 
-	const earnings = configuration.opportunity
-		? percentOf(configuration.asset.normalizedBigAmount.normalized, configuration.opportunity.apr.netAPR * 100)
-		: 0;
-
-	const price = configuration.opportunity
-		? getPrice({address: configuration.opportunity.token.address, chainID: configuration.opportunity.chainID})
+	const assetPrice = configuration.asset.token
+		? getPrice({
+				address: configuration.asset.token?.address,
+				chainID: configuration.asset.token?.chainID
+			}) || zeroNormalizedBN
 		: zeroNormalizedBN;
+
+	const assetAmountUSD = assetPrice.normalized * configuration.asset.normalizedBigAmount.normalized;
+
+	const earnings = configuration.opportunity
+		? percentOf(assetAmountUSD, configuration.opportunity.apr.netAPR * 100)
+		: 0;
 
 	return (
 		<>
@@ -70,9 +75,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 											className={'!text-grey-800 !w-full text-left !text-lg font-medium'}
 										/>
 
-										<p className={'text-grey-600 text-xs'}>
-											{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
-										</p>
+										<p className={'text-grey-600 text-xs'}>{`+${formatUSD(earnings)} over 1y`}</p>
 									</div>
 								</div>
 							</div>
