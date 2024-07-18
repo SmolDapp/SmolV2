@@ -68,11 +68,12 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 										quality={90}
 										width={32}
 										height={32}
+										className={'mt-px'}
 									/>
 									<div className={'flex flex-col'}>
 										<TextTruncate
 											value={`${configuration.opportunity.name} Vault`}
-											className={'!text-grey-800 !w-full text-left !text-lg font-medium'}
+											className={'!text-grey-800 w-full text-left !text-lg font-medium'}
 										/>
 
 										<p className={'text-grey-600 text-xs'}>{`+${formatUSD(earnings)} over 1y`}</p>
@@ -93,7 +94,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 							<div className={'flex h-[74px] items-end justify-between md:mt-4 md:items-start'}>
 								<TextTruncate
 									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-									className={'!text-grey-800 !text-lg md:mt-1.5 md:max-h-8 md:!text-3xl'}
+									className={'!text-grey-800 !text-lg font-medium md:mt-1.5 md:max-h-8 md:!text-3xl'}
 								/>
 								<button
 									className={
@@ -101,7 +102,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 									}
 									onClick={() => set_isOpen(true)}
 									disabled={availableVaults.length === 0}>
-									<p className={'hidden md:inline'}>{'Select'}</p>
+									<p className={'hidden font-bold md:inline'}>{'Select'}</p>
 									<IconChevron className={'size-6'} />
 								</button>
 							</div>

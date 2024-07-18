@@ -181,7 +181,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								<button
 									key={percent}
 									className={
-										'text-grey-800 border-grey-200 hover:bg-grey-100 rounded-full border bg-white px-2 py-0.5 text-xs transition-colors'
+										'text-grey-800 border-grey-200 hover:bg-grey-100 rounded-full border bg-white px-2 py-0.5 text-xs font-bold transition-colors'
 									}
 									onClick={() => onSetFractional(percent)}
 									onMouseDown={e => e.preventDefault()}>
@@ -245,7 +245,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 									'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
 								}
 								onClick={() => onOpenCurtain(token => validate(value.amount, token, token.balance))}>
-								<p className={'hidden md:inline'}>{'Select'}</p>
+								<p className={'hidden font-bold md:inline'}>{'Select'}</p>
 								<IconChevron className={'size-6'} />
 							</button>
 						)}

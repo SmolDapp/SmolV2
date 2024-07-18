@@ -297,12 +297,12 @@ export function EarnWizard(): ReactElement {
 					}
 					isDisabled={!isValid}
 					onClick={onAction}
-					className={'disabled:!bg-grey-100 w-full disabled:!opacity-100'}>
+					className={'disabled:!bg-grey-100 w-full !font-bold disabled:!opacity-100'}>
 					{getButtonTitle()}
 				</Button>
 			) : (
 				<Button
-					className={'w-full !rounded-2xl'}
+					className={'w-full !rounded-2xl !font-bold'}
 					onClick={openLoginModal}>
 					{'Connect Wallet'}
 				</Button>

@@ -70,7 +70,7 @@ function WalletSection(): ReactElement {
 					openLoginModal();
 				}}
 				className={
-					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-medium transition-colors md:w-full'
+					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-bold transition-colors md:w-full'
 				}>
 				{'Connect wallet'}
 			</button>
@@ -87,7 +87,7 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openAccountModal?.();
 				}}
-				className={'text-grey-900 px-4 font-medium transition-all hover:opacity-70'}>
+				className={'text-grey-900 px-4 font-bold transition-all hover:opacity-70'}>
 				{buttonLabel}
 			</button>
 		</div>
@@ -127,7 +127,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 						<LinkOrDiv
 							key={item.label}
 							className={cl(
-								'rounded-2xl text-center py-2 leading-6 transition-colors text-grey-800 font-medium',
+								'rounded-2xl text-center py-2 leading-6 transition-colors text-grey-800 font-bold',
 								!item.isDisabled ? 'hover:text-neutral-800 hover:bg-white' : '',
 								props.router.pathname === item.href ? '!text-neutral-900 bg-white' : ''
 							)}
@@ -141,7 +141,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				<div className={'col-span-3 w-full place-content-center pl-6'}>
 					{isLandingPage ? (
 						<Link href={'/earn'}>
-							<Button className={'w-full !rounded-2xl !px-4'}>{'Launch App'}</Button>
+							<Button className={'w-full !rounded-2xl !px-4 !font-bold'}>{'Launch App'}</Button>
 						</Link>
 					) : (
 						<WalletSection />
@@ -159,7 +159,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				</div>
 				{isLandingPage ? (
 					<Link href={'/earn'}>
-						<Button className={'!rounded-2xl'}>{'Launch App'}</Button>
+						<Button className={'!rounded-2xl !font-bold'}>{'Launch App'}</Button>
 					</Link>
 				) : (
 					<WalletSection />

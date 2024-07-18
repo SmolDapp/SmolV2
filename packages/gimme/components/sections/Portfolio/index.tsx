@@ -48,7 +48,7 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 							openLoginModal();
 						}}
 						className={
-							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-medium transition-colors'
+							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-bold transition-colors'
 						}>
 						{'Connect wallet'}
 					</button>
