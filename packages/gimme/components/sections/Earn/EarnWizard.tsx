@@ -313,7 +313,7 @@ export function EarnWizard(): ReactElement {
 				content={transactionResult.message}
 				ctaLabel={'Ok'}
 				isOpen={transactionResult.isExecuted}
-				className={'!bg-white shadow-lg'}
+				className={'!bg-white'}
 				onClose={onCloseModal}
 			/>
 		</div>
