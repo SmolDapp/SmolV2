@@ -33,12 +33,16 @@ export function SelectVault({
 	const [sortDirection, set_sortDirection] = useState<TSortDirection>('');
 	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
 
+	const underlyingTokenFilteredVaults = availableVaults.filter(
+		vault => vault.token.address === configuration.asset.token?.address
+	);
+
 	const filteredVaults = useMemo(() => {
 		if (filter === 'token') {
-			return availableVaults.filter(vault => vault.token.address === configuration.asset.token?.address);
+			return underlyingTokenFilteredVaults;
 		}
 		return availableVaults;
-	}, [availableVaults, configuration.asset.token?.address, filter]);
+	}, [availableVaults, filter, underlyingTokenFilteredVaults]);
 
 	const sortedVaults = useMemo(() => {
 		return filteredVaults.toSorted((a, b): number =>
@@ -116,7 +120,7 @@ export function SelectVault({
 											onClick={() => set_filter('all')}>
 											{'All'}
 										</button>
-										{configuration.asset.token && (
+										{configuration.asset.token && underlyingTokenFilteredVaults.length > 0 && (
 											<button
 												className={cl(
 													'text-grey-800 border-grey-200 hover:bg-grey-200 rounded-2xl border px-6 py-1 font-medium',
