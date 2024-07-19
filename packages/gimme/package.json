@@ -1,26 +1,25 @@
 {
-  "name": "gimme",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "next",
-    "dev:ts": "tsc --watch",
-    "start": "tsc && next build && next start",
-    "build": "tsc && next build",
-    "prepare": "husky install",
-    "export": "tsc && next build && next export -o ipfs"
-  },
-  "dependencies": {
-    "@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
-    "@radix-ui/react-popover": "^1.1.1",
-    "@yearn-finance/web-lib": "^3.0.191",
-    "dayjs": "^1.11.11",
-    "formidable": "^3.5.1",
-    "lib": "workspace:*",
-    "papaparse": "^5.4.1",
-    "telegraf": "^4.16.3",
-    "uuid": "^9.0.1"
-  }
+	"name": "gimme",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "next",
+		"dev:ts": "tsc --watch",
+		"start": "tsc && next build && next start",
+		"build": "tsc && next build",
+		"export": "tsc && next build && next export -o ipfs"
+	},
+	"dependencies": {
+		"@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
+		"@radix-ui/react-popover": "^1.1.1",
+		"@yearn-finance/web-lib": "^3.0.191",
+		"dayjs": "^1.11.11",
+		"formidable": "^3.5.1",
+		"lib": "workspace:*",
+		"papaparse": "^5.4.1",
+		"telegraf": "^4.16.3",
+		"uuid": "^9.0.1"
+	}
 }

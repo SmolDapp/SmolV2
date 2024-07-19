@@ -2,7 +2,6 @@
 	"name": "lib",
 	"version": "1.0.0",
 	"scripts": {
-		"prepare": "husky install",
 		"prettier-format": "prettier --config .prettierrc ./packages/**/**/*.{json,js,ts,tsx,css,md} --write",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},

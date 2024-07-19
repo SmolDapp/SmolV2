@@ -25,7 +25,7 @@ function VaultInfo({
 }): ReactElement {
 	return (
 		<Popover.Content
-			avoidCollisions
+			avoidCollisions={false}
 			side={version === 'sm' ? 'top' : 'right'}
 			align={'start'}
 			sideOffset={16}
