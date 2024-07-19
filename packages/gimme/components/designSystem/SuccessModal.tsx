@@ -97,7 +97,7 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 										'flex w-full flex-col items-center justify-center gap-2 p-6 text-center'
 									}>
 									<Button
-										className={cl('w-full')}
+										className={cl('w-full !font-bold !rounded-2xl')}
 										onClick={props.onClose}>
 										{props.ctaLabel}
 									</Button>

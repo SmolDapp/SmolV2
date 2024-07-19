@@ -78,7 +78,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 						onConnect();
 						props.onOpenChange(false);
 					}}
-					className={'!rounded-2xl'}>
+					className={'!rounded-2xl !font-bold'}>
 					{'Connect Wallet'}
 				</Button>
 			</div>
