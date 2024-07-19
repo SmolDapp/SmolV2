@@ -20,13 +20,13 @@ function VaultInfo({
 	onClose
 }: {
 	vaultInfo: TYDaemonVault | undefined;
-	version: 'sm' | 'md';
+	version: 'sm' | 'md' | 'xl';
 	onClose: VoidFunction;
 }): ReactElement {
 	return (
 		<Popover.Content
 			avoidCollisions={false}
-			side={version === 'sm' ? 'top' : 'right'}
+			side={version === 'sm' ? 'top' : version === 'md' ? 'right' : 'right'}
 			align={'start'}
 			sideOffset={16}
 			className={cl(
@@ -34,12 +34,14 @@ function VaultInfo({
 				'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
 				'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
 				'data-[side=bottom]:slide-in-from-top-2',
-				version === 'sm' ? 'flex xl:hidden' : 'hidden xl:flex'
+				version === 'sm' ? 'flex md:hidden xl:hidden' : '',
+				version === 'md' ? 'hidden md:flex xl:hidden' : '',
+				version === 'xl' ? 'hidden md:hidden xl:flex' : ''
 			)}>
 			<div
 				style={{width: 'calc(100vw - 32px)'}}
 				className={cl(
-					'flex md:!w-[560px] xl:!w-[400px] flex-col items-start',
+					'flex md:!w-[300px] xl:!w-[400px] flex-col items-start',
 					'border border-neutral-200 relative',
 					'rounded-3xl !bg-white p-6 transition-all'
 				)}>
@@ -128,6 +130,9 @@ export function SelectVault({
 	}, [availableVaults, filter, underlyingTokenFilteredVaults]);
 
 	const sortedVaults = useMemo(() => {
+		if (!filteredVaults) {
+			return [];
+		}
 		return filteredVaults.toSorted((a, b): number =>
 			numberSort({
 				a: a.apr?.netAPR || 0,
@@ -278,6 +283,13 @@ export function SelectVault({
 										<VaultInfo
 											vaultInfo={vaultInfo}
 											version={'md'}
+											onClose={() =>
+												set_vaultInfo(vaultInfo ? {...vaultInfo, isOpen: false} : undefined)
+											}
+										/>
+										<VaultInfo
+											vaultInfo={vaultInfo}
+											version={'xl'}
 											onClose={() =>
 												set_vaultInfo(vaultInfo ? {...vaultInfo, isOpen: false} : undefined)
 											}
