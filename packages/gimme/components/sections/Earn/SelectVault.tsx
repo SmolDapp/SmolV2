@@ -165,7 +165,9 @@ export function SelectVault({
 				</TransitionChild>
 
 				<div className={'fixed inset-0 z-[1001] w-screen overflow-y-auto px-0 md:px-4'}>
-					<div className={'flex min-h-full items-end justify-center p-4 text-center md:items-center md:p-0'}>
+					<div
+						onClick={onClose}
+						className={'flex min-h-full items-end justify-center p-4 text-center md:items-center md:p-0'}>
 						<TransitionChild
 							as={Fragment}
 							enter={'ease-out duration-300'}
