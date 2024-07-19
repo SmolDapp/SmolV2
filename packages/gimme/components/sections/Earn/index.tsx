@@ -1,5 +1,4 @@
 import {type ReactElement, useCallback, useEffect, useRef} from 'react';
-import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
@@ -9,6 +8,7 @@ import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {isAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {GimmeTokenAmountInput} from '@gimmeDesignSystem/GimmeTokenAmountInput';
+import {IconArrow} from '@gimmeDesignSystem/IconArrow';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
@@ -105,14 +105,9 @@ export function Earn(): ReactElement {
 					{'Hey! We gonna swap your tokens so you can use this opportunity. Don’t worry, no extra clicks.'}
 				</p>
 				<div className={'flex items-center gap-2'}>
-					<p>{configuration.asset.token?.symbol}</p>
-					<Image
-						src={'/arrow.svg'}
-						alt={'arrow'}
-						width={16}
-						height={10}
-					/>
-					<p>{configuration.opportunity?.token.symbol}</p>
+					<p className={'text-base'}>{configuration.asset.token?.symbol}</p>
+					<IconArrow />
+					<p className={'text-base'}>{configuration.opportunity?.token.symbol}</p>
 				</div>
 			</div>
 		);
@@ -131,7 +126,7 @@ export function Earn(): ReactElement {
 					{isZapNeededForDeposit || isZapNeededForWithdraw ? (
 						<div
 							className={
-								'bg-grey-100 border-grey-200 text-grey-700 min-h-[82px] w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs md:min-h-[66px]'
+								'bg-grey-0 border-grey-200 text-grey-700 w-full items-center rounded-2xl border p-4 pr-6 text-xs font-medium md:min-h-[66px]'
 							}>
 							{getZapsBadgeContent()}
 						</div>
