@@ -158,6 +158,9 @@ export function EarnWizard(): ReactElement {
 					address: toAddress(configuration.asset.token.address),
 					chainID: Number(configuration.asset.token.chainID)
 				});
+
+				const vaultToken = vaults[configuration.asset.token?.address].token ?? null;
+				tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
 			}
 			if (configuration.opportunity) {
 				tokensToRefresh.push({
@@ -167,14 +170,6 @@ export function EarnWizard(): ReactElement {
 					address: toAddress(configuration.opportunity.address),
 					chainID: Number(configuration.opportunity.chainID)
 				});
-			}
-
-			/**************************************************************************************
-			 * It's important to refetch the token linked to the vault user been withdrawing from
-			 *************************************************************************************/
-			if (kind === 'WITHDRAW' && configuration.asset.token) {
-				const vaultToken = vaults[configuration.asset.token?.address].token ?? null;
-				tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
 			}
 
 			const currentChainID = configuration.opportunity?.chainID || configuration.asset.token?.chainID || chain.id;
