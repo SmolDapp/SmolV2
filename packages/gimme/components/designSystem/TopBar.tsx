@@ -43,9 +43,8 @@ const LANDING_TOP_NAV: TNavBar = [
 		isDisabled: true
 	},
 	{
-		href: '/docs',
-		label: 'Docs',
-		isDisabled: true
+		href: 'https://docs.yearn.fi/',
+		label: 'Docs'
 	}
 ];
 
@@ -132,6 +131,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 								props.router.pathname === item.href ? '!text-neutral-900 bg-white' : ''
 							)}
 							href={item.href}
+							target={item.href.startsWith('http') ? '_blank' : undefined}
 							isDisabled={item.isDisabled}>
 							{item.label}
 						</LinkOrDiv>
