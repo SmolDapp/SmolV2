@@ -27,7 +27,7 @@ const TOP_NAV: TNavBar = [
 		label: 'Portfolio'
 	},
 	{
-		href: '/info',
+		href: '/about',
 		label: 'About'
 	}
 ];
