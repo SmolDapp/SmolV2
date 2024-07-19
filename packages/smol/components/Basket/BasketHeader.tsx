@@ -82,11 +82,7 @@ export function BasketHeader({
 								</div>
 							))}
 						</div>
-						<div
-							className={cl(
-								'h-4 w-full rounded-lg border border-neutral-200 bg-neutral-300',
-								'relative overflow-hidden flex flex-row'
-							)}>
+						<div className={cl('h-4 w-full', 'relative overflow-hidden flex flex-row gap-1')}>
 							{toTokens.map(item => (
 								<ColoredRatioBar
 									key={item.token.address}

@@ -90,7 +90,11 @@ export default function Basket(): ReactElement {
 
 	return (
 		<div className={'grid max-w-screen-sm gap-4'}>
-			<BasketHeader toTokens={toTokens} />
+			<BasketHeader
+				title={'Optimistic'}
+				description={'Be optimistic, get fancy tokens'}
+				toTokens={toTokens}
+			/>
 
 			<div className={'pt-6'}>
 				<BalancesCurtainContextApp>

@@ -8,7 +8,7 @@ export function ColoredRatioBar({logoURI, share}: {logoURI: string; share: numbe
 
 	return (
 		<div
-			className={'h-full bg-neutral-200 transition-colors'}
+			className={'h-full rounded-lg border border-neutral-200 bg-neutral-200 transition-colors'}
 			style={{width: `${share}%`, backgroundColor: data.vibrant}}
 		/>
 	);

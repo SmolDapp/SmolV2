@@ -86,7 +86,11 @@ export default function Basket(): ReactElement {
 
 	return (
 		<div className={'grid max-w-screen-sm gap-4'}>
-			<BasketHeader toTokens={toTokens} />
+			<BasketHeader
+				title={'Stable'}
+				description={'Everything is stable'}
+				toTokens={toTokens}
+			/>
 
 			<div className={'pt-6'}>
 				<BalancesCurtainContextApp>

@@ -1,14 +1,6 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-	decodeFunctionResult,
-	encodeFunctionData,
-	encodePacked,
-	getCreate2Address,
-	type Hex,
-	hexToBigInt,
-	isAddressEqual,
-	keccak256
-} from 'viem';
+import {encodePacked, erc20Abi, getCreate2Address, type Hex, isAddressEqual, keccak256} from 'viem';
+import {mainnet, optimism} from 'viem/chains';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -23,15 +15,21 @@ import {
 	ZERO_ADDRESS,
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
-import {defaultTxStatus, getNetwork, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {approveERC20, defaultTxStatus, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {FeeAmount} from '@uniswap/v3-sdk';
-import {readContract, readContracts, serialize, simulateContract} from '@wagmi/core';
+import {
+	readContract,
+	readContracts,
+	serialize,
+	simulateContract,
+	waitForTransactionReceipt,
+	writeContract
+} from '@wagmi/core';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';
-import DISPERSE_ABI from '@lib/utils/abi/disperse.abi';
-import {MULTICALL_ABI} from '@lib/utils/abi/multicall3.abi';
+import BASKET_ABI from '@lib/utils/abi/basket.abi';
 import {UNIQUOTER_ABI} from '@lib/utils/abi/uniQuoter.abi';
 import {UNIV2_ROUTER_ABI} from '@lib/utils/abi/uniV2Router.abi';
 import {UNIV3_ROUTER_ABI} from '@lib/utils/abi/uniV3Router.abi';
@@ -40,12 +38,11 @@ import {VELO_ROUTER_ABI} from '@lib/utils/abi/veloRouter.abi';
 import {CHAINS} from '@lib/utils/tools.chains';
 
 import {ReadonlySwapTokenRow, SwapTokenRow} from '../../components/Swap';
-import {multicall} from '../Multisafe/actions';
 import {createUniqueID} from '../Multisafe/utils';
 import {BasketTokenDetailsCurtain} from './BasketTokenDetailsCurtain';
 
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
-import type {TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TAddress, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {ReadContractParameters} from '@wagmi/core';
 
 type TTokenAmountInputElement = {
@@ -60,12 +57,12 @@ type TTokenAmountInputElement = {
 };
 export type TBasketToken = TTokenAmountInputElement & {
 	share: number;
-	feeAmount?: FeeAmount | number;
+	feeAmount?: (FeeAmount | number)[];
 	swapSource?: 'UNI_V3' | 'UNI_V2' | 'SUSHI_V2' | 'VELO_STABLE' | 'VELO_VOLATILE';
 };
 type TToTokenAmount = TDict<{
 	value: TNormalizedBN;
-	feeAmount: FeeAmount | number;
+	feeAmount: (FeeAmount | number)[];
 	source: TBasketToken['swapSource'];
 }>;
 
@@ -89,7 +86,6 @@ type TBasketTokenRow = {
 	fromToken: TTokenAmountInputElement;
 	isFetchingQuotes: boolean;
 };
-
 function BasketTokenRow({item, fromToken, isFetchingQuotes}: TBasketTokenRow): ReactElement {
 	const [isBasketInfoOpen, set_isBasketInfoOpen] = useState(false);
 	return (
@@ -131,10 +127,74 @@ function BasketTokenRow({item, fromToken, isFetchingQuotes}: TBasketTokenRow): R
 	);
 }
 
+function encodeUniV3Path(path: TAddress[], fees: number[]): Hex {
+	if (path.length != fees.length + 1) {
+		throw new Error('path/fee lengths do not match');
+	}
+
+	let encoded: Hex = '0x';
+	for (let i = 0; i < fees.length; i++) {
+		// 20 byte encoding of the address
+		encoded += path[i].slice(2);
+		// 3 byte encoding of the fee
+		encoded += fees[i].toString(16).padStart(6, '0');
+	}
+	// encode the final token
+	encoded += path[path.length - 1].slice(2);
+
+	return encoded as Hex;
+}
+function simulateUniV3Paths(
+	tokensInPath: TAddress[],
+	quoterAddress: TAddress,
+	chainId: number,
+	amountIn: bigint
+): {
+	calls: Map<string, Promise<any>>;
+	source: TBasketToken['swapSource'][];
+	fee: FeeAmount[][];
+} {
+	const feeOptions = [FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH];
+	const simulationPromises = new Map<string, Promise<any>>();
+	const source: TBasketToken['swapSource'][] = [];
+	const fee: FeeAmount[][] = [];
+
+	for (const fee1 of feeOptions) {
+		for (const fee2 of feeOptions) {
+			const path = tokensInPath;
+			const fees = [fee1, fee2];
+			const encodedPath = encodeUniV3Path(path, fees);
+
+			const key = `${fee1}-${fee2}`;
+			const promise = simulateContract(retrieveConfig(), {
+				abi: UNIQUOTER_ABI,
+				address: toAddress(quoterAddress),
+				functionName: 'quoteExactInput',
+				chainId: chainId,
+				args: [encodedPath, amountIn]
+			});
+
+			simulationPromises.set(key, promise);
+			source.push('UNI_V3');
+			fee.push([fee1, fee2]);
+		}
+	}
+	return {
+		calls: simulationPromises,
+		source,
+		fee
+	};
+}
+
+const BASKET_ADDRESSES: TDict<TAddress> = {
+	[mainnet.id]: toAddress('0x93f8baf2f3e5ff976b48f9dee15be116494bd9aa'),
+	[optimism.id]: toAddress('0xba4a4b2c22324658acfa40cd3d0955c23e59b47d')
+};
+
 export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: TSwapBasketProps): ReactElement {
 	const {provider, address} = useWeb3();
 	const {getBalance} = useWallet();
-	const [txStatus, set_txStatus] = useState(defaultTxStatus);
+	const [txStatus] = useState(defaultTxStatus);
 	const [isFetchingQuotes, set_isFetchingQuotes] = useState(false);
 	const [wETHAddress, set_wETHAddress] = useState(ZERO_ADDRESS);
 	const chainData = CHAINS[fromToken.token.chainID];
@@ -156,10 +216,11 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 			const slippage = ((valueOfTokenToReceive - expectedValueToReceive) / expectedValueToReceive) * 100;
 			sumReceive += valueOfTokenToReceive;
 			console.log(
-				`${item.token.symbol}: ${formatAmount(valueOfTokenToReceive, 2, 2)}$ / ${formatAmount(expectedValueToReceive, 2, 2)}$ with a slippage of ${formatAmount(slippage, 2, 2)}%`
+				`${item.token.symbol}: ${formatAmount(valueOfTokenToReceive, 2, 2)}$ / ${formatAmount(expectedValueToReceive, 2, 2)}$ (slippage ${formatAmount(slippage, 2, 2)}% via ${item.swapSource} fees ${item.feeAmount})`
 			);
 		}
 		console.log(`The user will receive ${sumReceive}$ in total`);
+		console.log('----------------------------------------------------------------------------');
 	}, [pricingHash, getPrice, fromToken.token, toTokens, fromToken.normalizedBigAmount.normalized]);
 
 	/**********************************************************************************************
@@ -247,7 +308,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 				functionName: 'weth'
 			});
 		}
-		const result = await readContracts(retrieveConfig(), {contracts});
+		const result = await readContracts(retrieveConfig(), {contracts: contracts as any});
 		const wethAddress =
 			result[0]?.result || result[1]?.result || result[2]?.result || result[3]?.result || ZERO_ADDRESS;
 		set_wETHAddress(toAddress(wethAddress as unknown as string));
@@ -262,210 +323,154 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 	/**********************************************************************************************
 	 ** Execute the swap based on the quotes
 	 *********************************************************************************************/
-	const swap = useCallback(async () => {
-		const multicallData = [];
+	const swapWithBasketSC = useCallback(async () => {
 		const feeForSmol = (toBigInt(fromToken.normalizedBigAmount.raw) * 30n) / 10_000n;
 		const amountForSwap = toBigInt(fromToken.normalizedBigAmount.raw) - feeForSmol;
 		const fromTokenAddress = isEthAddress(fromToken.token.address)
 			? wETHAddress
 			: toAddress(fromToken.token.address);
-		const DEBUG_V3_CALL_ORDER: {symbol: string; decimals: number}[] = [];
-		const DEBUG_V2_CALL_ORDER: {symbol: string; decimals: number}[] = [];
 
-		/******************************************************************************************
-		 ** Smol is taking a fee of 0.3% of the fromToken amount. This fee is sent to the Smol
-		 ** address via a call to the Disperse contract.
-		 ** As we will batch everything into one single multicall, we prepare the callData to
-		 ** disperse.
-		 *****************************************************************************************/
-		const callDataDisperseEth = {
-			target: CHAINS[fromToken.token.chainID].disperseAddress,
-			value: feeForSmol,
-			allowFailure: false,
-			callData: encodeFunctionData({
-				abi: DISPERSE_ABI,
-				functionName: 'disperseEther',
-				args: [[toAddress(process.env.SMOL_ADDRESS)], [feeForSmol]]
-			})
-		};
-		multicallData.push(callDataDisperseEth);
-
-		/******************************************************************************************
-		 ** For each toToken, based on the quote we got, we create a call to the corresponding
-		 ** source to swap the token.
-		 ** Based on the source, different calls are made.
-		 *****************************************************************************************/
-		const allUniV3SwapCalls = [];
-		let sumOfAllUniV3Swaps = 0n;
+		/*=======================================================================================*/
+		const callDataBasket = [];
 		for (const item of toTokens) {
-			const scaledAmountIn = (amountForSwap * BigInt(item.share)) / 100n;
+			const amountForSwap = (fromToken.normalizedBigAmount.raw * BigInt(item.share)) / 100n;
 			const source = item.swapSource;
-
-			if (source === 'UNI_V3') {
-				sumOfAllUniV3Swaps += scaledAmountIn;
-				allUniV3SwapCalls.push(
-					encodeFunctionData({
-						abi: UNIV3_ROUTER_ABI,
-						functionName: 'exactInputSingle',
-						args: [
-							{
-								tokenIn: isEthAddress(fromToken.token.address) ? wETHAddress : fromToken.token.address,
-								tokenOut: item.token.address,
-								fee: item.feeAmount || FeeAmount.MEDIUM,
-								recipient: toAddress(address),
-								amountIn: scaledAmountIn,
-								amountOutMinimum: (item.normalizedBigAmount.raw * 99n) / 100n,
-								sqrtPriceLimitX96: 0n
-							}
-						]
-					})
-				);
-			} else if (source === 'UNI_V2') {
-				const callDataBuyBasket = {
-					target: toAddress(chainData.swapSources.uniV2Router),
-					value: isEthAddress(fromToken.token.address) ? scaledAmountIn : 0n,
-					allowFailure: false,
-					callData: encodeFunctionData({
-						abi: UNIV2_ROUTER_ABI,
-						functionName: isEthAddress(fromToken.token.address)
-							? 'swapExactETHForTokens'
-							: 'swapExactTokensForTokens',
-						args: [
-							/* amountOutMinimum */ (item.normalizedBigAmount.raw * 99n) / 100n,
-							/* path */ [fromTokenAddress, item.token.address],
-							/* to */ toAddress(address),
-							/* deadline */ toBigInt(Math.floor(Date.now() / 1000) + 60 * 20)
-						]
-					})
-				};
-				multicallData.push(callDataBuyBasket);
-				DEBUG_V2_CALL_ORDER.push({symbol: item.token.symbol, decimals: item.token.decimals});
-			} else if (source === 'SUSHI_V2') {
-				const callDataBuyBasket = {
-					target: toAddress(chainData.swapSources.sushiV2Router),
-					value: isEthAddress(fromToken.token.address) ? scaledAmountIn : 0n,
-					allowFailure: false,
-					callData: encodeFunctionData({
-						abi: UNIV2_ROUTER_ABI,
-						functionName: isEthAddress(fromToken.token.address)
-							? 'swapExactETHForTokens'
-							: 'swapExactTokensForTokens',
-						args: [
-							/* amountOutMinimum */ (item.normalizedBigAmount.raw * 99n) / 100n,
-							/* path */ [fromTokenAddress, item.token.address],
-							/* to */ toAddress(address),
-							/* deadline */ toBigInt(Math.floor(Date.now() / 1000) + 60 * 20)
-						]
-					})
-				};
-				multicallData.push(callDataBuyBasket);
-				DEBUG_V2_CALL_ORDER.push({symbol: item.token.symbol, decimals: item.token.decimals});
+			if (fromTokenAddress === item.token.address) {
+				continue;
 			}
-		}
-		/******************************************************************************************
-		 ** Once we have the data prepared for the various swap, we need to prepare the multicall
-		 ** data to send to the generic multicall contract.
-		 ** However, the UniV3 Router has it's own multicall function, so we need to batch all the
-		 ** calls for UniV3 into it's own multicall and then create the generic multicall call with
-		 ** the UniV3 multicall as one of the calls.
-		 *****************************************************************************************/
-		if (allUniV3SwapCalls.length > 0) {
-			const callDataBuyBasket = {
-				target: toAddress(chainData.swapSources.uniV3Router),
-				value: isEthAddress(fromToken.token.address) ? sumOfAllUniV3Swaps : 0n,
-				allowFailure: false,
-				callData: encodeFunctionData({
-					abi: UNIV3_ROUTER_ABI,
-					functionName: 'multicall',
-					args: [allUniV3SwapCalls as readonly Hex[]]
-				})
-			};
-			multicallData.push(callDataBuyBasket);
-			for (const item of toTokens) {
-				if (item.swapSource === 'UNI_V3') {
-					DEBUG_V3_CALL_ORDER.push({symbol: item.token.symbol, decimals: item.token.decimals});
-				}
+			if (source === 'UNI_V3') {
+				callDataBasket.push({
+					tokenIn: fromTokenAddress,
+					tokenOut: item.token.address,
+					amountIn: amountForSwap,
+					amountOutMin: (item.normalizedBigAmount.raw * 99n) / 100n,
+					dex: 2,
+					fee: item.feeAmount ? item.feeAmount[0] : FeeAmount.MEDIUM,
+					recipient: toAddress(address),
+					sqrtPriceLimitX96: 0n,
+					stable: false,
+					factory: ZERO_ADDRESS
+				});
+			} else if (source === 'UNI_V2') {
+				callDataBasket.push({
+					tokenIn: fromTokenAddress,
+					tokenOut: item.token.address,
+					amountIn: amountForSwap,
+					amountOutMin: (item.normalizedBigAmount.raw * 99n) / 100n,
+					dex: 0,
+					fee: 0,
+					recipient: toAddress(address),
+					sqrtPriceLimitX96: 0n,
+					stable: false,
+					factory: ZERO_ADDRESS
+				});
+			} else if (source === 'SUSHI_V2') {
+				callDataBasket.push({
+					tokenIn: fromTokenAddress,
+					tokenOut: item.token.address,
+					amountIn: amountForSwap,
+					amountOutMin: (item.normalizedBigAmount.raw * 99n) / 100n,
+					dex: 1,
+					fee: 0,
+					recipient: toAddress(address),
+					sqrtPriceLimitX96: 0n,
+					stable: false,
+					factory: ZERO_ADDRESS
+				});
+			} else if (source === 'VELO_STABLE') {
+				callDataBasket.push({
+					tokenIn: fromTokenAddress,
+					tokenOut: item.token.address,
+					amountIn: amountForSwap,
+					amountOutMin: (item.normalizedBigAmount.raw * 99n) / 100n,
+					dex: 3,
+					fee: 0,
+					recipient: toAddress(address),
+					sqrtPriceLimitX96: 0n,
+					stable: true,
+					factory: toAddress(chainData.swapSources.veloPoolFactory)
+				});
+			} else if (source === 'VELO_VOLATILE') {
+				callDataBasket.push({
+					tokenIn: fromTokenAddress,
+					tokenOut: item.token.address,
+					amountIn: amountForSwap,
+					amountOutMin: (item.normalizedBigAmount.raw * 99n) / 100n,
+					dex: 3,
+					fee: 0,
+					recipient: toAddress(address),
+					sqrtPriceLimitX96: 0n,
+					stable: false,
+					factory: toAddress(chainData.swapSources.veloPoolFactory)
+				});
 			}
 		}
 
 		try {
 			const simulateResult = await simulateContract(retrieveConfig(), {
-				address: toAddress(getNetwork(fromToken.token.chainID).contracts.multicall3?.address),
-				abi: MULTICALL_ABI,
+				address: BASKET_ADDRESSES[fromToken.token.chainID],
+				abi: BASKET_ABI,
 				chainId: fromToken.token.chainID,
-				functionName: 'aggregate3Value',
+				functionName: 'multicall',
 				account: toAddress(address),
-				value: multicallData.reduce((acc, item) => acc + item.value, 0n),
-				args: [multicallData]
+				value: isEthAddress(fromToken.token.address) ? fromToken.normalizedBigAmount.raw : 0n,
+				args: [callDataBasket]
 			});
 			console.log({simulateResult: simulateResult.result});
-
 			console.warn('SIMULATION SUCCESSFUL');
 			console.warn(`Amount paid by user: ${fromToken.normalizedBigAmount.display} ETH`);
 			console.warn(`Fee for Smol: ${toNormalizedBN(feeForSmol, 18).display} ETH`);
 			console.warn(`Amount used to buy the basket: ${toNormalizedBN(amountForSwap, 18).display} ETH`);
-
-			let DEBUG_V2_CALLS_INDEX = 0;
-			for (let index = 0; index < simulateResult.result.length; index++) {
-				if (index === 0) {
-					continue; //disperse
-				}
-				const buyBasketResult = simulateResult.result[index];
-				const buyBasketCall = multicallData[index];
-
-				if (toAddress(buyBasketCall.target) === toAddress(chainData.swapSources.uniV3Router)) {
-					const decoded = decodeFunctionResult({
-						abi: UNIV3_ROUTER_ABI,
-						functionName: 'multicall',
-						data: buyBasketResult.returnData
-					});
-					for (let i = 0; i < (decoded as any).length; i++) {
-						const result = decoded[i];
-						const token = DEBUG_V3_CALL_ORDER[i];
-						console.warn(
-							`Receiving ${toNormalizedBN(hexToBigInt(result), token.decimals).display} ${token.symbol} from UNI_V3`
-						);
-					}
-				} else {
-					const decoded = decodeFunctionResult({
-						abi: UNIV2_ROUTER_ABI,
-						functionName: 'swapExactETHForTokens',
-						data: buyBasketResult.returnData
-					});
-					const [, result] = decoded;
-					const token = DEBUG_V2_CALL_ORDER[DEBUG_V2_CALLS_INDEX++];
-					console.warn(
-						`Receiving ${toNormalizedBN(toBigInt(result), token.decimals).display} ${token.symbol} from UNI_V2`
-					);
-				}
-			}
+			console.warn(`Sources used: ${toTokens.map(item => item.swapSource).join(', ')}`);
 		} catch (error) {
 			console.warn('SIMULATION FAILED');
 			console.error((error as any).message);
 		}
 
-		try {
-			const shouldTriggerSwap = false;
-			if (shouldTriggerSwap) {
-				const result = await multicall({
-					connector: provider,
-					chainID: fromToken.token.chainID,
-					contractAddress: getNetwork(fromToken.token.chainID).contracts.multicall3?.address,
-					multicallData: multicallData,
-					statusHandler: set_txStatus
-				});
-				if (result.isSuccessful) {
-					console.log('YOUHOU');
-				}
-			}
-		} catch (error) {
-			console.warn('FAILED');
+		/******************************************************************************************
+		 ** We need to ensure the correct allowance has been set for the fromToken. If the user
+		 ** didn't approve the basket contract to spend their tokens, we need to do it.
+		 ******************************************************************************************/
+		const hasAllowance = await readContract(retrieveConfig(), {
+			abi: erc20Abi,
+			address: fromToken.token.address,
+			functionName: 'allowance',
+			chainId: fromToken.token.chainID,
+			args: [toAddress(address), BASKET_ADDRESSES[fromToken.token.chainID]]
+		});
+		if (toBigInt(hasAllowance) < fromToken.normalizedBigAmount.raw) {
+			const approveResult = await approveERC20({
+				amount: fromToken.normalizedBigAmount.raw,
+				contractAddress: fromToken.token.address,
+				chainID: fromToken.token.chainID,
+				connector: provider,
+				spenderAddress: BASKET_ADDRESSES[fromToken.token.chainID]
+			});
+			console.warn(approveResult);
+		}
+
+		/******************************************************************************************
+		 ** We can now execute the swap. We will call the multicall function of the basket contract
+		 ** with the callDataBasket array as argument.
+		 ******************************************************************************************/
+		const resultHash = await writeContract(retrieveConfig(), {
+			address: BASKET_ADDRESSES[fromToken.token.chainID],
+			abi: BASKET_ABI,
+			chainId: fromToken.token.chainID,
+			functionName: 'multicall',
+			value: isEthAddress(fromToken.token.address) ? fromToken.normalizedBigAmount.raw : 0n,
+			args: [callDataBasket]
+		});
+		const receipt = await waitForTransactionReceipt(retrieveConfig(), {
+			hash: resultHash,
+			confirmations: 1
+		});
+		if (receipt.status === 'success') {
+			console.log('Success');
 		}
 	}, [
 		address,
-		chainData.swapSources.sushiV2Router,
-		chainData.swapSources.uniV2Router,
-		chainData.swapSources.uniV3Router,
+		chainData.swapSources.veloPoolFactory,
 		fromToken.normalizedBigAmount.display,
 		fromToken.normalizedBigAmount.raw,
 		fromToken.token.address,
@@ -518,7 +523,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 			 *************************************************************************************/
 			const allCalls = [];
 			const allCallsSources: TBasketToken['swapSource'][] = [];
-			const allCallsFees: (FeeAmount | number | 'dynamic')[] = [];
+			const allCallsFees: (FeeAmount | number | 'dynamic')[][] = [];
 			for (const item of toTokens) {
 				const scaledAmountIn = (amountForSwap * BigInt(item.share)) / 100n;
 				const toTokenAddress = toAddress(item.token.address);
@@ -576,8 +581,8 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					);
 					allCallsSources.push('VELO_STABLE');
 					allCallsSources.push('VELO_VOLATILE');
-					allCallsFees.push('dynamic');
-					allCallsFees.push('dynamic');
+					allCallsFees.push(['dynamic']);
+					allCallsFees.push(['dynamic']);
 				}
 
 				/**********************************************************************************
@@ -596,7 +601,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 						})
 					);
 					allCallsSources.push('SUSHI_V2');
-					allCallsFees.push(FeeAmount.MEDIUM);
+					allCallsFees.push([FeeAmount.MEDIUM]);
 				}
 
 				/**********************************************************************************
@@ -615,7 +620,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 						})
 					);
 					allCallsSources.push('UNI_V2');
-					allCallsFees.push(FeeAmount.MEDIUM);
+					allCallsFees.push([FeeAmount.MEDIUM]);
 				}
 
 				/**********************************************************************************
@@ -663,10 +668,22 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					allCallsSources.push('UNI_V3');
 					allCallsSources.push('UNI_V3');
 					allCallsSources.push('UNI_V3');
-					allCallsFees.push(FeeAmount.LOWEST);
-					allCallsFees.push(FeeAmount.LOW);
-					allCallsFees.push(FeeAmount.MEDIUM);
-					allCallsFees.push(FeeAmount.HIGH);
+					allCallsFees.push([FeeAmount.LOWEST]);
+					allCallsFees.push([FeeAmount.LOW]);
+					allCallsFees.push([FeeAmount.MEDIUM]);
+					allCallsFees.push([FeeAmount.HIGH]);
+				}
+
+				if (chainData.swapSources.uniV3Router) {
+					const multipleStepsSwaps = simulateUniV3Paths(
+						[fromTokenAddress, wETHAddress, item.token.address],
+						toAddress(chainData.swapSources.uniV3Quoter),
+						item.token.chainID,
+						scaledAmountIn
+					);
+					preparedCalls.push(...multipleStepsSwaps.calls.values());
+					allCallsSources.push(...multipleStepsSwaps.source);
+					allCallsFees.push(...multipleStepsSwaps.fee);
 				}
 
 				/**********************************************************************************
@@ -690,14 +707,14 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 
 				let currentIndex = 0;
 				while (currentIndex < chunk.length) {
-					let feeAmount = allCallsFees[callIndex];
-					if (allCallsFees[callIndex] === 'dynamic') {
+					let feeAmount = allCallsFees[callIndex] as (FeeAmount | number)[];
+					if (allCallsFees[callIndex][0] === 'dynamic') {
 						const {value} = chunk[currentIndex] as PromiseFulfilledResult<bigint>;
 						const bigValue = value;
-						feeAmount = Number(bigValue);
+						feeAmount[0] = Number(bigValue);
 						currentIndex++;
 					}
-					feeAmount = feeAmount as FeeAmount | number;
+					feeAmount = feeAmount as (FeeAmount | number)[];
 
 					const thisChunk = chunk[currentIndex];
 					const {address, decimals} = item.token;
@@ -725,6 +742,8 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 							const bigValue = value.result as bigint;
 							normalizedValue = toNormalizedBN(bigValue, decimals);
 						}
+
+						console.log(`OUTPUT with ${source} and fee ${feeAmount}: ${normalizedValue.display}`);
 
 						/**************************************************************************
 						 ** If the address is not in the dictionary, we add it with the value we
@@ -774,8 +793,8 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 	);
 
 	const onHandleSwap = useCallback(async (): Promise<void> => {
-		await swap();
-	}, [swap]);
+		await swapWithBasketSC();
+	}, [swapWithBasketSC]);
 
 	const onChangeFromValue = useCallback(
 		(value: Partial<TTokenAmountInputElement>): void => {
@@ -791,6 +810,36 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 		},
 		[fromToken, getQuotes, set_fromToken]
 	);
+
+	const onHandleLogBalances = useCallback(async (): Promise<void> => {
+		const token0Balance = await readContract(retrieveConfig(), {
+			abi: erc20Abi,
+			address: toTokens[0].token.address,
+			functionName: 'balanceOf',
+			args: [toAddress(address)]
+		});
+		const token1Balance = await readContract(retrieveConfig(), {
+			abi: erc20Abi,
+			address: toTokens[1].token.address,
+			functionName: 'balanceOf',
+			args: [toAddress(address)]
+		});
+		const token2Balance = await readContract(retrieveConfig(), {
+			abi: erc20Abi,
+			address: toTokens[2].token.address,
+			functionName: 'balanceOf',
+			args: [toAddress(address)]
+		});
+		console.warn(
+			`Balance of ${toTokens[0].token.symbol}: ${toNormalizedBN(token0Balance, toTokens[0].token.decimals).display}`
+		);
+		console.warn(
+			`Balance of ${toTokens[1].token.symbol}: ${toNormalizedBN(token1Balance, toTokens[1].token.decimals).display}`
+		);
+		console.warn(
+			`Balance of ${toTokens[2].token.symbol}: ${toNormalizedBN(token2Balance, toTokens[2].token.decimals).display}`
+		);
+	}, [address, toTokens]);
 
 	return (
 		<div className={'w-full max-w-screen-sm'}>
@@ -833,6 +882,12 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 						isDisabled={fromToken.normalizedBigAmount.raw === 0n || !hasAvailableSwapRouter}
 						onClick={onHandleSwap}>
 						<b>{'Buy basket'}</b>
+					</Button>
+
+					<Button
+						className={'!h-8 w-full max-w-[240px] !text-xs'}
+						onClick={onHandleLogBalances}>
+						<b>{'Log balances'}</b>
 					</Button>
 				</div>
 			</div>
