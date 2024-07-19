@@ -27,7 +27,7 @@ const TOP_NAV: TNavBar = [
 		label: 'Portfolio'
 	},
 	{
-		href: '/',
+		href: '/info',
 		label: 'About'
 	}
 ];
@@ -102,20 +102,24 @@ export function TopBar(props: {router: Router}): ReactElement {
 				className={
 					'bg-grey-500/30 border-grey-800/10 hidden grid-flow-row grid-cols-12 divide-x divide-white rounded-3xl border px-6 py-4 backdrop-blur-md md:grid'
 				}>
-				<div className={'col-span-3 flex gap-2 py-2'}>
-					<Image
-						src={'/favicons/favicon.png'}
-						alt={'gimme-logo'}
-						width={40}
-						height={40}
-					/>
-					<Image
-						src={'/gimme-text.svg'}
-						alt={'gimme'}
-						width={107}
-						height={34}
-					/>
-				</div>
+				<Link
+					className={'col-span-3 flex  py-2'}
+					href={'/'}>
+					<div className={'flex gap-2'}>
+						<Image
+							src={'/favicons/favicon.png'}
+							alt={'gimme-logo'}
+							width={40}
+							height={40}
+						/>
+						<Image
+							src={'/gimme-text.svg'}
+							alt={'gimme'}
+							width={107}
+							height={34}
+						/>
+					</div>
+				</Link>
 				{/* <div className={'mx-10 w-px bg-white'} /> */}
 				<div
 					className={cl(
@@ -148,14 +152,16 @@ export function TopBar(props: {router: Router}): ReactElement {
 				</div>
 			</div>
 			<div className={'col-span-2 flex w-full justify-between md:hidden'}>
-				<div className={'flex gap-1 py-2'}>
-					<Image
-						src={'/gimme-text.svg'}
-						alt={'gimme'}
-						width={107}
-						height={34}
-					/>
-				</div>
+				<Link href={'/'}>
+					<div className={'flex gap-1 py-2'}>
+						<Image
+							src={'/gimme-text.svg'}
+							alt={'gimme'}
+							width={107}
+							height={34}
+						/>
+					</div>
+				</Link>
 				{isLandingPage ? (
 					<Link href={'/earn'}>
 						<Button className={'!rounded-2xl !font-bold'}>{'Launch App'}</Button>
