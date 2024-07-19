@@ -51,11 +51,11 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 							: 'pt-4 pr-2 pb-4 pl-4 md:pt-4 md:pr-6 md:pb-8 md:pl-6'
 					)}>
 					{configuration.opportunity ? (
-						<div className={'flex h-full items-center justify-between'}>
+						<div className={'flex h-full items-center justify-between gap-4'}>
 							<div className={'flex h-full flex-col justify-between'}>
 								<div className={'flex items-center gap-2'}>
 									<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
-									<div className={'bg-primary rounded-2xl px-2 py-0.5 text-xs font-medium'}>
+									<div className={'bg-primary rounded-2xl px-2 py-1 text-xs font-medium'}>
 										{`APY ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
 									</div>
 								</div>
@@ -70,7 +70,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 										height={32}
 										className={'mt-px'}
 									/>
-									<div className={'flex flex-col'}>
+									<div className={'flex flex-col gap-1'}>
 										<TextTruncate
 											value={`${configuration.opportunity.name} Vault`}
 											className={'!text-grey-800 w-full text-left !text-lg font-medium'}
@@ -82,7 +82,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 							</div>
 							<button
 								className={
-									'hover:bg-grey-200 mt-7 flex items-center rounded-full p-2 transition-colors'
+									'hover:bg-grey-200 mt-5 flex items-center rounded-full p-2 transition-colors'
 								}
 								onClick={() => set_isOpen(true)}>
 								<IconChevron className={'text-grey-800 size-6 min-w-4'} />

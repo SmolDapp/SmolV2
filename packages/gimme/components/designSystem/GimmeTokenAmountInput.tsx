@@ -170,7 +170,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pl-6 bg-grey-100 rounded-2xl',
+					'pt-3 pr-2 pb-4 pl-4 md:pr-6 md:pl-6 bg-grey-100 rounded-2xl',
 					getBorderColor()
 				)}>
 				<div className={'flex w-fit items-center gap-2 justify-self-start'}>
@@ -181,7 +181,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								<button
 									key={percent}
 									className={
-										'text-grey-800 border-grey-200 hover:bg-grey-100 rounded-full border bg-white px-2 py-0.5 text-xs font-bold transition-colors'
+										'text-grey-800 border-grey-200 hover:bg-grey-100 w-16 rounded-full border bg-white px-2 py-1 text-xs font-bold transition-colors'
 									}
 									onClick={() => onSetFractional(percent)}
 									onMouseDown={e => e.preventDefault()}>
