@@ -38,9 +38,8 @@ const LANDING_TOP_NAV: TNavBar = [
 		label: 'Home'
 	},
 	{
-		href: '/about',
-		label: 'About',
-		isDisabled: true
+		href: '/info',
+		label: 'About'
 	},
 	{
 		href: 'https://docs.yearn.fi/',
@@ -95,7 +94,7 @@ function WalletSection(): ReactElement {
 
 export function TopBar(props: {router: Router}): ReactElement {
 	const {pathname} = useRouter();
-	const isLandingPage = pathname === '/';
+	const isLandingPage = pathname === '/' || pathname === '/info';
 
 	return (
 		<>

@@ -24,7 +24,7 @@ import '../style.css';
 
 function MyApp(props: AppProps): ReactElement {
 	const {pathname} = useRouter();
-	const isLandingPage = pathname === '/';
+	const isLandingPage = pathname === '/' || pathname === '/info';
 	return (
 		<WithFonts>
 			<Meta
