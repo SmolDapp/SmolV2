@@ -98,6 +98,16 @@ export function Landing(): ReactElement {
 					</div>
 				))}
 			</div>
+			<div className={'absolute inset-x-0 bottom-0 flex gap-8 p-4'}>
+				<div className={'text-grey-700 text-xxs font-medium'}>
+					{
+						'The gimme.mom web-based user interface is provided as a tool for users to interact with third party DeFi protocols on their own initiative, without any endorsement or recommendation of cryptoasset trading activities. In doing so, Gimme.Mom is not recommending that users or potential users engage in cryptoasset trading activity, and users or potential users of the web-based user interface should not regard this website or its contents as involving any form of recommendation, invitation or inductement to deal in cryptoassets.'
+					}
+				</div>
+				<div className={'bg-primary size-fit whitespace-nowrap rounded-[32px] px-3 py-2'}>
+					<b className={'text-xs text-neutral-900'}>{`©${new Date().getFullYear()} Built by MOM`}</b>
+				</div>
+			</div>
 		</div>
 	);
 }
