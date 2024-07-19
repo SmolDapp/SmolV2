@@ -16,22 +16,21 @@ export function Background(): ReactElement {
 				alt={'bottom-middle'}
 			/>
 
-			{/* Bottom Left *********************************************************************/}
 			<img
-				className={'none invisible absolute bottom-0 left-0 z-10 h-2/5 object-cover md:visible'}
-				src={'/bottom-left.svg'}
-				alt={'bottom-left'}
+				className={'none invisible absolute left-0 top-0 z-10 h-1/4 object-cover md:visible'}
+				src={'/top-left.svg'}
+				alt={'top-left'}
 			/>
+
 			<img
-				className={'visible absolute bottom-0 left-0 z-10 w-full object-cover md:invisible'}
-				src={'/bottom-left.svg'}
-				alt={'bottom-left'}
+				className={'none invisible absolute bottom-0 right-0 z-10 h-2/5 object-cover md:visible'}
+				src={'/bottom-right.svg'}
+				alt={'bottom-right'}
 			/>
-			{/***********************************************************************************/}
 
 			{/* Top Right ***********************************************************************/}
 			<img
-				className={'none invisible absolute right-0 top-0 z-10 h-2/5 object-cover md:visible'}
+				className={'none 2/5 invisible absolute right-0 top-0 z-10 object-cover md:visible'}
 				src={'/top-right.svg'}
 				alt={'top-right'}
 			/>
@@ -42,17 +41,18 @@ export function Background(): ReactElement {
 			/>
 			{/***********************************************************************************/}
 
+			{/* Bottom Left *********************************************************************/}
 			<img
-				className={'none invisible absolute left-0 top-0 z-10 h-2/5 object-cover md:visible'}
-				src={'/top-left.svg'}
-				alt={'top-left'}
+				className={'none invisible absolute bottom-0 left-0 z-10 h-3/5 object-cover md:visible'}
+				src={'/bottom-left.svg'}
+				alt={'bottom-left'}
 			/>
-
 			<img
-				className={'none invisible absolute bottom-0 right-0 z-10 h-2/5 object-cover md:visible'}
-				src={'/bottom-right.svg'}
-				alt={'bottom-right'}
+				className={'visible absolute bottom-0 left-0 z-10 w-full object-cover md:invisible'}
+				src={'/bottom-left.svg'}
+				alt={'bottom-left'}
 			/>
+			{/***********************************************************************************/}
 		</>
 	);
 }
