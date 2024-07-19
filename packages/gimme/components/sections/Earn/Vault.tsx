@@ -1,7 +1,8 @@
 import {useCallback} from 'react';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
-import {cl, formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
+import {cl, formatTAmount, formatUSD, percentOf, toAddress} from '@builtbymom/web3/utils';
+import {IconArrow} from '@gimmeDesignSystem/IconArrow';
 import * as Popover from '@radix-ui/react-popover';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -15,14 +16,14 @@ import type {TVaultInfoModal} from './SelectVault';
 
 export function Vault({
 	vault,
-	price,
+	assetPrice,
 	isDisabled = false,
 	onSelect,
 	onClose,
 	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
-	price: TNormalizedBN | undefined;
+	assetPrice: TNormalizedBN;
 	isDisabled: boolean;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
@@ -31,9 +32,13 @@ export function Vault({
 	const {configuration} = useEarnFlow();
 	const {token, name, apr} = vault;
 	const {switchChainAsync} = useSwitchChain();
+
 	const {connector} = useAccount();
 	const chain = useCurrentChain();
-	const earnings = percentOf(configuration.asset.normalizedBigAmount.normalized, apr.netAPR * 100);
+
+	const assetAmountUSD = assetPrice.normalized * configuration.asset.normalizedBigAmount.normalized;
+
+	const earnings = percentOf(assetAmountUSD, vault.apr.netAPR * 100);
 
 	/**********************************************************************************************
 	 * Async funciton that allows us to set selected vault with some good side effects:
@@ -80,14 +85,16 @@ export function Vault({
 						{' Vault'}
 					</p>
 					<div className={'flex items-start gap-1'}>
-						<p className={'text-grey-600 text-xs'}>
-							{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
-						</p>
+						<p className={'text-grey-600 text-xs'}>{`+ ${formatUSD(earnings)} over 1y`}</p>
 						{configuration.asset.token &&
 							vault.token.address &&
 							configuration.asset.token?.address !== vault.token.address && (
-								<div className={'text-xxs bg-grey-100 text-grey-800 rounded-sm px-1'}>
-									{`${configuration.asset.token?.symbol} -> ${vault.token.symbol}`}
+								<div
+									className={
+										'text-xxs bg-grey-100 text-grey-800 flex items-center gap-1 rounded-sm px-1'
+									}>
+									{configuration.asset.token?.symbol} <IconArrow className={'size-2'} />{' '}
+									{vault.token.symbol}
 								</div>
 							)}
 					</div>

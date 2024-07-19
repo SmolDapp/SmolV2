@@ -1,7 +1,7 @@
 import {Fragment, type ReactElement, useCallback, useMemo, useState} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {cl, formatPercent, numberSort} from '@builtbymom/web3/utils';
+import {cl, formatPercent, numberSort, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Popover from '@radix-ui/react-popover';
 import {usePrices} from '@lib/contexts/usePrices';
@@ -108,6 +108,13 @@ export function SelectVault({
 	const [vaultInfo, set_vaultInfo] = useState<TVaultInfoModal>(undefined);
 	const [filter, set_filter] = useState<'all' | 'token'>('all');
 	const [sortDirection, set_sortDirection] = useState<TSortDirection>('');
+
+	const assetPrice = configuration.asset.token
+		? getPrice({
+				address: configuration.asset.token?.address,
+				chainID: configuration.asset.token?.chainID
+			}) || zeroNormalizedBN
+		: zeroNormalizedBN;
 
 	const underlyingTokenFilteredVaults = availableVaults.filter(
 		vault => vault.token.address === configuration.asset.token?.address
@@ -252,10 +259,7 @@ export function SelectVault({
 													<Vault
 														key={`${vault.address}-${vault.chainID}`}
 														vault={vault}
-														price={getPrice({
-															address: vault.token.address,
-															chainID: vault.chainID
-														})}
+														assetPrice={assetPrice}
 														isDisabled={!address}
 														onSelect={onSelect}
 														onClose={onClose}
