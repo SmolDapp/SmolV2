@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {cl, formatCounterValue, formatTAmount, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatTAmount, formatUSD, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {usePrices} from '@lib/contexts/usePrices';
@@ -24,13 +24,18 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 		return max;
 	}, [availableVaults]);
 
-	const earnings = configuration.opportunity
-		? percentOf(configuration.asset.normalizedBigAmount.normalized, configuration.opportunity.apr.netAPR * 100)
-		: 0;
-
-	const price = configuration.opportunity
-		? getPrice({address: configuration.opportunity.token.address, chainID: configuration.opportunity.chainID})
+	const assetPrice = configuration.asset.token
+		? getPrice({
+				address: configuration.asset.token?.address,
+				chainID: configuration.asset.token?.chainID
+			}) || zeroNormalizedBN
 		: zeroNormalizedBN;
+
+	const assetAmountUSD = assetPrice.normalized * configuration.asset.normalizedBigAmount.normalized;
+
+	const earnings = configuration.opportunity
+		? percentOf(assetAmountUSD, configuration.opportunity.apr.netAPR * 100)
+		: 0;
 
 	return (
 		<>
@@ -40,14 +45,17 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 						'h-[120px] z-20 relative transition-all w-full',
 						'cursor-text',
 						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-						'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pb-8 md:pl-6 group bg-grey-100 rounded-2xl'
+						'group bg-grey-100 rounded-2xl',
+						configuration?.opportunity
+							? 'md:pt-3 md:pr-6 md:pb-4 md:pl-6 pt-3 pr-2 pb-4 pl-4'
+							: 'pt-4 pr-2 pb-4 pl-4 md:pt-4 md:pr-6 md:pb-8 md:pl-6'
 					)}>
 					{configuration.opportunity ? (
-						<div className={'flex h-full items-center justify-between'}>
+						<div className={'flex h-full items-center justify-between gap-4'}>
 							<div className={'flex h-full flex-col justify-between'}>
 								<div className={'flex items-center gap-2'}>
 									<p className={'text-grey-800 text-xs font-medium'}>{'Opportunity'}</p>
-									<div className={'bg-primary rounded-2xl px-2 py-0.5 text-xs font-medium'}>
+									<div className={'bg-primary rounded-2xl px-2 py-1 text-xs font-medium'}>
 										{`APY ${formatTAmount({value: configuration.opportunity.apr.netAPR, decimals: configuration.opportunity.decimals, symbol: 'percent'})}`}
 									</div>
 								</div>
@@ -60,22 +68,22 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 										quality={90}
 										width={32}
 										height={32}
+										className={'mt-px'}
 									/>
-									<div className={'flex flex-col'}>
-										<p
-											className={
-												'text-grey-800 w-full break-normal text-left text-lg font-medium'
-											}>
-											{configuration.opportunity.name} {'Vault'}
-										</p>
-										<p className={'text-grey-600 text-xs'}>
-											{`+ ${formatCounterValue(earnings, price?.normalized || 0)} over 1y`}
-										</p>
+									<div className={'flex flex-col gap-1'}>
+										<TextTruncate
+											value={`${configuration.opportunity.name} Vault`}
+											className={'!text-grey-800 w-full text-left !text-lg font-medium'}
+										/>
+
+										<p className={'text-grey-600 text-xs'}>{`+${formatUSD(earnings)} over 1y`}</p>
 									</div>
 								</div>
 							</div>
 							<button
-								className={'hover:bg-grey-200 flex items-center rounded-full p-2 transition-colors'}
+								className={
+									'hover:bg-grey-200 mt-5 flex items-center rounded-full p-2 transition-colors'
+								}
 								onClick={() => set_isOpen(true)}>
 								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
 							</button>
@@ -86,7 +94,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 							<div className={'flex h-[74px] items-end justify-between md:mt-4 md:items-start'}>
 								<TextTruncate
 									value={`Up to ${formatTAmount({value: maxAPR, decimals: configuration.asset.token?.decimals ?? 18, symbol: 'percent'})} APY`}
-									className={'!text-grey-800 !text-lg md:mt-1.5 md:max-h-8 md:!text-3xl'}
+									className={'!text-grey-800 !text-lg font-medium  md:max-h-10 md:!text-3xl'}
 								/>
 								<button
 									className={
@@ -94,7 +102,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 									}
 									onClick={() => set_isOpen(true)}
 									disabled={availableVaults.length === 0}>
-									<p className={'hidden md:inline'}>{'Select'}</p>
+									<p className={'hidden font-bold md:inline'}>{'Select'}</p>
 									<IconChevron className={'size-6'} />
 								</button>
 							</div>

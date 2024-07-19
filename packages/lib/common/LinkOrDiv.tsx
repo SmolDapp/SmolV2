@@ -8,6 +8,7 @@ type TProps = {
 	children?: ReactNode;
 	passHref?: boolean;
 	className?: string;
+	target?: string;
 	onClick?: () => void;
 };
 

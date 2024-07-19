@@ -1,5 +1,4 @@
 import {type ReactElement, useCallback, useEffect, useRef} from 'react';
-import Image from 'next/image';
 import {useRouter} from 'next/router';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
@@ -9,13 +8,14 @@ import {serialize} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {isAddress, isZeroAddress} from '@builtbymom/web3/utils';
 import {GimmeTokenAmountInput} from '@gimmeDesignSystem/GimmeTokenAmountInput';
+import {IconArrow} from '@gimmeDesignSystem/IconArrow';
 import {SelectOpportunityButton} from '@gimmmeSections/Earn/SelectVaultButton';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import {EarnWizard} from './EarnWizard';
 import {useEarnFlow} from './useEarnFlow';
 
-import type {TAddress, TToken} from '@builtbymom/web3/types';
+import type {TAddress} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
@@ -57,12 +57,16 @@ export function Earn(): ReactElement {
 	 *********************************************************************************************/
 	useEffect(() => {
 		const {tokenAddress, vaultAddress} = router.query;
+
 		if (uniqueIdentifier.current || !tokenAddress) {
 			return;
 		}
-		if (tokenAddress && !isZeroAddress(tokenAddress as string) && isAddress(tokenAddress as string)) {
-			const token = getToken({address: tokenAddress as TAddress, chainID: chain.id});
 
+		if (!isZeroAddress(tokenAddress as string) && isAddress(tokenAddress as string)) {
+			const token = getToken({address: tokenAddress as TAddress, chainID: chain.id});
+			if (isZeroAddress(token.address)) {
+				return;
+			}
 			dispatchConfiguration({
 				type: 'SET_ASSET',
 				payload: {
@@ -73,15 +77,14 @@ export function Earn(): ReactElement {
 					error: undefined
 				}
 			});
+
+			if (vaultAddress && !isZeroAddress(vaultAddress as string) && isAddress(vaultAddress as string)) {
+				const vault = userVaults[vaultAddress as TAddress];
+				vault && onSetOpportunity(vault);
+			}
+
+			uniqueIdentifier.current = createUniqueID(serialize(router.query));
 		}
-
-		if (vaultAddress && !isZeroAddress(vaultAddress as string) && isAddress(vaultAddress as string)) {
-			const vault = userVaults[vaultAddress as TAddress];
-
-			vault && onSetOpportunity(vault);
-		}
-
-		uniqueIdentifier.current = createUniqueID(serialize(router.query));
 	}, [chain.id, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router, router.query, userVaults]);
 
 	useEffect(() => {
@@ -105,45 +108,28 @@ export function Earn(): ReactElement {
 					{'Hey! We gonna swap your tokens so you can use this opportunity. Don’t worry, no extra clicks.'}
 				</p>
 				<div className={'flex items-center gap-2'}>
-					<p>{configuration.asset.token?.symbol}</p>
-					<Image
-						src={'/arrow.svg'}
-						alt={'arrow'}
-						width={16}
-						height={10}
-					/>
-					<p>{configuration.opportunity?.token.symbol}</p>
+					<p className={'text-base'}>{configuration.asset.token?.symbol}</p>
+					<IconArrow />
+					<p className={'text-base'}>{configuration.opportunity?.token.symbol}</p>
 				</div>
 			</div>
 		);
 	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
-	const onSelectTokenCallback = useCallback(
-		(token: TToken) => {
-			if (configuration.opportunity?.token.address === token.address) {
-				return;
-			}
-
-			onSetOpportunity(undefined);
-		},
-		[configuration.opportunity?.token.address, onSetOpportunity]
-	);
-
 	return (
 		<div className={'z-20 flex w-full flex-col items-center gap-10'}>
-			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-4 shadow-xl md:p-6'}>
+			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-4 md:p-6'}>
 				<div className={'flex w-full flex-col gap-2'}>
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}
 						value={configuration.asset}
-						onSelectTokenCallback={onSelectTokenCallback}
 					/>
 
 					{!isWithdrawing && <SelectOpportunityButton onSetOpportunity={onSetOpportunity} />}
 					{isZapNeededForDeposit || isZapNeededForWithdraw ? (
 						<div
 							className={
-								'bg-grey-100 border-grey-200 text-grey-700 min-h-[82px] w-full items-center rounded-2xl border py-4 pl-4 pr-6 text-xs md:min-h-[66px]'
+								'bg-grey-0 border-grey-200 text-grey-700 w-full items-center rounded-2xl border p-4 pr-6 text-xs font-medium md:min-h-[66px]'
 							}>
 							{getZapsBadgeContent()}
 						</div>

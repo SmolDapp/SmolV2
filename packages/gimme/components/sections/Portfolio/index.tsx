@@ -48,7 +48,7 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 							openLoginModal();
 						}}
 						className={
-							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-medium transition-colors'
+							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-bold transition-colors'
 						}>
 						{'Connect wallet'}
 					</button>
@@ -185,7 +185,7 @@ export function Portfolio(): ReactNode {
 	}, [blockNumber, refetch]);
 
 	return (
-		<div className={'md:mt:0 z-20 mb-12 mt-6 w-full max-w-[864px] rounded-2xl bg-white p-8 shadow-xl md:mb-0'}>
+		<div className={'md:mt:0 z-20 mb-12 mt-6 w-full max-w-[864px] rounded-2xl bg-white p-8 md:mb-0'}>
 			<div className={'mb-12 font-medium'}>
 				<p className={'text-grey-900 mb-2 text-xs'}>{'Your Savings'}</p>
 				<p className={'text-grey-800 text-4xl'}>
@@ -194,7 +194,7 @@ export function Portfolio(): ReactNode {
 						value={totalDeposited}
 						decimals={4}
 						decimalsToDisplay={[4]}
-						decimalsClassName={'text-grey-200'}
+						decimalsClassName={'!text-grey-200'}
 						shouldBeStylized
 					/>
 				</p>

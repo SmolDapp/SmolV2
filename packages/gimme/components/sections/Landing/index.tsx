@@ -1,5 +1,6 @@
 import {type ReactElement} from 'react';
 import Image from 'next/image';
+import {LicenseInfo} from '@gimmeDesignSystem/LicenseInfo';
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 
 export function Landing(): ReactElement {
@@ -76,7 +77,7 @@ export function Landing(): ReactElement {
 				/>
 				<p className={'text-wrap text-center text-lg text-white'}>
 					{
-						'DeFi offers some of the best yields available on the planet, but they’re often hidden behind complex'
+						'DeFi offers some of the best yields available on the planet, but they’re often hidden behind complex '
 					}
 					{'UIs designed for whales. GIMME is here to fix that.'}
 				</p>
@@ -98,6 +99,7 @@ export function Landing(): ReactElement {
 					</div>
 				))}
 			</div>
+			<LicenseInfo />
 		</div>
 	);
 }

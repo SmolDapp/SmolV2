@@ -63,7 +63,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 	return (
 		<div
 			className={
-				'grid w-full grid-cols-1 justify-between gap-y-4 rounded-md border border-neutral-400 p-6 md:grid-cols-12'
+				'border-grey-200 grid w-full grid-cols-1 justify-between gap-y-4 rounded-2xl border p-6 md:grid-cols-12'
 			}>
 			<div className={'col-span-5 flex min-w-[236px] items-center gap-4'}>
 				<ImageWithFallback
@@ -85,7 +85,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 			<div className={'col-span-7 grid grid-cols-2 gap-x-7 gap-y-4 md:grid-cols-8'}>
 				<div className={'group col-span-2 flex flex-row items-center justify-between md:justify-end'}>
 					<p className={'inline text-start text-xs text-neutral-800/60 md:hidden'}>{'APY'}</p>
-					<div className={'bg-primary flex rounded-md p-1 text-xs font-bold md:mb-4'}>
+					<div className={'bg-primary flex rounded-2xl px-2 py-1 text-xs font-medium md:mb-4'}>
 						{`APY ${formatTAmount({value: props.vault.apr.netAPR, decimals: props.vault.decimals, symbol: 'percent'})}`}
 					</div>
 				</div>
@@ -101,7 +101,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 								shouldDustify
 							/>
 						</p>
-						<p className={'text-xs'}>
+						<p className={'text-grey-700 text-xs'}>
 							{'$'}
 							<Counter
 								value={

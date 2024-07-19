@@ -27,7 +27,7 @@ const TOP_NAV: TNavBar = [
 		label: 'Portfolio'
 	},
 	{
-		href: '/',
+		href: '/about',
 		label: 'About'
 	}
 ];
@@ -38,14 +38,12 @@ const LANDING_TOP_NAV: TNavBar = [
 		label: 'Home'
 	},
 	{
-		href: '/about',
-		label: 'About',
-		isDisabled: true
+		href: '/info',
+		label: 'About'
 	},
 	{
-		href: '/docs',
-		label: 'Docs',
-		isDisabled: true
+		href: 'https://docs.yearn.fi/',
+		label: 'Docs'
 	}
 ];
 
@@ -70,7 +68,7 @@ function WalletSection(): ReactElement {
 					openLoginModal();
 				}}
 				className={
-					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-medium transition-colors md:w-full'
+					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-bold transition-colors md:w-full'
 				}>
 				{'Connect wallet'}
 			</button>
@@ -79,7 +77,7 @@ function WalletSection(): ReactElement {
 	return (
 		<div
 			className={cl(
-				'flex items-center justify-center gap-2 rounded-2xl border border-white bg-white/60 px-2 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
+				'flex items-center justify-center gap-3 rounded-2xl border border-white bg-white/60 py-0 backdrop-blur-md md:border-none md:bg-transparent md:p-0',
 				'md:py-2 md:backdrop-filter-none'
 			)}>
 			<NetworkPopoverSelector networks={[polygon]} />
@@ -87,7 +85,7 @@ function WalletSection(): ReactElement {
 				onClick={(): void => {
 					openAccountModal?.();
 				}}
-				className={'text-grey-900 px-4 font-medium transition-all hover:opacity-70'}>
+				className={'text-grey-900 pr-3 font-bold transition-all hover:opacity-70 md:mr-0'}>
 				{buttonLabel}
 			</button>
 		</div>
@@ -96,7 +94,7 @@ function WalletSection(): ReactElement {
 
 export function TopBar(props: {router: Router}): ReactElement {
 	const {pathname} = useRouter();
-	const isLandingPage = pathname === '/';
+	const isLandingPage = pathname === '/' || pathname === '/info';
 
 	return (
 		<>
@@ -104,20 +102,24 @@ export function TopBar(props: {router: Router}): ReactElement {
 				className={
 					'bg-grey-500/30 border-grey-800/10 hidden grid-flow-row grid-cols-12 divide-x divide-white rounded-3xl border px-6 py-4 backdrop-blur-md md:grid'
 				}>
-				<div className={'col-span-3 flex gap-2 py-2'}>
-					<Image
-						src={'/favicons/favicon.png'}
-						alt={'gimme-logo'}
-						width={40}
-						height={40}
-					/>
-					<Image
-						src={'/gimme-text.svg'}
-						alt={'gimme'}
-						width={107}
-						height={34}
-					/>
-				</div>
+				<Link
+					className={'col-span-3 flex  py-2'}
+					href={'/'}>
+					<div className={'flex gap-2'}>
+						<Image
+							src={'/favicons/favicon.png'}
+							alt={'gimme-logo'}
+							width={40}
+							height={40}
+						/>
+						<Image
+							src={'/gimme-text.svg'}
+							alt={'gimme'}
+							width={107}
+							height={34}
+						/>
+					</div>
+				</Link>
 				{/* <div className={'mx-10 w-px bg-white'} /> */}
 				<div
 					className={cl(
@@ -127,11 +129,12 @@ export function TopBar(props: {router: Router}): ReactElement {
 						<LinkOrDiv
 							key={item.label}
 							className={cl(
-								'rounded-2xl text-center py-2 leading-6 transition-colors text-grey-800 font-medium',
+								'rounded-2xl text-center py-2 leading-6 transition-colors text-grey-800 font-bold',
 								!item.isDisabled ? 'hover:text-neutral-800 hover:bg-white' : '',
 								props.router.pathname === item.href ? '!text-neutral-900 bg-white' : ''
 							)}
 							href={item.href}
+							target={item.href.startsWith('http') ? '_blank' : undefined}
 							isDisabled={item.isDisabled}>
 							{item.label}
 						</LinkOrDiv>
@@ -141,7 +144,7 @@ export function TopBar(props: {router: Router}): ReactElement {
 				<div className={'col-span-3 w-full place-content-center pl-6'}>
 					{isLandingPage ? (
 						<Link href={'/earn'}>
-							<Button className={'w-full !rounded-2xl !px-4'}>{'Launch App'}</Button>
+							<Button className={'w-full !rounded-2xl !px-4 !font-bold'}>{'Launch App'}</Button>
 						</Link>
 					) : (
 						<WalletSection />
@@ -149,17 +152,19 @@ export function TopBar(props: {router: Router}): ReactElement {
 				</div>
 			</div>
 			<div className={'col-span-2 flex w-full justify-between md:hidden'}>
-				<div className={'flex gap-1 py-2'}>
-					<Image
-						src={'/gimme-text.svg'}
-						alt={'gimme'}
-						width={107}
-						height={34}
-					/>
-				</div>
+				<Link href={'/'}>
+					<div className={'flex gap-1 py-2'}>
+						<Image
+							src={'/gimme-text.svg'}
+							alt={'gimme'}
+							width={107}
+							height={34}
+						/>
+					</div>
+				</Link>
 				{isLandingPage ? (
 					<Link href={'/earn'}>
-						<Button className={'!rounded-2xl'}>{'Launch App'}</Button>
+						<Button className={'!rounded-2xl !font-bold'}>{'Launch App'}</Button>
 					</Link>
 				) : (
 					<WalletSection />

@@ -13,18 +13,17 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {handleLowAmount} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
-import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
-	onSelectTokenCallback: (token: TToken) => void;
 	value: TTokenAmountInputElement;
 };
 
 const percentIntervals = [10, 50, 100];
 
-export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}: TTokenAmountInput): ReactElement {
+export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesModal();
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
@@ -166,23 +165,23 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 
 	return (
 		<div className={'relative size-full rounded-lg'}>
-			<label
+			<div
 				className={cl(
 					'z-20 relative border transition-all h-[120px] w-full',
 					'flex flex-col flex-grow-0 cursor-text justify-between',
 					'focus:placeholder:text-neutral-300 placeholder:transition-colors',
-					'pt-4 pr-2 pb-4 pl-4 md:pr-6 md:pl-6  bg-grey-100 rounded-2xl',
+					'pt-3 pr-2 pb-4 pl-4 md:pr-6 md:pl-6 bg-grey-100 rounded-2xl',
 					getBorderColor()
 				)}>
-				<div className={'flex items-center gap-2'}>
+				<div className={'flex w-fit items-center gap-2 justify-self-start'}>
 					<p className={'text-grey-800 text-xs font-medium'}>{'Asset'}</p>
 					{selectedToken && (
-						<div className={'flex items-center gap-0.5'}>
+						<div className={'flex items-center justify-start gap-0.5'}>
 							{percentIntervals.map(percent => (
 								<button
 									key={percent}
 									className={
-										'text-grey-800 border-grey-200 rounded-full border bg-white px-2 py-0.5 text-xs transition-colors'
+										'text-grey-800 border-grey-200 hover:bg-grey-100 w-16 rounded-full border bg-white px-2 py-1 text-xs font-bold transition-colors'
 									}
 									onClick={() => onSetFractional(percent)}
 									onMouseDown={e => e.preventDefault()}>
@@ -193,73 +192,66 @@ export function GimmeTokenAmountInput({onSetValue, value, onSelectTokenCallback}
 						</div>
 					)}
 				</div>
-				<div>
-					<div className={'flex justify-between gap-2'}>
-						<div className={'flex w-full gap-2'}>
-							{selectedToken && (
-								<ImageWithFallback
-									className={'mt-1'}
-									alt={selectedToken?.symbol || 'token'}
-									unoptimized
-									src={tokenIcon || ''}
-									altSrc={`${process.env.SMOL_ASSETS_URL}/token/${selectedToken?.chainID}/${selectedToken?.address}/logo-128.png`}
-									quality={90}
-									width={32}
-									height={32}
+				<div className={'flex justify-between gap-2 md:items-start'}>
+					<div className={'flex w-full gap-2'}>
+						{selectedToken && (
+							<ImageWithFallback
+								className={'mt-1'}
+								alt={selectedToken?.symbol || 'token'}
+								unoptimized
+								src={tokenIcon || ''}
+								altSrc={`${process.env.SMOL_ASSETS_URL}/token/${selectedToken?.chainID}/${selectedToken?.address}/logo-128.png`}
+								quality={90}
+								width={32}
+								height={32}
+							/>
+						)}
+						<div className={'flex w-full flex-col'}>
+							<div className={'flex gap-1'}>
+								<InputNumber
+									className={'w-full'}
+									prefixCls={cl(
+										'!w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
+										'text-grey-800 placeholder:text-grey-700 focus:placeholder:text-grey-400/30',
+										'placeholder:transition-colors overflow-hidden'
+									)}
+									placeholder={'0.00'}
+									value={value.amount}
+									onChange={value => validate(value || '', selectedToken)}
+									decimalSeparator={'.'}
+									onFocus={() => set_isFocused(true)}
+									onBlur={() => set_isFocused(false)}
+									min={'0'}
+									step={0.1}
 								/>
-							)}
-							<div className={'flex w-full flex-col'}>
-								<div className={'flex gap-1'}>
-									<InputNumber
-										className={'w-full'}
-										prefixCls={cl(
-											'!w-full border-none bg-transparent p-0 text-3xl transition-all tabular-nums',
-											'text-grey-800 placeholder:text-grey-700 focus:placeholder:text-grey-400/30',
-											'placeholder:transition-colors overflow-hidden'
-										)}
-										placeholder={'0.00'}
-										value={value.amount}
-										onChange={value => validate(value || '', selectedToken)}
-										decimalSeparator={'.'}
-										onFocus={() => set_isFocused(true)}
-										onBlur={() => set_isFocused(false)}
-										min={'0'}
-										step={0.1}
-									/>
-								</div>
-								<div className={'ml-0.5 text-xs'}>{getErrorOrButton()}</div>
 							</div>
-						</div>
-						<div className={''}>
-							{selectedToken ? (
-								<button
-									className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
-									onClick={() =>
-										onOpenCurtain(token => {
-											onSelectTokenCallback(token);
-											validate(value.amount, token, token.balance);
-										})
-									}>
-									<IconChevron className={'text-grey-800 size-6 min-w-4'} />
-								</button>
-							) : (
-								<div>
-									<button
-										className={
-											'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
-										}
-										onClick={() =>
-											onOpenCurtain(token => validate(value.amount, token, token.balance))
-										}>
-										<p className={'hidden md:inline'}>{'Select'}</p>
-										<IconChevron className={'size-6'} />
-									</button>
-								</div>
-							)}
+							<div className={'ml-0.5 mt-auto text-xs'}>{getErrorOrButton()}</div>
 						</div>
 					</div>
+					<div>
+						{selectedToken ? (
+							<button
+								className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
+								onClick={() =>
+									onOpenCurtain(token => {
+										validate(value.amount, token, token.balance);
+									})
+								}>
+								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
+							</button>
+						) : (
+							<button
+								className={
+									'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
+								}
+								onClick={() => onOpenCurtain(token => validate(value.amount, token, token.balance))}>
+								<p className={'hidden font-bold md:inline'}>{'Select'}</p>
+								<IconChevron className={'size-6'} />
+							</button>
+						)}
+					</div>
 				</div>
-			</label>
+			</div>
 		</div>
 	);
 }
