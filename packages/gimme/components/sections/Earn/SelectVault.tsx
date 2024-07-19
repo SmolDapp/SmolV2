@@ -1,14 +1,16 @@
 import {Fragment, type ReactElement, useCallback, useMemo, useState} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {cl, formatPercent} from '@builtbymom/web3/utils';
+import {cl, formatPercent, numberSort} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import {usePrices} from '@lib/contexts/usePrices';
+import IconChevronPlain from '@lib/icons/IconChevronPlain';
 import {createMarkup} from '@lib/utils/react/createMarkup';
 
 import {useEarnFlow} from './useEarnFlow';
 import {Vault} from './Vault';
 
+import type {TSortDirection} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export function SelectVault({
@@ -28,6 +30,7 @@ export function SelectVault({
 	const [vaultInfo, set_vaultInfo] = useState<TYDaemonVault | undefined>(undefined);
 	const [isHoveringInfo, set_isHoveringInfo] = useState(false);
 	const [filter, set_filter] = useState<'all' | 'token'>('all');
+	const [sortDirection, set_sortDirection] = useState<TSortDirection>('');
 	const onChangeVaultInfo = useCallback((value: TYDaemonVault | undefined) => set_vaultInfo(value), [set_vaultInfo]);
 
 	const filteredVaults = useMemo(() => {
@@ -36,6 +39,28 @@ export function SelectVault({
 		}
 		return availableVaults;
 	}, [availableVaults, configuration.asset.token?.address, filter]);
+
+	const sortedVaults = useMemo(() => {
+		return filteredVaults.toSorted((a, b): number =>
+			numberSort({
+				a: a.apr?.netAPR || 0,
+				b: b.apr?.netAPR || 0,
+				sortDirection: sortDirection || 'desc'
+			})
+		);
+	}, [filteredVaults, sortDirection]);
+
+	const onChangeSort = useCallback(() => {
+		if (sortDirection === '') {
+			set_sortDirection('desc');
+			return;
+		}
+		if (sortDirection === 'desc') {
+			set_sortDirection('asc');
+			return;
+		}
+		set_sortDirection('');
+	}, [sortDirection]);
 
 	return (
 		<Transition
@@ -119,10 +144,20 @@ export function SelectVault({
 										{/* <HeaderTooltip message={'Asset'} /> */}
 									</div>
 									<div className={'flex'}>
-										<div className={'mr-5 flex gap-1'}>
+										<button
+											className={cl(
+												'hover:text-grey-800 mr-5 flex gap-1',
+												sortDirection ? 'text-grey-800' : 'text-grey-700'
+											)}
+											onClick={onChangeSort}>
 											{'APY'}
-											{/* <HeaderTooltip message={'APY'} /> */}
-										</div>
+											<IconChevronPlain
+												className={cl(
+													'size-4 min-w-[16px]',
+													sortDirection === 'asc' ? 'rotate-180' : ''
+												)}
+											/>
+										</button>
 										{/* <div className={'mr-5 flex gap-1'}>
 											{'Risk'}
 											<HeaderTooltip message={'Risk'} />
@@ -131,7 +166,7 @@ export function SelectVault({
 									</div>
 								</div>
 								<div className={'scrollable flex h-96 w-full flex-col gap-2'}>
-									{filteredVaults.map(vault => (
+									{sortedVaults.map(vault => (
 										<Vault
 											key={`${vault.address}-${vault.chainID}`}
 											vault={vault}
