@@ -1,14 +1,17 @@
-import {type ReactElement, useCallback, useState} from 'react';
+import {useCallback} from 'react';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
-import {cl, formatCounterValue, formatTAmount, percentOf} from '@builtbymom/web3/utils';
+import {cl, formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
+import * as Popover from '@radix-ui/react-popover';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 
 import {useEarnFlow} from './useEarnFlow';
 
+import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
+import type {TVaultInfoModal} from './SelectVault';
 
 export function Vault({
 	vault,
@@ -16,16 +19,14 @@ export function Vault({
 	isDisabled = false,
 	onSelect,
 	onClose,
-	onChangeVaultInfo,
-	set_isHoveringInfo
+	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
 	price: TNormalizedBN | undefined;
 	isDisabled: boolean;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
-	onChangeVaultInfo: (value: TYDaemonVault | undefined) => void;
-	set_isHoveringInfo: (value: boolean) => void;
+	onChangeVaultInfo: Dispatch<SetStateAction<TVaultInfoModal>>;
 }): ReactElement {
 	const {configuration} = useEarnFlow();
 	const {token, name, apr} = vault;
@@ -50,10 +51,14 @@ export function Vault({
 		onClose();
 	}, [chain.id, connector, onClose, onSelect, switchChainAsync, vault]);
 
-	const [timeoutId, set_timeoutId] = useState<Timer | undefined>(undefined);
-
 	return (
 		<div
+			onMouseEnter={() =>
+				onChangeVaultInfo(prev => ({
+					...vault,
+					isOpen: prev && toAddress(prev?.address) === toAddress(vault.address)
+				}))
+			}
 			className={cl(
 				'flex w-full justify-between rounded-lg px-4 py-3 transition-colors hover:bg-grey-100',
 				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
@@ -93,19 +98,13 @@ export function Vault({
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
 
-				<div
-					className={'ml-4'}
-					onMouseEnter={() => {
-						clearTimeout(timeoutId);
-						onChangeVaultInfo(vault);
-						set_isHoveringInfo(true);
-					}}
-					onMouseLeave={() => {
-						set_isHoveringInfo(false);
-						set_timeoutId(setTimeout(() => onChangeVaultInfo(undefined), 150));
-					}}>
-					<IconQuestionMark className={'text-grey-700 size-6'} />
-				</div>
+				<Popover.Trigger asChild>
+					<div
+						className={'ml-4'}
+						onMouseEnter={() => onChangeVaultInfo({...vault, isOpen: true})}>
+						<IconQuestionMark className={'text-grey-700 size-6'} />
+					</div>
+				</Popover.Trigger>
 			</div>
 		</div>
 	);

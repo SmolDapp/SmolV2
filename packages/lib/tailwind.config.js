@@ -51,6 +51,9 @@ module.exports = {
 				sans: ['var(--rubik-font)', 'Rubik', 'Roboto', ...defaultTheme.fontFamily.sans],
 				mono: ['var(--scp-font)', 'Source Code Pro', ...defaultTheme.fontFamily.mono]
 			},
+			screens: {
+				xl: '1440px'
+			},
 			height: {
 				content: '656px',
 				app: 'calc(100dvh - 80px)',
