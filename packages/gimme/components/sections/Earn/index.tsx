@@ -57,12 +57,16 @@ export function Earn(): ReactElement {
 	 *********************************************************************************************/
 	useEffect(() => {
 		const {tokenAddress, vaultAddress} = router.query;
+
 		if (uniqueIdentifier.current || !tokenAddress) {
 			return;
 		}
-		if (tokenAddress && !isZeroAddress(tokenAddress as string) && isAddress(tokenAddress as string)) {
-			const token = getToken({address: tokenAddress as TAddress, chainID: chain.id});
 
+		if (!isZeroAddress(tokenAddress as string) && isAddress(tokenAddress as string)) {
+			const token = getToken({address: tokenAddress as TAddress, chainID: chain.id});
+			if (isZeroAddress(token.address)) {
+				return;
+			}
 			dispatchConfiguration({
 				type: 'SET_ASSET',
 				payload: {
@@ -73,15 +77,14 @@ export function Earn(): ReactElement {
 					error: undefined
 				}
 			});
+
+			if (vaultAddress && !isZeroAddress(vaultAddress as string) && isAddress(vaultAddress as string)) {
+				const vault = userVaults[vaultAddress as TAddress];
+				vault && onSetOpportunity(vault);
+			}
+
+			uniqueIdentifier.current = createUniqueID(serialize(router.query));
 		}
-
-		if (vaultAddress && !isZeroAddress(vaultAddress as string) && isAddress(vaultAddress as string)) {
-			const vault = userVaults[vaultAddress as TAddress];
-
-			vault && onSetOpportunity(vault);
-		}
-
-		uniqueIdentifier.current = createUniqueID(serialize(router.query));
 	}, [chain.id, dispatchConfiguration, getToken, onSetAsset, onSetOpportunity, router, router.query, userVaults]);
 
 	useEffect(() => {
