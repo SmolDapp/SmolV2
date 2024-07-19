@@ -6,7 +6,7 @@ import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
+import {cl, ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
 import {Button} from '@lib/primitives/Button';
@@ -292,7 +292,9 @@ export function EarnWizard(): ReactElement {
 					}
 					isDisabled={!isValid}
 					onClick={onAction}
-					className={'disabled:!bg-grey-100 w-full !rounded-2xl !font-bold disabled:!opacity-100'}>
+					className={cl(
+						'disabled:!bg-grey-100 w-full !rounded-2xl !font-bold disabled:!opacity-100 disabled:!text-grey-800'
+					)}>
 					{getButtonTitle()}
 				</Button>
 			) : (
