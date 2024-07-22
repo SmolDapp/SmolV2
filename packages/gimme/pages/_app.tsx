@@ -1,6 +1,7 @@
 import React from 'react';
 import {Toaster} from 'react-hot-toast';
 import {useRouter} from 'next/router';
+import PlausibleProvider from 'next-plausible';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
@@ -43,12 +44,19 @@ function MyApp(props: AppProps): ReactElement {
 					<WithPopularTokens>
 						<WithPrices supportedNetworks={supportedNetworks}>
 							<VaultsContextApp>
-								<div className={'relative'}>
-									{isLandingPage ? <BackgroundLanding /> : <Background />}
-									<main className={'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'}>
-										<Layout {...props} />
-									</main>
-								</div>
+								<PlausibleProvider
+									domain={process.env.PLAUSIBLE_DOMAIN || 'gimme.mom'}
+									enabled={true}>
+									<div className={'relative'}>
+										{isLandingPage ? <BackgroundLanding /> : <Background />}
+										<main
+											className={
+												'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'
+											}>
+											<Layout {...props} />
+										</main>
+									</div>
+								</PlausibleProvider>
 							</VaultsContextApp>
 						</WithPrices>
 					</WithPopularTokens>
