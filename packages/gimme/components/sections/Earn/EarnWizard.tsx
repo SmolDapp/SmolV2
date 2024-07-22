@@ -159,8 +159,13 @@ export function EarnWizard(): ReactElement {
 					chainID: Number(configuration.asset.token.chainID)
 				});
 
-				const vaultToken = vaults[configuration.asset.token?.address].token ?? null;
-				tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
+				const vaultToken = vaults[configuration.asset.token?.address]
+					? (vaults[configuration.asset.token?.address].token ?? null)
+					: null;
+
+				vaultToken &&
+					vaults[configuration.asset.token?.address] &&
+					tokensToRefresh.push({...vaultToken, chainID: vaults[configuration.asset.token?.address].chainID});
 			}
 			if (configuration.opportunity) {
 				tokensToRefresh.push({
