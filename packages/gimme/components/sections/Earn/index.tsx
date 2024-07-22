@@ -117,8 +117,8 @@ export function Earn(): ReactElement {
 	}, [configuration.asset.token?.symbol, configuration.opportunity?.token.symbol, isFetchingQuote, quote]);
 
 	return (
-		<div className={'z-20 flex w-full flex-col items-center gap-10'}>
-			<div className={'w-full max-w-[560px] rounded-3xl bg-white p-4 md:p-6'}>
+		<div className={' z-20 flex w-full flex-col items-center gap-10'}>
+			<div className={'border-grey-200 w-full max-w-[560px] rounded-3xl border bg-white p-4 md:p-6'}>
 				<div className={'flex w-full flex-col gap-2'}>
 					<GimmeTokenAmountInput
 						onSetValue={onSetAsset}

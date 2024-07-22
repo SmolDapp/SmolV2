@@ -185,7 +185,10 @@ export function Portfolio(): ReactNode {
 	}, [blockNumber, refetch]);
 
 	return (
-		<div className={'md:mt:0 z-20 mb-12 mt-6 w-full max-w-[864px] rounded-2xl bg-white p-8 md:mb-0'}>
+		<div
+			className={
+				'md:mt:0 border-grey-200 z-20 mb-12 mt-6 w-full max-w-[864px] rounded-2xl border bg-white p-8 md:mb-0'
+			}>
 			<div className={'mb-12 font-medium'}>
 				<p className={'text-grey-900 mb-2 text-xs'}>{'Your Savings'}</p>
 				<p className={'text-grey-800 text-4xl'}>
