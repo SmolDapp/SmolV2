@@ -37,6 +37,7 @@ import type {TAddress, TNDict} from '@builtbymom/web3/types';
 
 type TSmolChains = TNDict<
 	Chain & {
+		isEnabled: boolean;
 		isLifiSwapSupported: boolean;
 		isMultisafeSupported: boolean;
 		safeAPIURI: string;
@@ -55,53 +56,11 @@ type TSmolChains = TNDict<
 	}
 >;
 
-type TAssignRPCUrls = {
-	default: {
-		http: string[];
-	};
-};
-export function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls {
-	const availableRPCs: string[] = [];
-
-	const newRPC = process.env.RPC_URI_FOR?.[chain.id] || '';
-	const newRPCBugged = process.env[`RPC_URI_FOR_${chain.id}`];
-	const oldRPC = process.env.JSON_RPC_URI?.[chain.id] || process.env.JSON_RPC_URL?.[chain.id];
-	const defaultJsonRPCURL = chain?.rpcUrls?.public?.http?.[0];
-	const injectedRPC = newRPC || oldRPC || newRPCBugged || defaultJsonRPCURL || '';
-	if (injectedRPC) {
-		availableRPCs.push(injectedRPC);
-	}
-	if (chain.rpcUrls['alchemy']?.http[0] && process.env.ALCHEMY_KEY) {
-		availableRPCs.push(`${chain.rpcUrls['alchemy']?.http[0]}/${process.env.ALCHEMY_KEY}`);
-	}
-	if (chain.rpcUrls['infura']?.http[0] && process.env.INFURA_PROJECT_ID) {
-		availableRPCs.push(`${chain.rpcUrls['infura']?.http[0]}/${process.env.INFURA_PROJECT_ID}`);
-	}
-
-	/**********************************************************************************************
-	 ** Make sure to add a proper http object to the chain.rpcUrls.default object.
-	 ********************************************************************************************/
-	const http = [];
-	if (rpcUrls?.length) {
-		http.push(...rpcUrls);
-	}
-	if (injectedRPC) {
-		http.push(injectedRPC);
-	}
-	if (availableRPCs.length) {
-		http.push(...availableRPCs);
-	}
-	http.push(...chain.rpcUrls.default.http);
-	return {
-		...chain.rpcUrls,
-		default: {http}
-	};
-}
-
 const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 const CHAINS: TSmolChains = {
 	[mainnet.id]: {
 		...mainnet,
+		isEnabled: true,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-mainnet.safe.global',
@@ -109,7 +68,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(mainnet),
 		swapSources: {
 			uniV2Router: toAddress('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'),
 			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
@@ -122,6 +80,7 @@ const CHAINS: TSmolChains = {
 	[optimism.id]: {
 		...optimism,
 		name: 'Optimism',
+		isEnabled: true,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-optimism.safe.global',
@@ -129,7 +88,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'optimism',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(optimism),
 		swapSources: {
 			uniV2Router: toAddress('0x4A7b5Da61326A6379179b40d00F57E5bbDC962c2'),
 			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
@@ -141,6 +99,7 @@ const CHAINS: TSmolChains = {
 	},
 	[bsc.id]: {
 		...bsc,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-bsc.safe.global',
@@ -148,7 +107,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'binancecoin',
 		llamaChainName: 'bsc',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(bsc),
 		swapSources: {
 			uniV2Router: toAddress('0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24'),
 			uniV3Router: toAddress('0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2'),
@@ -160,6 +118,7 @@ const CHAINS: TSmolChains = {
 	},
 	[gnosis.id]: {
 		...gnosis,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-gnosis-chain.safe.global',
@@ -167,7 +126,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'xdai',
 		llamaChainName: 'xdai',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(gnosis),
 		swapSources: {
 			uniV2Router: toAddress('0x1C232F01118CB8B424793ae03F870aa7D0ac7f77'), // honeyswap: https://wiki.1hive.org/projects/honeyswap/honeyswap-on-xdai
 			uniV3Router: undefined,
@@ -179,6 +137,7 @@ const CHAINS: TSmolChains = {
 	},
 	[polygon.id]: {
 		...polygon,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-polygon.safe.global',
@@ -186,7 +145,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'matic-network',
 		llamaChainName: 'polygon',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(polygon),
 		swapSources: {
 			uniV2Router: toAddress('0xedf6066a2b290C185783862C7F4776A2C8077AD1'),
 			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
@@ -198,13 +156,13 @@ const CHAINS: TSmolChains = {
 	},
 	[polygonZkEvm.id]: {
 		...polygonZkEvm,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-zkevm.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=zkevm:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(polygonZkEvm),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -216,6 +174,7 @@ const CHAINS: TSmolChains = {
 	},
 	[fantom.id]: {
 		...fantom,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
@@ -223,7 +182,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'fantom',
 		llamaChainName: 'fantom',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(fantom),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -235,13 +193,13 @@ const CHAINS: TSmolChains = {
 	},
 	[zkSync.id]: {
 		...zkSync,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: false,
 		safeAPIURI: 'https://safe-transaction-zksync.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=zksync:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(zkSync),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -253,13 +211,13 @@ const CHAINS: TSmolChains = {
 	},
 	[mantle.id]: {
 		...mantle,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://multisig.mantle.xyz/home?safe=mantle:',
 		coingeckoGasCoinID: 'mantle',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(mantle),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -271,6 +229,7 @@ const CHAINS: TSmolChains = {
 	},
 	[base.id]: {
 		...base,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-base.safe.global',
@@ -278,7 +237,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'base',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(base),
 		swapSources: {
 			uniV2Router: toAddress('0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24'),
 			uniV3Router: toAddress('0x2626664c2603336E57B271c5C0b26F421741e481'),
@@ -290,13 +248,13 @@ const CHAINS: TSmolChains = {
 	},
 	[sepolia.id]: {
 		...sepolia,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-sepolia.safe.global',
 		safeUIURI: 'https://app.safe.global/apps?safe=sep:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(sepolia),
 		swapSources: {
 			uniV2Router: toAddress('0x425141165d3DE9FEC831896C016617a52363b687'),
 			uniV3Router: toAddress('0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E'),
@@ -308,13 +266,13 @@ const CHAINS: TSmolChains = {
 	},
 	[baseSepolia.id]: {
 		...baseSepolia,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-base-sepolia.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=basesep:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(baseSepolia),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: toAddress('0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4'),
@@ -326,6 +284,7 @@ const CHAINS: TSmolChains = {
 	},
 	[arbitrum.id]: {
 		...arbitrum,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-arbitrum.safe.global',
@@ -333,7 +292,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'arbitrum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(arbitrum),
 		swapSources: {
 			uniV2Router: toAddress('0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24'),
 			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
@@ -345,6 +303,7 @@ const CHAINS: TSmolChains = {
 	},
 	[celo.id]: {
 		...celo,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-celo.safe.global',
@@ -352,7 +311,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'celo',
 		llamaChainName: 'celo',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(celo),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: toAddress('0x5615CDAb10dc425a742d643d949a7F474C01abc4'),
@@ -364,6 +322,7 @@ const CHAINS: TSmolChains = {
 	},
 	[avalanche.id]: {
 		...avalanche,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-avalanche.safe.global',
@@ -371,7 +330,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'avalanche-2',
 		llamaChainName: 'avax',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(avalanche),
 		swapSources: {
 			uniV2Router: toAddress('0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24'),
 			uniV3Router: toAddress('0xbb00FF08d01D300023C629E8fFfFcb65A5a578cE'),
@@ -383,13 +341,13 @@ const CHAINS: TSmolChains = {
 	},
 	[linea.id]: {
 		...linea,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.linea.build/home?safe=linea:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
-		rpcUrls: assignRPCUrls(linea),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -401,6 +359,7 @@ const CHAINS: TSmolChains = {
 	},
 	[scroll.id]: {
 		...scroll,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
@@ -408,7 +367,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'scroll',
 		disperseAddress: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F'),
-		rpcUrls: assignRPCUrls(scroll),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -420,13 +378,13 @@ const CHAINS: TSmolChains = {
 	},
 	[metis.id]: {
 		...metis,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: false,
 		safeAPIURI: '',
 		safeUIURI: 'https://metissafe.tech/home?safe=metis-andromeda:',
 		coingeckoGasCoinID: 'metis-token',
 		disperseAddress: toAddress('0x8137aba86f91c8E592d6A791e06D0C868DBad3C8'),
-		rpcUrls: assignRPCUrls(metis),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -438,13 +396,13 @@ const CHAINS: TSmolChains = {
 	},
 	[aurora.id]: {
 		...aurora,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-aurora.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=aurora:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
-		rpcUrls: assignRPCUrls(aurora),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -456,13 +414,13 @@ const CHAINS: TSmolChains = {
 	},
 	[zora.id]: {
 		...zora,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.optimism.io/home?safe=zora:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xF7D540b9d4b94a24389802Bcf2f6f02013d08142'),
-		rpcUrls: assignRPCUrls(zora),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -474,13 +432,13 @@ const CHAINS: TSmolChains = {
 	},
 	[mode.id]: {
 		...mode,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.optimism.io/home?safe=mode:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(mode),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -492,13 +450,13 @@ const CHAINS: TSmolChains = {
 	},
 	[fraxtal.id]: {
 		...fraxtal,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.mainnet.frax.com/home?safe=fraxtal:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
-		rpcUrls: assignRPCUrls(fraxtal),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -510,13 +468,13 @@ const CHAINS: TSmolChains = {
 	},
 	[confluxESpace.id]: {
 		...confluxESpace,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: false,
 		safeAPIURI: '',
 		safeUIURI: 'https://safe.conflux123.xyz/home?safe=CFX:',
 		coingeckoGasCoinID: 'conflux-token',
 		disperseAddress: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8'),
-		rpcUrls: assignRPCUrls(confluxESpace),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -528,13 +486,13 @@ const CHAINS: TSmolChains = {
 	},
 	[blast.id]: {
 		...blast,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
 		safeAPIURI: '',
 		safeUIURI: 'https://blast-safe.io/home?safe=blast:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0x274889F6864Bc0493BfEe3CF292A2A0ba1A76951'),
-		rpcUrls: assignRPCUrls(blast),
 		swapSources: {
 			uniV2Router: toAddress('0x9B3336186a38E1b6c21955d112dbb0343Ee061eE'),
 			uniV3Router: toAddress('0x549FEB8c9bd4c12Ad2AB27022dA12492aC452B66'),
@@ -546,6 +504,7 @@ const CHAINS: TSmolChains = {
 	},
 	[filecoin.id]: {
 		...filecoin,
+		isEnabled: false,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: false,
 		safeAPIURI: '',
@@ -553,7 +512,6 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'filecoin',
 		llamaChainName: 'filecoin',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
-		rpcUrls: assignRPCUrls(filecoin),
 		swapSources: {
 			uniV2Router: undefined,
 			uniV3Router: undefined,
@@ -568,13 +526,13 @@ const CHAINS: TSmolChains = {
 if (isDev) {
 	CHAINS[localhost.id] = {
 		...localhost,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeUIURI: 'https://app.safe.global/home?safe=eth:',
 		safeAPIURI: 'https://safe-transaction-base.safe.global',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: zeroAddress,
-		rpcUrls: assignRPCUrls(localhost, ['http://localhost:8545']),
 		swapSources: {
 			uniV2Router: toAddress('0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'),
 			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
@@ -586,7 +544,8 @@ if (isDev) {
 	};
 }
 
-const supportedNetworks: Chain[] = Object.values(CHAINS).filter(e => !e.testnet);
-const supportedTestNetworks: Chain[] = Object.values(CHAINS).filter(e => e.testnet);
+const supportedNetworks: Chain[] = Object.values(CHAINS).filter(e => !e.testnet && e.isEnabled);
+const supportedTestNetworks: Chain[] = Object.values(CHAINS).filter(e => e.testnet && e.isEnabled);
+const networks = [...supportedNetworks, ...supportedTestNetworks];
 
-export {CHAINS, isDev, supportedNetworks, supportedTestNetworks};
+export {CHAINS, isDev, networks, supportedNetworks, supportedTestNetworks};

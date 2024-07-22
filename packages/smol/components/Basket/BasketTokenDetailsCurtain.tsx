@@ -1,5 +1,6 @@
-import React from 'react';
-import {cl} from '@builtbymom/web3/utils';
+import React, {useMemo} from 'react';
+import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
+import {cl, truncateHex} from '@builtbymom/web3/utils';
 import * as Dialog from '@radix-ui/react-dialog';
 import {Counter} from '@lib/common/Counter';
 import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
@@ -18,6 +19,11 @@ type TBasketTokenDetailsCurtainArgs = {
 };
 
 export function BasketTokenDetailsCurtain(props: TBasketTokenDetailsCurtainArgs): ReactElement {
+	const {getToken} = useTokenList();
+	const sumOfFees = useMemo(() => {
+		return (props?.item?.feeAmount || []).reduce((acc, fee) => acc + fee, 0);
+	}, [props.item.feeAmount]);
+
 	return (
 		<Dialog.Root
 			open={props.isOpen}
@@ -71,22 +77,37 @@ export function BasketTokenDetailsCurtain(props: TBasketTokenDetailsCurtainArgs)
 							</div>
 
 							<div>
+								<small className={'mb-1 mt-4'}>{'Steps'}</small>
+								<div>
+									{(props?.item?.steps || [])
+										.map(token => {
+											const tokn = getToken({
+												address: token,
+												chainID: props?.fromToken?.token?.chainID || 1
+											});
+											return tokn?.symbol || truncateHex(token, 5);
+										})
+										.join(' ➔ ')}
+								</div>
+							</div>
+
+							<div>
 								<small className={'mb-1 mt-4'}>{'Fee from swap provider'}</small>
 								<div>
 									<Counter
 										value={
-											props.fromToken.normalizedBigAmount.normalized /
-												(1 - (props.item?.feeAmount || 0) / 1000000) -
+											props.fromToken.normalizedBigAmount.normalized / (1 - sumOfFees / 1000000) -
 											props.fromToken.normalizedBigAmount.normalized
 										}
 										decimals={props.fromToken.token?.decimals || 18}
 										decimalsToDisplay={[6, 12]}
 									/>
 									{` ${props.fromToken.token?.symbol || ''}`}
-									<span className={'text-sm text-neutral-600'}>
-										{` (${(props.item?.feeAmount || 0) / 10000}%)`}
-									</span>
+									<span className={'text-sm text-neutral-600'}>{` (${sumOfFees / 10000}%)`}</span>
 								</div>
+								<p className={'text-xs text-neutral-600'}>
+									{`[${(props?.item?.feeAmount || []).map(fee => `${fee / 10000}%`).join(', ')}]`}
+								</p>
 							</div>
 						</div>
 					</div>

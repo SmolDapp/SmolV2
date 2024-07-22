@@ -59,11 +59,13 @@ export type TBasketToken = TTokenAmountInputElement & {
 	share: number;
 	feeAmount?: (FeeAmount | number)[];
 	swapSource?: 'UNI_V3' | 'UNI_V2' | 'SUSHI_V2' | 'VELO_STABLE' | 'VELO_VOLATILE';
+	steps?: TAddress[];
 };
 type TToTokenAmount = TDict<{
 	value: TNormalizedBN;
 	feeAmount: (FeeAmount | number)[];
 	source: TBasketToken['swapSource'];
+	steps: TAddress[];
 }>;
 
 type TSwapBasketProps = {
@@ -524,6 +526,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 			const allCalls = [];
 			const allCallsSources: TBasketToken['swapSource'][] = [];
 			const allCallsFees: (FeeAmount | number | 'dynamic')[][] = [];
+			const allCallsSteps: TAddress[][] = [];
 			for (const item of toTokens) {
 				const scaledAmountIn = (amountForSwap * BigInt(item.share)) / 100n;
 				const toTokenAddress = toAddress(item.token.address);
@@ -583,6 +586,8 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					allCallsSources.push('VELO_VOLATILE');
 					allCallsFees.push(['dynamic']);
 					allCallsFees.push(['dynamic']);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
 				}
 
 				/**********************************************************************************
@@ -602,6 +607,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					);
 					allCallsSources.push('SUSHI_V2');
 					allCallsFees.push([FeeAmount.MEDIUM]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
 				}
 
 				/**********************************************************************************
@@ -621,6 +627,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					);
 					allCallsSources.push('UNI_V2');
 					allCallsFees.push([FeeAmount.MEDIUM]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
 				}
 
 				/**********************************************************************************
@@ -672,6 +679,10 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					allCallsFees.push([FeeAmount.LOW]);
 					allCallsFees.push([FeeAmount.MEDIUM]);
 					allCallsFees.push([FeeAmount.HIGH]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
+					allCallsSteps.push([fromTokenAddress, toTokenAddress]);
 				}
 
 				if (chainData.swapSources.uniV3Router) {
@@ -684,6 +695,10 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					preparedCalls.push(...multipleStepsSwaps.calls.values());
 					allCallsSources.push(...multipleStepsSwaps.source);
 					allCallsFees.push(...multipleStepsSwaps.fee);
+					for (const _step of multipleStepsSwaps.source) {
+						_step;
+						allCallsSteps.push([fromTokenAddress, wETHAddress, item.token.address]);
+					}
 				}
 
 				/**********************************************************************************
@@ -719,6 +734,7 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					const thisChunk = chunk[currentIndex];
 					const {address, decimals} = item.token;
 					const source = allCallsSources[callIndex];
+					const steps = allCallsSteps[callIndex];
 
 					callIndex++;
 
@@ -753,13 +769,13 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 						 ** quote.
 						 *************************************************************************/
 						if (!_toTokensAmount[address]) {
-							_toTokensAmount[address] = {value: normalizedValue, feeAmount, source};
+							_toTokensAmount[address] = {value: normalizedValue, feeAmount, source, steps};
 						} else if (toBigInt(_toTokensAmount[address].value.raw) < normalizedValue.raw) {
-							_toTokensAmount[address] = {value: normalizedValue, feeAmount, source};
+							_toTokensAmount[address] = {value: normalizedValue, feeAmount, source, steps};
 						}
 					} else {
 						if (!_toTokensAmount[address]) {
-							_toTokensAmount[address] = {value: zeroNormalizedBN, feeAmount, source};
+							_toTokensAmount[address] = {value: zeroNormalizedBN, feeAmount, source, steps};
 						}
 					}
 					currentIndex++;
@@ -774,7 +790,8 @@ export function SwapBasket({toTokens, fromToken, set_toTokens, set_fromToken}: T
 					normalizedBigAmount: _toTokensAmount[token.token.address].value,
 					amount: _toTokensAmount[token.token.address].value.display,
 					feeAmount: _toTokensAmount[token.token.address].feeAmount,
-					swapSource: _toTokensAmount[token.token.address].source
+					swapSource: _toTokensAmount[token.token.address].source,
+					steps: _toTokensAmount[token.token.address].steps
 				}));
 			});
 			set_isFetchingQuotes(false);

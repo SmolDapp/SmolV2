@@ -1,5 +1,6 @@
 import React, {Fragment} from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {ColoredRatioBar} from 'packages/smol/components/Basket/ColoredRatioBar';
 import {type TBasketToken} from 'packages/smol/components/Basket/SwapBasket';
 import {cl} from '@builtbymom/web3/utils';
@@ -17,59 +18,41 @@ export function BasketHeader({
 }): ReactElement {
 	return (
 		<Fragment>
-			{/* <div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
-				<Link href={'/baskets/facu'}>
-					<Button className={'!h-8 py-1.5 !text-xs'}>{'Facu'}</Button>
-				</Link>
-				<Link href={'/baskets/mom'}>
-					<Button className={'!h-8 py-1.5 !text-xs'}>{'MOM'}</Button>
-				</Link>
-				<Link href={'/baskets/stable'}>
-					<Button className={'!h-8 py-1.5 !text-xs'}>{'Stable'}</Button>
-				</Link>
-			</div> */}
-			<div className={'flex flex-row'}>
-				{toTokens.map((item, index) => (
-					<div
-						key={item.token.address}
-						className={cl('flex flex-col items-center', index === 0 ? '' : '-ml-5')}>
-						<div className={'size-10 rounded-full border border-neutral-200'}>
-							<Image
-								src={item.token.logoURI || ''}
-								alt={item.token.name}
-								width={40}
-								height={40}
-							/>
-						</div>
+			<div className={'flex flex-col gap-6'}>
+				<div>
+					<div className={'flex items-center gap-2'}>
+						<Link
+							href={'/apps/baskets'}
+							className={'flex items-center gap-2 text-neutral-700'}>
+							<span className={'text-sm'}>{'Baskets'}</span>
+						</Link>
+						<div className={'text-sm text-neutral-600'}>{'>'}</div>
+						<div className={'text-sm text-neutral-600'}>{title}</div>
 					</div>
-				))}
-			</div>
-			<div className={'flex flex-row gap-4'}>
-				<div
-					className={cl(
-						'grid aspect-square w-fit min-w-fit grid-cols-2 grid-rows-2 gap-2 rounded-lg border border-neutral-200 bg-white p-4 shadow',
-						'hidden'
-					)}>
-					{toTokens.map(item => (
-						<div
-							key={item.token.address}
-							className={'flex flex-col items-center'}>
-							<div className={'size-12 rounded-full border border-neutral-200'}>
-								<Image
-									src={item.token.logoURI || ''}
-									alt={item.token.name}
-									width={96}
-									height={96}
-								/>
-							</div>
-						</div>
-					))}
 				</div>
 
 				<div className={'grid w-full gap-4 py-2'}>
-					<div>
-						<b>{title}</b>
-						<p className={'text-sm text-neutral-600'}>{description}</p>
+					<div className={'flex items-center gap-4'}>
+						<div className={'flex flex-row'}>
+							{toTokens.map((item, index) => (
+								<div
+									key={item.token.address}
+									className={cl('flex flex-col items-center', index === 0 ? '' : '-ml-5')}>
+									<div className={'size-10 rounded-full border border-neutral-200'}>
+										<Image
+											src={item.token.logoURI || ''}
+											alt={item.token.name}
+											width={40}
+											height={40}
+										/>
+									</div>
+								</div>
+							))}
+						</div>
+						<div>
+							<b>{title}</b>
+							<p className={'text-sm text-neutral-600'}>{description}</p>
+						</div>
 					</div>
 					<div className={'pt-0'}>
 						<div className={cl('w-full overflow-hidden flex flex-row')}>
@@ -84,11 +67,15 @@ export function BasketHeader({
 						</div>
 						<div className={cl('h-4 w-full', 'relative overflow-hidden flex flex-row gap-1')}>
 							{toTokens.map(item => (
-								<ColoredRatioBar
-									key={item.token.address}
-									logoURI={item.token.logoURI || ''}
-									share={item.share}
-								/>
+								<div
+									className={'relative h-4'}
+									style={{width: `${item.share}%`}}
+									key={item.token.address}>
+									<ColoredRatioBar
+										logoURI={item.token.logoURI || ''}
+										share={100}
+									/>
+								</div>
 							))}
 						</div>
 						<div className={cl('w-full overflow-hidden flex flex-row')}>

@@ -4,8 +4,8 @@ import {SwapBasket} from 'packages/smol/components/Basket/SwapBasket';
 import {ETH_TOKEN_ADDRESS, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 
-import {getNewInputToken} from '../../components/Swap/useSwapFlow.lifi';
-import {WalletAppInfo} from '../../components/Wallet/AppInfo';
+import {getNewInputToken} from '../../../components/Swap/useSwapFlow.lifi';
+import {WalletAppInfo} from '../../../components/Wallet/AppInfo';
 
 import type {TBasketToken} from 'packages/smol/components/Basket/SwapBasket';
 import type {ReactElement} from 'react';
@@ -87,7 +87,7 @@ export default function Basket(): ReactElement {
 	return (
 		<div className={'grid max-w-screen-sm gap-4'}>
 			<BasketHeader
-				title={'Stable'}
+				title={'The Stable Boy'}
 				description={'Everything is stable'}
 				toTokens={toTokens}
 			/>
@@ -106,8 +106,8 @@ export default function Basket(): ReactElement {
 	);
 }
 
-Basket.AppName = 'Basket';
-Basket.AppDescription = 'Do your stuff. And share it.';
+Basket.AppName = '';
+Basket.AppDescription = '';
 Basket.AppInfo = <WalletAppInfo />;
 
 /**************************************************************************************************

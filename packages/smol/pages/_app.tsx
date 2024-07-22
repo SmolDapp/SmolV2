@@ -2,7 +2,6 @@ import {Toaster} from 'react-hot-toast';
 import PlausibleProvider from 'next-plausible';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
 import Layout from '@lib/common/Layout';
 import {WithFonts} from '@lib/common/WithFonts';
@@ -24,7 +23,7 @@ import {IconClone} from '@lib/icons/IconClone';
 import IconMultisafe from '@lib/icons/IconMultisafe';
 import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {IconWallet} from '@lib/icons/IconWallet';
-import {supportedNetworks, supportedTestNetworks} from '@lib/utils/tools.chains';
+import {networks} from '@lib/utils/tools.chains';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
@@ -99,7 +98,8 @@ function MyApp(props: AppProps): ReactElement {
 		<WithFonts>
 			<IndexedDB>
 				<WithMom
-					supportedChains={[...supportedNetworks, ...supportedTestNetworks, localhost]}
+					// supportedChains={[...supportedNetworks, ...supportedTestNetworks]}
+					supportedChains={networks}
 					tokenLists={[
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
 						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
