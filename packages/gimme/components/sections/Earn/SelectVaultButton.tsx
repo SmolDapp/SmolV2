@@ -76,7 +76,9 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 											className={'!text-grey-800 w-full text-left !text-lg font-medium'}
 										/>
 
-										<p className={'text-grey-600 text-xs'}>{`+${formatUSD(earnings)} over 1y`}</p>
+										<p className={'text-grey-600 text-xs'}>
+											{`+${formatUSD(earnings).replace('$ ', '$')} over 1y`}
+										</p>
 									</div>
 								</div>
 							</div>

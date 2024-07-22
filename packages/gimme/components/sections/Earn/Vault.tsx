@@ -85,7 +85,9 @@ export function Vault({
 						{' Vault'}
 					</p>
 					<div className={'flex items-start gap-1'}>
-						<p className={'text-grey-600 text-xs'}>{`+ ${formatUSD(earnings)} over 1y`}</p>
+						<p className={'text-grey-600 text-xs'}>
+							{`+ ${formatUSD(earnings).replace('$ ', '$')} over 1y`}
+						</p>
 						{configuration.asset.token &&
 							vault.token.address &&
 							configuration.asset.token?.address !== vault.token.address && (
