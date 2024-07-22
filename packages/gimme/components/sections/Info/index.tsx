@@ -8,7 +8,10 @@ import type {ReactElement} from 'react';
 export function InfoSection(): ReactElement {
 	return (
 		<div className={'pb-[300px] md:pb-0'}>
-			<div className={'mt-28 flex w-full max-w-[672px] flex-col gap-6 rounded-3xl bg-white p-6 md:mt-0 md:p-14'}>
+			<div
+				className={
+					'border-grey-200 mt-28 flex w-full max-w-[672px] flex-col gap-6 rounded-3xl border bg-white p-6 md:mt-0 md:p-14'
+				}>
 				<div className={'flex items-center justify-between'}>
 					<Image
 						className={'w-[240px] md:mt-2 md:w-[296px]'}
