@@ -167,7 +167,7 @@ export function Portfolio(): ReactNode {
 		}
 
 		return (
-			<div className={'flex flex-col gap-2'}>
+			<div className={'flex max-h-[366px] flex-col gap-2 overflow-y-auto'}>
 				{sortedVaults.map(vault => (
 					<VaultRow
 						key={vault.address}
