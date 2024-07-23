@@ -1,4 +1,5 @@
 import {useCallback, useRef, useState} from 'react';
+import toast from 'react-hot-toast';
 import {erc20Abi} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -14,11 +15,14 @@ import {
 } from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {readContract} from '@wagmi/core';
 import {deposit} from '@lib/utils/actions';
+import {getApproveTransaction, getDepositTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
+import type {BaseError} from 'viem';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 
 export const useVanilaSolver = (
@@ -27,6 +31,7 @@ export const useVanilaSolver = (
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
+	const {sdk} = useSafeAppsSDK();
 	const {onRefresh} = useWallet();
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
@@ -127,6 +132,38 @@ export const useVanilaSolver = (
 		]
 	);
 
+	const onExecuteForGnosis = useCallback(
+		(onSuccess: () => void): void => {
+			const approveTransactionForBatch = getApproveTransaction(
+				toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+				toAddress(configuration.asset.token?.address),
+				toAddress(configuration.opportunity?.address)
+			);
+
+			const depositTransactionForBatch = getDepositTransaction(
+				toAddress(configuration.opportunity?.address),
+				toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+				toAddress(address)
+			);
+
+			try {
+				sdk.txs.send({txs: [approveTransactionForBatch, depositTransactionForBatch]}).then(() => {
+					toast.success('Your transaction has been created! You can now sign and execute it!');
+					onSuccess();
+				});
+			} catch (error) {
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			}
+		},
+		[
+			address,
+			configuration.asset.normalizedBigAmount?.raw,
+			configuration.asset.token?.address,
+			configuration.opportunity?.address,
+			sdk.txs
+		]
+	);
+
 	/**********************************************************************************************
 	 ** Trigger a deposit web3 action, simply trying to deposit `amount` tokens to
 	 ** the selected vault.
@@ -178,6 +215,8 @@ export const useVanilaSolver = (
 		depositStatus,
 		set_depositStatus,
 		onExecuteDeposit,
+
+		onExecuteForGnosis,
 
 		/** Approval part */
 		approvalStatus,

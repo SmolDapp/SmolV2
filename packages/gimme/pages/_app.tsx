@@ -12,6 +12,7 @@ import {Background} from '@gimmeDesignSystem/Background';
 import {BackgroundLanding} from '@gimmeDesignSystem/BackgroundLanding';
 import Layout from '@gimmeDesignSystem/Layout';
 import {supportedNetworks} from '@gimmeutils/constants';
+import SafeProvider from '@gnosis.pm/safe-apps-react-sdk';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
 
@@ -43,21 +44,23 @@ function MyApp(props: AppProps): ReactElement {
 				<WalletContextApp>
 					<WithPopularTokens>
 						<WithPrices supportedNetworks={supportedNetworks}>
-							<VaultsContextApp>
-								<PlausibleProvider
-									domain={process.env.PLAUSIBLE_DOMAIN || 'gimme.mom'}
-									enabled={true}>
-									<div className={'relative'}>
-										{isLandingPage ? <BackgroundLanding /> : <Background />}
-										<main
-											className={
-												'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'
-											}>
-											<Layout {...props} />
-										</main>
-									</div>
-								</PlausibleProvider>
-							</VaultsContextApp>
+							<SafeProvider>
+								<VaultsContextApp>
+									<PlausibleProvider
+										domain={process.env.PLAUSIBLE_DOMAIN || 'gimme.mom'}
+										enabled={true}>
+										<div className={'relative'}>
+											{isLandingPage ? <BackgroundLanding /> : <Background />}
+											<main
+												className={
+													'bg-grey-500 relative mb-0 flex size-full min-h-screen flex-col'
+												}>
+												<Layout {...props} />
+											</main>
+										</div>
+									</PlausibleProvider>
+								</VaultsContextApp>
+							</SafeProvider>
 						</WithPrices>
 					</WithPopularTokens>
 				</WalletContextApp>

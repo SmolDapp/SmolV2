@@ -367,6 +367,8 @@ export const usePortalsSolver = (
 		set_depositStatus,
 		onExecuteDeposit,
 
+		onExecuteForGnosis: () => {},
+
 		/** Approval part */
 		approvalStatus,
 		allowance,

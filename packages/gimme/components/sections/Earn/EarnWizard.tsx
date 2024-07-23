@@ -86,7 +86,7 @@ import type {ReactElement} from 'react';
 
 export function EarnWizard(): ReactElement {
 	const {onRefresh, getBalance} = useWallet();
-	const {address, openLoginModal} = useWeb3();
+	const {address, openLoginModal, isWalletSafe} = useWeb3();
 	const {configuration, onResetEarn} = useEarnFlow();
 	const {vaults, vaultsArray} = useVaults();
 	const chain = useCurrentChain();
@@ -188,6 +188,7 @@ export function EarnWizard(): ReactElement {
 					chainID: Number(currentChainID)
 				});
 			}
+
 			onRefresh(tokensToRefresh, false, true);
 		},
 		[configuration.asset.token, configuration.opportunity, getModalMessage, onRefresh, chain.id, vaults]
@@ -201,6 +202,8 @@ export function EarnWizard(): ReactElement {
 
 		onExecuteDeposit,
 		depositStatus,
+
+		onExecuteForGnosis,
 
 		onExecuteWithdraw,
 		withdrawStatus,
@@ -232,11 +235,23 @@ export function EarnWizard(): ReactElement {
 		if (isWithdrawing) {
 			return onExecuteWithdraw(() => onRefreshTokens('WITHDRAW'));
 		}
+		if (isWalletSafe) {
+			return onExecuteForGnosis(() => onRefreshTokens('DEPOSIT'));
+		}
 		if (isApproved) {
 			return onExecuteDeposit(() => onRefreshTokens('DEPOSIT'));
 		}
 		return onApprove(() => onRefreshTokens('APPROVE'));
-	}, [isApproved, isWithdrawing, onApprove, onExecuteDeposit, onExecuteWithdraw, onRefreshTokens]);
+	}, [
+		isApproved,
+		isWalletSafe,
+		isWithdrawing,
+		onApprove,
+		onExecuteDeposit,
+		onExecuteForGnosis,
+		onExecuteWithdraw,
+		onRefreshTokens
+	]);
 
 	const isValid = useMemo((): boolean => {
 		if (isAboveBalance) {
@@ -275,6 +290,10 @@ export function EarnWizard(): ReactElement {
 
 		if (!configuration.asset.token || !configuration.opportunity) {
 			return 'Select Token or Opportunity';
+		}
+
+		if (isWalletSafe) {
+			return 'Approve and Deposit';
 		}
 
 		if (isApproved) {
