@@ -46,7 +46,7 @@ export function ConfigurationStatus(props: {
 		if (props.owners.length <= 1) {
 			allStatus.push({
 				message:
-					'We recomend to have at least two owners in your Safe.\nYou can use any other wallet or even the Safe app on your phone as another owner.',
+					'We recommend to have at least two owners in your Safe.\nYou can use any other wallet or even the Safe app on your phone as another owner.',
 				type: 'warning'
 			});
 		}
