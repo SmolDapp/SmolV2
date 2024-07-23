@@ -56,6 +56,10 @@ const ERC20ABI_APPROVE: AbiItem = {
 };
 
 export function getApproveTransaction(amount: string, token: TAddress, spender: TAddress): BaseTransaction {
+	if (token === toAddress(ETH_TOKEN_ADDRESS)) {
+		return {to: spender, value: amount, data: '0x'};
+	}
+
 	const coder = abiCoder as unknown as AbiCoder;
 
 	return {
