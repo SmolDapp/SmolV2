@@ -5,13 +5,12 @@ import PlausibleProvider from 'next-plausible';
 import {Meta} from 'lib/common/Meta';
 import {IconCheck} from 'lib/icons/IconCheck';
 import {IconCircleCross} from 'lib/icons/IconCircleCross';
-import {mainnet} from 'viem/chains';
 import {WalletContextApp} from '@builtbymom/web3/contexts/useWallet';
 import {WithMom} from '@builtbymom/web3/contexts/WithMom';
 import {Background} from '@gimmeDesignSystem/Background';
 import {BackgroundLanding} from '@gimmeDesignSystem/BackgroundLanding';
 import Layout from '@gimmeDesignSystem/Layout';
-import {supportedNetworks} from '@gimmeutils/constants';
+import {supportedNetworks, supportedNetworksMom} from '@gimmeutils/constants';
 import SafeProvider from '@gnosis.pm/safe-apps-react-sdk';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
@@ -38,7 +37,7 @@ function MyApp(props: AppProps): ReactElement {
 				uri={'https://gimme.yearn.farm'}
 			/>
 			<WithMom
-				supportedChains={[...supportedNetworks, mainnet]}
+				supportedChains={supportedNetworksMom}
 				defaultNetwork={supportedNetworks[0]}
 				tokenLists={['https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/137/yearn-min.json']}>
 				<WalletContextApp>
