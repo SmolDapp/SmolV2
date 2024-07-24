@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@builtbymom/web3": "^0.0.140",
+    "@builtbymom/web3": "0.0.141",
     "@clustersxyz/sdk": "^0.2.1",
     "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "@headlessui/react": "^2.0.4",
