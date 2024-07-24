@@ -1,4 +1,5 @@
 import {useCallback, useRef, useState} from 'react';
+import toast from 'react-hot-toast';
 import {BaseError, erc20Abi, isHex, zeroAddress} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -6,6 +7,7 @@ import {
 	assert,
 	assertAddress,
 	isEthAddress,
+	isZeroAddress,
 	MAX_UINT_256,
 	toAddress,
 	toBigInt,
@@ -14,8 +16,10 @@ import {
 } from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
+import {getApproveTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
@@ -24,6 +28,7 @@ import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
@@ -32,6 +37,7 @@ export const usePortalsSolver = (
 	isZapNeededForWithdraw: boolean
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
+	const {sdk} = useSafeAppsSDK();
 	const {address, provider} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
@@ -361,13 +367,87 @@ export const usePortalsSolver = (
 		[execute, provider]
 	);
 
+	const onExecuteForGnosis = useCallback(
+		async (onSuccess: () => void): Promise<void> => {
+			assert(provider, 'Provider is not set');
+			assert(latestQuote, 'Quote is not set');
+			assert(configuration?.asset.token, 'Input token is not set');
+			assert(configuration?.opportunity, 'Output token is not set');
+
+			let inputToken = configuration?.asset.token.address;
+			const outputToken = configuration?.opportunity.address;
+			if (isEthAddress(inputToken)) {
+				inputToken = zeroAddress;
+			}
+
+			const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+			const transaction = await getPortalsTx({
+				params: {
+					sender: toAddress(address),
+					inputToken: `${network}:${toAddress(inputToken)}`,
+					outputToken: `${network}:${toAddress(outputToken)}`,
+					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
+					// TODO figure out what slippage do we need
+					validate: 'false'
+				}
+			});
+
+			if (!transaction.result) {
+				throw new Error('Transaction data was not fetched from Portals!');
+			}
+
+			const {
+				tx: {value, to, data}
+			} = transaction.result;
+
+			const batch = [];
+
+			if (!isZeroAddress(inputToken)) {
+				const approveTransactionForBatch = getApproveTransaction(
+					toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					toAddress(configuration.asset.token?.address),
+					toAddress(to)
+				);
+
+				batch.push(approveTransactionForBatch);
+			}
+
+			const portalsTransactionForBatch: BaseTransaction = {
+				to: toAddress(to),
+				value: toBigInt(value ?? 0).toString(),
+				data
+			};
+			batch.push(portalsTransactionForBatch);
+
+			try {
+				sdk.txs.send({txs: batch}).then(() => {
+					toast.success('Your transaction has been created! You can now sign and execute it!');
+					onSuccess();
+				});
+			} catch (error) {
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			}
+		},
+		[
+			address,
+			configuration.asset.normalizedBigAmount?.raw,
+			configuration.asset.token,
+			configuration.opportunity,
+			isStablecoin,
+			latestQuote,
+			provider,
+			sdk.txs
+		]
+	);
+
 	return {
 		/** Deposit part */
 		depositStatus,
 		set_depositStatus,
 		onExecuteDeposit,
 
-		onExecuteForGnosis: () => {},
+		onExecuteForGnosis,
 
 		/** Approval part */
 		approvalStatus,

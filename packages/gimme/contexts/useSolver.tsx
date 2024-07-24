@@ -29,7 +29,7 @@ export type TSolverContextBase = {
 	onExecuteDeposit: (onSuccess: () => void) => Promise<void>;
 	set_depositStatus: (value: TTxStatus) => void;
 
-	onExecuteForGnosis: (onSuccess: () => void) => void;
+	onExecuteForGnosis: (onSuccess: () => void) => Promise<void>;
 
 	isFetchingQuote: boolean;
 	quote: TPortalsEstimate | null;
@@ -58,7 +58,7 @@ const SolverContext = createContext<TSolverContext>({
 	set_depositStatus: (): void => undefined,
 	onExecuteDeposit: async (): Promise<void> => undefined,
 
-	onExecuteForGnosis: (): void => undefined,
+	onExecuteForGnosis: async (): Promise<void> => undefined,
 
 	isFetchingQuote: false,
 	quote: null

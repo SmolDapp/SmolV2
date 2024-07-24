@@ -133,7 +133,7 @@ export const useVanilaSolver = (
 	);
 
 	const onExecuteForGnosis = useCallback(
-		(onSuccess: () => void): void => {
+		async (onSuccess: () => void): Promise<void> => {
 			const approveTransactionForBatch = getApproveTransaction(
 				toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
 				toAddress(configuration.asset.token?.address),
