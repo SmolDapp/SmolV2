@@ -303,23 +303,24 @@ export function EarnWizard(): ReactElement {
 		return 'Approve';
 	};
 
+	const isBusy =
+		depositStatus.pending ||
+		withdrawStatus.pending ||
+		approvalStatus.pending ||
+		isFetchingAllowance ||
+		isFetchingQuote;
+
 	return (
 		<div className={'col-span-12'}>
 			{address ? (
 				<Button
-					isBusy={
-						depositStatus.pending ||
-						withdrawStatus.pending ||
-						approvalStatus.pending ||
-						isFetchingAllowance ||
-						isFetchingQuote
-					}
-					isDisabled={!isValid}
+					isBusy={isBusy}
+					isDisabled={!isValid || isBusy}
 					onClick={onAction}
 					className={cl(
 						'disabled:!bg-grey-100 w-full !rounded-2xl !font-bold disabled:!opacity-100 disabled:!text-grey-800'
 					)}>
-					{getButtonTitle()}
+					{isBusy ? null : getButtonTitle()}
 				</Button>
 			) : (
 				<Button
