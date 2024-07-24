@@ -17,7 +17,7 @@ import {
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {type BaseTransaction, TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
+import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
@@ -30,6 +30,7 @@ import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 import type {TPermitSignature} from '@lib/hooks/usePermit.types';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
