@@ -433,7 +433,7 @@ export const usePortalsSolver = (
 
 					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
 					await new Promise(resolve => setTimeout(resolve, 30_000));
-				} while (result.txStatus !== 'SUCCESS');
+				} while (result.txStatus !== TransactionStatus.SUCCESS);
 				onSuccess?.();
 			} catch (error) {
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
