@@ -16,6 +16,7 @@ import {
 import {approveERC20, defaultTxStatus, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract} from '@wagmi/core';
 import {deposit} from '@lib/utils/actions';
 import {getApproveTransaction, getDepositTransaction} from '@lib/utils/tools.gnosis';
@@ -147,10 +148,20 @@ export const useVanilaSolver = (
 			);
 
 			try {
-				sdk.txs.send({txs: [approveTransactionForBatch, depositTransactionForBatch]}).then(() => {
-					toast.success('Your transaction has been created! You can now sign and execute it!');
-					onSuccess();
-				});
+				const res = await sdk.txs.send({txs: [approveTransactionForBatch, depositTransactionForBatch]});
+				let result;
+				do {
+					if (
+						result?.txStatus === TransactionStatus.CANCELLED ||
+						result?.txStatus === TransactionStatus.FAILED
+					) {
+						throw new Error('An error occured while creating your transaction!');
+					}
+
+					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
+					await new Promise(resolve => setTimeout(resolve, 30_000));
+				} while (result.txStatus !== 'SUCCESS');
+				onSuccess?.();
 			} catch (error) {
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}

@@ -17,6 +17,7 @@ import {
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {type BaseTransaction, TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
 import {getApproveTransaction} from '@lib/utils/tools.gnosis';
@@ -28,7 +29,6 @@ import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
-import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
@@ -421,10 +421,20 @@ export const usePortalsSolver = (
 			batch.push(portalsTransactionForBatch);
 
 			try {
-				sdk.txs.send({txs: batch}).then(() => {
-					toast.success('Your transaction has been created! You can now sign and execute it!');
-					onSuccess();
-				});
+				const res = await sdk.txs.send({txs: batch});
+				let result;
+				do {
+					if (
+						result?.txStatus === TransactionStatus.CANCELLED ||
+						result?.txStatus === TransactionStatus.FAILED
+					) {
+						throw new Error('An error occured while creating your transaction!');
+					}
+
+					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
+					await new Promise(resolve => setTimeout(resolve, 30_000));
+				} while (result.txStatus !== 'SUCCESS');
+				onSuccess?.();
 			} catch (error) {
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
