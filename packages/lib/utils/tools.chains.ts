@@ -372,5 +372,6 @@ if (isDev) {
 
 const supportedNetworks: Chain[] = Object.values(CHAINS).filter(e => !e.testnet);
 const supportedTestNetworks: Chain[] = Object.values(CHAINS).filter(e => e.testnet);
+const networks: Chain[] = [...supportedNetworks, ...supportedTestNetworks];
 
-export {CHAINS, isDev, supportedNetworks, supportedTestNetworks};
+export {CHAINS, isDev, networks, supportedNetworks, supportedTestNetworks};
