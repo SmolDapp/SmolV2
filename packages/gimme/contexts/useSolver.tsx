@@ -80,7 +80,6 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 		}
 		return vanila;
 	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, portals, vanila]);
-
 	return <SolverContext.Provider value={{...currentSolver, ...withdrawHelper}}>{children}</SolverContext.Provider>;
 }
 export const useSolver = (): TSolverContext => useContext(SolverContext);
