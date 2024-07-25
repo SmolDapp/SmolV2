@@ -7,7 +7,6 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {ETH_TOKEN_ADDRESS, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {isDev} from '@lib/utils/tools.chains';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import type {AxiosResponse} from 'axios';
@@ -84,28 +83,6 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 					balance: zeroNormalizedBN
 				};
 			}
-
-			/**************************************************************************************
-			 ** If we are in development mode, we also want to add the token to our list, but only
-			 ** if the token's chainID is 1 (Ethereum).
-			 *************************************************************************************/
-			if (isDev && eachToken.chainId === 1) {
-				if (!tokenListTokens[1337]) {
-					tokenListTokens[1337] = {};
-				}
-				if (!tokenListTokens[1337][toAddress(eachToken.address)]) {
-					tokenListTokens[1337][toAddress(eachToken.address)] = {
-						address: eachToken.address,
-						name: eachToken.name,
-						symbol: eachToken.symbol,
-						decimals: eachToken.decimals,
-						chainID: 1337,
-						logoURI: eachToken.logoURI,
-						value: 0,
-						balance: zeroNormalizedBN
-					};
-				}
-			}
 		}
 		set_tokenList(tokenListTokens);
 	}, [hashList]);
@@ -151,7 +128,6 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 	 *********************************************************************************************/
 	const listTokens = useCallback(
 		(_chainID?: number): TToken[] => {
-			currentIdentifier; // Only used to trigger the useEffect hook
 			if (_chainID === undefined) {
 				_chainID = chainID;
 			}
@@ -167,8 +143,31 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 					withBalance.push({...dest, balance});
 				}
 			}
-			return withBalance;
+
+			//We need to do the same with balances
+			for (const [networkID, eachNetwork] of Object.entries(balances)) {
+				if (Number(networkID) !== _chainID) {
+					continue;
+				}
+
+				for (const token of Object.values(eachNetwork)) {
+					if (token) {
+						const balance = getBalance({address: token.address, chainID: token.chainID});
+						withBalance.push({...token, balance});
+					}
+				}
+			}
+
+			const noDuplicates: TToken[] = [];
+			for (const token of withBalance) {
+				if (!noDuplicates.find(t => t.address === token.address && t.chainID === token.chainID)) {
+					noDuplicates.push(token);
+				}
+			}
+
+			return noDuplicates;
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[allTokens, getBalance, currentIdentifier, chainID]
 	);
 
