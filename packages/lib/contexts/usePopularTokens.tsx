@@ -157,7 +157,15 @@ export const WithPopularTokens = ({children}: {children: ReactElement}): ReactEl
 					}
 				}
 			}
-			return withBalance;
+
+			const noDuplicates: TToken[] = [];
+			for (const token of withBalance) {
+				if (!noDuplicates.find(t => t.address === token.address && t.chainID === token.chainID)) {
+					noDuplicates.push(token);
+				}
+			}
+
+			return noDuplicates;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[allTokens, getBalance, currentIdentifier, chainID]
