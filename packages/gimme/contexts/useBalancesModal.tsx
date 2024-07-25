@@ -250,10 +250,19 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	}
 
 	const filteredTokens = useDeepCompareMemo(() => {
+		/******************************************************************************************
+		 ** Lowercase the search value to make the search case-insensitive, but if the search
+		 ** value is empty, we want to return all the tokens.
+		 *****************************************************************************************/
 		const searchFor = searchValue.toLocaleLowerCase();
 		if (searchFor === '') {
 			return props.tokensWithBalance;
 		}
+
+		/******************************************************************************************
+		 ** First we filter the tokens based on the search value. We want to include tokens that
+		 ** have the search value in their name, symbol or address.
+		 *****************************************************************************************/
 		const filtering = props.tokensWithBalance.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchFor) ||
@@ -261,22 +270,39 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 				toAddress(token.address).toLocaleLowerCase().includes(searchFor)
 		);
 
-		const sorted = filtering
+		/******************************************************************************************
+		 ** Then, we remove all duplicates from the list. We want to keep only one instance of
+		 ** each token, even if it appears multiple times in the list.
+		 *****************************************************************************************/
+		const noDuplicates: TToken[] = [];
+		for (const item of filtering) {
+			if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
+				noDuplicates.push(item);
+			}
+		}
+
+		/******************************************************************************************
+		 ** Then, we use this sorted method to actually sort the tokens based on the search value.
+		 ** The most different the token is from the search value, the lower it will be in the
+		 ** list.
+		 *****************************************************************************************/
+		const sorted = noDuplicates
 			.map(item => ({
 				item,
-				exactness:
-					item.name.toLocaleLowerCase() === searchFor || item.symbol.toLocaleLowerCase() === searchFor
-						? 1
-						: 0,
-				diffName: getDifference(item.name.toLocaleLowerCase(), searchFor),
-				diffSymbol: getDifference(item.symbol.toLocaleLowerCase(), searchFor)
+				exactness: item.name.toLowerCase() === searchFor || item.symbol.toLowerCase() === searchFor ? 1 : 0,
+				diffName: getDifference(item.name.toLowerCase(), searchFor),
+				diffSymbol: getDifference(item.symbol.toLowerCase(), searchFor)
 			}))
 			.sort(
 				(a, b) =>
 					b.exactness - a.exactness || Math.min(a.diffName, a.diffSymbol) - Math.min(b.diffName, b.diffSymbol)
-			) // Sort by exactness first, then by the smallest ascending difference of name or symbol
-			.map(sortedItem => sortedItem.item); // Return sorted items
+			)
+			.map(sortedItem => sortedItem.item);
 
+		/******************************************************************************************
+		 ** No need to overload the user with too many results. We want to keep the list short
+		 ** and only display the 20 first results.
+		 *****************************************************************************************/
 		return sorted.slice(0, 20);
 	}, [props.tokensWithBalance, searchValue]);
 
@@ -390,7 +416,13 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	useEffect((): void => {
 		const allPopularTokens = listTokens(options.chainID);
 		const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
-		set_tokensToUse(allPopularTokensWithBalance);
+		const noDuplicates: TToken[] = [];
+		for (const item of allPopularTokensWithBalance) {
+			if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
+				noDuplicates.push(item);
+			}
+		}
+		set_tokensToUse(noDuplicates);
 		set_allTokensToUse(allPopularTokens);
 	}, [listTokensWithBalance, options.chainID, listTokens]);
 
@@ -407,7 +439,13 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 			if (_options?.chainID) {
 				const allPopularTokens = listTokens(_options.chainID);
 				const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
-				set_tokensToUse(allPopularTokensWithBalance);
+				const noDuplicates: TToken[] = [];
+				for (const item of allPopularTokensWithBalance) {
+					if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
+						noDuplicates.push(item);
+					}
+				}
+				set_tokensToUse(noDuplicates);
 				set_allTokensToUse(allPopularTokens);
 				set_options(_options);
 			}
