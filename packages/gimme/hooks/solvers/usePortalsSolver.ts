@@ -325,6 +325,7 @@ export const usePortalsSolver = (
 				to: toAddress(to),
 				data,
 				chainId: configuration?.asset.token.chainID,
+
 				...rest
 			});
 			const receipt = await waitForTransactionReceipt(retrieveConfig(), {
@@ -339,8 +340,10 @@ export const usePortalsSolver = (
 		} catch (error) {
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
+				toast.error(errorMessage);
 				console.error(errorMessage);
 			} else {
+				toast.error((error as BaseError).shortMessage);
 				console.error(error);
 			}
 
@@ -406,6 +409,9 @@ export const usePortalsSolver = (
 			});
 
 			if (!transaction.result) {
+				toast.error('An error occured while fetching your transaction!');
+				set_depositStatus({...defaultTxStatus, error: true});
+
 				throw new Error('Transaction data was not fetched from Portals!');
 			}
 
