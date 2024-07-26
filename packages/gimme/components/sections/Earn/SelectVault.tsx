@@ -106,7 +106,7 @@ function VaultDialog({vaultInfo, onClose}: {vaultInfo: TVaultInfoModal; onClose:
 								<DialogPanel
 									className={cl(
 										'relative overflow-hidden rounded-3xl !bg-white transition-all',
-										'w-full p-2 flex flex-col items-center justify-center'
+										'w-full flex flex-col items-center justify-center'
 									)}>
 									<VaultInfo
 										vaultInfo={vaultInfo}
