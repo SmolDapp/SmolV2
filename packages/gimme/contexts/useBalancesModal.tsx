@@ -193,7 +193,7 @@ function BalancesModalWrapper(props: {
 										/>
 									</button>
 								</div>
-								<div className={'h-108 w-full '}>{props.children}</div>
+								<div className={'md:h-108 size-full max-h-screen pb-12 md:pb-0'}>{props.children}</div>
 							</DialogPanel>
 						</TransitionChild>
 					</div>
