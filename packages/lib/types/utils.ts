@@ -2,6 +2,8 @@ import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 
 export type TModify<TOriginal, TModification> = Omit<TOriginal, keyof TModification> & TModification;
 
+export type TWriteable<T> = {-readonly [P in keyof T]: T[P]};
+
 /**************************************************************************************************
  ** Acts like Partial, but requires all properties to be explicity set to undefined if missing.
  *************************************************************************************************/

@@ -80,7 +80,7 @@ const CHAINS: TSmolChains = {
 	[optimism.id]: {
 		...optimism,
 		name: 'Optimism',
-		isEnabled: false,
+		isEnabled: true,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-optimism.safe.global',
@@ -89,10 +89,12 @@ const CHAINS: TSmolChains = {
 		llamaChainName: 'optimism',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
 		swapSources: {
-			uniV2Router: toAddress('0x4A7b5Da61326A6379179b40d00F57E5bbDC962c2'),
-			uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
-			uniV3Quoter: toAddress('0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'),
-			sushiV2Router: toAddress('0x2ABf469074dc0b54d793850807E6eb5Faf2625b1'),
+			uniV2Router: undefined, //toAddress('0x4A7b5Da61326A6379179b40d00F57E5bbDC962c2'),
+			uniV3Router: undefined,
+			uniV3Quoter: undefined,
+			// uniV3Router: toAddress('0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'),
+			// uniV3Quoter: toAddress('0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6'),
+			sushiV2Router: undefined, //toAddress('0x2ABf469074dc0b54d793850807E6eb5Faf2625b1'),
 			veloRouter: toAddress('0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858'),
 			veloPoolFactory: toAddress('0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a')
 		}

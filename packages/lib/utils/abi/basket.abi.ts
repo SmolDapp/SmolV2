@@ -46,15 +46,28 @@ const BASKET_ABI = [
 			},
 			{
 				indexed: true,
-				internalType: 'address',
-				name: 'tokenIn',
-				type: 'address'
-			},
+				internalType: 'uint256',
+				name: 'baskedID',
+				type: 'uint256'
+			}
+		],
+		name: 'BasketSwap',
+		type: 'event'
+	},
+	{
+		anonymous: false,
+		inputs: [
 			{
 				indexed: true,
 				internalType: 'address',
-				name: 'tokenOut',
+				name: 'user',
 				type: 'address'
+			},
+			{
+				indexed: false,
+				internalType: 'address[]',
+				name: 'path',
+				type: 'address[]'
 			},
 			{
 				indexed: false,
@@ -148,19 +161,9 @@ const BASKET_ABI = [
 			{
 				components: [
 					{
-						internalType: 'address',
-						name: 'tokenIn',
-						type: 'address'
-					},
-					{
-						internalType: 'address',
-						name: 'tokenOut',
-						type: 'address'
-					},
-					{
-						internalType: 'address',
-						name: 'recipient',
-						type: 'address'
+						internalType: 'address[]',
+						name: 'path',
+						type: 'address[]'
 					},
 					{
 						internalType: 'uint256',
@@ -173,34 +176,39 @@ const BASKET_ABI = [
 						type: 'uint256'
 					},
 					{
+						internalType: 'address',
+						name: 'recipient',
+						type: 'address'
+					},
+					{
 						internalType: 'enum MultiSwapRouter.DEX',
 						name: 'dex',
 						type: 'uint8'
 					},
 					{
-						internalType: 'uint24',
-						name: 'fee',
-						type: 'uint24'
+						internalType: 'uint24[]',
+						name: 'fees',
+						type: 'uint24[]'
 					},
 					{
-						internalType: 'uint160',
-						name: 'sqrtPriceLimitX96',
-						type: 'uint160'
+						internalType: 'bool[]',
+						name: 'stables',
+						type: 'bool[]'
 					},
 					{
-						internalType: 'bool',
-						name: 'stable',
-						type: 'bool'
-					},
-					{
-						internalType: 'address',
-						name: 'factory',
-						type: 'address'
+						internalType: 'address[]',
+						name: 'factories',
+						type: 'address[]'
 					}
 				],
 				internalType: 'struct MultiSwapRouter.SwapParams[]',
 				name: 'params',
 				type: 'tuple[]'
+			},
+			{
+				internalType: 'uint256',
+				name: 'basketID',
+				type: 'uint256'
 			}
 		],
 		name: 'multicall',
