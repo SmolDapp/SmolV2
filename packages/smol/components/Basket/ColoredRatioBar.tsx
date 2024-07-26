@@ -5,7 +5,7 @@ import {useTimeout} from 'usehooks-ts';
 import type {ReactElement} from 'react';
 
 export function ColoredRatioBar({logoURI, share}: {logoURI: string; share: number}): ReactElement {
-	const {data} = usePalette(logoURI.replace('128.png', '32.png') || '');
+	const {data} = usePalette(logoURI.replace('128.png', '32.png'));
 	const [width, set_width] = useState(0);
 
 	useTimeout(() => {

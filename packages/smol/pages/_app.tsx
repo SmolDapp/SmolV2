@@ -8,15 +8,8 @@ import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
-import {
-	IconAppAddressBook,
-	IconAppDisperse,
-	IconAppEarn,
-	IconAppRevoke,
-	IconAppSend,
-	IconAppStream,
-	IconAppSwap
-} from '@lib/icons/IconApps';
+import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
+import {IconBasket} from '@lib/icons/IconBasket';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
@@ -80,17 +73,22 @@ const MENU = [
 		]
 	},
 	{
-		href: '/apps/earn',
-		label: 'Earn',
-		isDisabled: true,
-		icon: <IconAppEarn />
-	},
-	{
-		href: '/apps/stream',
-		label: 'Stream',
-		isDisabled: true,
-		icon: <IconAppStream />
+		href: '/apps/baskets',
+		label: 'Baskets',
+		icon: <IconBasket />
 	}
+	// {
+	// 	href: '/apps/earn',
+	// 	label: 'Earn',
+	// 	isDisabled: true,
+	// 	icon: <IconAppEarn />
+	// },
+	// {
+	// 	href: '/apps/stream',
+	// 	label: 'Stream',
+	// 	isDisabled: true,
+	// 	icon: <IconAppStream />
+	// }
 ];
 
 function MyApp(props: AppProps): ReactElement {

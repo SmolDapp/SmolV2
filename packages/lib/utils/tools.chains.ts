@@ -80,7 +80,7 @@ const CHAINS: TSmolChains = {
 	[optimism.id]: {
 		...optimism,
 		name: 'Optimism',
-		isEnabled: true,
+		isEnabled: false,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-optimism.safe.global',
@@ -284,7 +284,7 @@ const CHAINS: TSmolChains = {
 	},
 	[arbitrum.id]: {
 		...arbitrum,
-		isEnabled: false,
+		isEnabled: true,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-arbitrum.safe.global',
