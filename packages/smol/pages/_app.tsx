@@ -100,8 +100,8 @@ function MyApp(props: AppProps): ReactElement {
 				<WithMom
 					supportedChains={networks}
 					tokenLists={[
-						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/tokenlistooor.json',
-						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
+						'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/popular.json'
+						// 'https://raw.githubusercontent.com/SmolDapp/tokenLists/main/lists/defillama.json'
 					]}>
 					<WalletContextApp
 						shouldWorkOnTestnet={
