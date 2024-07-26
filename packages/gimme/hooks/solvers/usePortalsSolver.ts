@@ -231,20 +231,22 @@ export const usePortalsSolver = (
 
 				if (allowance < amount) {
 					assertAddress(approval.context.spender, 'spender');
+					set_approvalStatus({...approvalStatus, pending: true});
 					const result = await approveERC20({
 						connector: provider,
 						chainID: configuration?.asset.token.chainID,
 						contractAddress: configuration?.asset.token.address,
 						spenderAddress: approval.context.spender,
-						amount: amount,
-						statusHandler: set_approvalStatus
+						amount: amount
 					});
 					if (result.isSuccessful) {
+						set_approvalStatus({...approvalStatus, success: true});
 						onSuccess?.();
 					}
 					triggerRetreiveAllowance();
 					return;
 				}
+				set_approvalStatus({...approvalStatus, success: true});
 				onSuccess?.();
 				triggerRetreiveAllowance();
 				return;
@@ -253,7 +255,15 @@ export const usePortalsSolver = (
 				return;
 			}
 		},
-		[address, configuration, provider, triggerRetreiveAllowance]
+		[
+			address,
+			approvalStatus,
+			configuration?.asset.normalizedBigAmount,
+			configuration?.asset.token,
+			configuration?.opportunity?.chainID,
+			provider,
+			triggerRetreiveAllowance
+		]
 	);
 
 	/**********************************************************************************************
@@ -374,6 +384,8 @@ export const usePortalsSolver = (
 			assert(configuration?.asset.token, 'Input token is not set');
 			assert(configuration?.opportunity, 'Output token is not set');
 
+			set_depositStatus({...defaultTxStatus, pending: true});
+
 			let inputToken = configuration?.asset.token.address;
 			const outputToken = configuration?.opportunity.address;
 			if (isEthAddress(inputToken)) {
@@ -434,8 +446,11 @@ export const usePortalsSolver = (
 					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
 					await new Promise(resolve => setTimeout(resolve, 30_000));
 				} while (result.txStatus !== TransactionStatus.SUCCESS);
+
+				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},

@@ -147,6 +147,8 @@ export const useVanilaSolver = (
 				toAddress(address)
 			);
 
+			set_depositStatus({...defaultTxStatus, pending: true});
+
 			try {
 				const res = await sdk.txs.send({txs: [approveTransactionForBatch, depositTransactionForBatch]});
 				let result;
@@ -161,8 +163,11 @@ export const useVanilaSolver = (
 					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
 					await new Promise(resolve => setTimeout(resolve, 30_000));
 				} while (result.txStatus !== TransactionStatus.SUCCESS);
+
+				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},
