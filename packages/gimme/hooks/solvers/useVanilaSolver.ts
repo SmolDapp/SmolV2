@@ -1,12 +1,11 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
-import {erc20Abi} from 'viem';
-import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {encodeFunctionData, erc20Abi} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {
 	assert,
-	ETH_TOKEN_ADDRESS,
+	isAddress,
 	isEthAddress,
 	toAddress,
 	toBigInt,
@@ -18,13 +17,18 @@ import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract} from '@wagmi/core';
-import {deposit} from '@lib/utils/actions';
+import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
+import {YEARN_4626_ROUTER_ABI} from '@lib/utils/abi/yearn4626Router.abi';
+import {deposit, depositViaRouter} from '@lib/utils/actions';
+import {CHAINS} from '@lib/utils/tools.chains';
 import {getApproveTransaction, getDepositTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {BaseError} from 'viem';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import type {TPermitSignature} from '@lib/hooks/usePermit.types';
 
 export const useVanilaSolver = (
 	isZapNeededForDeposit: boolean,
@@ -33,13 +37,24 @@ export const useVanilaSolver = (
 	const {configuration} = useEarnFlow();
 	const {provider, address} = useWeb3();
 	const {sdk} = useSafeAppsSDK();
-	const {onRefresh} = useWallet();
+
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
+	const [permitSignature, set_permitSignature] = useState<TPermitSignature | undefined>(undefined);
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 	const isAboveAllowance = allowance.raw >= configuration.asset.normalizedBigAmount.raw;
+
+	/**********************************************************************************************
+	 ** The isV3Vault hook is used to determine if the current vault is a V3 vault. It's very
+	 ** important to know if the vault is a V3 vault because the deposit and withdraw functions
+	 ** are different for V3 vaults, and only V3 vaults support the permit signature.
+	 *********************************************************************************************/
+	const isV3Vault = useMemo(
+		() => configuration?.opportunity?.version.split('.')?.[0] === '3',
+		[configuration?.opportunity]
+	);
 
 	/**********************************************************************************************
 	 ** Retrieve the allowance for the token to be used by the solver. This will
@@ -111,23 +126,60 @@ export const useVanilaSolver = (
 			assert(configuration?.asset.token, 'Input token is not set');
 			assert(configuration?.opportunity, 'Output token is not set');
 
-			const result = await approveERC20({
-				connector: provider,
-				chainID: configuration?.opportunity.chainID,
-				contractAddress: configuration?.asset.token.address,
-				spenderAddress: configuration?.opportunity.address,
-				amount: configuration?.asset.normalizedBigAmount?.raw || 0n,
-				statusHandler: set_approvalStatus
+			const shouldUsePermit = await isSupportingPermit({
+				contractAddress: configuration.asset.token.address,
+				chainID: configuration.opportunity.chainID
 			});
-			set_allowance(await onRetrieveAllowance(true));
-			if (result.isSuccessful) {
-				onSuccess?.();
+			try {
+				if (
+					shouldUsePermit &&
+					isV3Vault &&
+					isAddress(CHAINS[configuration.opportunity.chainID].yearnRouterAddress)
+				) {
+					const signResult = await signPermit({
+						contractAddress: configuration.asset.token.address,
+						ownerAddress: toAddress(address),
+						spenderAddress: toAddress(CHAINS[configuration.opportunity.chainID].yearnRouterAddress),
+						value: configuration.asset.normalizedBigAmount?.raw || 0n,
+						deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 60), // 60 minutes
+						chainID: configuration.opportunity.chainID
+					});
+					if (signResult?.signature) {
+						set_approvalStatus({...approvalStatus, success: true});
+						set_allowance(configuration.asset.normalizedBigAmount || zeroNormalizedBN);
+						set_permitSignature(signResult);
+						onSuccess?.();
+					} else {
+						set_approvalStatus({...approvalStatus, error: true});
+						throw new Error('Error signing a permit for a given token using the specified parameters.');
+					}
+				} else {
+					const result = await approveERC20({
+						connector: provider,
+						chainID: configuration.opportunity.chainID,
+						contractAddress: configuration.asset.token.address,
+						spenderAddress: configuration.opportunity.address,
+						amount: configuration.asset.normalizedBigAmount?.raw || 0n,
+						statusHandler: set_approvalStatus
+					});
+					set_allowance(await onRetrieveAllowance(true));
+					if (result.isSuccessful) {
+						onSuccess?.();
+					}
+				}
+			} catch (error) {
+				set_approvalStatus({...defaultTxStatus, error: true});
+				set_permitSignature(undefined);
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},
 		[
-			configuration?.asset.normalizedBigAmount?.raw,
-			configuration?.asset.token,
-			configuration?.opportunity,
+			configuration.asset.token,
+			configuration.asset.normalizedBigAmount,
+			configuration.opportunity,
+			isV3Vault,
+			address,
+			approvalStatus,
 			provider,
 			onRetrieveAllowance
 		]
@@ -167,6 +219,10 @@ export const useVanilaSolver = (
 				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
 				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
@@ -176,6 +232,7 @@ export const useVanilaSolver = (
 			configuration.asset.normalizedBigAmount?.raw,
 			configuration.asset.token?.address,
 			configuration.opportunity?.address,
+			permitSignature,
 			sdk.txs
 		]
 	);
@@ -190,38 +247,63 @@ export const useVanilaSolver = (
 			assert(configuration?.asset?.token?.address, 'Input amount is not set');
 			set_depositStatus({...defaultTxStatus, pending: true});
 
-			const result = await deposit({
-				connector: provider,
-				chainID: configuration?.opportunity?.chainID,
-				contractAddress: toAddress(configuration?.opportunity?.address),
-				amount: toBigInt(configuration?.asset?.normalizedBigAmount?.raw),
-				statusHandler: set_depositStatus
-			});
-			await onRefresh(
-				[
-					{chainID: configuration?.opportunity?.chainID, address: configuration?.opportunity?.address},
-					{chainID: configuration?.opportunity?.chainID, address: configuration?.opportunity?.token?.address},
-					{chainID: configuration?.opportunity?.chainID, address: ETH_TOKEN_ADDRESS}
-				],
-				false,
-				true
-			);
-			onRetrieveAllowance(true);
-			if (result.isSuccessful) {
-				onSuccess();
-				set_depositStatus({...defaultTxStatus, success: true});
-				return;
+			let result: TTxResponse | undefined = undefined;
+			try {
+				if (permitSignature) {
+					result = await depositViaRouter({
+						connector: provider,
+						statusHandler: set_depositStatus,
+						chainID: configuration.opportunity?.chainID,
+						contractAddress: toAddress(CHAINS[configuration.opportunity.chainID].yearnRouterAddress),
+						amount: toBigInt(configuration.asset.normalizedBigAmount.raw),
+						token: toAddress(configuration.asset.token.address),
+						vault: toAddress(configuration.opportunity.address),
+						permitCalldata: encodeFunctionData({
+							abi: YEARN_4626_ROUTER_ABI,
+							functionName: 'selfPermit',
+							args: [
+								toAddress(configuration.asset.token.address),
+								toBigInt(configuration.asset.normalizedBigAmount.raw),
+								permitSignature.deadline,
+								permitSignature.v,
+								permitSignature.r,
+								permitSignature.s
+							]
+						})
+					});
+				} else {
+					result = await deposit({
+						connector: provider,
+						chainID: configuration?.opportunity?.chainID,
+						contractAddress: toAddress(configuration?.opportunity?.address),
+						amount: toBigInt(configuration?.asset?.normalizedBigAmount?.raw),
+						statusHandler: set_depositStatus
+					});
+					onRetrieveAllowance(true);
+				}
+
+				if (result.isSuccessful) {
+					onSuccess();
+					set_depositStatus({...defaultTxStatus, success: true});
+					return;
+				}
+				set_depositStatus({...defaultTxStatus, error: true});
+			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
+				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
+				console.error(error);
 			}
-			set_depositStatus({...defaultTxStatus, error: true});
 		},
 		[
-			configuration?.asset?.normalizedBigAmount?.raw,
-			configuration?.asset?.token?.address,
-			configuration?.opportunity?.address,
-			configuration?.opportunity?.chainID,
-			configuration?.opportunity?.token?.address,
-			onRefresh,
+			configuration.asset.normalizedBigAmount.raw,
+			configuration.asset.token?.address,
+			configuration.opportunity?.address,
+			configuration.opportunity?.chainID,
 			onRetrieveAllowance,
+			permitSignature,
 			provider
 		]
 	);

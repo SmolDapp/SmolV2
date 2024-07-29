@@ -254,7 +254,7 @@ export const usePortalsSolver = (
 						onSuccess?.();
 					} else {
 						set_approvalStatus({...approvalStatus, error: true});
-						throw new Error('Error signing a permit for a given token using the specified parameters.');
+						throw new Error('Error signing a permit.');
 					}
 				} else {
 					const allowance = await readContract(retrieveConfig(), {
@@ -286,8 +286,15 @@ export const usePortalsSolver = (
 					return;
 				}
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
+
 				console.error(error);
 
+				toast.error((error as BaseError).shortMessage || (error as BaseError).message) ||
+					'An error occured while creating your transaction!';
 				return;
 			}
 		},
@@ -297,6 +304,7 @@ export const usePortalsSolver = (
 			configuration.asset.normalizedBigAmount,
 			configuration.asset.token,
 			configuration.opportunity,
+			permitSignature,
 			provider,
 			triggerRetreiveAllowance
 		]
@@ -375,12 +383,17 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
+			if (permitSignature) {
+				set_permitSignature(undefined);
+				set_allowance(zeroNormalizedBN);
+			}
+
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
 				console.error(errorMessage);
 			} else {
-				toast.error((error as BaseError).shortMessage);
+				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
 				console.error(error);
 			}
 
@@ -393,7 +406,7 @@ export const usePortalsSolver = (
 		configuration?.opportunity,
 		isStablecoin,
 		latestQuote,
-		permitSignature?.signature,
+		permitSignature,
 		provider
 	]);
 
@@ -494,6 +507,10 @@ export const usePortalsSolver = (
 				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
 				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
@@ -502,9 +519,10 @@ export const usePortalsSolver = (
 			address,
 			configuration.asset.normalizedBigAmount?.raw,
 			configuration.asset.token,
-			configuration.opportunity,
+			configuration?.opportunity,
 			isStablecoin,
 			latestQuote,
+			permitSignature,
 			provider,
 			sdk.txs
 		]
