@@ -1,4 +1,5 @@
 import {useCallback, useRef, useState} from 'react';
+import toast from 'react-hot-toast';
 import {BaseError, erc20Abi, isHex, zeroAddress} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
@@ -6,6 +7,7 @@ import {
 	assert,
 	assertAddress,
 	isEthAddress,
+	isZeroAddress,
 	MAX_UINT_256,
 	toAddress,
 	toBigInt,
@@ -14,8 +16,11 @@ import {
 } from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
+import {type BaseTransaction, TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
+import {getApproveTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
@@ -32,6 +37,7 @@ export const usePortalsSolver = (
 	isZapNeededForWithdraw: boolean
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
+	const {sdk} = useSafeAppsSDK();
 	const {address, provider} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
@@ -230,8 +236,8 @@ export const usePortalsSolver = (
 						chainID: configuration?.asset.token.chainID,
 						contractAddress: configuration?.asset.token.address,
 						spenderAddress: approval.context.spender,
-						amount: amount,
-						statusHandler: set_approvalStatus
+						statusHandler: set_approvalStatus,
+						amount: amount
 					});
 					if (result.isSuccessful) {
 						onSuccess?.();
@@ -247,7 +253,14 @@ export const usePortalsSolver = (
 				return;
 			}
 		},
-		[address, configuration, provider, triggerRetreiveAllowance]
+		[
+			address,
+			configuration?.asset.normalizedBigAmount,
+			configuration?.asset.token,
+			configuration?.opportunity?.chainID,
+			provider,
+			triggerRetreiveAllowance
+		]
 	);
 
 	/**********************************************************************************************
@@ -309,6 +322,7 @@ export const usePortalsSolver = (
 				to: toAddress(to),
 				data,
 				chainId: configuration?.asset.token.chainID,
+
 				...rest
 			});
 			const receipt = await waitForTransactionReceipt(retrieveConfig(), {
@@ -323,8 +337,10 @@ export const usePortalsSolver = (
 		} catch (error) {
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
+				toast.error(errorMessage);
 				console.error(errorMessage);
 			} else {
+				toast.error((error as BaseError).shortMessage);
 				console.error(error);
 			}
 
@@ -361,11 +377,105 @@ export const usePortalsSolver = (
 		[execute, provider]
 	);
 
+	const onExecuteForGnosis = useCallback(
+		async (onSuccess: () => void): Promise<void> => {
+			assert(provider, 'Provider is not set');
+			assert(latestQuote, 'Quote is not set');
+			assert(configuration?.asset.token, 'Input token is not set');
+			assert(configuration?.opportunity, 'Output token is not set');
+
+			set_depositStatus({...defaultTxStatus, pending: true});
+
+			let inputToken = configuration?.asset.token.address;
+			const outputToken = configuration?.opportunity.address;
+			if (isEthAddress(inputToken)) {
+				inputToken = zeroAddress;
+			}
+
+			const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+			const transaction = await getPortalsTx({
+				params: {
+					sender: toAddress(address),
+					inputToken: `${network}:${toAddress(inputToken)}`,
+					outputToken: `${network}:${toAddress(outputToken)}`,
+					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
+					// TODO figure out what slippage do we need
+					validate: 'false'
+				}
+			});
+
+			if (!transaction.result) {
+				toast.error('An error occured while fetching your transaction!');
+				set_depositStatus({...defaultTxStatus, error: true});
+
+				throw new Error('Transaction data was not fetched from Portals!');
+			}
+
+			const {
+				tx: {value, to, data}
+			} = transaction.result;
+
+			const batch = [];
+
+			if (!isZeroAddress(inputToken)) {
+				const approveTransactionForBatch = getApproveTransaction(
+					toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					toAddress(configuration.asset.token?.address),
+					toAddress(to)
+				);
+
+				batch.push(approveTransactionForBatch);
+			}
+
+			const portalsTransactionForBatch: BaseTransaction = {
+				to: toAddress(to),
+				value: toBigInt(value ?? 0).toString(),
+				data
+			};
+			batch.push(portalsTransactionForBatch);
+
+			try {
+				const res = await sdk.txs.send({txs: batch});
+				let result;
+				do {
+					if (
+						result?.txStatus === TransactionStatus.CANCELLED ||
+						result?.txStatus === TransactionStatus.FAILED
+					) {
+						throw new Error('An error occured while creating your transaction!');
+					}
+
+					result = await sdk.txs.getBySafeTxHash(res.safeTxHash);
+					await new Promise(resolve => setTimeout(resolve, 30_000));
+				} while (result.txStatus !== TransactionStatus.SUCCESS);
+
+				set_depositStatus({...defaultTxStatus, success: true});
+				onSuccess?.();
+			} catch (error) {
+				set_depositStatus({...defaultTxStatus, error: true});
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			}
+		},
+		[
+			address,
+			configuration.asset.normalizedBigAmount?.raw,
+			configuration.asset.token,
+			configuration.opportunity,
+			isStablecoin,
+			latestQuote,
+			provider,
+			sdk.txs
+		]
+	);
+
 	return {
 		/** Deposit part */
 		depositStatus,
 		set_depositStatus,
 		onExecuteDeposit,
+
+		onExecuteForGnosis,
 
 		/** Approval part */
 		approvalStatus,
