@@ -65,7 +65,7 @@ export function Vault({
 				}))
 			}
 			className={cl(
-				'flex w-full justify-between rounded-lg px-4 py-3 transition-colors hover:bg-grey-100',
+				'flex justify-between rounded-lg px-4 py-3 gap-x-6 transition-colors hover:bg-grey-100',
 				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
 			)}
 			onClick={isDisabled ? undefined : onSelectVault}>
@@ -84,7 +84,7 @@ export function Vault({
 						{name}
 						{' Vault'}
 					</p>
-					<div className={'flex items-start gap-1'}>
+					<div className={'flex flex-wrap items-start gap-1'}>
 						<p className={'text-grey-600 text-xs'}>
 							{`+ ${formatUSD(earnings).replace('$ ', '$')} over 1y`}
 						</p>
@@ -106,14 +106,24 @@ export function Vault({
 				<p className={'mr-2 text-lg font-medium'}>
 					{formatTAmount({value: apr.netAPR, decimals: token.decimals, symbol: 'percent'})}
 				</p>
-
-				<Popover.Trigger asChild>
-					<div
-						className={'ml-4'}
-						onMouseEnter={() => onChangeVaultInfo({...vault, isOpen: true})}>
+				<div className={'ml-4'}>
+					<button
+						className={'block md:hidden'}
+						onClick={e => {
+							e.preventDefault();
+							e.stopPropagation();
+							onChangeVaultInfo({...vault, isDialogOpen: true});
+						}}>
 						<IconQuestionMark className={'text-grey-700 size-6'} />
+					</button>
+					<div className={'hidden md:block'}>
+						<Popover.Trigger asChild>
+							<div onMouseEnter={() => onChangeVaultInfo({...vault, isPopoverOpen: true})}>
+								<IconQuestionMark className={'text-grey-700 size-6'} />
+							</div>
+						</Popover.Trigger>
 					</div>
-				</Popover.Trigger>
+				</div>
 			</div>
 		</div>
 	);

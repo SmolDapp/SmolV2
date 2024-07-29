@@ -84,7 +84,7 @@ const useApproveDisperse = ({
 	const isApproved = allowance >= totalToDisperse;
 	const shouldUseSend = configuration.inputs.length === 1;
 	const onApproveToken = useCallback(async (): Promise<void> => {
-		if (isApproved) {
+		if (isApproved || !shouldApprove) {
 			return;
 		}
 		await approveERC20({
@@ -102,10 +102,11 @@ const useApproveDisperse = ({
 		});
 	}, [
 		isApproved,
+		shouldApprove,
 		provider,
 		chainID,
-		safeChainID,
 		configuration.tokenToSend?.address,
+		safeChainID,
 		totalToDisperse,
 		onSuccess,
 		refetch
