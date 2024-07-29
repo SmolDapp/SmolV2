@@ -12,6 +12,7 @@ import {
 	ZERO_ADDRESS
 } from '@builtbymom/web3/utils';
 
+import type {Hex} from 'viem';
 import type {TFetchReturn} from '@builtbymom/web3/utils';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 
@@ -48,6 +49,7 @@ type TGetTransactionProps = Omit<TGetEstimateProps, 'params'> & {
 		sender: TAddress;
 		validate?: string;
 		feePercentage?: string;
+		permitSignature?: Hex;
 	};
 };
 
