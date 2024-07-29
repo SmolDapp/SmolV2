@@ -231,22 +231,20 @@ export const usePortalsSolver = (
 
 				if (allowance < amount) {
 					assertAddress(approval.context.spender, 'spender');
-					set_approvalStatus({...approvalStatus, pending: true});
 					const result = await approveERC20({
 						connector: provider,
 						chainID: configuration?.asset.token.chainID,
 						contractAddress: configuration?.asset.token.address,
 						spenderAddress: approval.context.spender,
+						statusHandler: set_approvalStatus,
 						amount: amount
 					});
 					if (result.isSuccessful) {
-						set_approvalStatus({...approvalStatus, success: true});
 						onSuccess?.();
 					}
 					triggerRetreiveAllowance();
 					return;
 				}
-				set_approvalStatus({...approvalStatus, success: true});
 				onSuccess?.();
 				triggerRetreiveAllowance();
 				return;
@@ -257,7 +255,6 @@ export const usePortalsSolver = (
 		},
 		[
 			address,
-			approvalStatus,
 			configuration?.asset.normalizedBigAmount,
 			configuration?.asset.token,
 			configuration?.opportunity?.chainID,
