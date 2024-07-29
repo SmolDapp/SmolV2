@@ -50,7 +50,6 @@ export const usePortalsSolver = (
 	const [isFetchingQuote, set_isFetchingQuote] = useState(false);
 	const spendAmount = configuration?.asset.normalizedBigAmount?.raw ?? 0n;
 	const isAboveAllowance = allowance.raw >= spendAmount;
-	console.log(allowance.raw, spendAmount);
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
 	const {getIsStablecoin} = useGetIsStablecoin();
