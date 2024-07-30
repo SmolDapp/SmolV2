@@ -41,7 +41,7 @@ export const usePortalsSolver = (
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {sdk} = useSafeAppsSDK();
-	const {address, provider} = useWeb3();
+	const {address, provider, isWalletSafe} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
@@ -292,7 +292,6 @@ export const usePortalsSolver = (
 				}
 
 				console.error(error);
-
 				toast.error((error as BaseError).shortMessage || (error as BaseError).message) ||
 					'An error occured while creating your transaction!';
 				return;
@@ -336,7 +335,7 @@ export const usePortalsSolver = (
 					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false',
+					validate: isWalletSafe ? 'false' : 'true',
 					permitSignature: permitSignature?.signature || undefined
 				}
 			});
@@ -370,7 +369,6 @@ export const usePortalsSolver = (
 				to: toAddress(to),
 				data,
 				chainId: configuration?.asset.token.chainID,
-
 				...rest
 			});
 			const receipt = await waitForTransactionReceipt(retrieveConfig(), {
@@ -383,6 +381,7 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
+			console.dir(error);
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
@@ -405,6 +404,7 @@ export const usePortalsSolver = (
 		configuration?.asset.token,
 		configuration?.opportunity,
 		isStablecoin,
+		isWalletSafe,
 		latestQuote,
 		permitSignature,
 		provider
@@ -455,7 +455,7 @@ export const usePortalsSolver = (
 					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false'
+					validate: isWalletSafe ? 'false' : 'true'
 				}
 			});
 
@@ -522,6 +522,7 @@ export const usePortalsSolver = (
 			configuration.asset.token,
 			configuration?.opportunity,
 			isStablecoin,
+			isWalletSafe,
 			latestQuote,
 			permitSignature,
 			provider,
