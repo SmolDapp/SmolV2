@@ -283,6 +283,11 @@ export function AddressBookCurtain(props: {
 	useEffect(() => set_isEditMode(props.isEditing), [props.isEditing]);
 	useEffect(() => set_currentEntry(prev => ({...prev, label: props.initialLabel ?? ''})), [props.initialLabel]);
 
+	const isDisabledAddButton = useMemo(
+		() => !(addressLike.isValid === true && isFormValid && isValidName && isValidName !== 'undetermined'),
+		[addressLike.isValid, isFormValid, isValidName]
+	);
+
 	return (
 		<Dialog.Root
 			key={`${props.selectedEntry.id}`}
@@ -367,15 +372,7 @@ export function AddressBookCurtain(props: {
 							<Button
 								tabIndex={0}
 								type={'submit'}
-								isDisabled={
-									!(
-										formRef.current?.checkValidity() &&
-										addressLike.isValid === true &&
-										isFormValid &&
-										isValidName &&
-										isValidName !== 'undetermined'
-									)
-								}
+								isDisabled={isDisabledAddButton}
 								className={'!h-8 w-1/2 !text-xs font-medium'}>
 								<b>{isEditMode ? (currentEntry.id === undefined ? 'Add' : 'Save') : 'Send'}</b>
 							</Button>

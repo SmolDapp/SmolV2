@@ -1,11 +1,15 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useSendContext} from 'packages/smol/components/Send/useSendContext';
 import {useOnClickOutside} from 'usehooks-ts';
+import {type GetEnsAddressReturnType} from 'viem';
+import {mainnet} from 'viem/chains';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, isZeroAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {IconPlus} from '@gimmeDesignSystem/IconPlus';
 import {useAsyncAbortable} from '@react-hookz/web';
+import {getEnsAddress} from '@wagmi/core';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
@@ -43,6 +47,7 @@ export function AddressAvatarButton(props: {address: TAddress; onClick: () => vo
 						<IconAppAddressBook className={'size-4 text-neutral-600'} />
 					) : (
 						<AvatarWrapper
+							isClickable={false}
 							address={toAddress(props.address)}
 							sizeClassname={'h-8 w-8 min-w-8'}
 						/>
@@ -62,7 +67,7 @@ export function AddressAvatarButton(props: {address: TAddress; onClick: () => vo
 function AddButton({onClick}: {onClick: VoidFunction}): ReactElement {
 	return (
 		<button
-			className={'bg-primary flex w-fit flex-1 flex-col items-center rounded-[3px] px-4 py-[14px]'}
+			className={'flex w-fit flex-1 flex-col items-center rounded-[3px] bg-neutral-200 px-4 py-[14px]'}
 			onClick={onClick}>
 			<IconPlus className={'mb-1 size-4'} />
 			<span className={'whitespace-nowrap text-[10px]'}>{'Add Contact'}</span>
@@ -129,7 +134,9 @@ export function SmolAddressInput({
 				chainId: safeChainID
 			}));
 		set_shouldAddToAddressBook(isSmartContract);
-		set_shouldAddToAddressBook(Boolean(fromAddressBook?.isHidden && configuration.receiver.address));
+		set_shouldAddToAddressBook(
+			Boolean((fromAddressBook?.isHidden || !fromAddressBook) && configuration.receiver.address)
+		);
 	}, [configuration.receiver.address, getEntry, safeChainID]);
 
 	const validLabel = useMemo(() => {
@@ -158,14 +165,44 @@ export function SmolAddressInput({
 	};
 
 	/**********************************************************************************************
+	 ** If user wants to add the TAddress we just put it in address input. If they use ens, we
+	 ** go with relevant TAddress.
+	 *********************************************************************************************/
+	const getAddress = useCallback(
+		(isSearchAnAddress: boolean, ensAddress: GetEnsAddressReturnType): TAddress | undefined => {
+			if (isSearchAnAddress) {
+				return toAddress(configuration?.receiver.address);
+			}
+			if (ensAddress) {
+				return ensAddress;
+			}
+			return;
+		},
+		[configuration?.receiver.address]
+	);
+
+	/**********************************************************************************************
 	 ** onAddContact is a function that opens AB curtain and sets entered address as entry.
 	 *********************************************************************************************/
-	const onAddContact = (): void => {
+	const onAddContact = async (): Promise<void> => {
 		const hasALabel = isZeroAddress(configuration.receiver.label);
+
+		const isRecieverAnAddress = isAddress(configuration?.receiver.address);
+		const lowerCaseRecieverValue = configuration?.receiver.address?.toLowerCase();
+		const isEnsCandidate = lowerCaseRecieverValue?.endsWith('.eth');
+
+		let ensAddress: GetEnsAddressReturnType = null;
+		if (isEnsCandidate) {
+			ensAddress = await getEnsAddress(retrieveConfig(), {
+				name: lowerCaseRecieverValue ?? '',
+				chainId: mainnet.id
+			});
+		}
+
 		dispatchConfiguration({
 			type: 'SET_SELECTED_ENTRY',
 			payload: {
-				address: configuration.receiver.address,
+				address: getAddress(isRecieverAnAddress, ensAddress),
 				label: hasALabel ? validLabel : '',
 				slugifiedLabel: '',
 				chains: [],

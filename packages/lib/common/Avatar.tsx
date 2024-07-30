@@ -28,6 +28,7 @@ export function Avatar(props: {
 	isLoading: boolean;
 	label?: string;
 	sizeClassname?: string;
+	isClickable?: boolean;
 }): ReactElement {
 	const [imageSrc, set_imageSrc] = useState(props.src);
 	const hasAvatar = useMemo(() => imageSrc !== undefined, [imageSrc]);
@@ -73,7 +74,7 @@ export function Avatar(props: {
 				key={imageSrc}
 				className={'cursor-pointer rounded-full'}
 				unoptimized
-				onClick={openAccountModal}
+				onClick={props.isClickable ? openAccountModal : undefined}
 				src={imageSrc || ''}
 				width={128}
 				height={128}
@@ -89,7 +90,7 @@ export function Avatar(props: {
  ** used to abstract the logic of fetching the avatar from the ENS name from
  ** the component that uses it.
  *****************************************************************************/
-export function AvatarWrapper(props: {address: TAddress; sizeClassname?: string}): ReactElement {
+export function AvatarWrapper(props: {address: TAddress; sizeClassname?: string; isClickable?: boolean}): ReactElement {
 	const sizeClassname = props.sizeClassname || 'h-32 w-32 min-w-[128px]';
 	const {
 		data: ensName,
@@ -126,6 +127,7 @@ export function AvatarWrapper(props: {address: TAddress; sizeClassname?: string}
 			label={ensName || undefined}
 			src={avatar}
 			sizeClassname={sizeClassname}
+			isClickable={props.isClickable}
 		/>
 	);
 }
