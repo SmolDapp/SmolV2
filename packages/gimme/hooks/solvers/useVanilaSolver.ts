@@ -168,8 +168,12 @@ export const useVanilaSolver = (
 					}
 				}
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
 				set_approvalStatus({...defaultTxStatus, error: true});
-				set_permitSignature(undefined);
+
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},
@@ -181,7 +185,8 @@ export const useVanilaSolver = (
 			address,
 			approvalStatus,
 			provider,
-			onRetrieveAllowance
+			onRetrieveAllowance,
+			permitSignature
 		]
 	);
 
@@ -219,12 +224,13 @@ export const useVanilaSolver = (
 				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				set_depositStatus({...defaultTxStatus, error: true});
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			} finally {
 				if (permitSignature) {
 					set_permitSignature(undefined);
 					set_allowance(zeroNormalizedBN);
 				}
-				set_depositStatus({...defaultTxStatus, error: true});
-				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},
 		[
@@ -289,12 +295,13 @@ export const useVanilaSolver = (
 				}
 				set_depositStatus({...defaultTxStatus, error: true});
 			} catch (error) {
+				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
+				console.error(error);
+			} finally {
 				if (permitSignature) {
 					set_permitSignature(undefined);
 					set_allowance(zeroNormalizedBN);
 				}
-				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
-				console.error(error);
 			}
 		},
 		[

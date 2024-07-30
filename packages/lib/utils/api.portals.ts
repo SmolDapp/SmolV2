@@ -153,9 +153,16 @@ export async function getPortalsTx({params}: TGetTransactionProps): Promise<{
 	params.inputToken = params.inputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 	params.outputToken = params.outputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 
+	const urlParams = new URLSearchParams(params);
+
+	/*******************************************************
+	 * Remove permitSignature from params if it is undefined
+	 *******************************************************/
+	urlParams.delete('permitSignature', 'undefined');
+
 	try {
 		const result = await fetch<TPortalsTransaction>({
-			endpoint: `${url}?${new URLSearchParams(params)}`,
+			endpoint: `${url}?${urlParams}`,
 			schema: portalsTransactionSchema
 		});
 

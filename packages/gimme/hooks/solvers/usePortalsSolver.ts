@@ -383,11 +383,6 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
-			if (permitSignature) {
-				set_permitSignature(undefined);
-				set_allowance(zeroNormalizedBN);
-			}
-
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
@@ -398,6 +393,11 @@ export const usePortalsSolver = (
 			}
 
 			return {isSuccessful: false};
+		} finally {
+			if (permitSignature) {
+				set_permitSignature(undefined);
+				set_allowance(zeroNormalizedBN);
+			}
 		}
 	}, [
 		address,
@@ -507,12 +507,13 @@ export const usePortalsSolver = (
 				set_depositStatus({...defaultTxStatus, success: true});
 				onSuccess?.();
 			} catch (error) {
+				set_depositStatus({...defaultTxStatus, error: true});
+				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			} finally {
 				if (permitSignature) {
 					set_permitSignature(undefined);
 					set_allowance(zeroNormalizedBN);
 				}
-				set_depositStatus({...defaultTxStatus, error: true});
-				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
 			}
 		},
 		[
