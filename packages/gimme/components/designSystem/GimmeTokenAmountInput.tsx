@@ -19,11 +19,20 @@ import type {TTokenAmountInputElement} from '@lib/types/utils';
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
 	value: TTokenAmountInputElement;
+	shouldDisplayTokenLogo?: boolean;
+	shouldDisableSelect?: boolean;
+	title?: string;
 };
 
 const percentIntervals = [10, 50, 100];
 
-export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): ReactElement {
+export function GimmeTokenAmountInput({
+	onSetValue,
+	value,
+	shouldDisplayTokenLogo = true,
+	shouldDisableSelect = false,
+	title = 'Asset'
+}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesModal();
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
@@ -174,7 +183,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 					getBorderColor()
 				)}>
 				<div className={'flex w-fit items-center gap-2 justify-self-start'}>
-					<p className={'text-grey-800 text-xs font-medium'}>{'Asset'}</p>
+					<p className={'text-grey-800 text-xs font-medium'}>{title}</p>
 					{selectedToken && (
 						<div className={'flex items-center justify-start gap-0.5'}>
 							{percentIntervals.map(percent => (
@@ -194,7 +203,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 				</div>
 				<div className={'flex justify-between gap-2 md:items-start'}>
 					<div className={'flex w-full gap-2'}>
-						{selectedToken && (
+						{selectedToken && shouldDisplayTokenLogo && (
 							<ImageWithFallback
 								className={'mt-1'}
 								alt={selectedToken?.symbol || 'token'}
@@ -225,31 +234,35 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 									step={0.1}
 								/>
 							</div>
-							<div className={'ml-0.5 mt-auto text-xs'}>{getErrorOrButton()}</div>
+							<div className={'ml-0.5 mt-auto text-left text-xs'}>{getErrorOrButton()}</div>
 						</div>
 					</div>
-					<div>
-						{selectedToken ? (
-							<button
-								className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
-								onClick={() =>
-									onOpenCurtain(token => {
-										validate(value.amount, token, token.balance);
-									})
-								}>
-								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
-							</button>
-						) : (
-							<button
-								className={
-									'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
-								}
-								onClick={() => onOpenCurtain(token => validate(value.amount, token, token.balance))}>
-								<p className={'hidden font-bold md:inline'}>{'Select'}</p>
-								<IconChevron className={'size-6'} />
-							</button>
-						)}
-					</div>
+					{!shouldDisableSelect && (
+						<div>
+							{selectedToken ? (
+								<button
+									className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
+									onClick={() =>
+										onOpenCurtain(token => {
+											validate(value.amount, token, token.balance);
+										})
+									}>
+									<IconChevron className={'text-grey-800 size-6 min-w-4'} />
+								</button>
+							) : (
+								<button
+									className={
+										'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
+									}
+									onClick={() =>
+										onOpenCurtain(token => validate(value.amount, token, token.balance))
+									}>
+									<p className={'hidden font-bold md:inline'}>{'Select'}</p>
+									<IconChevron className={'size-6'} />
+								</button>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

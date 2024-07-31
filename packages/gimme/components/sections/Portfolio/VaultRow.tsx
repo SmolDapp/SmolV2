@@ -11,17 +11,26 @@ import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
+import {useWithdrawFlow} from './Withdraw/useWithdrawFlow';
+
 import type {BaseError} from 'wagmi';
 import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; price?: TNormalizedBN}): ReactElement {
+export function VaultRow(props: {
+	vault: TYDaemonVault;
+	balance: TNormalizedBN;
+	price?: TNormalizedBN;
+	onWithdrawModalChange: (isOpen: boolean) => void;
+}): ReactElement {
 	const vaultChainName = supportedNetworks.find(network => network.id === props.vault.chainID)?.name;
 	const tokenNetworkString = `${props.vault.token.symbol} on ${vaultChainName}`.toLocaleUpperCase();
 	const router = useRouter();
 	const {connector} = useAccount();
 	const {switchChainAsync} = useSwitchChain();
 	const chain = useCurrentChain();
+
+	const {dispatchConfiguration} = useWithdrawFlow();
 
 	/**********************************************************************************************
 	 * Function that is used to handle redirecting to the earn page with proper query params.
@@ -58,6 +67,42 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 		} catch (err) {
 			toast.error((err as BaseError)?.message || 'An error occured while creating your transaction!');
 		}
+	};
+
+	const onSetVaultToWithdraw = (): void => {
+		dispatchConfiguration({type: 'SET_VAULT', payload: props.vault});
+	};
+
+	const onSetAssetToReceive = (): void => {
+		dispatchConfiguration({
+			type: 'SET_TOKEN_TO_RECEIVE',
+			payload: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
+		});
+	};
+
+	const onSetAssetToWithdraw = (): void => {
+		dispatchConfiguration({
+			type: 'SET_ASSET',
+			payload: {
+				amount: props.balance.display,
+				normalizedBigAmount: props.balance,
+				isValid: true,
+				error: undefined,
+				token: {
+					...props.vault.token,
+					chainID: props.vault.chainID,
+					value: 0,
+					balance: props.balance
+				}
+			}
+		});
+	};
+
+	const onWithdraw = (): void => {
+		onSetVaultToWithdraw();
+		onSetAssetToWithdraw();
+		onSetAssetToReceive();
+		props.onWithdrawModalChange(true);
 	};
 
 	return (
@@ -124,7 +169,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 				</div>
 				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-4 md:flex'}>
 					<button
-						onClick={async () => onAction({tokenAddress: props.vault.address})}
+						onClick={onWithdraw}
 						className={
 							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
