@@ -1,4 +1,5 @@
 import React, {memo, useCallback, useEffect, useState} from 'react';
+import toast from 'react-hot-toast';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
@@ -101,6 +102,7 @@ function ImportConfigurationButton(): ReactElement {
 				dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: records});
 			} else {
 				console.error('The file you are trying to upload seems to be broken');
+				toast.error('The file you are trying to upload seems to be broken');
 			}
 		};
 		reader.readAsText(file);
