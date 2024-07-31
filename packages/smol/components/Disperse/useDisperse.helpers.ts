@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultInputAddressLike} from '@lib/utils/tools.address';
 
@@ -39,6 +40,7 @@ export const useDisperseDefaultProps: TDisperseContext = {
  ** - SET_TOKEN_TO_SEND: Set the token to send
  ** - SET_RECEIVERS: Set the receivers
  ** - ADD_RECEIVERS: Add receivers
+ ** - PASTE_RECEIVERS: Paste receivers, replacing empty rows
  ** - CLEAR_RECEIVERS: Clear receivers
  ** - DEL_RECEIVER_BY_UUID: Delete a receiver by UUID
  ** - SET_RECEIVER: Set a receiver
@@ -58,6 +60,13 @@ export const useDisperseConfigurationReducer = (
 			return {
 				...state,
 				inputs: [...state.inputs, ...action.payload]
+			};
+		case 'PASTE_RECEIVERS':
+			const currentInputs = state.inputs;
+			const noEmptyInputs = currentInputs.filter(input => !!input.receiver.address);
+			return {
+				...state,
+				inputs: [...noEmptyInputs, ...action.payload]
 			};
 		case 'CLEAR_RECEIVERS':
 			return {...state, inputs: []};

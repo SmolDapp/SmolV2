@@ -29,6 +29,7 @@ export type TDisperseConfiguration = {
  ** SET_TOKEN_TO_SEND: Set the token to send in the disperse operation.
  ** SET_RECEIVERS: Set the receivers of the disperse operation. (Replace all)
  ** ADD_RECEIVERS: Add receivers to the disperse operation. (Append)
+ ** PASTE_RECEIVERS: Paste receivers, replacing empty rows.
  ** DEL_RECEIVER_BY_UUID: Delete a receiver by UUID.
  ** SET_RECEIVER: Update ad receiver by UUID.
  ** SET_VALUE: Update the value of a receiver by UUID.
@@ -39,6 +40,7 @@ export type TDisperseActions =
 	| {type: 'SET_TOKEN_TO_SEND'; payload: TToken | undefined}
 	| {type: 'SET_RECEIVERS'; payload: TDisperseInput[]}
 	| {type: 'ADD_RECEIVERS'; payload: TDisperseInput[]}
+	| {type: 'PASTE_RECEIVERS'; payload: TDisperseInput[]}
 	| {type: 'DEL_RECEIVER_BY_UUID'; payload: string}
 	| {type: 'SET_RECEIVER'; payload: Partial<TInputAddressLike> & {UUID: string}}
 	| {type: 'SET_VALUE'; payload: Partial<TAmountInputElement> & {UUID: string}}
