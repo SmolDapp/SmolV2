@@ -266,16 +266,18 @@ const Disperse = memo(function Disperse(): ReactElement {
 			 ** If the pattern is not found, we will ignore the content of the clipboard and return
 			 ** the function.
 			 *************************************************************************************/
+			const trimedText = text.trim();
 			const pattern =
 				/^(0x[a-fA-F0-9]{40})[\s,;]+((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)(?:\r?\n|$)/gm;
-			if (!pattern.test(text)) {
+			if (!pattern.test(trimedText)) {
+				toast.error('NO FACU');
 				return;
 			}
 
 			/**************************************************************************************
 			 ** Split the text into lines and process each line
 			 *************************************************************************************/
-			const lines = text.split('\n');
+			const lines = trimedText.split('\n');
 			const inputs: TDisperseInput[] = [];
 			for (const line of lines) {
 				/**********************************************************************************
