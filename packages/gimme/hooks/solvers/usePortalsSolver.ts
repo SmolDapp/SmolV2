@@ -235,7 +235,7 @@ export const usePortalsSolver = (
 					return;
 				}
 
-				if (shouldUsePermit) {
+				if (shouldUsePermit && approval.context.canPermit) {
 					set_approvalStatus({...approvalStatus, pending: true});
 					const signResult = await signPermit({
 						contractAddress: toAddress(configuration.asset.token.address),
