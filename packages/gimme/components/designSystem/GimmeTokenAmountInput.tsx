@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import InputNumber from 'rc-input-number';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
@@ -28,6 +29,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
 	const chain = useCurrentChain();
+	const {address} = useWeb3();
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
@@ -107,6 +109,15 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 					disabled={!selectedToken || selectedTokenBalance.raw === 0n}>
 					<p>{`You have ${handleLowAmount(selectedTokenBalance, 2, 6)}`}</p>
 				</button>
+			);
+		}
+
+		if (!address) {
+			return (
+				<TextTruncate
+					className={'text-red'}
+					value={'Wallet not connected'}
+				/>
 			);
 		}
 
@@ -234,7 +245,11 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
 								onClick={() =>
 									onOpenCurtain(token => {
-										validate(value.amount, token, token.balance);
+										validate(
+											value.amount === '0' ? '' : value.amount,
+											token,
+											token.balance.raw === 0n ? undefined : token.balance
+										);
 									})
 								}>
 								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
@@ -244,7 +259,15 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 								className={
 									'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
 								}
-								onClick={() => onOpenCurtain(token => validate(value.amount, token, token.balance))}>
+								onClick={() =>
+									onOpenCurtain(token =>
+										validate(
+											value.amount === '0' ? '' : value.amount,
+											token,
+											token.balance.raw === 0n ? undefined : token.balance
+										)
+									)
+								}>
 								<p className={'hidden font-bold md:inline'}>{'Select'}</p>
 								<IconChevron className={'size-6'} />
 							</button>

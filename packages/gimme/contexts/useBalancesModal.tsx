@@ -6,7 +6,7 @@ import {IconLoader} from 'lib/icons/IconLoader';
 import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {cl, isAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {FetchedTokenButton} from '@gimmeDesignSystem/FetchedTokenButton';
 import {GimmeTokenButton} from '@gimmeDesignSystem/GimmeTokenButton';
 import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
@@ -15,7 +15,6 @@ import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {usePopularTokens} from '@lib/contexts/usePopularTokens';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconCross} from '@lib/icons/IconCross';
-import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
@@ -45,7 +44,6 @@ const defaultProps: TBalancesCurtainContextProps = {
  ** BalancesCurtain component. It displays the list of tokens the user has in their wallet.
  *************************************************************************************************/
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
-	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
 	const {isLoadingOnChain} = useTokensWithBalance();
 	const {getPrices, pricingHash} = usePrices();
@@ -64,26 +62,6 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 		const pricesForChain = getPrices(props.filteredTokens);
 		set_prices(pricesForChain[props.chainID] || {});
 	}, [props.filteredTokens, props.chainID, pricingHash]);
-
-	/**********************************************************************************************
-	 ** If the wallet is not connected, we want to display a message and a button to connect.
-	 ** Once the button is clicked, the wallet will be connected and the curtain will be closed.
-	 *********************************************************************************************/
-	if (!address) {
-		return (
-			<div className={'mt-16 flex w-full max-w-80 flex-col justify-center gap-6'}>
-				<p className={'text-grey-700 text-center'}>{'Get started by connecting your wallet'}</p>
-				<Button
-					onClick={() => {
-						onConnect();
-						props.onOpenChange(false);
-					}}
-					className={'!rounded-2xl !font-bold'}>
-					{'Connect Wallet'}
-				</Button>
-			</div>
-		);
-	}
 
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
@@ -213,7 +191,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	const [searchValue, set_searchValue] = useState('');
 	const [filter, set_filter] = useState<'all' | 'stables' | 'other'>('all');
 	const {getIsStablecoin} = useGetIsStablecoin();
-	const {vaults} = useVaults();
+	const {vaults, vaultsArray} = useVaults();
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -241,6 +219,17 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		return undefined;
 	}, [props.tokensWithBalance, searchValue]);
 
+	const underlyingTokens = useMemo(() => {
+		return vaultsArray.map(vault => ({
+			...vault.token,
+			chainID: vault.chainID,
+			value: 0,
+			balance: zeroNormalizedBN
+		}));
+	}, [vaultsArray]);
+
+	const tokensToUse: TToken[] = address ? props.tokensWithBalance : underlyingTokens;
+
 	/**********************************************************************************************
 	 ** Memo function that filters the tokens user have on the search value.
 	 ** Only tokens the symbol or the address of which includes the search value will be returned.
@@ -259,14 +248,14 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		 *****************************************************************************************/
 		const searchFor = searchValue.toLocaleLowerCase();
 		if (searchFor === '') {
-			return props.tokensWithBalance;
+			return tokensToUse;
 		}
 
 		/******************************************************************************************
 		 ** First we filter the tokens based on the search value. We want to include tokens that
 		 ** have the search value in their name, symbol or address.
 		 *****************************************************************************************/
-		const filtering = props.tokensWithBalance.filter(
+		const filtering = tokensToUse.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchFor) ||
 				token.name.toLocaleLowerCase().includes(searchFor) ||
@@ -307,7 +296,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		 ** and only display the 20 first results.
 		 *****************************************************************************************/
 		return sorted.slice(0, 20);
-	}, [props.tokensWithBalance, searchValue]);
+	}, [searchValue, tokensToUse]);
 
 	const filteredVaultTokens = filteredTokens.filter(token => !vaults[toAddress(token.address)]);
 
@@ -344,7 +333,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 					autoCorrect={'off'}
 					spellCheck={'false'}
 					value={searchValue}
-					disabled={!address}
 					onChange={e => set_searchValue(e.target.value)}
 				/>
 
