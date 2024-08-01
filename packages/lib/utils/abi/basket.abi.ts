@@ -1,36 +1,13 @@
 const BASKET_ABI = [
 	{
 		inputs: [
-			{
-				internalType: 'address',
-				name: '_uniswapV2Router',
-				type: 'address'
-			},
-			{
-				internalType: 'address',
-				name: '_sushiV2Router',
-				type: 'address'
-			},
-			{
-				internalType: 'address',
-				name: '_uniswapV3Router',
-				type: 'address'
-			},
-			{
-				internalType: 'address',
-				name: '_velodromeRouter',
-				type: 'address'
-			},
-			{
-				internalType: 'address',
-				name: '_weth',
-				type: 'address'
-			},
-			{
-				internalType: 'address',
-				name: '_feeRecipient',
-				type: 'address'
-			}
+			{internalType: 'address', name: '_uniswapV2Router', type: 'address'},
+			{internalType: 'address', name: '_sushiV2Router', type: 'address'},
+			{internalType: 'address', name: '_uniswapV3Router', type: 'address'},
+			{internalType: 'address', name: '_velodromeRouter', type: 'address'},
+			{internalType: 'address', name: '_universalRouter', type: 'address'},
+			{internalType: 'address', name: '_weth', type: 'address'},
+			{internalType: 'address', name: '_feeRecipient', type: 'address'}
 		],
 		stateMutability: 'nonpayable',
 		type: 'constructor'
@@ -38,18 +15,8 @@ const BASKET_ABI = [
 	{
 		anonymous: false,
 		inputs: [
-			{
-				indexed: true,
-				internalType: 'address',
-				name: 'user',
-				type: 'address'
-			},
-			{
-				indexed: true,
-				internalType: 'uint256',
-				name: 'baskedID',
-				type: 'uint256'
-			}
+			{indexed: true, internalType: 'address', name: 'user', type: 'address'},
+			{indexed: true, internalType: 'uint256', name: 'baskedID', type: 'uint256'}
 		],
 		name: 'BasketSwap',
 		type: 'event'
@@ -57,36 +24,11 @@ const BASKET_ABI = [
 	{
 		anonymous: false,
 		inputs: [
-			{
-				indexed: true,
-				internalType: 'address',
-				name: 'user',
-				type: 'address'
-			},
-			{
-				indexed: false,
-				internalType: 'address[]',
-				name: 'path',
-				type: 'address[]'
-			},
-			{
-				indexed: false,
-				internalType: 'uint256',
-				name: 'amountIn',
-				type: 'uint256'
-			},
-			{
-				indexed: false,
-				internalType: 'uint256',
-				name: 'amountOut',
-				type: 'uint256'
-			},
-			{
-				indexed: false,
-				internalType: 'enum MultiSwapRouter.DEX',
-				name: 'dex',
-				type: 'uint8'
-			}
+			{indexed: true, internalType: 'address', name: 'user', type: 'address'},
+			{indexed: false, internalType: 'address[]', name: 'path', type: 'address[]'},
+			{indexed: false, internalType: 'uint256', name: 'amountIn', type: 'uint256'},
+			{indexed: false, internalType: 'uint256', name: 'amountOut', type: 'uint256'},
+			{indexed: false, internalType: 'enum MultiSwapRouter.DEX', name: 'dex', type: 'uint8'}
 		],
 		name: 'Swap',
 		type: 'event'
@@ -94,65 +36,35 @@ const BASKET_ABI = [
 	{
 		inputs: [],
 		name: 'FEE_DENOMINATOR',
-		outputs: [
-			{
-				internalType: 'uint256',
-				name: '',
-				type: 'uint256'
-			}
-		],
+		outputs: [{internalType: 'uint256', name: '', type: 'uint256'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'MAX_FEE_PERCENTAGE',
-		outputs: [
-			{
-				internalType: 'uint256',
-				name: '',
-				type: 'uint256'
-			}
-		],
+		outputs: [{internalType: 'uint256', name: '', type: 'uint256'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'WETH',
-		outputs: [
-			{
-				internalType: 'contract IWETH',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'contract IWETH', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'feePercentage',
-		outputs: [
-			{
-				internalType: 'uint256',
-				name: '',
-				type: 'uint256'
-			}
-		],
+		outputs: [{internalType: 'uint256', name: '', type: 'uint256'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'feeRecipient',
-		outputs: [
-			{
-				internalType: 'address',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'address', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
@@ -160,56 +72,22 @@ const BASKET_ABI = [
 		inputs: [
 			{
 				components: [
-					{
-						internalType: 'address[]',
-						name: 'path',
-						type: 'address[]'
-					},
-					{
-						internalType: 'uint256',
-						name: 'amountIn',
-						type: 'uint256'
-					},
-					{
-						internalType: 'uint256',
-						name: 'amountOutMin',
-						type: 'uint256'
-					},
-					{
-						internalType: 'address',
-						name: 'recipient',
-						type: 'address'
-					},
-					{
-						internalType: 'enum MultiSwapRouter.DEX',
-						name: 'dex',
-						type: 'uint8'
-					},
-					{
-						internalType: 'uint24[]',
-						name: 'fees',
-						type: 'uint24[]'
-					},
-					{
-						internalType: 'bool[]',
-						name: 'stables',
-						type: 'bool[]'
-					},
-					{
-						internalType: 'address[]',
-						name: 'factories',
-						type: 'address[]'
-					}
+					{internalType: 'address[]', name: 'path', type: 'address[]'},
+					{internalType: 'uint256', name: 'amountIn', type: 'uint256'},
+					{internalType: 'uint256', name: 'amountOutMin', type: 'uint256'},
+					{internalType: 'address', name: 'recipient', type: 'address'},
+					{internalType: 'enum MultiSwapRouter.DEX', name: 'dex', type: 'uint8'},
+					{internalType: 'uint24[]', name: 'fees', type: 'uint24[]'},
+					{internalType: 'bool[]', name: 'stables', type: 'bool[]'},
+					{internalType: 'address[]', name: 'factories', type: 'address[]'},
+					{internalType: 'bytes', name: 'universalCommands', type: 'bytes'},
+					{internalType: 'bytes[]', name: 'universalInputs', type: 'bytes[]'}
 				],
 				internalType: 'struct MultiSwapRouter.SwapParams[]',
 				name: 'params',
 				type: 'tuple[]'
 			},
-			{
-				internalType: 'uint256',
-				name: 'basketID',
-				type: 'uint256'
-			}
+			{internalType: 'uint256', name: 'basketID', type: 'uint256'}
 		],
 		name: 'multicall',
 		outputs: [],
@@ -219,37 +97,19 @@ const BASKET_ABI = [
 	{
 		inputs: [],
 		name: 'owner',
-		outputs: [
-			{
-				internalType: 'address',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'address', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
-		inputs: [
-			{
-				internalType: 'uint256',
-				name: '_feePercentage',
-				type: 'uint256'
-			}
-		],
+		inputs: [{internalType: 'uint256', name: '_feePercentage', type: 'uint256'}],
 		name: 'setFeePercentage',
 		outputs: [],
 		stateMutability: 'nonpayable',
 		type: 'function'
 	},
 	{
-		inputs: [
-			{
-				internalType: 'address',
-				name: '_feeRecipient',
-				type: 'address'
-			}
-		],
+		inputs: [{internalType: 'address', name: '_feeRecipient', type: 'address'}],
 		name: 'setFeeRecipient',
 		outputs: [],
 		stateMutability: 'nonpayable',
@@ -258,24 +118,12 @@ const BASKET_ABI = [
 	{
 		inputs: [],
 		name: 'sushiV2Router',
-		outputs: [
-			{
-				internalType: 'contract IUniswapV2Router02',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'contract IUniswapV2Router02', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
-		inputs: [
-			{
-				internalType: 'address',
-				name: 'newOwner',
-				type: 'address'
-			}
-		],
+		inputs: [{internalType: 'address', name: 'newOwner', type: 'address'}],
 		name: 'transferOwnership',
 		outputs: [],
 		stateMutability: 'nonpayable',
@@ -284,46 +132,32 @@ const BASKET_ABI = [
 	{
 		inputs: [],
 		name: 'uniswapV2Router',
-		outputs: [
-			{
-				internalType: 'contract IUniswapV2Router02',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'contract IUniswapV2Router02', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'uniswapV3Router',
-		outputs: [
-			{
-				internalType: 'contract IV3SwapRouter',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'contract IV3SwapRouter', name: '', type: 'address'}],
+		stateMutability: 'view',
+		type: 'function'
+	},
+	{
+		inputs: [],
+		name: 'universalRouter',
+		outputs: [{internalType: 'contract IUniversalRouter', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
 	{
 		inputs: [],
 		name: 'velodromeRouter',
-		outputs: [
-			{
-				internalType: 'contract IVelodromeRouter',
-				name: '',
-				type: 'address'
-			}
-		],
+		outputs: [{internalType: 'contract IVelodromeRouter', name: '', type: 'address'}],
 		stateMutability: 'view',
 		type: 'function'
 	},
-	{
-		stateMutability: 'payable',
-		type: 'receive'
-	}
+	{stateMutability: 'payable', type: 'receive'}
 ] as const;
 
 export default BASKET_ABI;

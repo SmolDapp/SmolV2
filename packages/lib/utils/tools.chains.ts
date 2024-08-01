@@ -97,6 +97,10 @@ const CHAINS: TSmolChains = {
 			sushiV2Router: undefined, //toAddress('0x2ABf469074dc0b54d793850807E6eb5Faf2625b1'),
 			veloRouter: toAddress('0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858'),
 			veloPoolFactory: toAddress('0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a')
+
+			//weth 0x4200000000000000000000000000000000000006
+			//fee 0x9E63B020ae098E73cF201EE1357EDc72DFEaA518
+			//unirouter 0x4bF3E32de155359D1D75e8B474b66848221142fc
 		}
 	},
 	[bsc.id]: {
