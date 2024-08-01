@@ -21,7 +21,7 @@ function DisperseAppInfo(): ReactElement {
 			<br />
 			<p>
 				{
-					'You can copy data from a spreadsheet or any other format. Ensure that each line contains one address and the corresponding amount in the chosen token. It can process virtually any format.'
+					'You can copy data from a spreadsheet or any other format (just copy & paste here). Ensure that each line contains one address and the corresponding amount in the chosen token. It can process virtually any format.'
 				}
 			</p>
 		</>
