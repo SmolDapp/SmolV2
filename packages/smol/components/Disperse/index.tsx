@@ -1,12 +1,9 @@
-import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {memo, useCallback, useEffect, useState} from 'react';
+import toast from 'react-hot-toast';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
-import axios from 'axios';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {useBalances} from '@builtbymom/web3/hooks/useBalances.multichains';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
-import {cl, toAddress, toNormalizedBN} from '@builtbymom/web3/utils';
-import {useDownloadFile} from '@smolHooks/useDownloadFile';
+import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
 import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
@@ -23,57 +20,15 @@ import {newDisperseVoidRow} from './useDisperse.helpers';
 import {useDisperseQueryManagement} from './useDisperseQuery';
 import {DisperseWizard} from './Wizard';
 
-import type {AxiosResponse} from 'axios';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
-import type {TAddress, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput} from '@lib/types/app.disperse';
+import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-type TRecord = {
-	tokenAddress: TAddress;
-	receiverAddress: TAddress;
-	value: string;
-	chainId: string;
-};
-
-function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TToken) => void}): ReactElement {
+function ImportConfigurationButton(): ReactElement {
 	const plausible = usePlausible();
-	const {dispatchConfiguration} = useDisperse();
-	const {chainID: safeChainID} = useWeb3();
-	const {validate: validateAddress} = useValidateAddressInput();
+	const {configuration, dispatchConfiguration} = useDisperse();
 	const {validate: validateAmount} = useValidateAmountInput();
-
-	const [importedTokenToSend, set_importedTokenToSend] = useState<string | undefined>(undefined);
-	const [records, set_records] = useState<TRecord[] | undefined>(undefined);
-
-	/** Token in URL may not be present in csv file, so better to be fetched  */
-	const {data: initialTokenRaw} = useBalances({
-		tokens: [{address: toAddress(importedTokenToSend), chainID: safeChainID}]
-	});
-
-	const initialToken = useMemo((): TToken | undefined => {
-		return initialTokenRaw[safeChainID] && importedTokenToSend
-			? initialTokenRaw[safeChainID][importedTokenToSend]
-			: undefined;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialTokenRaw]);
-
-	const getInitialAmount = (amount: string, token: TToken | undefined): string => {
-		amount = amount.toLocaleLowerCase();
-		if (amount.includes('1e+')) {
-			const scientificString = amount.replace('1e+', '1e');
-			const bigIntValue = BigInt(parseFloat(scientificString).toFixed(0));
-			amount = bigIntValue.toString();
-		}
-		return amount && token ? toNormalizedBN(amount, token.decimals).display : '0';
-	};
-
-	const onAddInputs = (inputs: TDisperseInput[]): void => {
-		dispatchConfiguration({type: 'ADD_RECEIVERS', payload: inputs});
-	};
-
-	const clearReceivers = (): void => {
-		dispatchConfiguration({type: 'CLEAR_RECEIVERS', payload: undefined});
-	};
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
 		if (!e.target.files) {
@@ -86,69 +41,72 @@ function ImportConfigurationButton({onSelectToken}: {onSelectToken: (token: TTok
 				return;
 			}
 			const {result} = event.target;
-			const parsedCSV = Papa.parse(result, {header: true});
-			const records: TRecord[] = [];
 
-			// If we are working with a safe file, we should get 4 columns.
-			const isProbablySafeFile =
-				parsedCSV.meta.fields.length === 4 && parsedCSV.meta.fields[0] === 'tokenAddress';
+			/**************************************************************************************
+			 ** Parse the CSV file using Papa Parse
+			 *************************************************************************************/
+			const parsedCSV = Papa.parse(result as string, {
+				header: true,
+				skipEmptyLines: true
+			});
 
-			if (isProbablySafeFile) {
-				const [tokenAddress, chainId, receiverAddress, value] = parsedCSV.meta.fields;
-				for (const item of parsedCSV.data) {
-					if (!item[receiverAddress]) {
-						continue;
+			/**************************************************************************************
+			 ** Check if the file is valid
+			 *************************************************************************************/
+			const isValidFile =
+				parsedCSV.data.length > 0 &&
+				parsedCSV.meta.fields &&
+				parsedCSV.meta.fields.length === 2 &&
+				parsedCSV.meta.fields.includes('receiverAddress') &&
+				parsedCSV.meta.fields.includes('value');
+
+			if (isValidFile) {
+				/**************************************************************************************
+				 ** Extract field names
+				 *************************************************************************************/
+				const [receiverAddress, value] = parsedCSV.meta.fields;
+
+				/**************************************************************************************
+				 ** Process each row to create records
+				 *************************************************************************************/
+				const records: TDisperseInput[] = parsedCSV.data.reduce((acc: TDisperseInput[], row: any) => {
+					const address = toAddress(row[receiverAddress]);
+					const amount = row[value];
+
+					/**************************************************************************************
+					 ** Validate address and amount
+					 *************************************************************************************/
+					if (isAddress(address) && amount) {
+						const parsedAmount = parseFloat(amount).toString();
+
+						const record: TDisperseInput = {
+							receiver: {
+								address: toAddress(address),
+								label: toAddress(address)
+							} as TInputAddressLike,
+							value: {
+								...newDisperseVoidRow().value,
+								...validateAmount(parsedAmount, configuration.tokenToSend)
+							},
+							UUID: crypto.randomUUID()
+						};
+
+						acc.push(record);
 					}
-					records.push({
-						tokenAddress: item[tokenAddress] as TAddress,
-						receiverAddress: item[receiverAddress] as TAddress,
-						value: item[value] as string,
-						chainId: item[chainId] as string
-					});
-				}
-				// records = records.filter(record => record.receiverAddress);
-				set_importedTokenToSend(records[0].tokenAddress);
-				set_records(records);
+					return acc;
+				}, []);
+
+				/**************************************************************************************
+				 ** Update the state with the new records
+				 *************************************************************************************/
+				dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: records});
 			} else {
 				console.error('The file you are trying to upload seems to be broken');
+				toast.error('The file you are trying to upload seems to be broken');
 			}
 		};
-		reader.readAsBinaryString(file);
+		reader.readAsText(file);
 	};
-
-	/** Set imported token from url if present */
-	useEffect(() => {
-		if (initialToken) {
-			onSelectToken(initialToken);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialToken]);
-
-	useEffect(() => {
-		if (!records || !Array.isArray(records)) {
-			return;
-		}
-
-		const resultInputs: TDisperseInput[] = [];
-		const promises = records.map(async record => validateAddress(undefined, record.receiverAddress));
-		Promise.all(promises)
-			.then(values => {
-				values.forEach((validatedReceiver, index) => {
-					const stringAmount = getInitialAmount(records[index].value, initialToken);
-					const value = {
-						receiver: validatedReceiver,
-						value: {...newDisperseVoidRow().value, ...validateAmount(stringAmount, initialToken)},
-						UUID: crypto.randomUUID()
-					};
-					resultInputs.push(value);
-				});
-			})
-			.finally(() => {
-				clearReceivers();
-				onAddInputs(resultInputs);
-			});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialToken]);
 
 	return (
 		<Button
@@ -182,9 +140,7 @@ export function ExportConfigurationButton({
 	const downloadConfiguration = useCallback(async () => {
 		plausible(PLAUSIBLE_EVENTS.DISPERSE_DOWNLOAD_CONFIG);
 		const receiverEntries = configuration.inputs
-			.map((input, index) => ({
-				tokenAddress: index === 0 ? configuration.tokenToSend?.address : '',
-				chainId: index === 0 ? configuration.tokenToSend?.chainID : '',
+			.map(input => ({
 				receiverAddress: input.receiver.address,
 				value: input.value.normalizedBigAmount.raw.toString()
 			}))
@@ -201,7 +157,7 @@ export function ExportConfigurationButton({
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
-	}, [configuration.inputs, configuration.tokenToSend?.address, configuration.tokenToSend?.chainID, plausible]);
+	}, [configuration.inputs, plausible]);
 
 	return (
 		<Button
@@ -219,28 +175,28 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {hasInitialInputs} = useDisperseQueryManagement();
 	const {getPrice, pricingHash} = usePrices();
 	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
+	const {validate: validateAmount} = useValidateAmountInput();
+	const {validate: validateAddress} = useValidateAddressInput();
 	const plausible = usePlausible();
 
 	/**********************************************************************************************
 	 ** TODO: Add explanation of the downloadFile function
 	 *********************************************************************************************/
-	const downloadFile = async (): Promise<AxiosResponse<Blob>> => {
-		const url =
-			'https://chocolate-gleaming-armadillo-579.mypinata.cloud/ipfs/QmQDj9Cwxx8YABPfbt65LvttrVGeb5qDG8Q6TPJDHy4Li2';
+	const downloadTemplate = async (): Promise<void> => {
+		const receiverEntries = [{receiverAddress: '0x10001192576E8079f12d6695b0948C2F41320040', value: '4.20'}];
 
-		return axios.get(url, {
-			responseType: 'blob'
-		});
+		const csv = Papa.unparse(receiverEntries, {header: true});
+		const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		const name = `smol-disperse-${new Date().toISOString().split('T')[0]}.csv`;
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', name);
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
 	};
-
-	/**********************************************************************************************
-	 ** TODO: Add explanation of the downloadTemplate function
-	 *********************************************************************************************/
-	const {download: downloadTemplate} = useDownloadFile({
-		apiDefinition: downloadFile,
-		fileName: 'smol-disperse-template',
-		fileType: 'csv'
-	});
 
 	/**********************************************************************************************
 	 ** This effect hook will be triggered when the property token, safeChainID or the
@@ -285,10 +241,112 @@ const Disperse = memo(function Disperse(): ReactElement {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hasInitialInputs]);
 
+	/**********************************************************************************************
+	 ** Event listener when the user past something
+	 *********************************************************************************************/
+	useEffect(() => {
+		const handlePaste = async (event: ClipboardEvent): Promise<void> => {
+			const {clipboardData} = event;
+			if (!clipboardData) {
+				return;
+			}
+			const text = clipboardData.getData('text');
+			if (!text) {
+				return;
+			}
+
+			/**************************************************************************************
+			 ** We want to continue ONLY if the content of the clipboard contains a valid pattern.
+			 ** The pattern is:
+			 ** 1. An address (0x followed by 40 characters)
+			 ** 2. A separator character (space, tab, comma, etc)
+			 ** 3. A number (integer or float)
+			 ** 4. A new line character (optional)
+			 ** 5. Repeat from step 1
+			 ** If the pattern is not found, we will ignore the content of the clipboard and return
+			 ** the function.
+			 *************************************************************************************/
+			const trimedText = text.trim();
+			const pattern =
+				/^(0x[a-fA-F0-9]{40})[\s,;]+((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)(?:\r?\n|$)/gm;
+			if (!pattern.test(trimedText)) {
+				toast.error('NO FACU');
+				return;
+			}
+
+			/**************************************************************************************
+			 ** Split the text into lines and process each line
+			 *************************************************************************************/
+			const lines = trimedText.split('\n');
+			const inputs: TDisperseInput[] = [];
+			for (const line of lines) {
+				/**********************************************************************************
+				 ** Trim the line but preserve internal whitespace
+				 *********************************************************************************/
+				const trimmedLine = line.trim();
+				if (trimmedLine === '') {
+					continue;
+				}
+
+				/**********************************************************************************
+				 ** Extract the address (first 42 characters starting with 0x)
+				 *********************************************************************************/
+				const addressMatch = trimmedLine.match(/^(0x[a-fA-F0-9]{40})/);
+				if (!addressMatch) {
+					continue;
+				}
+				const [theAddress] = addressMatch;
+
+				/**********************************************************************************
+				 ** Validate the address
+				 *********************************************************************************/
+				if (!isAddress(theAddress)) {
+					continue;
+				}
+
+				/**********************************************************************************
+				 ** Extract the amount (everything after the address and any separators)
+				 *********************************************************************************/
+				const amountPart = trimmedLine.slice(theAddress.length).trim();
+
+				/**********************************************************************************
+				 ** Find the first valid number in the remaining part
+				 *********************************************************************************/
+				const theAmountMatch = amountPart.match(/((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)/i);
+				const theAmount = theAmountMatch ? theAmountMatch[0] : '0';
+				const parsedAmount = parseFloat(theAmount).toString();
+
+				/**********************************************************************************
+				 ** Create the receiver object
+				 *********************************************************************************/
+				const receiver = toAddress(theAddress);
+				const value = {
+					receiver: {
+						address: toAddress(receiver),
+						label: toAddress(receiver),
+						error: '',
+						isValid: 'undetermined',
+						source: 'typed'
+					} as TInputAddressLike,
+					value: {...newDisperseVoidRow().value, ...validateAmount(parsedAmount, configuration.tokenToSend)},
+					UUID: crypto.randomUUID()
+				};
+
+				inputs.push(value);
+			}
+			dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: inputs});
+		};
+
+		document.addEventListener('paste', handlePaste);
+		return () => {
+			document.removeEventListener('paste', handlePaste);
+		};
+	}, [configuration.inputs, configuration.tokenToSend, dispatchConfiguration, validateAddress, validateAmount]);
+
 	return (
 		<div className={'w-full'}>
 			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
-				<ImportConfigurationButton onSelectToken={onSelectToken} />
+				<ImportConfigurationButton />
 				<ExportConfigurationButton className={'!h-8 !text-xs'} />
 				<Button
 					className={'!h-8 !text-xs'}
