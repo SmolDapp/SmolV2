@@ -41,6 +41,7 @@ type TGetEstimateProps = {
 		inputAmount: string;
 		outputToken: string;
 		slippageTolerancePercentage: string;
+		sender?: TAddress;
 	};
 };
 
@@ -48,8 +49,9 @@ type TGetTransactionProps = Omit<TGetEstimateProps, 'params'> & {
 	params: Required<Pick<TGetEstimateProps, 'params'>['params']> & {
 		sender: TAddress;
 		validate?: string;
-		feePercentage?: string;
+		permitDeadline?: string;
 		permitSignature?: Hex;
+		feePercentage?: string;
 	};
 };
 
@@ -91,6 +93,7 @@ type TGetApprovalProps = {
 		sender: TAddress;
 		inputToken: string;
 		inputAmount: string;
+		permitDeadline?: string;
 	};
 };
 
@@ -154,11 +157,8 @@ export async function getPortalsTx({params}: TGetTransactionProps): Promise<{
 	params.outputToken = params.outputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 
 	const urlParams = new URLSearchParams(params);
-
-	/*******************************************************
-	 * Remove permitSignature from params if it is undefined
-	 *******************************************************/
 	urlParams.delete('permitSignature', 'undefined');
+	urlParams.delete('permitDeadline', 'undefined');
 
 	try {
 		const result = await fetch<TPortalsTransaction>({
@@ -221,7 +221,8 @@ export async function getQuote(
 			inputToken: `${network}:${toAddress(inputToken)}`,
 			outputToken: `${network}:${toAddress(request.outputToken)}`,
 			inputAmount: toBigInt(request.inputAmount).toString(),
-			slippageTolerancePercentage: String(zapSlippage)
+			slippageTolerancePercentage: String(zapSlippage),
+			sender: request.from
 		}
 	});
 }

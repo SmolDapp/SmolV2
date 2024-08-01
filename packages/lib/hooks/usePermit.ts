@@ -5,7 +5,7 @@ import {readContract, readContracts, signTypedData} from '@wagmi/core';
 
 import type {TypedDataDomain} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TEip2612Props, TPermitSignature, TSignPermitProps} from './usePermit.types.ts';
+import type {TEip2612Props, TPermitSignature, TSignPermitProps} from './usePermit.types';
 
 export const PERMIT_ABI = [
 	{
@@ -50,6 +50,13 @@ export const PERMIT_ABI = [
 	{
 		inputs: [],
 		name: 'apiVersion',
+		outputs: [{internalType: 'string', name: '', type: 'string'}],
+		stateMutability: 'view',
+		type: 'function'
+	},
+	{
+		inputs: [],
+		name: 'EIP712_VERSION',
 		outputs: [{internalType: 'string', name: '', type: 'string'}],
 		stateMutability: 'view',
 		type: 'function'
@@ -107,12 +114,19 @@ export const signPermit = async ({
 				address: contractAddress,
 				abi: PERMIT_ABI,
 				functionName: 'apiVersion'
+			},
+			{
+				chainId: chainID,
+				address: contractAddress,
+				abi: PERMIT_ABI,
+				functionName: 'EIP712_VERSION'
 			}
 		]
 	});
 	const nonceToUse = nonceOverride || decodeAsBigInt(data[0]);
 	const nameToUse = nameOverride || decodeAsString(data[1]);
-	const versionToUse = permitVersionOverride || decodeAsString(data[2]) || decodeAsString(data[3]);
+	const versionToUse =
+		permitVersionOverride || decodeAsString(data[2]) || decodeAsString(data[3]) || decodeAsString(data[4]);
 
 	if (
 		(chainID === 1 && toAddress(contractAddress) === toAddress('0x6b175474e89094c44da98b954eedeac495271d0f')) ||
@@ -140,12 +154,20 @@ export const signPermit = async ({
 		]
 	};
 
-	const domainData = {
+	let domainData: TypedDataDomain = {
 		name: nameToUse,
 		version: versionToUse ?? '1',
 		chainId: chainID,
 		verifyingContract: contractAddress
 	};
+	if (chainID === 137 && toAddress(contractAddress) === toAddress('0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174')) {
+		domainData = {
+			name: nameToUse,
+			version: permitVersionOverride ?? '1',
+			verifyingContract: contractAddress,
+			salt: pad(toHex(137), {size: 32})
+		};
+	}
 
 	const message = {
 		owner: ownerAddress,
@@ -210,6 +232,7 @@ export const signPermitDAI = async ({
 		chainId: chainID,
 		verifyingContract: contractAddress
 	};
+
 	/** USDC on Polygon is a special case */
 	if (chainID === 137 && nameOverride === 'USD Coin (PoS)') {
 		domainData = {
@@ -252,8 +275,9 @@ export async function isSupportingPermit(props: {
 	chainID: number;
 	permitVersion?: 1 | 2;
 }): Promise<boolean> {
-	if (props.permitVersion) {
-		props.permitVersion = 2;
+	let {permitVersion} = props;
+	if (!permitVersion) {
+		permitVersion = 2;
 	}
 
 	/**************************************************************************************************
@@ -261,14 +285,14 @@ export async function isSupportingPermit(props: {
 	 ** compatible with the Yearn Router. As this is the one we are using right now, we need to say it
 	 ** does not support permit.
 	 **************************************************************************************************/
-	if (props.permitVersion === 2) {
+	if (permitVersion === 2) {
 		if (
 			(props.chainID === 1 &&
 				toAddress(props.contractAddress) === toAddress('0x6b175474e89094c44da98b954eedeac495271d0f')) ||
 			(props.chainID === 137 &&
 				toAddress(props.contractAddress) === toAddress('0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063'))
 		) {
-			return false;
+			return true;
 		}
 	}
 

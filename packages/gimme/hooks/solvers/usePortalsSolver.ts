@@ -242,8 +242,7 @@ export const usePortalsSolver = (
 						ownerAddress: toAddress(address),
 						spenderAddress: toAddress(approval.context.spender),
 						value: toBigInt(configuration.asset.normalizedBigAmount?.raw),
-						deadline: toBigInt('18446744073709551615'), //Portals enforce this deadline
-						//deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 60),
+						deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 60),
 						chainID: configuration.opportunity.chainID
 					});
 
@@ -336,7 +335,8 @@ export const usePortalsSolver = (
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
 					validate: isWalletSafe ? 'false' : 'true',
-					permitSignature: permitSignature?.signature || undefined
+					permitSignature: permitSignature?.signature || undefined,
+					permitDeadline: permitSignature?.deadline ? permitSignature.deadline.toString() : undefined
 				}
 			});
 
