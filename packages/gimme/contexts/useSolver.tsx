@@ -66,20 +66,17 @@ const SolverContext = createContext<TSolverContext>({
 
 export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
 	const {configuration} = useEarnFlow();
-	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
-	const vanila = useVanilaSolver(isZapNeededForDeposit, isZapNeededForWithdraw);
-	const portals = usePortalsSolver(isZapNeededForDeposit, isZapNeededForWithdraw);
+	const {isZapNeeded} = useIsZapNeeded(configuration);
+	const vanila = useVanilaSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
+	const portals = usePortalsSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
 	const withdrawHelper = useWithdraw();
 
 	const currentSolver = useMemo(() => {
-		if (isZapNeededForDeposit && configuration.action === 'DEPOSIT') {
-			return portals;
-		}
-		if (isZapNeededForWithdraw && configuration.action === 'WITHDRAW') {
+		if (isZapNeeded) {
 			return portals;
 		}
 		return vanila;
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, portals, vanila]);
+	}, [isZapNeeded, portals, vanila]);
 	return <SolverContext.Provider value={{...currentSolver, ...withdrawHelper}}>{children}</SolverContext.Provider>;
 }
 export const useSolver = (): TSolverContext => useContext(SolverContext);

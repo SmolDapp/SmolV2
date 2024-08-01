@@ -212,7 +212,7 @@ export function EarnWizard(): ReactElement {
 		quote
 	} = useSolver();
 
-	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
+	const {isZapNeeded} = useIsZapNeeded(configuration);
 	const isAboveBalance =
 		configuration.asset.normalizedBigAmount.raw >
 		getBalance({
@@ -257,7 +257,7 @@ export function EarnWizard(): ReactElement {
 		if (isAboveBalance) {
 			return false;
 		}
-		if ((isZapNeededForDeposit || isZapNeededForWithdraw) && !quote) {
+		if (isZapNeeded && !quote) {
 			return false;
 		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
@@ -278,8 +278,7 @@ export function EarnWizard(): ReactElement {
 		configuration.opportunity,
 		isAboveBalance,
 		isWithdrawing,
-		isZapNeededForDeposit,
-		isZapNeededForWithdraw,
+		isZapNeeded,
 		quote
 	]);
 
