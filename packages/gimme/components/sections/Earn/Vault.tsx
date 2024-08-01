@@ -17,14 +17,12 @@ import type {TVaultInfoModal} from './SelectVault';
 export function Vault({
 	vault,
 	assetPrice,
-	isDisabled = false,
 	onSelect,
 	onClose,
 	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
 	assetPrice: TNormalizedBN;
-	isDisabled: boolean;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
 	onChangeVaultInfo: Dispatch<SetStateAction<TVaultInfoModal>>;
@@ -66,9 +64,9 @@ export function Vault({
 			}
 			className={cl(
 				'flex justify-between rounded-lg px-4 py-3 gap-x-6 transition-colors hover:bg-grey-100',
-				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+				'cursor-pointer'
 			)}
-			onClick={isDisabled ? undefined : onSelectVault}>
+			onClick={onSelectVault}>
 			<div className={'relative flex items-center gap-4'}>
 				<ImageWithFallback
 					alt={token.symbol}
