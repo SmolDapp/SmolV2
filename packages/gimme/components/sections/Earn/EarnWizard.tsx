@@ -99,54 +99,39 @@ export function EarnWizard(): ReactElement {
 	/**********************************************************************************************
 	 ** Based on the user action, we can display a different message in the success modal.
 	 *********************************************************************************************/
-	const getModalMessage = useCallback(
-		(kind: 'DEPOSIT' | 'WITHDRAW'): ReactElement => {
-			const vaultName = vaultsArray.find(vault =>
-				isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
-			)?.name;
+	const getModalMessage = useCallback((): ReactElement => {
+		const vaultName = vaultsArray.find(vault =>
+			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
+		)?.name;
 
-			if (kind === 'WITHDRAW') {
-				return (
-					<span className={'text-pretty'}>
-						{'Successfully withdrawn '}
-						<span className={'text-grey-800'}>
-							{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
-						</span>
-						{' from '}
-						{configuration.opportunity?.name ?? vaultName}
-					</span>
-				);
-			}
-			return (
-				<span>
-					{'Successfully deposited '}
-					<span className={'text-grey-800'}>
-						{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
-					</span>
-					{' to '}
-					{configuration.opportunity?.name ?? vaultName}
+		return (
+			<span>
+				{'Successfully deposited '}
+				<span className={'text-grey-800'}>
+					{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
 				</span>
-			);
-		},
-		[
-			configuration.asset.normalizedBigAmount.display,
-			configuration.asset.token?.address,
-			configuration.asset.token?.symbol,
-			configuration.opportunity?.name,
-			vaultsArray
-		]
-	);
+				{' to '}
+				{configuration.opportunity?.name ?? vaultName}
+			</span>
+		);
+	}, [
+		configuration.asset.normalizedBigAmount.display,
+		configuration.asset.token?.address,
+		configuration.asset.token?.symbol,
+		configuration.opportunity?.name,
+		vaultsArray
+	]);
 
 	/**********************************************************************************************
 	 ** After a successful transaction, this function can be called to refresh balances of the
 	 ** tokens involved in the transaction (vault, asset, chain coin).
 	 *********************************************************************************************/
 	const onRefreshTokens = useCallback(
-		(kind: 'APPROVE' | 'DEPOSIT' | 'WITHDRAW') => {
+		(kind: 'APPROVE' | 'DEPOSIT') => {
 			if (kind !== 'APPROVE') {
 				set_transactionResult({
 					isExecuted: true,
-					message: getModalMessage(kind as 'DEPOSIT' | 'WITHDRAW')
+					message: getModalMessage()
 				});
 			}
 			const tokensToRefresh = [];
@@ -205,9 +190,6 @@ export function EarnWizard(): ReactElement {
 
 		onExecuteForGnosis,
 
-		onExecuteWithdraw,
-		withdrawStatus,
-
 		isFetchingQuote,
 		quote
 	} = useSolver();
@@ -220,9 +202,6 @@ export function EarnWizard(): ReactElement {
 			chainID: Number(configuration.asset.token?.chainID)
 		}).raw;
 
-	const isWithdrawing =
-		configuration.asset.token && !!vaults[configuration.asset.token?.address] && !configuration.opportunity;
-
 	/**********************************************************************************************
 	 ** Once the transaction is done, we can close the modal and reset the state of the wizard.
 	 *********************************************************************************************/
@@ -232,9 +211,6 @@ export function EarnWizard(): ReactElement {
 	}, [onResetEarn]);
 
 	const onAction = useCallback(async () => {
-		if (isWithdrawing) {
-			return onExecuteWithdraw(() => onRefreshTokens('WITHDRAW'));
-		}
 		if (isWalletSafe) {
 			return onExecuteForGnosis(() => onRefreshTokens('DEPOSIT'));
 		}
@@ -242,16 +218,7 @@ export function EarnWizard(): ReactElement {
 			return onExecuteDeposit(() => onRefreshTokens('DEPOSIT'));
 		}
 		return onApprove(() => onRefreshTokens('APPROVE'));
-	}, [
-		isApproved,
-		isWalletSafe,
-		isWithdrawing,
-		onApprove,
-		onExecuteDeposit,
-		onExecuteForGnosis,
-		onExecuteWithdraw,
-		onRefreshTokens
-	]);
+	}, [isApproved, isWalletSafe, onApprove, onExecuteDeposit, onExecuteForGnosis, onRefreshTokens]);
 
 	const isValid = useMemo((): boolean => {
 		if (isAboveBalance) {
@@ -260,11 +227,13 @@ export function EarnWizard(): ReactElement {
 		if (isZapNeeded && !quote) {
 			return false;
 		}
-		if (!configuration.asset.amount || !configuration.asset.token) {
+		if (!configuration.opportunity) {
 			return false;
 		}
-		if (!isWithdrawing && !configuration.opportunity) {
-			return false;
+		{
+			if (!configuration.asset.amount || !configuration.asset.token) {
+				return false;
+			}
 		}
 
 		if (configuration.asset.token.address === configuration.opportunity?.address) {
@@ -277,16 +246,11 @@ export function EarnWizard(): ReactElement {
 		configuration.asset.token,
 		configuration.opportunity,
 		isAboveBalance,
-		isWithdrawing,
 		isZapNeeded,
 		quote
 	]);
 
 	const getButtonTitle = (): string => {
-		if (isWithdrawing) {
-			return 'Withdraw';
-		}
-
 		if (!configuration.asset.token || !configuration.opportunity) {
 			return 'Select Token or Opportunity';
 		}
@@ -302,12 +266,7 @@ export function EarnWizard(): ReactElement {
 		return 'Approve';
 	};
 
-	const isBusy =
-		depositStatus.pending ||
-		withdrawStatus.pending ||
-		approvalStatus.pending ||
-		isFetchingAllowance ||
-		isFetchingQuote;
+	const isBusy = depositStatus.pending || approvalStatus.pending || isFetchingAllowance || isFetchingQuote;
 
 	return (
 		<div className={'col-span-12'}>

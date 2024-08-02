@@ -98,7 +98,7 @@ export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
 										</p>
 										<ToToken />
 									</div>
-									<WithdrawWizard />
+									<WithdrawWizard onClose={() => props.onOpenChange(false)} />
 								</div>
 							</DialogPanel>
 						</TransitionChild>

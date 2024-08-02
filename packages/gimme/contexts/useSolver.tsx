@@ -6,7 +6,6 @@ import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useIsZapNeeded} from '../hooks/helpers/useIsZapNeeded';
 import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
 import {useVanilaSolver} from '../hooks/solvers/useVanilaSolver';
-import {type TWithdrawSolverHelper, useWithdraw} from '../hooks/solvers/useWithdraw';
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
@@ -40,19 +39,14 @@ export type TSolverContextBase = {
  * 1. Current solver actions
  * 2. Current solver withdraw actions (same for every solver)
  */
-type TSolverContext = TSolverContextBase & TWithdrawSolverHelper;
 
-const SolverContext = createContext<TSolverContext>({
+const SolverContext = createContext<TSolverContextBase>({
 	approvalStatus: defaultTxStatus,
 	onApprove: async (): Promise<void> => undefined,
 	allowance: zeroNormalizedBN,
 	isDisabled: false,
 	isApproved: false,
 	isFetchingAllowance: false,
-
-	withdrawStatus: defaultTxStatus,
-	onExecuteWithdraw: async (): Promise<void> => undefined,
-	set_withdrawStatus: (): void => undefined,
 
 	depositStatus: defaultTxStatus,
 	set_depositStatus: (): void => undefined,
@@ -69,7 +63,6 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
 	const vanila = useVanilaSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
 	const portals = usePortalsSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
-	const withdrawHelper = useWithdraw();
 
 	const currentSolver = useMemo(() => {
 		if (isZapNeeded) {
@@ -77,6 +70,6 @@ export function SolverContextApp({children}: {children: ReactElement}): ReactEle
 		}
 		return vanila;
 	}, [isZapNeeded, portals, vanila]);
-	return <SolverContext.Provider value={{...currentSolver, ...withdrawHelper}}>{children}</SolverContext.Provider>;
+	return <SolverContext.Provider value={currentSolver}>{children}</SolverContext.Provider>;
 }
-export const useSolver = (): TSolverContext => useContext(SolverContext);
+export const useSolver = (): TSolverContextBase => useContext(SolverContext);

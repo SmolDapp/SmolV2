@@ -68,7 +68,7 @@ export function WithdrawSolverContextApp({children}: {children: ReactElement}): 
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 
 	const portals = usePortalsSolver(configuration.asset, configuration.tokenToReceive?.address, isZapNeeded);
-	const withdrawHelper = useWithdraw();
+	const withdrawHelper = useWithdraw(configuration.asset);
 
 	return (
 		<WithdrawSolverContext.Provider value={{...portals, ...withdrawHelper}}>
