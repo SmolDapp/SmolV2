@@ -212,7 +212,7 @@ export function EarnWizard(): ReactElement {
 		quote
 	} = useSolver();
 
-	const {isZapNeeded} = useIsZapNeeded(configuration);
+	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
 	const isAboveBalance =
 		configuration.asset.normalizedBigAmount.raw >
 		getBalance({

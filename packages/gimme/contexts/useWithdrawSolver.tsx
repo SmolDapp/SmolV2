@@ -1,11 +1,10 @@
-import {createContext, useContext, useMemo} from 'react';
+import {createContext, useContext} from 'react';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus, type TTxStatus} from '@builtbymom/web3/utils/wagmi';
-import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {useWithdrawFlow} from '@gimmmeSections/Portfolio/Withdraw/useWithdrawFlow';
 
 import {useIsZapNeeded} from '../hooks/helpers/useIsZapNeeded';
 import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
-import {useVanilaSolver} from '../hooks/solvers/useVanilaSolver';
 import {type TWithdrawSolverHelper, useWithdraw} from '../hooks/solvers/useWithdraw';
 
 import type {ReactElement} from 'react';
@@ -42,7 +41,7 @@ export type TSolverContextBase = {
  */
 type TSolverContext = TSolverContextBase & TWithdrawSolverHelper;
 
-const SolverContext = createContext<TSolverContext>({
+const WithdrawSolverContext = createContext<TSolverContext>({
 	approvalStatus: defaultTxStatus,
 	onApprove: async (): Promise<void> => undefined,
 	allowance: zeroNormalizedBN,
@@ -64,19 +63,17 @@ const SolverContext = createContext<TSolverContext>({
 	quote: null
 });
 
-export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
-	const {configuration} = useEarnFlow();
-	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
-	const vanila = useVanilaSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
-	const portals = usePortalsSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
+export function WithdrawSolverContextApp({children}: {children: ReactElement}): ReactElement {
+	const {configuration} = useWithdrawFlow();
+	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
+
+	const portals = usePortalsSolver(configuration.asset, configuration.tokenToReceive?.address, isZapNeeded);
 	const withdrawHelper = useWithdraw();
 
-	const currentSolver = useMemo(() => {
-		if (isZapNeeded) {
-			return portals;
-		}
-		return vanila;
-	}, [isZapNeeded, portals, vanila]);
-	return <SolverContext.Provider value={{...currentSolver, ...withdrawHelper}}>{children}</SolverContext.Provider>;
+	return (
+		<WithdrawSolverContext.Provider value={{...portals, ...withdrawHelper}}>
+			{children}
+		</WithdrawSolverContext.Provider>
+	);
 }
-export const useSolver = (): TSolverContext => useContext(SolverContext);
+export const useWithdrawSolver = (): TSolverContext => useContext(WithdrawSolverContext);

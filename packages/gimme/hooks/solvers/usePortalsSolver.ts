@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
 import {BaseError, erc20Abi, isHex, zeroAddress} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -49,7 +49,9 @@ export const usePortalsSolver = (
 	const isAboveAllowance = allowance.raw >= spendAmount;
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 
-	const shouldDisableFetches = !inputAsset.token || !inputAsset.amount || !outputTokenAddress || !isZapNeeded;
+	const shouldDisableFetches = useMemo(() => {
+		return !inputAsset.token || !inputAsset.amount || !outputTokenAddress || !isZapNeeded;
+	}, [inputAsset.amount, inputAsset.token, isZapNeeded, outputTokenAddress]);
 
 	const {getIsStablecoin} = useGetIsStablecoin();
 	const isStablecoin = getIsStablecoin({
@@ -90,7 +92,6 @@ export const usePortalsSolver = (
 	}, [inputAsset.token, inputAsset.normalizedBigAmount, outputTokenAddress, address, getIsStablecoin]);
 
 	useAsyncTrigger(async (): Promise<void> => {
-		console.log(shouldDisableFetches);
 		if (shouldDisableFetches) {
 			return;
 		}
@@ -165,7 +166,6 @@ export const usePortalsSolver = (
 	 * is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		console.log(shouldDisableFetches);
 		if (shouldDisableFetches) {
 			return;
 		}

@@ -26,7 +26,7 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 	const {quote, isFetchingQuote} = useSolver();
-	const {isZapNeeded} = useIsZapNeeded(configuration);
+	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
 	const chain = useCurrentChain();
 
 	const isWithdrawing =
