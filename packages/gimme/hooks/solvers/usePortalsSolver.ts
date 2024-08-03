@@ -17,8 +17,9 @@ import {
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {type BaseTransaction, TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
+import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
 import {getApproveTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
@@ -29,6 +30,8 @@ import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
+import type {TPermitSignature} from '@lib/hooks/usePermit.types';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
@@ -38,12 +41,13 @@ export const usePortalsSolver = (
 ): TSolverContextBase => {
 	const {configuration} = useEarnFlow();
 	const {sdk} = useSafeAppsSDK();
-	const {address, provider} = useWeb3();
+	const {address, provider, isWalletSafe} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 	const [latestQuote, set_latestQuote] = useState<TPortalsEstimate>();
+	const [permitSignature, set_permitSignature] = useState<TPermitSignature | undefined>();
 	const [isFetchingQuote, set_isFetchingQuote] = useState(false);
 	const spendAmount = configuration?.asset.normalizedBigAmount?.raw ?? 0n;
 	const isAboveAllowance = allowance.raw >= spendAmount;
@@ -104,6 +108,10 @@ export const usePortalsSolver = (
 			return;
 		}
 		onRetrieveQuote();
+
+		set_permitSignature(undefined);
+		set_approvalStatus(defaultTxStatus);
+		set_depositStatus(defaultTxStatus);
 	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveQuote]);
 
 	/**********************************************************************************************
@@ -204,6 +212,12 @@ export const usePortalsSolver = (
 
 			assert(configuration?.asset.token, 'Input token is not set');
 			assert(configuration?.asset.normalizedBigAmount, 'Input amount is not set');
+			assert(configuration?.opportunity, 'Vault is not set');
+
+			const shouldUsePermit = await isSupportingPermit({
+				contractAddress: configuration.asset.token.address,
+				chainID: Number(configuration?.opportunity?.chainID)
+			});
 
 			const amount = configuration?.asset.normalizedBigAmount.raw;
 
@@ -221,43 +235,74 @@ export const usePortalsSolver = (
 					return;
 				}
 
-				const allowance = await readContract(retrieveConfig(), {
-					chainId: Number(configuration?.opportunity?.chainID),
-					abi: erc20Abi,
-					address: toAddress(configuration?.asset?.token.address),
-					functionName: 'allowance',
-					args: [toAddress(address), toAddress(approval.context.spender)]
-				});
-
-				if (allowance < amount) {
-					assertAddress(approval.context.spender, 'spender');
-					const result = await approveERC20({
-						connector: provider,
-						chainID: configuration?.asset.token.chainID,
-						contractAddress: configuration?.asset.token.address,
-						spenderAddress: approval.context.spender,
-						statusHandler: set_approvalStatus,
-						amount: amount
+				if (shouldUsePermit && approval.context.canPermit) {
+					set_approvalStatus({...approvalStatus, pending: true});
+					const signResult = await signPermit({
+						contractAddress: toAddress(configuration.asset.token.address),
+						ownerAddress: toAddress(address),
+						spenderAddress: toAddress(approval.context.spender),
+						value: toBigInt(configuration.asset.normalizedBigAmount?.raw),
+						deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 60),
+						chainID: configuration.opportunity.chainID
 					});
-					if (result.isSuccessful) {
+
+					if (signResult?.signature) {
+						set_approvalStatus({...approvalStatus, success: true});
+						set_allowance(configuration.asset.normalizedBigAmount || zeroNormalizedBN);
+						set_permitSignature(signResult);
 						onSuccess?.();
+					} else {
+						set_approvalStatus({...approvalStatus, error: true});
+						throw new Error('Error signing a permit.');
 					}
+				} else {
+					const allowance = await readContract(retrieveConfig(), {
+						chainId: Number(configuration.opportunity.chainID),
+						abi: erc20Abi,
+						address: toAddress(configuration.asset.token.address),
+						functionName: 'allowance',
+						args: [toAddress(address), toAddress(approval.context.spender)]
+					});
+
+					if (allowance < amount) {
+						assertAddress(approval.context.spender, 'spender');
+						const result = await approveERC20({
+							connector: provider,
+							chainID: configuration.asset.token.chainID,
+							contractAddress: configuration.asset.token.address,
+							spenderAddress: approval.context.spender,
+							amount: amount,
+							statusHandler: set_approvalStatus
+						});
+						if (result.isSuccessful) {
+							onSuccess?.();
+						}
+						triggerRetreiveAllowance();
+						return;
+					}
+					onSuccess?.();
 					triggerRetreiveAllowance();
 					return;
 				}
-				onSuccess?.();
-				triggerRetreiveAllowance();
-				return;
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
+
 				console.error(error);
+				toast.error((error as BaseError).shortMessage || (error as BaseError).message) ||
+					'An error occured while creating your transaction!';
 				return;
 			}
 		},
 		[
 			address,
-			configuration?.asset.normalizedBigAmount,
-			configuration?.asset.token,
-			configuration?.opportunity?.chainID,
+			approvalStatus,
+			configuration.asset.normalizedBigAmount,
+			configuration.asset.token,
+			configuration.opportunity,
+			permitSignature,
 			provider,
 			triggerRetreiveAllowance
 		]
@@ -289,7 +334,9 @@ export const usePortalsSolver = (
 					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false'
+					validate: isWalletSafe ? 'false' : 'true',
+					permitSignature: permitSignature?.signature || undefined,
+					permitDeadline: permitSignature?.deadline ? permitSignature.deadline.toString() : undefined
 				}
 			});
 
@@ -322,7 +369,6 @@ export const usePortalsSolver = (
 				to: toAddress(to),
 				data,
 				chainId: configuration?.asset.token.chainID,
-
 				...rest
 			});
 			const receipt = await waitForTransactionReceipt(retrieveConfig(), {
@@ -335,16 +381,22 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
+			console.dir(error);
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
 				console.error(errorMessage);
 			} else {
-				toast.error((error as BaseError).shortMessage);
+				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
 				console.error(error);
 			}
 
 			return {isSuccessful: false};
+		} finally {
+			if (permitSignature) {
+				set_permitSignature(undefined);
+				set_allowance(zeroNormalizedBN);
+			}
 		}
 	}, [
 		address,
@@ -352,7 +404,9 @@ export const usePortalsSolver = (
 		configuration?.asset.token,
 		configuration?.opportunity,
 		isStablecoin,
+		isWalletSafe,
 		latestQuote,
+		permitSignature,
 		provider
 	]);
 
@@ -401,7 +455,7 @@ export const usePortalsSolver = (
 					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false'
+					validate: isWalletSafe ? 'false' : 'true'
 				}
 			});
 
@@ -455,15 +509,22 @@ export const usePortalsSolver = (
 			} catch (error) {
 				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			} finally {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
 			}
 		},
 		[
 			address,
 			configuration.asset.normalizedBigAmount?.raw,
 			configuration.asset.token,
-			configuration.opportunity,
+			configuration?.opportunity,
 			isStablecoin,
+			isWalletSafe,
 			latestQuote,
+			permitSignature,
 			provider,
 			sdk.txs
 		]
