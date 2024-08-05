@@ -2,21 +2,18 @@ import {type ReactElement, useCallback, useMemo, useState} from 'react';
 import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
-import {useReadContract} from 'wagmi';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
+import {ETH_TOKEN_ADDRESS, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
 import {Button} from '@lib/primitives/Button';
-import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
 import {useWithdrawFlow} from './useWithdrawFlow';
 
 export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 	const {configuration, onResetWithdraw} = useWithdrawFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
-	const {getBalance, onRefresh} = useWallet();
-
+	const {onRefresh} = useWallet();
 	const {
 		onExecuteWithdraw,
 		onExecuteDeposit: onExecutePortalsWithdraw,
@@ -26,8 +23,7 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 		approvalStatus,
 		depositStatus: portalsWithdrawStatus,
 		quote,
-		withdrawStatus,
-		isFetchingAssetShares
+		withdrawStatus
 	} = useWithdrawSolver();
 	const chain = useCurrentChain();
 
@@ -45,21 +41,9 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 		props.onClose();
 	}, [onResetWithdraw, props]);
 
-	const sharesBalance = getBalance({
-		address: toAddress(configuration.vault?.address),
-		chainID: Number(configuration.vault?.chainID)
-	}).raw;
-
-	const {data: assetBalance = 0n, isLoading: isFetchingAssetBalance} = useReadContract({
-		abi: VAULT_V3_ABI,
-		functionName: 'convertToAssets',
-		args: [sharesBalance],
-		address: toAddress(configuration.vault?.address),
-		query: {
-			enabled: !!sharesBalance
-		}
-	});
-
+	/**********************************************************************************************
+	 ** TODO: ADD COMMENT ABOUT THIS GROUP OF CODE
+	 *********************************************************************************************/
 	const getModalMessage = useCallback(() => {
 		return (
 			<span className={'text-pretty'}>
@@ -72,6 +56,7 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 			</span>
 		);
 	}, [configuration.asset.normalizedBigAmount.display, configuration.asset.token?.symbol, configuration.vault?.name]);
+
 	/**********************************************************************************************
 	 ** After a successful transaction, this function can be called to refresh balances of the
 	 ** tokens involved in the transaction (vault, asset, chain coin).
@@ -142,49 +127,31 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 		return onExecutePortalsWithdraw(() => onRefreshTokens('WITHDRAW'));
 	}, [isApproved, isZapNeeded, onApprove, onExecutePortalsWithdraw, onExecuteWithdraw, onRefreshTokens]);
 
-	const isAboveBalance = configuration.asset.normalizedBigAmount.raw > assetBalance;
-
 	const isBusy = useMemo(() => {
-		return (
-			withdrawStatus.pending ||
-			isFetchingAssetBalance ||
-			isFetchingAllowance ||
-			portalsWithdrawStatus.pending ||
-			approvalStatus.pending ||
-			isFetchingAssetShares
-		);
-	}, [
-		approvalStatus.pending,
-		isFetchingAllowance,
-		isFetchingAssetBalance,
-		isFetchingAssetShares,
-		portalsWithdrawStatus.pending,
-		withdrawStatus.pending
-	]);
-	console.log(
-		withdrawStatus.pending,
-		isFetchingAssetBalance,
-		isFetchingAllowance,
-		portalsWithdrawStatus.pending,
-		approvalStatus.pending,
-		isFetchingAssetShares
-	);
+		return withdrawStatus.pending || isFetchingAllowance || portalsWithdrawStatus.pending || approvalStatus.pending;
+	}, [approvalStatus.pending, isFetchingAllowance, portalsWithdrawStatus.pending, withdrawStatus.pending]);
+
 	const isValid = useMemo((): boolean => {
-		if (isAboveBalance) {
-			console.log('isAboveBalance');
+		const availableBalance = toBigInt(configuration.asset.token?.balance.raw);
+		const tryingToWithdraw = toBigInt(configuration.asset.normalizedBigAmount.raw);
+		if (tryingToWithdraw > availableBalance) {
 			return false;
 		}
 		if (isZapNeeded && !quote) {
-			console.log('isZapNeeded', isZapNeeded, quote);
 			return false;
 		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
-			console.log('not full form');
 			return false;
 		}
 
 		return true;
-	}, [configuration.asset.amount, configuration.asset.token, isAboveBalance, isZapNeeded, quote]);
+	}, [
+		configuration.asset.amount,
+		configuration.asset.normalizedBigAmount.raw,
+		configuration.asset.token,
+		isZapNeeded,
+		quote
+	]);
 
 	const getButtonTitle = useCallback(() => {
 		if (!configuration.asset.token) {
