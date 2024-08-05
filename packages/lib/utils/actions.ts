@@ -242,9 +242,6 @@ export async function redeemV3Shares(props: TRedeemV3Shares): Promise<TTxRespons
 	const availableShares = decodeAsBigInt(_availableShares);
 	const tolerance = (availableShares * props.maxLoss) / 10000n; // 1% of the balance
 
-	console.warn(convertToShare, availableShares, tolerance, props.amount);
-	console.log(availableShares - convertToShare, tolerance);
-
 	const isAskingToWithdrawAll = availableShares - convertToShare < tolerance;
 	if (isAskingToWithdrawAll) {
 		console.warn(availableShares, wagmiProvider.address, wagmiProvider.address, props.maxLoss);
@@ -260,7 +257,7 @@ export async function redeemV3Shares(props: TRedeemV3Shares): Promise<TTxRespons
 		address: props.contractAddress,
 		abi: VAULT_V3_ABI,
 		functionName: 'withdraw',
-		args: [props.amount, wagmiProvider.address, wagmiProvider.address]
+		args: [props.amount, wagmiProvider.address, wagmiProvider.address, props.maxLoss]
 	});
 }
 
