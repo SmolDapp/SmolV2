@@ -54,6 +54,7 @@ type TChainStatusArgs = {
 	threshold: number;
 	salt: bigint;
 	singleton?: TAddress;
+	paymentReceiver?: TAddress;
 };
 
 function ChainStatus({
@@ -63,7 +64,8 @@ function ChainStatus({
 	owners,
 	threshold,
 	salt,
-	singleton
+	singleton,
+	paymentReceiver
 }: TChainStatusArgs): ReactElement {
 	const plausible = usePlausible();
 	const {chainCoinPrices} = useMultisafe();
@@ -115,7 +117,7 @@ function ChainStatus({
 			/**************************************************************************************
 			 ** First try to clone with the regular FALLBACK_HANDLER
 			 **************************************************************************************/
-			const argInitializers = generateArgInitializers(owners, threshold);
+			const argInitializers = generateArgInitializers(owners, threshold, toAddress(paymentReceiver));
 			const prepareWriteResult = await publicClient.simulateContract({
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -131,7 +133,7 @@ function ChainStatus({
 			/**************************************************************************************
 			 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
 			 **************************************************************************************/
-			const argInitializersAlt = generateArgInitializers(owners, threshold, true);
+			const argInitializersAlt = generateArgInitializers(owners, threshold, toAddress(paymentReceiver), true);
 			const prepareWriteResultAlt = await publicClient.simulateContract({
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -140,13 +142,11 @@ function ChainStatus({
 				args: [signletonToUse, `0x${argInitializersAlt}`, salt]
 			});
 			prepareWriteAddress = toAddress(prepareWriteResultAlt.result);
-
 			if (prepareWriteAddress === safeAddress) {
 				return set_canDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contractAlt'});
 			}
 		} catch (err) {
-			console.log(err);
-			//
+			console.warn(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
 		}
 
 		try {
@@ -162,11 +162,22 @@ function ChainStatus({
 				}
 			}
 		} catch (err) {
-			console.error(err);
-			//
+			console.warn(`Couldn't simulate safe direct deploy on ${chain.name} because of ${err}`);
 		}
 		return set_canDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
-	}, [address, chain, originalTx, owners, safeAddress, salt, singleton, threshold]);
+	}, [
+		address,
+		chain.id,
+		chain.name,
+		originalTx?.input,
+		originalTx?.to,
+		owners,
+		paymentReceiver,
+		safeAddress,
+		salt,
+		singleton,
+		threshold
+	]);
 
 	useEffect((): void => {
 		checkIfDeployedOnThatChain();
@@ -257,6 +268,7 @@ function ChainStatus({
 			const argInitializers = generateArgInitializers(
 				owners,
 				threshold,
+				toAddress(paymentReceiver),
 				canDeployOnThatChain.method === 'contractAlt'
 			);
 			const callDataDisperseEth = {
@@ -314,6 +326,7 @@ function ChainStatus({
 		singleton,
 		owners,
 		threshold,
+		paymentReceiver,
 		salt,
 		provider
 	]);

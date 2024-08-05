@@ -29,6 +29,7 @@ type TExistingSafeArgs = {
 	salt: bigint;
 	threshold: number;
 	singleton?: TAddress;
+	paymentReceiver?: TAddress;
 	tx?: GetTransactionReturnType;
 	error?: string;
 	isLoading: boolean;
@@ -142,9 +143,18 @@ function Safe(): ReactElement {
 				try {
 					const tx = await getTransaction(retrieveConfig(), {hash, chainId: chainID});
 					const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
-					const {owners, threshold, salt, singleton} = decodeArgInitializers(input as Hex);
+					const {owners, threshold, salt, singleton, paymentReceiver} = decodeArgInitializers(input as Hex);
 
-					set_existingSafeArgs({owners, threshold, isLoading: false, address, salt, singleton, tx: tx});
+					set_existingSafeArgs({
+						owners,
+						threshold,
+						isLoading: false,
+						address,
+						salt,
+						singleton,
+						tx: tx,
+						paymentReceiver
+					});
 				} catch (error) {
 					set_existingSafeArgs({
 						...defaultExistingSafeArgs,
@@ -249,6 +259,7 @@ function Safe(): ReactElement {
 											threshold={existingSafeArgs?.threshold || 0}
 											singleton={existingSafeArgs?.singleton}
 											salt={existingSafeArgs?.salt || 0n}
+											paymentReceiver={existingSafeArgs?.paymentReceiver}
 										/>
 									)
 								)}
@@ -266,6 +277,7 @@ function Safe(): ReactElement {
 												owners={existingSafeArgs?.owners || []}
 												threshold={existingSafeArgs?.threshold || 0}
 												singleton={existingSafeArgs?.singleton}
+												paymentReceiver={existingSafeArgs?.paymentReceiver}
 												salt={existingSafeArgs?.salt || 0n}
 											/>
 										)
