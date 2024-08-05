@@ -20,9 +20,7 @@ export type TWithdrawSolverHelper = {
  *************************************************************************************************/
 export const useWithdraw = (
 	inputAsset: TTokenAmountInputElement,
-	vault: TYDaemonVault | undefined,
-	refetchShares: () => Promise<void>,
-	sharesInputAmount: bigint
+	vault: TYDaemonVault | undefined
 ): TWithdrawSolverHelper => {
 	const {provider} = useWeb3();
 
@@ -40,10 +38,7 @@ export const useWithdraw = (
 			if (!vault) {
 				throw new Error('Vault not found');
 			}
-			refetchShares();
-
 			const isV3 = vault.version.split('.')?.[0] === '3';
-
 			set_withdrawStatus({...defaultTxStatus, pending: true});
 
 			let result;
@@ -52,7 +47,7 @@ export const useWithdraw = (
 					connector: provider,
 					chainID: vault.chainID,
 					contractAddress: vault.address,
-					amount: sharesInputAmount,
+					amount: inputAsset.normalizedBigAmount.raw,
 					maxLoss: 1n
 				});
 			} else {
@@ -71,15 +66,7 @@ export const useWithdraw = (
 			}
 			set_withdrawStatus({...defaultTxStatus, error: true});
 		},
-		[
-			inputAsset.amount,
-			inputAsset.normalizedBigAmount.raw,
-			inputAsset.token,
-			provider,
-			refetchShares,
-			sharesInputAmount,
-			vault
-		]
+		[inputAsset.amount, inputAsset.normalizedBigAmount.raw, inputAsset.token, provider, vault]
 	);
 
 	return {

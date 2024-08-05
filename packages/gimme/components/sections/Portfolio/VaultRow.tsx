@@ -29,7 +29,6 @@ export function VaultRow(props: {
 	const {connector} = useAccount();
 	const {switchChainAsync} = useSwitchChain();
 	const chain = useCurrentChain();
-
 	const {dispatchConfiguration} = useWithdrawFlow();
 
 	/**********************************************************************************************
@@ -44,17 +43,11 @@ export function VaultRow(props: {
 	 * able to withraw)
 	 * @param vaultAddress is not present
 	 *********************************************************************************************/
-	const onAction = async ({
-		tokenAddress,
-		vaultAddress
-	}: {
-		tokenAddress: TAddress;
-		vaultAddress?: TAddress;
-	}): Promise<void> => {
+	const onAction = async (args: {tokenAddress: TAddress; vaultAddress?: TAddress}): Promise<void> => {
 		try {
 			const URLQueryParam = new URLSearchParams();
-			URLQueryParam.set('tokenAddress', toAddress(tokenAddress));
-			vaultAddress && URLQueryParam.set('vaultAddress', toAddress(vaultAddress));
+			URLQueryParam.set('tokenAddress', toAddress(args.tokenAddress));
+			args.vaultAddress && URLQueryParam.set('vaultAddress', toAddress(args.vaultAddress));
 
 			if (props.vault.chainID !== chain.id) {
 				await switchChainAsync({connector, chainId: props.vault.chainID});
@@ -69,18 +62,11 @@ export function VaultRow(props: {
 		}
 	};
 
-	const onSetVaultToWithdraw = (): void => {
+	/**********************************************************************************************
+	 * TODO: GROUP THE DISPATCHES INTO A SINGLE DISPATCH
+	 *********************************************************************************************/
+	const onWithdraw = (): void => {
 		dispatchConfiguration({type: 'SET_VAULT', payload: props.vault});
-	};
-
-	const onSetAssetToReceive = (): void => {
-		dispatchConfiguration({
-			type: 'SET_TOKEN_TO_RECEIVE',
-			payload: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
-		});
-	};
-
-	const onSetAssetToWithdraw = (): void => {
 		dispatchConfiguration({
 			type: 'SET_ASSET',
 			payload: {
@@ -96,12 +82,10 @@ export function VaultRow(props: {
 				}
 			}
 		});
-	};
-
-	const onWithdraw = (): void => {
-		onSetVaultToWithdraw();
-		onSetAssetToWithdraw();
-		onSetAssetToReceive();
+		dispatchConfiguration({
+			type: 'SET_TOKEN_TO_RECEIVE',
+			payload: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
+		});
 		props.onWithdrawModalChange(true);
 	};
 
