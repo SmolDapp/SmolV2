@@ -161,15 +161,25 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 		portalsWithdrawStatus.pending,
 		withdrawStatus.pending
 	]);
-
+	console.log(
+		withdrawStatus.pending,
+		isFetchingAssetBalance,
+		isFetchingAllowance,
+		portalsWithdrawStatus.pending,
+		approvalStatus.pending,
+		isFetchingAssetShares
+	);
 	const isValid = useMemo((): boolean => {
 		if (isAboveBalance) {
+			console.log('isAboveBalance');
 			return false;
 		}
 		if (isZapNeeded && !quote) {
+			console.log('isZapNeeded', isZapNeeded, quote);
 			return false;
 		}
 		if (!configuration.asset.amount || !configuration.asset.token) {
+			console.log('not full form');
 			return false;
 		}
 
