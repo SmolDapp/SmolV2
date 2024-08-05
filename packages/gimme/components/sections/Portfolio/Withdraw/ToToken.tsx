@@ -40,7 +40,7 @@ export function ToToken(): ReactElement {
 
 		if (isFetchingQuote || !quote) {
 			return (
-				<div className={'flex h-8 flex-col justify-center'}>
+				<div className={'flex h-8 w-28 flex-col justify-center'}>
 					<div className={'skeleton-lg h-4 w-full'} />
 				</div>
 			);
@@ -80,7 +80,7 @@ export function ToToken(): ReactElement {
 
 		if (isFetchingQuote || !quote) {
 			return (
-				<div className={'flex h-4 flex-col justify-center'}>
+				<div className={'flex h-4 w-10 flex-col justify-center'}>
 					<div className={'skeleton-lg h-3 w-full'} />
 				</div>
 			);

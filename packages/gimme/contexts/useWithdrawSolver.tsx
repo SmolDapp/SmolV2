@@ -1,7 +1,10 @@
-import {createContext, useContext} from 'react';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {createContext, useCallback, useContext, useMemo} from 'react';
+import {useReadContract} from 'wagmi';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {toAddress, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus, type TTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useWithdrawFlow} from '@gimmmeSections/Portfolio/Withdraw/useWithdrawFlow';
+import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 
 import {useIsZapNeeded} from '../hooks/helpers/useIsZapNeeded';
 import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
@@ -9,6 +12,7 @@ import {type TWithdrawSolverHelper, useWithdraw} from '../hooks/solvers/useWithd
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 /**************************************************************************************************
@@ -29,6 +33,10 @@ export type TSolverContextBase = {
 	set_depositStatus: (value: TTxStatus) => void;
 
 	onExecuteForGnosis: (onSuccess: () => void) => Promise<void>;
+
+	isFetchingAssetShares: boolean;
+	refetchShares: () => Promise<void>;
+	sharesInputAmount: bigint;
 
 	isFetchingQuote: boolean;
 	quote: TPortalsEstimate | null;
@@ -59,6 +67,10 @@ const WithdrawSolverContext = createContext<TSolverContext>({
 
 	onExecuteForGnosis: async (): Promise<void> => undefined,
 
+	isFetchingAssetShares: false,
+	sharesInputAmount: 0n,
+	refetchShares: async (): Promise<void> => undefined,
+
 	isFetchingQuote: false,
 	quote: null
 });
@@ -67,11 +79,46 @@ export function WithdrawSolverContextApp({children}: {children: ReactElement}): 
 	const {configuration} = useWithdrawFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 
-	const portals = usePortalsSolver(configuration.asset, configuration.tokenToReceive?.address, isZapNeeded);
-	const withdrawHelper = useWithdraw(configuration.asset);
+	const {getToken, isLoading} = useWallet();
+	const vaultToken = getToken({
+		address: toAddress(configuration.vault?.address),
+		chainID: configuration.vault?.chainID || 137
+	});
+	const {
+		data: sharesInputAmount = 0n,
+		isLoading: isFetchingAssetShares,
+		refetch
+	} = useReadContract({
+		abi: VAULT_V3_ABI,
+		functionName: 'convertToShares',
+		args: [configuration.asset.normalizedBigAmount.raw],
+		address: toAddress(configuration.vault?.address),
+		query: {
+			enabled: configuration.asset.normalizedBigAmount.raw > 0n && !!configuration.vault?.address && !isLoading
+		}
+	});
+
+	const refetchShares = useCallback(async () => {
+		refetch();
+	}, [refetch]);
+
+	const vaultInputElementLike: TTokenAmountInputElement = useMemo(
+		() => ({
+			amount: sharesInputAmount.toString(),
+			normalizedBigAmount: toNormalizedBN(sharesInputAmount, vaultToken.decimals),
+			isValid: 'undetermined',
+			token: vaultToken,
+			status: 'none',
+			UUID: crypto.randomUUID()
+		}),
+		[sharesInputAmount, vaultToken]
+	);
+	const portals = usePortalsSolver(vaultInputElementLike, configuration.tokenToReceive?.address, isZapNeeded);
+	const withdrawHelper = useWithdraw(configuration.asset, configuration.vault, refetchShares, sharesInputAmount);
 
 	return (
-		<WithdrawSolverContext.Provider value={{...portals, ...withdrawHelper}}>
+		<WithdrawSolverContext.Provider
+			value={{...portals, ...withdrawHelper, isFetchingAssetShares, refetchShares, sharesInputAmount}}>
 			{children}
 		</WithdrawSolverContext.Provider>
 	);
