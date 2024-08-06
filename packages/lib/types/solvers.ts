@@ -2,7 +2,6 @@ import type {TAddress} from '@builtbymom/web3/types';
 
 export type TInitSolverArgs = {
 	chainID: number;
-	version: string;
 	from: TAddress;
 	inputToken: TAddress;
 	outputToken: TAddress;
