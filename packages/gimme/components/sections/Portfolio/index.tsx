@@ -17,6 +17,7 @@ import {VAULT_V3_ABI} from '@lib/utils/abi/vaultV3.abi';
 import {useSortedVaults} from './useSortedVaults';
 import {VaultRow} from './VaultRow';
 import {VaultsListHead} from './VaultsListHead';
+import {WithdrawModal} from './Withdraw/WithdrawModal';
 
 import type {TDict, TNormalizedBN, TSortDirection, TToken} from '@builtbymom/web3/types';
 import type {TPossibleSortBy} from './useSortedVaults';
@@ -64,6 +65,8 @@ export function Portfolio(): ReactNode {
 	const [balances, set_balances] = useState<TDict<TNormalizedBN>>({});
 	const {data: blockNumber} = useBlockNumber({watch: true});
 	const isEmpty = userVaultsArray.length === 0;
+	const [isWithdrawOpen, set_isWithdrawOpen] = useState(false);
+
 	const {getPrices, pricingHash} = usePrices();
 	const allPrices = useMemo(() => {
 		pricingHash;
@@ -125,7 +128,6 @@ export function Portfolio(): ReactNode {
 				userVaultsArray[i].decimals
 			);
 		}
-
 		set_balances(result);
 	}, [address, userVaultsArray, blockNumber]);
 
@@ -174,6 +176,7 @@ export function Portfolio(): ReactNode {
 						vault={vault}
 						price={allPrices?.[vault.chainID]?.[vault.token.address] || zeroNormalizedBN}
 						balance={balances[vault.address] || zeroNormalizedBN}
+						onWithdrawModalChange={set_isWithdrawOpen}
 					/>
 				))}
 			</div>
@@ -219,6 +222,11 @@ export function Portfolio(): ReactNode {
 				/>
 				{getLayout()}
 			</div>
+			<WithdrawModal
+				isOpen={isWithdrawOpen}
+				onOpenChange={set_isWithdrawOpen}
+				balances={balances}
+			/>
 		</div>
 	);
 }

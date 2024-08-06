@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import toast from 'react-hot-toast';
 import {BaseError, erc20Abi, isHex, zeroAddress} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -15,10 +15,10 @@ import {
 	zeroNormalizedBN
 } from '@builtbymom/web3/utils';
 import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
-import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {type BaseTransaction, TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
+import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
 import {getApproveTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
@@ -27,60 +27,62 @@ import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
 import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
-import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
+import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
+import type {TPermitSignature} from '@lib/hooks/usePermit.types';
 import type {TInitSolverArgs} from '@lib/types/solvers';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 export const usePortalsSolver = (
-	isZapNeededForDeposit: boolean,
-	isZapNeededForWithdraw: boolean
+	inputAsset: TTokenAmountInputElement,
+	outputTokenAddress: TAddress | undefined,
+	isZapNeeded: boolean
 ): TSolverContextBase => {
-	const {configuration} = useEarnFlow();
 	const {sdk} = useSafeAppsSDK();
-	const {address, provider} = useWeb3();
+	const {address, provider, isWalletSafe} = useWeb3();
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
 	const [isFetchingAllowance, set_isFetchingAllowance] = useState(false);
 	const [latestQuote, set_latestQuote] = useState<TPortalsEstimate>();
+	const [permitSignature, set_permitSignature] = useState<TPermitSignature | undefined>();
 	const [isFetchingQuote, set_isFetchingQuote] = useState(false);
-	const spendAmount = configuration?.asset.normalizedBigAmount?.raw ?? 0n;
+	const spendAmount = inputAsset.normalizedBigAmount?.raw ?? 0n;
 	const isAboveAllowance = allowance.raw >= spendAmount;
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
-
+	console.log(latestQuote);
+	const shouldDisableFetches = useMemo(() => {
+		return !inputAsset.token || !inputAsset.amount || !outputTokenAddress || !isZapNeeded;
+	}, [inputAsset.amount, inputAsset.token, isZapNeeded, outputTokenAddress]);
+	console.log(shouldDisableFetches);
 	const {getIsStablecoin} = useGetIsStablecoin();
 	const isStablecoin = getIsStablecoin({
-		address: configuration.asset.token?.address,
-		chainID: configuration.asset.token?.chainID
+		address: inputAsset.token?.address,
+		chainID: inputAsset.token?.chainID
 	});
-
+	console.log(inputAsset);
 	const onRetrieveQuote = useCallback(async () => {
-		if (
-			!configuration?.asset.token ||
-			!configuration?.opportunity ||
-			configuration?.asset.normalizedBigAmount === zeroNormalizedBN
-		) {
+		if (!inputAsset.token || !outputTokenAddress || inputAsset.normalizedBigAmount === zeroNormalizedBN) {
 			return;
 		}
 
 		const request: TInitSolverArgs = {
-			chainID: configuration?.asset.token.chainID,
-			version: configuration?.opportunity.version,
+			chainID: inputAsset.token.chainID,
 			from: toAddress(address),
-			inputToken: configuration?.asset.token.address,
-			outputToken: configuration?.opportunity.address,
-			inputAmount: configuration?.asset.normalizedBigAmount?.raw ?? 0n,
+			inputToken: inputAsset.token.address,
+			outputToken: outputTokenAddress,
+			inputAmount: inputAsset.normalizedBigAmount?.raw ?? 0n,
 			isDepositing: true,
 			stakingPoolAddress: undefined
 		};
 
 		set_isFetchingQuote(true);
 
-		const {result, error} = await getQuote(
-			request,
-			configuration.opportunity.category === 'Stablecoin' ? 0.1 : 0.5
-		);
+		const isOutputStablecoin = getIsStablecoin({address: outputTokenAddress, chainID: inputAsset.token.chainID});
+
+		const {result, error} = await getQuote(request, isOutputStablecoin ? 0.1 : 0.5);
 		if (!result) {
 			if (error) {
 				console.error(error);
@@ -91,20 +93,19 @@ export const usePortalsSolver = (
 		set_isFetchingQuote(false);
 
 		return result;
-	}, [address, configuration?.asset.normalizedBigAmount, configuration?.asset.token, configuration?.opportunity]);
+	}, [inputAsset.token, inputAsset.normalizedBigAmount, outputTokenAddress, address, getIsStablecoin]);
 
 	useAsyncTrigger(async (): Promise<void> => {
-		if (!configuration?.action) {
+		if (shouldDisableFetches) {
 			return;
 		}
-		if (configuration.action === 'DEPOSIT' && !isZapNeededForDeposit) {
-			return;
-		}
-		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
-			return;
-		}
+
 		onRetrieveQuote();
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveQuote]);
+
+		set_permitSignature(undefined);
+		set_approvalStatus(defaultTxStatus);
+		set_depositStatus(defaultTxStatus);
+	}, [onRetrieveQuote, shouldDisableFetches]);
 
 	/**********************************************************************************************
 	 * Retrieve the allowance for the token to be used by the solver. This will be used to
@@ -112,22 +113,22 @@ export const usePortalsSolver = (
 	 **********************************************************************************************/
 	const onRetrieveAllowance = useCallback(
 		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (!latestQuote || !configuration?.asset.token || !configuration?.opportunity) {
+			if (!latestQuote || !inputAsset.token || !outputTokenAddress) {
 				return zeroNormalizedBN;
 			}
-			if (configuration.asset.normalizedBigAmount === zeroNormalizedBN) {
+			if (inputAsset.normalizedBigAmount === zeroNormalizedBN) {
 				return zeroNormalizedBN;
 			}
 
-			const inputToken = configuration?.asset.token.address;
-			const outputToken = configuration?.opportunity.address;
+			const inputToken = inputAsset.token.address;
+			const outputToken = outputTokenAddress;
 
 			if (isEthAddress(inputToken)) {
 				return toNormalizedBN(MAX_UINT_256, 18);
 			}
 
 			const key = allowanceKey(
-				configuration?.asset.token?.chainID,
+				inputAsset.token?.chainID,
 				toAddress(inputToken),
 				toAddress(outputToken),
 				toAddress(address)
@@ -139,12 +140,12 @@ export const usePortalsSolver = (
 			set_isFetchingAllowance(true);
 
 			try {
-				const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+				const network = PORTALS_NETWORK.get(inputAsset.token.chainID);
 				const {data: approval} = await getPortalsApproval({
 					params: {
 						sender: toAddress(address),
 						inputToken: `${network}:${toAddress(inputToken)}`,
-						inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString()
+						inputAmount: toBigInt(inputAsset.normalizedBigAmount?.raw).toString()
 					}
 				});
 
@@ -154,7 +155,7 @@ export const usePortalsSolver = (
 
 				existingAllowances.current[key] = toNormalizedBN(
 					toBigInt(approval.context.allowance),
-					configuration?.asset.token.decimals
+					inputAsset.token.decimals
 				);
 
 				set_isFetchingAllowance(false);
@@ -165,13 +166,7 @@ export const usePortalsSolver = (
 				return zeroNormalizedBN;
 			}
 		},
-		[
-			address,
-			configuration.asset.normalizedBigAmount,
-			configuration.asset.token,
-			configuration?.opportunity,
-			latestQuote
-		]
+		[latestQuote, inputAsset.token, inputAsset.normalizedBigAmount, outputTokenAddress, address]
 	);
 
 	/**********************************************************************************************
@@ -179,17 +174,12 @@ export const usePortalsSolver = (
 	 * is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	const triggerRetreiveAllowance = useAsyncTrigger(async (): Promise<void> => {
-		if (!configuration?.action) {
+		if (shouldDisableFetches) {
 			return;
 		}
-		if (configuration.action === 'DEPOSIT' && !isZapNeededForDeposit) {
-			return;
-		}
-		if (configuration.action === 'WITHDRAW' && !isZapNeededForWithdraw) {
-			return;
-		}
+
 		set_allowance(await onRetrieveAllowance(true));
-	}, [configuration.action, isZapNeededForDeposit, isZapNeededForWithdraw, onRetrieveAllowance]);
+	}, [onRetrieveAllowance, shouldDisableFetches]);
 
 	/**********************************************************************************************
 	 * Trigger an signature to approve the token to be used by the Portals
@@ -202,18 +192,24 @@ export const usePortalsSolver = (
 				return;
 			}
 
-			assert(configuration?.asset.token, 'Input token is not set');
-			assert(configuration?.asset.normalizedBigAmount, 'Input amount is not set');
+			assert(inputAsset.token, 'Input token is not set');
+			assert(inputAsset.normalizedBigAmount, 'Input amount is not set');
+			assert(outputTokenAddress, 'Output token is not set');
 
-			const amount = configuration?.asset.normalizedBigAmount.raw;
+			const shouldUsePermit = await isSupportingPermit({
+				contractAddress: inputAsset.token.address,
+				chainID: Number(inputAsset?.token.chainID)
+			});
+
+			const amount = inputAsset.normalizedBigAmount.raw;
 
 			try {
-				const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+				const network = PORTALS_NETWORK.get(inputAsset.token.chainID);
 				const {data: approval} = await getPortalsApproval({
 					params: {
 						sender: toAddress(address),
-						inputToken: `${network}:${toAddress(configuration?.asset.token.address)}`,
-						inputAmount: toBigInt(configuration?.asset.normalizedBigAmount.raw).toString()
+						inputToken: `${network}:${toAddress(inputAsset.token.address)}`,
+						inputAmount: toBigInt(inputAsset.normalizedBigAmount.raw).toString()
 					}
 				});
 
@@ -221,43 +217,74 @@ export const usePortalsSolver = (
 					return;
 				}
 
-				const allowance = await readContract(retrieveConfig(), {
-					chainId: Number(configuration?.opportunity?.chainID),
-					abi: erc20Abi,
-					address: toAddress(configuration?.asset?.token.address),
-					functionName: 'allowance',
-					args: [toAddress(address), toAddress(approval.context.spender)]
-				});
-
-				if (allowance < amount) {
-					assertAddress(approval.context.spender, 'spender');
-					const result = await approveERC20({
-						connector: provider,
-						chainID: configuration?.asset.token.chainID,
-						contractAddress: configuration?.asset.token.address,
-						spenderAddress: approval.context.spender,
-						statusHandler: set_approvalStatus,
-						amount: amount
+				if (shouldUsePermit && approval.context.canPermit) {
+					set_approvalStatus({...approvalStatus, pending: true});
+					const signResult = await signPermit({
+						contractAddress: toAddress(inputAsset.token.address),
+						ownerAddress: toAddress(address),
+						spenderAddress: toAddress(approval.context.spender),
+						value: toBigInt(inputAsset.normalizedBigAmount?.raw),
+						deadline: BigInt(Math.floor(Date.now() / 1000) + 60 * 60),
+						chainID: inputAsset.token.chainID
 					});
-					if (result.isSuccessful) {
+
+					if (signResult?.signature) {
+						set_approvalStatus({...approvalStatus, success: true});
+						set_allowance(inputAsset.normalizedBigAmount || zeroNormalizedBN);
+						set_permitSignature(signResult);
 						onSuccess?.();
+					} else {
+						set_approvalStatus({...approvalStatus, error: true});
+						throw new Error('Error signing a permit.');
 					}
+				} else {
+					const allowance = await readContract(retrieveConfig(), {
+						chainId: Number(inputAsset.token.chainID),
+						abi: erc20Abi,
+						address: toAddress(inputAsset.token.address),
+						functionName: 'allowance',
+						args: [toAddress(address), toAddress(approval.context.spender)]
+					});
+
+					if (allowance < amount) {
+						assertAddress(approval.context.spender, 'spender');
+						const result = await approveERC20({
+							connector: provider,
+							chainID: inputAsset.token.chainID,
+							contractAddress: inputAsset.token.address,
+							spenderAddress: approval.context.spender,
+							amount: amount,
+							statusHandler: set_approvalStatus
+						});
+						if (result.isSuccessful) {
+							onSuccess?.();
+						}
+						triggerRetreiveAllowance();
+						return;
+					}
+					onSuccess?.();
 					triggerRetreiveAllowance();
 					return;
 				}
-				onSuccess?.();
-				triggerRetreiveAllowance();
-				return;
 			} catch (error) {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
+
 				console.error(error);
+				toast.error((error as BaseError).shortMessage || (error as BaseError).message) ||
+					'An error occured while creating your transaction!';
 				return;
 			}
 		},
 		[
 			address,
-			configuration?.asset.normalizedBigAmount,
-			configuration?.asset.token,
-			configuration?.opportunity?.chainID,
+			approvalStatus,
+			inputAsset.normalizedBigAmount,
+			inputAsset.token,
+			outputTokenAddress,
+			permitSignature,
 			provider,
 			triggerRetreiveAllowance
 		]
@@ -271,25 +298,27 @@ export const usePortalsSolver = (
 	const execute = useCallback(async (): Promise<TTxResponse> => {
 		assert(provider, 'Provider is not set');
 		assert(latestQuote, 'Quote is not set');
-		assert(configuration?.asset.token, 'Input token is not set');
-		assert(configuration?.opportunity, 'Output token is not set');
+		assert(inputAsset.token, 'Input token is not set');
+		assert(outputTokenAddress, 'Output token is not set');
 
 		try {
-			let inputToken = configuration?.asset.token.address;
-			const outputToken = configuration?.opportunity.address;
+			let inputToken = inputAsset.token.address;
+			const outputToken = outputTokenAddress;
 			if (isEthAddress(inputToken)) {
 				inputToken = zeroAddress;
 			}
-			const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+			const network = PORTALS_NETWORK.get(inputAsset.token.chainID);
 			const transaction = await getPortalsTx({
 				params: {
 					sender: toAddress(address),
 					inputToken: `${network}:${toAddress(inputToken)}`,
 					outputToken: `${network}:${toAddress(outputToken)}`,
-					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					inputAmount: toBigInt(inputAsset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false'
+					validate: isWalletSafe ? 'false' : 'true',
+					permitSignature: permitSignature?.signature || undefined,
+					permitDeadline: permitSignature?.deadline ? permitSignature.deadline.toString() : undefined
 				}
 			});
 
@@ -302,9 +331,9 @@ export const usePortalsSolver = (
 			} = transaction.result;
 			const wagmiProvider = await toWagmiProvider(provider);
 
-			if (wagmiProvider.chainId !== configuration?.asset.token.chainID) {
+			if (wagmiProvider.chainId !== inputAsset.token.chainID) {
 				try {
-					await switchChain(retrieveConfig(), {chainId: configuration?.asset.token.chainID});
+					await switchChain(retrieveConfig(), {chainId: inputAsset.token.chainID});
 				} catch (error) {
 					if (!(error instanceof BaseError)) {
 						return {isSuccessful: false, error};
@@ -321,7 +350,7 @@ export const usePortalsSolver = (
 				value: toBigInt(value ?? 0),
 				to: toAddress(to),
 				data,
-				chainId: configuration?.asset.token.chainID,
+				chainId: inputAsset.token.chainID,
 
 				...rest
 			});
@@ -335,25 +364,33 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
+			console.dir(error);
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
 				console.error(errorMessage);
 			} else {
-				toast.error((error as BaseError).shortMessage);
+				toast.error((error as BaseError).shortMessage || 'An error occured while creating your transaction!');
 				console.error(error);
 			}
 
 			return {isSuccessful: false};
+		} finally {
+			if (permitSignature) {
+				set_permitSignature(undefined);
+				set_allowance(zeroNormalizedBN);
+			}
 		}
 	}, [
-		address,
-		configuration?.asset.normalizedBigAmount?.raw,
-		configuration?.asset.token,
-		configuration?.opportunity,
-		isStablecoin,
+		provider,
 		latestQuote,
-		provider
+		inputAsset.token,
+		inputAsset.normalizedBigAmount?.raw,
+		outputTokenAddress,
+		address,
+		isStablecoin,
+		isWalletSafe,
+		permitSignature
 	]);
 
 	/**********************************************************************************************
@@ -381,27 +418,27 @@ export const usePortalsSolver = (
 		async (onSuccess: () => void): Promise<void> => {
 			assert(provider, 'Provider is not set');
 			assert(latestQuote, 'Quote is not set');
-			assert(configuration?.asset.token, 'Input token is not set');
-			assert(configuration?.opportunity, 'Output token is not set');
+			assert(inputAsset.token, 'Input token is not set');
+			assert(outputTokenAddress, 'Output token is not set');
 
 			set_depositStatus({...defaultTxStatus, pending: true});
 
-			let inputToken = configuration?.asset.token.address;
-			const outputToken = configuration?.opportunity.address;
+			let inputToken = inputAsset.token.address;
+			const outputToken = outputTokenAddress;
 			if (isEthAddress(inputToken)) {
 				inputToken = zeroAddress;
 			}
 
-			const network = PORTALS_NETWORK.get(configuration?.asset.token.chainID);
+			const network = PORTALS_NETWORK.get(inputAsset.token.chainID);
 			const transaction = await getPortalsTx({
 				params: {
 					sender: toAddress(address),
 					inputToken: `${network}:${toAddress(inputToken)}`,
 					outputToken: `${network}:${toAddress(outputToken)}`,
-					inputAmount: toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
+					inputAmount: toBigInt(inputAsset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
 					// TODO figure out what slippage do we need
-					validate: 'false'
+					validate: isWalletSafe ? 'false' : 'true'
 				}
 			});
 
@@ -420,8 +457,8 @@ export const usePortalsSolver = (
 
 			if (!isZeroAddress(inputToken)) {
 				const approveTransactionForBatch = getApproveTransaction(
-					toBigInt(configuration?.asset.normalizedBigAmount?.raw).toString(),
-					toAddress(configuration.asset.token?.address),
+					toBigInt(inputAsset.normalizedBigAmount?.raw).toString(),
+					toAddress(inputAsset.token?.address),
 					toAddress(to)
 				);
 
@@ -455,17 +492,24 @@ export const usePortalsSolver = (
 			} catch (error) {
 				set_depositStatus({...defaultTxStatus, error: true});
 				toast.error((error as BaseError)?.message || 'An error occured while creating your transaction!');
+			} finally {
+				if (permitSignature) {
+					set_permitSignature(undefined);
+					set_allowance(zeroNormalizedBN);
+				}
 			}
 		},
 		[
-			address,
-			configuration.asset.normalizedBigAmount?.raw,
-			configuration.asset.token,
-			configuration.opportunity,
-			isStablecoin,
-			latestQuote,
 			provider,
-			sdk.txs
+			latestQuote,
+			inputAsset.token,
+			inputAsset.normalizedBigAmount?.raw,
+			outputTokenAddress,
+			address,
+			isStablecoin,
+			isWalletSafe,
+			sdk.txs,
+			permitSignature
 		]
 	);
 

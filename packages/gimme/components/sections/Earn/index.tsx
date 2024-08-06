@@ -26,7 +26,7 @@ export function Earn(): ReactElement {
 	const {configuration, dispatchConfiguration} = useEarnFlow();
 	const uniqueIdentifier = useRef<string | undefined>(undefined);
 	const {quote, isFetchingQuote} = useSolver();
-	const {isZapNeededForDeposit, isZapNeededForWithdraw} = useIsZapNeeded(configuration);
+	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
 	const chain = useCurrentChain();
 
 	const isWithdrawing =
@@ -126,7 +126,7 @@ export function Earn(): ReactElement {
 					/>
 
 					{!isWithdrawing && <SelectOpportunityButton onSetOpportunity={onSetOpportunity} />}
-					{isZapNeededForDeposit || isZapNeededForWithdraw ? (
+					{isZapNeeded ? (
 						<div
 							className={
 								'bg-grey-0 border-grey-200 text-grey-700 w-full items-center rounded-2xl border p-4 pr-6 text-xs font-medium md:min-h-[66px]'

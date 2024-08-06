@@ -1,14 +1,16 @@
 import {createContext, useContext, useMemo} from 'react';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {defaultTxStatus, type TTxStatus} from '@builtbymom/web3/utils/wagmi';
-import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
+import {useWithdrawFlow} from '@gimmmeSections/Portfolio/Withdraw/useWithdrawFlow';
 
 import {useIsZapNeeded} from '../hooks/helpers/useIsZapNeeded';
 import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
-import {useVanilaSolver} from '../hooks/solvers/useVanilaSolver';
+import {type TWithdrawSolverHelper, useWithdraw} from '../hooks/solvers/useWithdraw';
 
 import type {ReactElement} from 'react';
 import type {TNormalizedBN} from '@builtbymom/web3/types';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
 import type {TPortalsEstimate} from '@lib/utils/api.portals';
 
 /**************************************************************************************************
@@ -39,14 +41,19 @@ export type TSolverContextBase = {
  * 1. Current solver actions
  * 2. Current solver withdraw actions (same for every solver)
  */
+type TSolverContext = TSolverContextBase & TWithdrawSolverHelper;
 
-const SolverContext = createContext<TSolverContextBase>({
+const WithdrawSolverContext = createContext<TSolverContext>({
 	approvalStatus: defaultTxStatus,
 	onApprove: async (): Promise<void> => undefined,
 	allowance: zeroNormalizedBN,
 	isDisabled: false,
 	isApproved: false,
 	isFetchingAllowance: false,
+
+	withdrawStatus: defaultTxStatus,
+	onExecuteWithdraw: async (): Promise<void> => undefined,
+	set_withdrawStatus: (): void => undefined,
 
 	depositStatus: defaultTxStatus,
 	set_depositStatus: (): void => undefined,
@@ -58,23 +65,34 @@ const SolverContext = createContext<TSolverContextBase>({
 	quote: null
 });
 
-export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
-	const {configuration} = useEarnFlow();
-	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
-	const vanila = useVanilaSolver(
-		configuration.asset,
-		configuration.opportunity?.address,
-		configuration.opportunity?.version,
-		isZapNeeded
-	);
-	const portals = usePortalsSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
+export function WithdrawSolverContextApp({children}: {children: ReactElement}): ReactElement {
+	const {configuration} = useWithdrawFlow();
+	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 
-	const currentSolver = useMemo(() => {
-		if (isZapNeeded) {
-			return portals;
-		}
-		return vanila;
-	}, [isZapNeeded, portals, vanila]);
-	return <SolverContext.Provider value={currentSolver}>{children}</SolverContext.Provider>;
+	const {getToken} = useWallet();
+	const vaultToken = getToken({
+		address: toAddress(configuration.vault?.address),
+		chainID: configuration.vault?.chainID || 137
+	});
+
+	const vaultInputElementLike: TTokenAmountInputElement = useMemo(
+		() => ({
+			amount: vaultToken.balance.display,
+			normalizedBigAmount: vaultToken.balance,
+			isValid: 'undetermined',
+			token: vaultToken,
+			status: 'none',
+			UUID: crypto.randomUUID()
+		}),
+		[vaultToken]
+	);
+	const portals = usePortalsSolver(vaultInputElementLike, configuration.tokenToReceive?.address, isZapNeeded);
+	const withdrawHelper = useWithdraw(configuration.asset, configuration.vault);
+
+	return (
+		<WithdrawSolverContext.Provider value={{...portals, ...withdrawHelper}}>
+			{children}
+		</WithdrawSolverContext.Provider>
+	);
 }
-export const useSolver = (): TSolverContextBase => useContext(SolverContext);
+export const useWithdrawSolver = (): TSolverContext => useContext(WithdrawSolverContext);
