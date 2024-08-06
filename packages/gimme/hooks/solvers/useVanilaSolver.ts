@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useState} from 'react';
 import toast from 'react-hot-toast';
 import {erc20Abi} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -10,11 +10,10 @@ import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract} from '@wagmi/core';
 import {deposit} from '@lib/utils/actions';
 import {getApproveTransaction, getDepositTransaction} from '@lib/utils/tools.gnosis';
-import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 
 import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
 import type {BaseError} from 'viem';
-import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
+import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 export const useVanilaSolver = (
@@ -28,7 +27,6 @@ export const useVanilaSolver = (
 	const [approvalStatus, set_approvalStatus] = useState(defaultTxStatus);
 	const [depositStatus, set_depositStatus] = useState(defaultTxStatus);
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
-	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
 	const isAboveAllowance = allowance.raw >= inputAsset.normalizedBigAmount.raw;
 
 	const shouldDisableFetches = !inputAsset.amount || !outputTokenAddress || !inputAsset.token || isZapNeeded;
@@ -37,38 +35,24 @@ export const useVanilaSolver = (
 	 ** Retrieve the allowance for the token to be used by the solver. This will
 	 ** be used to determine if the user should approve the token or not.
 	 *********************************************************************************************/
-	const onRetrieveAllowance = useCallback(
-		async (shouldForceRefetch?: boolean): Promise<TNormalizedBN> => {
-			if (!inputAsset.token || !outputTokenAddress || !provider || isEthAddress(inputAsset.token.address)) {
-				return zeroNormalizedBN;
-			}
+	const onRetrieveAllowance = useCallback(async (): Promise<TNormalizedBN> => {
+		if (!inputAsset.token || !outputTokenAddress || !provider || isEthAddress(inputAsset.token.address)) {
+			return zeroNormalizedBN;
+		}
 
-			const key = allowanceKey(
-				inputAsset.token.chainID,
-				toAddress(inputAsset.token.address),
-				toAddress(outputTokenAddress),
-				toAddress(address)
-			);
-			if (existingAllowances.current[key] && !shouldForceRefetch) {
-				return existingAllowances.current[key];
-			}
+		set_isFetchingAllowance(true);
+		const allowance = await readContract(retrieveConfig(), {
+			chainId: Number(inputAsset.token.chainID),
+			abi: erc20Abi,
+			address: toAddress(inputAsset.token.address),
+			functionName: 'allowance',
+			args: [toAddress(address), toAddress(outputTokenAddress)]
+		});
 
-			set_isFetchingAllowance(true);
-			const allowance = await readContract(retrieveConfig(), {
-				chainId: Number(inputAsset.token.chainID),
-				abi: erc20Abi,
-				address: toAddress(inputAsset.token.address),
-				functionName: 'allowance',
-				args: [toAddress(address), toAddress(outputTokenAddress)]
-			});
+		set_isFetchingAllowance(false);
 
-			set_isFetchingAllowance(false);
-
-			existingAllowances.current[key] = toNormalizedBN(allowance, inputAsset.token.decimals);
-			return existingAllowances.current[key];
-		},
-		[address, inputAsset.token, outputTokenAddress, provider]
-	);
+		return toNormalizedBN(allowance, inputAsset.token.decimals);
+	}, [address, inputAsset.token, outputTokenAddress, provider]);
 
 	/**********************************************************************************************
 	 ** SWR hook to get the expected out for a given in/out pair with a specific amount. This hook
@@ -78,7 +62,7 @@ export const useVanilaSolver = (
 		if (shouldDisableFetches) {
 			return;
 		}
-		set_allowance(await onRetrieveAllowance(false));
+		set_allowance(await onRetrieveAllowance());
 	}, [shouldDisableFetches, onRetrieveAllowance]);
 
 	/**********************************************************************************************
@@ -100,7 +84,7 @@ export const useVanilaSolver = (
 				amount: inputAsset.normalizedBigAmount?.raw || 0n,
 				statusHandler: set_approvalStatus
 			});
-			set_allowance(await onRetrieveAllowance(true));
+			set_allowance(await onRetrieveAllowance());
 			if (result.isSuccessful) {
 				onSuccess?.();
 			}
@@ -167,7 +151,7 @@ export const useVanilaSolver = (
 				statusHandler: set_depositStatus
 			});
 
-			onRetrieveAllowance(true);
+			onRetrieveAllowance();
 			if (result.isSuccessful) {
 				onSuccess();
 				set_depositStatus({...defaultTxStatus, success: true});
