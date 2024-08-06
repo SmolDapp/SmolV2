@@ -77,14 +77,14 @@ export function WithdrawSolverContextApp({children}: {children: ReactElement}): 
 
 	const vaultInputElementLike: TTokenAmountInputElement = useMemo(
 		() => ({
-			amount: configuration.asset.normalizedBigAmount.display,
-			normalizedBigAmount: configuration?.asset?.normalizedBigAmount,
+			amount: vaultToken.balance.display,
+			normalizedBigAmount: vaultToken.balance,
 			isValid: 'undetermined',
 			token: vaultToken,
 			status: 'none',
 			UUID: crypto.randomUUID()
 		}),
-		[configuration.asset.normalizedBigAmount, vaultToken]
+		[vaultToken]
 	);
 	const portals = usePortalsSolver(vaultInputElementLike, configuration.tokenToReceive?.address, isZapNeeded);
 	const withdrawHelper = useWithdraw(configuration.asset, configuration.vault);

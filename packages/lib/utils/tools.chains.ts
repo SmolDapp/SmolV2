@@ -44,6 +44,7 @@ type TSmolChains = TNDict<
 		coingeckoGasCoinID: string;
 		llamaChainName?: string;
 		disperseAddress: TAddress;
+		yearnRouterAddress: TAddress | undefined;
 	}
 >;
 
@@ -101,6 +102,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(mainnet)
 	},
 	[optimism.id]: {
@@ -113,6 +115,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'optimism',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(optimism)
 	},
 	[bsc.id]: {
@@ -124,6 +127,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'binancecoin',
 		llamaChainName: 'bsc',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(bsc)
 	},
 	[gnosis.id]: {
@@ -135,6 +139,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'xdai',
 		llamaChainName: 'xdai',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(gnosis)
 	},
 	[polygon.id]: {
@@ -146,6 +151,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'matic-network',
 		llamaChainName: 'polygon',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(polygon)
 	},
 	[polygonZkEvm.id]: {
@@ -156,6 +162,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/home?safe=zkevm:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(polygonZkEvm)
 	},
 	[fantom.id]: {
@@ -167,6 +174,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'fantom',
 		llamaChainName: 'fantom',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(fantom)
 	},
 	[zkSync.id]: {
@@ -177,6 +185,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/home?safe=zksync:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(zkSync)
 	},
 	[mantle.id]: {
@@ -187,6 +196,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://multisig.mantle.xyz/home?safe=mantle:',
 		coingeckoGasCoinID: 'mantle',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(mantle)
 	},
 	[base.id]: {
@@ -198,6 +208,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'base',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(base)
 	},
 	[sepolia.id]: {
@@ -208,6 +219,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/apps?safe=sep:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(sepolia)
 	},
 	[baseSepolia.id]: {
@@ -218,6 +230,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/home?safe=basesep:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(baseSepolia)
 	},
 	[arbitrum.id]: {
@@ -229,6 +242,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'arbitrum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: toAddress('0x1112dbcf805682e828606f74ab717abf4b4fd8de'),
 		rpcUrls: assignRPCUrls(arbitrum)
 	},
 	[celo.id]: {
@@ -240,6 +254,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'celo',
 		llamaChainName: 'celo',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(celo)
 	},
 	[avalanche.id]: {
@@ -251,6 +266,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'avalanche-2',
 		llamaChainName: 'avax',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(avalanche)
 	},
 	[linea.id]: {
@@ -261,6 +277,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.linea.build/home?safe=linea:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(linea)
 	},
 	[scroll.id]: {
@@ -272,6 +289,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'scroll',
 		disperseAddress: toAddress('0x38a9C84bAaf727F8E09deF72C4Dc224fEFf2028F'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(scroll)
 	},
 	[metis.id]: {
@@ -282,6 +300,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://metissafe.tech/home?safe=metis-andromeda:',
 		coingeckoGasCoinID: 'metis-token',
 		disperseAddress: toAddress('0x8137aba86f91c8E592d6A791e06D0C868DBad3C8'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(metis)
 	},
 	[aurora.id]: {
@@ -292,6 +311,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/home?safe=aurora:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xe025e5B1c61FD98e33F02caC811469664A81b4BD'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(aurora)
 	},
 	[zora.id]: {
@@ -302,6 +322,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.optimism.io/home?safe=zora:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xF7D540b9d4b94a24389802Bcf2f6f02013d08142'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(zora)
 	},
 	[mode.id]: {
@@ -312,6 +333,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.optimism.io/home?safe=mode:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(mode)
 	},
 	[fraxtal.id]: {
@@ -322,6 +344,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.mainnet.frax.com/home?safe=fraxtal:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xC813978A4c104250B1d2bC198cC7bE74b68Cd81b'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(fraxtal)
 	},
 	[confluxESpace.id]: {
@@ -332,6 +355,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.conflux123.xyz/home?safe=CFX:',
 		coingeckoGasCoinID: 'conflux-token',
 		disperseAddress: toAddress('0x8137aba86f91c8e592d6a791e06d0c868dbad3c8'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(confluxESpace)
 	},
 	[blast.id]: {
@@ -342,6 +366,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://blast-safe.io/home?safe=blast:',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0x274889F6864Bc0493BfEe3CF292A2A0ba1A76951'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(blast)
 	},
 	[filecoin.id]: {
@@ -353,6 +378,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'filecoin',
 		llamaChainName: 'filecoin',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(filecoin)
 	}
 };
@@ -366,6 +392,7 @@ if (isDev) {
 		safeAPIURI: 'https://safe-transaction-base.safe.global',
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: zeroAddress,
+		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(localhost, ['http://localhost:8545'])
 	};
 }

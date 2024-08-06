@@ -61,7 +61,12 @@ const SolverContext = createContext<TSolverContextBase>({
 export function SolverContextApp({children}: {children: ReactElement}): ReactElement {
 	const {configuration} = useEarnFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.opportunity?.token.address);
-	const vanila = useVanilaSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
+	const vanila = useVanilaSolver(
+		configuration.asset,
+		configuration.opportunity?.address,
+		configuration.opportunity?.version,
+		isZapNeeded
+	);
 	const portals = usePortalsSolver(configuration.asset, configuration.opportunity?.address, isZapNeeded);
 
 	const currentSolver = useMemo(() => {

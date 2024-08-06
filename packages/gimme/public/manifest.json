@@ -1,12 +1,12 @@
 {
-	"name": "Dump Services",
-	"short_name": "Dump.Services",
-	"description": "Dump your tokens like a pro",
+	"name": "Gimme",
+	"short_name": "Gimme",
+	"description": "DeFi yields, designed for everyone.",
 	"locale": "en-US",
-	"uri": "https://dump.services/",
-	"og": "https://dump.services/og.png",
-	"iconPath": "https://dump.services/favicons/favicon.svg",
-	"twitter": "@smoldapp",
+	"uri": "https://gimme.mom/",
+	"og": "https://gimme.mom/og.png",
+	"iconPath": "https://gimme.mom/favicons/favicon.png",
+	"twitter": "@built_by_mom",
 	"icons": [
 		{
 			"src": "/favicons/android-icon-192x192.png",
@@ -25,7 +25,7 @@
 			"type": "image/png"
 		}
 	],
-	"theme_color": "#FF90A1",
+	"theme_color": "#FFD915",
 	"background_color": "#FFFFFF",
 	"title_color": "#000000",
 	"start_url": "/",
