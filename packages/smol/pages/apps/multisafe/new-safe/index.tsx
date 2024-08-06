@@ -13,7 +13,7 @@ import {
 } from 'packages/smol/components/Multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'packages/smol/components/Multisafe/useMultisafe';
 import {createUniqueID, generateArgInitializers} from 'packages/smol/components/Multisafe/utils';
-import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex} from 'viem';
+import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex, zeroAddress} from 'viem';
 import {serialize} from 'wagmi';
 import {cl, isZeroAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
@@ -205,7 +205,7 @@ function Safe(): ReactElement {
 			seed = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));
 		}
 		const ownersAddresses = owners.map(owner => toAddress(owner.address));
-		const argInitializers = generateArgInitializers(ownersAddresses, threshold);
+		const argInitializers = generateArgInitializers(ownersAddresses, threshold, zeroAddress);
 		const singletonFactory = hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
 		const bytecode = encodePacked(['bytes', 'uint256'], [GNOSIS_SAFE_PROXY_CREATION_CODE, singletonFactory]);
 		const result = await compute({
