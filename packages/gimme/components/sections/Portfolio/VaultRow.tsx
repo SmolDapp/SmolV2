@@ -33,8 +33,6 @@ export function VaultRow(props: {
 
 	/**********************************************************************************************
 	 * Function that is used to handle redirecting to the earn page with proper query params.
-	 * There 2 cases this function can be used:
-	 * 1. Deposit
 	 * @param tokenAddress is vault token address
 	 * @param vaultAddress is address of the current vault
 
