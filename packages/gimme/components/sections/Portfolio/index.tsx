@@ -131,10 +131,6 @@ export function Portfolio(): ReactNode {
 		set_balances(result);
 	}, [address, userVaultsArray, blockNumber]);
 
-	const sortedVaultsWithBalance = sortedVaults.filter(vault => {
-		return balances[vault.address].raw > 0n;
-	});
-
 	/**********************************************************************************************
 	 * Total savings in USD
 	 *********************************************************************************************/
@@ -174,7 +170,7 @@ export function Portfolio(): ReactNode {
 
 		return (
 			<div className={'flex max-h-[366px] flex-col gap-2 overflow-y-auto'}>
-				{sortedVaultsWithBalance.map(vault => (
+				{sortedVaults.map(vault => (
 					<VaultRow
 						key={vault.address}
 						vault={vault}

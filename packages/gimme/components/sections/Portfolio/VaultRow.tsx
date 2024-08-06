@@ -37,17 +37,13 @@ export function VaultRow(props: {
 	 * 1. Deposit
 	 * @param tokenAddress is vault token address
 	 * @param vaultAddress is address of the current vault
-	 *
-	 * 2. Withdraw
-	 * @param tokenAddress is a vault address (form should be populated with staking token to be
-	 * able to withraw)
-	 * @param vaultAddress is not present
+
 	 *********************************************************************************************/
-	const onAction = async (args: {tokenAddress: TAddress; vaultAddress?: TAddress}): Promise<void> => {
+	const onAction = async (args: {tokenAddress: TAddress; vaultAddress: TAddress}): Promise<void> => {
 		try {
 			const URLQueryParam = new URLSearchParams();
 			URLQueryParam.set('tokenAddress', toAddress(args.tokenAddress));
-			args.vaultAddress && URLQueryParam.set('vaultAddress', toAddress(args.vaultAddress));
+			URLQueryParam.set('vaultAddress', toAddress(args.vaultAddress));
 
 			if (props.vault.chainID !== chain.id) {
 				await switchChainAsync({connector, chainId: props.vault.chainID});
@@ -171,7 +167,7 @@ export function VaultRow(props: {
 				</div>
 				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>
 					<Button
-						onClick={async () => onAction({tokenAddress: props.vault.address})}
+						onClick={onWithdraw}
 						className={'!h-10 w-full'}>
 						{'Withdraw'}
 					</Button>
