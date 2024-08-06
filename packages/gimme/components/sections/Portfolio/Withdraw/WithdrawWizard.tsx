@@ -3,7 +3,7 @@ import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
-import {ETH_TOKEN_ADDRESS, toAddress, toBigInt} from '@builtbymom/web3/utils';
+import {ETH_TOKEN_ADDRESS, isAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
 import {Button} from '@lib/primitives/Button';
@@ -13,7 +13,7 @@ import {useWithdrawFlow} from './useWithdrawFlow';
 export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 	const {configuration, onResetWithdraw} = useWithdrawFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
-	const {onRefresh} = useWallet();
+	const {onRefresh, getToken} = useWallet();
 	const {
 		onExecuteWithdraw,
 		onExecuteDeposit: onExecutePortalsWithdraw,
@@ -78,10 +78,16 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 					address: toAddress(configuration.asset.token.address),
 					chainID: Number(configuration.asset.token.chainID)
 				});
-
-				configuration.vault &&
-					tokensToRefresh.push({...configuration.vault.token, chainID: configuration.asset.token.chainID});
 			}
+
+			const vaultToken = getToken({
+				address: toAddress(configuration.vault?.address),
+				chainID: configuration.vault?.chainID || 137
+			});
+			if (isAddress(vaultToken.address)) {
+				tokensToRefresh.push(vaultToken);
+			}
+
 			if (configuration.tokenToReceive) {
 				tokensToRefresh.push({
 					decimals: configuration.tokenToReceive.decimals,
@@ -104,13 +110,14 @@ export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
 					chainID: Number(currentChainID)
 				});
 			}
-
 			onRefresh(tokensToRefresh, false, true);
 		},
 		[
 			configuration.asset.token,
+			configuration.vault?.address,
+			configuration.vault?.chainID,
 			configuration.tokenToReceive,
-			configuration.vault,
+			getToken,
 			chain.id,
 			onRefresh,
 			getModalMessage
