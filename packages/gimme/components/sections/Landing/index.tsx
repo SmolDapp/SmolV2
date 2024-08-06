@@ -1,6 +1,5 @@
 import {type ReactElement} from 'react';
 import Image from 'next/image';
-import {LicenseInfo} from '@gimmeDesignSystem/LicenseInfo';
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 
 export function Landing(): ReactElement {
@@ -99,7 +98,6 @@ export function Landing(): ReactElement {
 					</div>
 				))}
 			</div>
-			<LicenseInfo />
 		</div>
 	);
 }

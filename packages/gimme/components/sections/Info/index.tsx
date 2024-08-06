@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import {LicenseInfo} from '@gimmeDesignSystem/LicenseInfo';
 import {IconShare} from '@lib/icons/IconShare';
 
 import type {ReactElement} from 'react';
@@ -57,7 +56,6 @@ export function InfoSection(): ReactElement {
 					<IconShare className={'size-2'} />
 				</Link>
 			</div>
-			<LicenseInfo />
 		</div>
 	);
 }

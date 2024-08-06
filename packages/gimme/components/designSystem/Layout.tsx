@@ -1,6 +1,8 @@
 import {type ReactElement, type ReactNode} from 'react';
+import {useRouter} from 'next/router';
 import {AnimatePresence, motion} from 'framer-motion';
 
+import {LicenseInfo} from './LicenseInfo';
 import {TopBar} from './TopBar';
 
 import type {AppProps} from 'next/app';
@@ -15,6 +17,9 @@ function App(props: TAppProp): ReactElement {
 
 export default function Layout(props: AppProps): ReactElement {
 	const {Component, router} = props;
+	const {pathname} = useRouter();
+
+	const isLandingPage = pathname === '/' || pathname === '/info';
 
 	return (
 		<>
@@ -36,6 +41,9 @@ export default function Layout(props: AppProps): ReactElement {
 					</motion.div>
 				</AnimatePresence>
 			</App>
+			<div className={'absolute inset-x-0 bottom-40 z-[60] md:bottom-0'}>
+				{isLandingPage ? <LicenseInfo /> : null}
+			</div>
 		</>
 	);
 }

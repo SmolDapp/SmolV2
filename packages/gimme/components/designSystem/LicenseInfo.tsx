@@ -2,10 +2,7 @@ import type {ReactElement} from 'react';
 
 export function LicenseInfo(): ReactElement {
 	return (
-		<div
-			className={
-				'absolute inset-x-0 bottom-[180px] flex grid-cols-11 flex-col place-items-end items-center justify-center gap-8 p-4 md:bottom-0 md:grid'
-			}>
+		<div className={'flex grid-cols-11 flex-col place-items-end items-center justify-center gap-8 p-4 md:grid'}>
 			<div
 				className={
 					'md:text-grey-700 text-grey-800 text-xxs w-full place-content-center text-center md:col-span-7 md:col-start-3 lg:col-span-7 lg:col-start-3'
