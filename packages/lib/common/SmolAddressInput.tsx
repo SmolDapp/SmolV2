@@ -1,7 +1,15 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useSendContext} from 'packages/smol/components/Send/useSendContext';
 import {useOnClickOutside} from 'usehooks-ts';
-import {cl, isAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {type GetEnsAddressReturnType} from 'viem';
+import {mainnet} from 'viem/chains';
+import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
+import {useChainID} from '@builtbymom/web3/hooks/useChainID';
+import {cl, isAddress, isZeroAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
+import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {IconPlus} from '@gimmeDesignSystem/IconPlus';
 import {useAsyncAbortable} from '@react-hookz/web';
+import {getEnsAddress} from '@wagmi/core';
 import {TextTruncate} from '@lib/common/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
@@ -10,12 +18,12 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconLoader} from '@lib/icons/IconLoader';
+import {getIsSmartContract, type TInputAddressLike} from '@lib/utils/tools.address';
 
 import {AvatarWrapper} from './Avatar';
 
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 import type {TAddress} from '@builtbymom/web3/types';
-import type {TInputAddressLike} from '@lib/utils/tools.address';
 
 type TAddressInput = {
 	onSetValue: (value: Partial<TInputAddressLike>) => void;
@@ -39,6 +47,7 @@ export function AddressAvatarButton(props: {address: TAddress; onClick: () => vo
 						<IconAppAddressBook className={'size-4 text-neutral-600'} />
 					) : (
 						<AvatarWrapper
+							isClickable={false}
 							address={toAddress(props.address)}
 							sizeClassname={'h-8 w-8 min-w-8'}
 						/>
@@ -48,6 +57,21 @@ export function AddressAvatarButton(props: {address: TAddress; onClick: () => vo
 				<IconChevron className={'size-4 min-w-4 text-neutral-600'} />
 			</button>
 		</div>
+	);
+}
+
+/**************************************************************************************************
+ ** Renders a button with a plus icon and "Add Contact" text. The button executes the provided
+ ** onClick function and opens the curtain for adding contact to AB.
+ *************************************************************************************************/
+function AddButton({onClick}: {onClick: VoidFunction}): ReactElement {
+	return (
+		<button
+			className={'flex w-fit flex-1 flex-col items-center rounded-[3px] bg-neutral-200 px-4 py-[14px]'}
+			onClick={onClick}>
+			<IconPlus className={'mb-1 size-4'} />
+			<span className={'whitespace-nowrap text-[10px]'}>{'Add Contact'}</span>
+		</button>
 	);
 }
 
@@ -91,7 +115,102 @@ export function SmolAddressInput({
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const {isCheckingValidity, validate} = useValidateAddressInput();
 	const [{result}, actions] = useAsyncAbortable(validate, undefined);
-	const {getCachedEntry} = useAddressBook();
+	const {getCachedEntry, getEntry, dispatchConfiguration, set_curtainStatus} = useAddressBook();
+	const {safeChainID} = useChainID();
+	const [shouldAddToAddressBook, set_shouldAddToAddressBook] = useState(false);
+	const {configuration} = useSendContext();
+
+	/**********************************************************************************************
+	 ** Triggers an asynchronous operation to check if the receiver's address exists in the
+	 ** address book and if it is a smart contract. It then updates the state to determine whether
+	 ** the address should be added to the address book.
+	 *********************************************************************************************/
+	useAsyncTrigger(async () => {
+		const fromAddressBook = await getEntry({address: configuration.receiver.address});
+		const isSmartContract =
+			!!configuration.receiver.address &&
+			(await getIsSmartContract({
+				address: configuration.receiver.address,
+				chainId: safeChainID
+			}));
+		set_shouldAddToAddressBook(isSmartContract);
+		set_shouldAddToAddressBook(
+			Boolean((fromAddressBook?.isHidden || !fromAddressBook) && configuration.receiver.address)
+		);
+	}, [configuration.receiver.address, getEntry, safeChainID]);
+
+	const validLabel = useMemo(() => {
+		if (configuration.receiver.label.endsWith('.eth')) {
+			return configuration.receiver.label.split('.').slice(0, -1).join(' ');
+		}
+		return configuration.receiver.label;
+	}, [configuration.receiver.label]);
+
+	/**********************************************************************************************
+	 ** Returns a button component based on whether the address should be added to the AB.
+	 ** If `shouldAddToAddressBook` is true, it returns the `AddButton` component. Otherwise,
+	 ** it returns the `AddressAvatarButton` component.
+	 *********************************************************************************************/
+	const getButton = (onAddClick: VoidFunction): ReactElement => {
+		if (shouldAddToAddressBook) {
+			return <AddButton onClick={onAddClick} />;
+		}
+
+		return (
+			<AddressAvatarButton
+				onClick={() => onOpenCurtain(selectedEntry => onChange(selectedEntry.label))}
+				address={toAddress(value.address)}
+			/>
+		);
+	};
+
+	/**********************************************************************************************
+	 ** If user wants to add the TAddress we just put it in address input. If they use ens, we
+	 ** go with relevant TAddress.
+	 *********************************************************************************************/
+	const getAddress = useCallback(
+		(isSearchAnAddress: boolean, ensAddress: GetEnsAddressReturnType): TAddress | undefined => {
+			if (isSearchAnAddress) {
+				return toAddress(configuration?.receiver.address);
+			}
+			if (ensAddress) {
+				return ensAddress;
+			}
+			return;
+		},
+		[configuration?.receiver.address]
+	);
+
+	/**********************************************************************************************
+	 ** onAddContact is a function that opens AB curtain and sets entered address as entry.
+	 *********************************************************************************************/
+	const onAddContact = async (): Promise<void> => {
+		const hasALabel = isZeroAddress(configuration.receiver.label);
+
+		const isRecieverAnAddress = isAddress(configuration?.receiver.address);
+		const lowerCaseRecieverValue = configuration?.receiver.address?.toLowerCase();
+		const isEnsCandidate = lowerCaseRecieverValue?.endsWith('.eth');
+
+		let ensAddress: GetEnsAddressReturnType = null;
+		if (isEnsCandidate) {
+			ensAddress = await getEnsAddress(retrieveConfig(), {
+				name: lowerCaseRecieverValue ?? '',
+				chainId: mainnet.id
+			});
+		}
+
+		dispatchConfiguration({
+			type: 'SET_SELECTED_ENTRY',
+			payload: {
+				address: getAddress(isRecieverAnAddress, ensAddress),
+				label: hasALabel ? validLabel : '',
+				slugifiedLabel: '',
+				chains: [],
+				isFavorite: false
+			}
+		});
+		set_curtainStatus({isOpen: true, isEditing: true});
+	};
 
 	/**********************************************************************************************
 	 ** On mount, this component can have an autoPopulate value source, which means that we know
@@ -268,12 +387,7 @@ export function SmolAddressInput({
 							)}
 						/>
 					</div>
-					{!isSimple && (
-						<AddressAvatarButton
-							onClick={() => onOpenCurtain(selectedEntry => onChange(selectedEntry.label))}
-							address={toAddress(value.address)}
-						/>
-					)}
+					{!isSimple && getButton(onAddContact)}
 				</label>
 			</div>
 		</div>
