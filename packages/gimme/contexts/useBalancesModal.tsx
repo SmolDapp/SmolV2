@@ -228,8 +228,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		}));
 	}, [vaultsArray]);
 
-	const tokensToUse: TToken[] = address ? props.tokensWithBalance : underlyingTokens;
-
 	/**********************************************************************************************
 	 ** Memo function that filters the tokens user have on the search value.
 	 ** Only tokens the symbol or the address of which includes the search value will be returned.
@@ -242,6 +240,8 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	}
 
 	const filteredTokens = useDeepCompareMemo(() => {
+		const tokensToUse: TToken[] = isAddress(address) ? props.tokensWithBalance : underlyingTokens;
+
 		/******************************************************************************************
 		 ** Lowercase the search value to make the search case-insensitive, but if the search
 		 ** value is empty, we want to return all the tokens.
@@ -296,7 +296,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		 ** and only display the 20 first results.
 		 *****************************************************************************************/
 		return sorted.slice(0, 20);
-	}, [searchValue, tokensToUse]);
+	}, [address, props.tokensWithBalance, searchValue, underlyingTokens]);
 
 	const filteredVaultTokens = filteredTokens.filter(token => !vaults[toAddress(token.address)]);
 
