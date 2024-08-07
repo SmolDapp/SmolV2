@@ -52,17 +52,24 @@ export const usePortalsSolver = (
 	const spendAmount = inputAsset.normalizedBigAmount?.raw ?? 0n;
 	const isAboveAllowance = allowance.raw >= spendAmount;
 	const existingAllowances = useRef<TDict<TNormalizedBN>>({});
-	console.log(latestQuote);
+
+	/**********************************************************************************************
+	 ** It's important not to make extra fetches. For this solver we should disable quote and
+	 ** allowance fetches in 4 cases:
+	 ** 1. No token selected
+	 ** 2. Input amount is either undefined or zero
+	 ** 3. Zap is not needed for this configuration
+	 *********************************************************************************************/
 	const shouldDisableFetches = useMemo(() => {
 		return !inputAsset.token || !inputAsset.amount || !outputTokenAddress || !isZapNeeded;
 	}, [inputAsset.amount, inputAsset.token, isZapNeeded, outputTokenAddress]);
-	console.log(shouldDisableFetches);
+
 	const {getIsStablecoin} = useGetIsStablecoin();
 	const isStablecoin = getIsStablecoin({
 		address: inputAsset.token?.address,
 		chainID: inputAsset.token?.chainID
 	});
-	console.log(inputAsset);
+
 	const onRetrieveQuote = useCallback(async () => {
 		if (!inputAsset.token || !outputTokenAddress || inputAsset.normalizedBigAmount === zeroNormalizedBN) {
 			return;
@@ -116,7 +123,7 @@ export const usePortalsSolver = (
 			if (!latestQuote || !inputAsset.token || !outputTokenAddress) {
 				return zeroNormalizedBN;
 			}
-			if (inputAsset.normalizedBigAmount === zeroNormalizedBN) {
+			if (inputAsset.normalizedBigAmount.raw === zeroNormalizedBN.raw) {
 				return zeroNormalizedBN;
 			}
 
@@ -316,7 +323,6 @@ export const usePortalsSolver = (
 					outputToken: `${network}:${toAddress(outputToken)}`,
 					inputAmount: toBigInt(inputAsset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
-					// TODO figure out what slippage do we need
 					validate: isWalletSafe ? 'false' : 'true',
 					permitSignature: permitSignature?.signature || undefined,
 					permitDeadline: permitSignature?.deadline ? permitSignature.deadline.toString() : undefined
@@ -365,7 +371,7 @@ export const usePortalsSolver = (
 			console.error('Fail to perform transaction');
 			return {isSuccessful: false};
 		} catch (error) {
-			console.dir(error);
+			console.error(error);
 			if (isValidPortalsErrorObject(error)) {
 				const errorMessage = error.response.data.message;
 				toast.error(errorMessage);
@@ -438,7 +444,6 @@ export const usePortalsSolver = (
 					outputToken: `${network}:${toAddress(outputToken)}`,
 					inputAmount: toBigInt(inputAsset.normalizedBigAmount?.raw).toString(),
 					slippageTolerancePercentage: isStablecoin ? String(0.1) : String(1),
-					// TODO figure out what slippage do we need
 					validate: isWalletSafe ? 'false' : 'true'
 				}
 			});
