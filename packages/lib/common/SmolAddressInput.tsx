@@ -69,8 +69,8 @@ function AddButton({onClick}: {onClick: VoidFunction}): ReactElement {
 		<button
 			className={'flex w-fit flex-1 flex-col items-center rounded-[3px] bg-neutral-200 px-4 py-[14px]'}
 			onClick={onClick}>
-			<IconPlus className={'mb-1 size-4'} />
-			<span className={'whitespace-nowrap text-[10px]'}>{'Add Contact'}</span>
+			<IconPlus className={'mb-1 size-4 text-neutral-600'} />
+			<span className={'whitespace-nowrap text-[10px] text-neutral-600'}>{'Add Contact'}</span>
 		</button>
 	);
 }
