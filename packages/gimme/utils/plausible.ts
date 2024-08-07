@@ -3,9 +3,9 @@ export const PLAUSIBLE_EVENTS = {
 	CONNECT_WALLET: 'connect wallet',
 
 	// Earn actions
-	DEPOSIT: 'earn: deposit',
-	SELECT_VAULT: 'earn: select vault',
-	SELECT_TOKEN: 'earn: select token',
+	DEPOSIT: 'deposit',
+	SELECT_VAULT: 'deposit: select vault',
+	SELECT_TOKEN: 'deposit: select token',
 
 	// Withdraw actions
 	WITHDRAW: 'withdraw',
