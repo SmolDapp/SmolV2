@@ -435,7 +435,8 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 			if (_options?.chainID) {
 				const allPopularTokens = listTokens(_options.chainID);
 				/**********************************************************************************
-				 ** COMMENT
+				 ** If the shouldBypassBalanceCheck option is set to true, we want to sort the
+				 ** tokens based on their balance instead of filtering the one with a balance of 0.
 				 *********************************************************************************/
 				if (_options?.shouldBypassBalanceCheck) {
 					const sortedByBalance = allPopularTokens.sort((a, b): number => {
