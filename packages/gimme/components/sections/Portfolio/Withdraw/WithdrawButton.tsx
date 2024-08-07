@@ -59,7 +59,7 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 					{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
 				</span>
 				{' from '}
-				{configuration.vault?.name}
+				{configuration.vault?.name} {'Vault'}
 			</span>
 		);
 	}, [configuration.asset.normalizedBigAmount.display, configuration.asset.token?.symbol, configuration.vault?.name]);

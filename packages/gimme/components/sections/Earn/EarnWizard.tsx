@@ -5,7 +5,6 @@ import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
-import {isAddressEqual} from 'viem';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
@@ -91,7 +90,7 @@ export function EarnWizard(): ReactElement {
 	const {onRefresh, getBalance} = useWallet();
 	const {address, openLoginModal, isWalletSafe} = useWeb3();
 	const {configuration, onResetEarn} = useEarnFlow();
-	const {vaults, vaultsArray} = useVaults();
+	const {vaults} = useVaults();
 	const chain = useCurrentChain();
 
 	const [transactionResult, set_transactionResult] = useState<{isExecuted: boolean; message: ReactElement | null}>({
@@ -112,10 +111,6 @@ export function EarnWizard(): ReactElement {
 	 ** Based on the user action, we can display a different message in the success modal.
 	 *********************************************************************************************/
 	const getModalMessage = useCallback((): ReactElement => {
-		const vaultName = vaultsArray.find(vault =>
-			isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
-		)?.name;
-
 		return (
 			<span>
 				{'Successfully deposited '}
@@ -123,15 +118,13 @@ export function EarnWizard(): ReactElement {
 					{configuration.asset.normalizedBigAmount.display} {configuration.asset.token?.symbol}
 				</span>
 				{' to '}
-				{configuration.opportunity?.name ?? vaultName}
+				{configuration.opportunity?.name} {'Vault'}
 			</span>
 		);
 	}, [
 		configuration.asset.normalizedBigAmount.display,
-		configuration.asset.token?.address,
 		configuration.asset.token?.symbol,
-		configuration.opportunity?.name,
-		vaultsArray
+		configuration.opportunity?.name
 	]);
 
 	/**********************************************************************************************
