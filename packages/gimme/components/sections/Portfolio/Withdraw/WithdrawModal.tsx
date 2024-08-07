@@ -42,6 +42,7 @@ function WithdrawModalContents(props: {
 				<GimmeTokenAmountInput
 					onSetValue={onSetAsset}
 					value={configuration.asset}
+					shouldDisableSelect={true}
 					shouldDisplayTokenLogo={false}
 					title={'Amount'}
 				/>
