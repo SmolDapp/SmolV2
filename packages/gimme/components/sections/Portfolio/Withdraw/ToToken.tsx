@@ -1,8 +1,10 @@
-import {type ReactElement} from 'react';
+import {type ReactElement, useCallback} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {formatCounterValue, formatTAmount, toBigInt, toNormalizedValue} from '@builtbymom/web3/utils';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconChevron} from '@lib/icons/IconChevron';
@@ -90,16 +92,30 @@ export function ToToken(): ReactElement {
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 	const {getPrice} = usePrices();
 
+	const plausible = usePlausible();
+
 	const receivingTokenPrice = configuration.tokenToReceive
 		? getPrice(configuration.tokenToReceive)?.normalized || 0
 		: 0;
 
-	const onSetAssetToReceive = (token: TToken): void => {
-		dispatchConfiguration({
-			type: 'SET_TOKEN_TO_RECEIVE',
-			payload: token
+	const onSetAssetToReceive = useCallback(
+		(token: TToken): void => {
+			dispatchConfiguration({
+				type: 'SET_TOKEN_TO_RECEIVE',
+				payload: token
+			});
+		},
+		[dispatchConfiguration]
+	);
+
+	const onSelectTokenToReceive = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.CHANGE_TOKEN_TO_RECEIVE);
+		onOpenCurtain(token => onSetAssetToReceive(token), {
+			chainID: configuration.asset.token?.chainID,
+			shouldBypassBalanceCheck: true,
+			highlightedTokens: [configuration.asset.token as TToken]
 		});
-	};
+	}, [configuration.asset.token, onOpenCurtain, onSetAssetToReceive, plausible]);
 
 	return (
 		<div className={'outline-grey-200 flex w-full items-center justify-between rounded-2xl p-4 outline sm:px-6'}>
@@ -121,13 +137,7 @@ export function ToToken(): ReactElement {
 					className={
 						'text-grey-800 bg-grey-100 hover:bg-grey-200 flex items-center gap-2 rounded-2xl p-2 text-lg font-medium transition-colors'
 					}
-					onClick={() =>
-						onOpenCurtain(token => onSetAssetToReceive(token), {
-							chainID: configuration.asset.token?.chainID,
-							shouldBypassBalanceCheck: true,
-							highlightedTokens: [configuration.asset.token as TToken]
-						})
-					}>
+					onClick={onSelectTokenToReceive}>
 					<ImageWithFallback
 						alt={configuration.tokenToReceive?.symbol || 'token'}
 						unoptimized

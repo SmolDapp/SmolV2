@@ -1,4 +1,5 @@
 import {type ReactElement, useCallback, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
@@ -7,6 +8,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {ETH_TOKEN_ADDRESS, isAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {Button} from '@lib/primitives/Button';
 
 import {useWithdrawFlow} from './useWithdrawFlow';
@@ -30,6 +32,8 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	} = useWithdrawSolver();
 	const chain = useCurrentChain();
 
+	const plausible = usePlausible();
+
 	const [transactionResult, set_transactionResult] = useState<{isExecuted: boolean; message: ReactElement | null}>({
 		isExecuted: false,
 		message: null
@@ -45,7 +49,7 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	}, [onResetWithdraw, props]);
 
 	/**********************************************************************************************
-	 ** TODO: ADD COMMENT ABOUT THIS GROUP OF CODE
+	 ** This message is to be displayed in success modal after successful tx
 	 *********************************************************************************************/
 	const getModalMessage = useCallback(() => {
 		return (
@@ -127,6 +131,12 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 		]
 	);
 
+	const triggerPlausibleEvent = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.WITHDRAW, {
+			props: {amount: `${configuration.asset.amount} ${configuration.asset.token?.symbol}`}
+		});
+	}, [configuration.asset.amount, configuration.asset.token?.symbol, plausible]);
+
 	/******************************************************************************************
 	 ** There are 3 cases we should handle:
 	 ** 1. Gnosis Safe wallet is connected - if zap needed we should batch approve and withdraw tx
@@ -135,21 +145,31 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	 *****************************************************************************************/
 	const onAction = useCallback(async () => {
 		if (isWalletSafe && isZapNeeded) {
-			return onExecuteWithdrawForGnosis(() => onRefreshTokens('WITHDRAW'));
+			return onExecuteWithdrawForGnosis(() => {
+				triggerPlausibleEvent();
+				onRefreshTokens('WITHDRAW');
+			});
 		}
 		if (!isZapNeeded) {
-			return onExecuteWithdraw(() => onRefreshTokens('WITHDRAW'));
+			return onExecuteWithdraw(() => {
+				triggerPlausibleEvent();
+				onRefreshTokens('WITHDRAW');
+			});
 		}
 		if (!isApproved) {
 			return onApprove(() => onRefreshTokens('APPROVE'));
 		}
-		return onExecutePortalsWithdraw(() => onRefreshTokens('WITHDRAW'));
+		return onExecutePortalsWithdraw(() => {
+			triggerPlausibleEvent();
+			onRefreshTokens('WITHDRAW');
+		});
 	}, [
 		isWalletSafe,
 		isZapNeeded,
 		isApproved,
 		onExecutePortalsWithdraw,
 		onExecuteWithdrawForGnosis,
+		triggerPlausibleEvent,
 		onRefreshTokens,
 		onExecuteWithdraw,
 		onApprove

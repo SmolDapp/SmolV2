@@ -1,11 +1,13 @@
 import {type ReactElement} from 'react';
 import toast from 'react-hot-toast';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {IconMinus} from '@gimmeDesignSystem/IconMinus';
 import {IconPlus} from '@gimmeDesignSystem/IconPlus';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
@@ -30,6 +32,8 @@ export function VaultRow(props: {
 	const {switchChainAsync} = useSwitchChain();
 	const chain = useCurrentChain();
 	const {dispatchConfiguration} = useWithdrawFlow();
+
+	const plausible = usePlausible();
 
 	/**********************************************************************************************
 	 * Function that is used to handle redirecting to the earn page with proper query params.
@@ -78,7 +82,7 @@ export function VaultRow(props: {
 				tokenToReceive: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
 			}
 		});
-
+		plausible(PLAUSIBLE_EVENTS.OPEN_WITHDRAW_MODAL);
 		props.onWithdrawModalChange(true);
 	};
 
