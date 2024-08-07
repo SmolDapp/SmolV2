@@ -4,9 +4,11 @@ import React, {createContext, Fragment, useCallback, useContext, useEffect, useM
 import {usePlausible} from 'next-plausible';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {isAddressEqual} from 'viem';
+import {serialize} from 'wagmi';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl, isAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {FetchedTokenButton} from '@gimmeDesignSystem/FetchedTokenButton';
 import {GimmeTokenButton} from '@gimmeDesignSystem/GimmeTokenButton';
 import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
@@ -16,6 +18,7 @@ import {usePopularTokens} from '@lib/contexts/usePopularTokens';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
 import {useCurrentChain} from '../hooks/useCurrentChain';
@@ -380,19 +383,31 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
 	const chain = useCurrentChain();
 	const {vaultsArray} = useVaults();
+	const {balances, getBalance} = useWallet();
+
+	/**********************************************************************************************
+	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
+	 ** it to know when it changes. This new hash will be used to trigger the useEffect hook.
+	 ** We will use classic hash function to create a hash from the balances object.
+	 *********************************************************************************************/
+	const currentBalanceIdentifier = useMemo(() => {
+		const hash = createUniqueID(serialize(balances));
+		return hash;
+	}, [balances]);
 
 	/**********************************************************************************************
 	 ** underlyingTokens corresponds to the tokens of the vaults we are displaying in the
 	 ** Gimme app.
 	 *********************************************************************************************/
 	const underlyingTokens = useMemo(() => {
+		currentBalanceIdentifier;
 		return vaultsArray.map(vault => ({
 			...vault.token,
 			chainID: vault.chainID,
 			value: 0,
-			balance: zeroNormalizedBN
+			balance: getBalance({address: vault.token.address, chainID: vault.chainID})
 		}));
-	}, [vaultsArray]);
+	}, [currentBalanceIdentifier, vaultsArray, getBalance]);
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -439,10 +454,32 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 				 ** tokens based on their balance instead of filtering the one with a balance of 0.
 				 *********************************************************************************/
 				if (_options?.shouldBypassBalanceCheck) {
-					const sortedByBalance = allPopularTokens.sort((a, b): number => {
-						return b.balance.normalized - a.balance.normalized;
-					});
-					let withUnderlyingTokens = [...underlyingTokens, ...sortedByBalance];
+					const popularWithBalance = [];
+					const popularWithoutBalance = [];
+					for (const token of allPopularTokens) {
+						if (token.balance.raw > 0n) {
+							popularWithBalance.push(token);
+						} else {
+							popularWithoutBalance.push(token);
+						}
+					}
+
+					const underlyingWithBalance = [];
+					const underlyingWithoutBalance = [];
+					for (const token of underlyingTokens) {
+						if (token.balance.raw > 0n) {
+							underlyingWithBalance.push(token);
+						} else {
+							underlyingWithoutBalance.push(token);
+						}
+					}
+
+					let withUnderlyingTokens = [
+						...underlyingWithBalance,
+						...underlyingWithoutBalance,
+						...popularWithBalance,
+						...popularWithoutBalance
+					];
 					if (_options.highlightedTokens) {
 						withUnderlyingTokens = [..._options.highlightedTokens, ...withUnderlyingTokens];
 					}
