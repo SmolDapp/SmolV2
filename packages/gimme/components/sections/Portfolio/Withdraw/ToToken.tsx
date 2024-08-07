@@ -1,4 +1,4 @@
-import {type ReactElement, useCallback} from 'react';
+import {type ReactElement} from 'react';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
@@ -10,6 +10,78 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {useWithdrawFlow} from './useWithdrawFlow';
 
 import type {TToken} from '@builtbymom/web3/types';
+import type {TPortalsEstimate} from '@lib/utils/api.portals';
+
+function ReceivingAmount(props: {
+	isZapNeeded: boolean;
+	isFetchingQuote: boolean;
+	quote: TPortalsEstimate | null;
+}): ReactElement {
+	const {configuration} = useWithdrawFlow();
+	if (!props.isZapNeeded) {
+		return (
+			<p className={'text-grey-800 text-lg'}>
+				{formatTAmount({
+					value: configuration.asset.normalizedBigAmount.raw,
+					decimals: configuration.asset.token?.decimals || 18
+				})}{' '}
+				{configuration.asset.token?.symbol}
+			</p>
+		);
+	}
+
+	if (props.isFetchingQuote || !props.quote) {
+		return (
+			<div className={'flex h-8 w-28 flex-col justify-center'}>
+				<div className={'skeleton-lg h-4 w-full'} />
+			</div>
+		);
+	}
+
+	return (
+		<p className={'text-grey-800 text-lg'}>
+			{formatTAmount({
+				value: toBigInt(props.quote?.outputAmount),
+				decimals: +props.quote?.outputTokenDecimals
+			})}{' '}
+			{configuration.tokenToReceive?.symbol}
+		</p>
+	);
+}
+
+function FiatReceivingValue(props: {
+	price: number;
+	isZapNeeded: boolean;
+	isFetchingQuote: boolean;
+	quote: TPortalsEstimate | null;
+}): ReactElement {
+	const {configuration} = useWithdrawFlow();
+
+	if (!props.isZapNeeded) {
+		return (
+			<p className={'text-grey-700 text-xs'}>
+				{formatCounterValue(configuration.asset.normalizedBigAmount.normalized, props.price)}
+			</p>
+		);
+	}
+
+	if (props.isFetchingQuote || !props.quote) {
+		return (
+			<div className={'flex h-4 w-10 flex-col justify-center'}>
+				<div className={'skeleton-lg h-3 w-full'} />
+			</div>
+		);
+	}
+
+	return (
+		<p className={'text-grey-700 text-xs'}>
+			{formatCounterValue(
+				toNormalizedValue(toBigInt(props.quote.outputAmount), props.quote.outputTokenDecimals),
+				props.price
+			)}
+		</p>
+	);
+}
 
 export function ToToken(): ReactElement {
 	const {configuration, dispatchConfiguration} = useWithdrawFlow();
@@ -18,6 +90,10 @@ export function ToToken(): ReactElement {
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 	const {getPrice} = usePrices();
 
+	const receivingTokenPrice = configuration.tokenToReceive
+		? getPrice(configuration.tokenToReceive)?.normalized || 0
+		: 0;
+
 	const onSetAssetToReceive = (token: TToken): void => {
 		dispatchConfiguration({
 			type: 'SET_TOKEN_TO_RECEIVE',
@@ -25,89 +101,20 @@ export function ToToken(): ReactElement {
 		});
 	};
 
-	const getReceivingAmount = useCallback(() => {
-		if (!isZapNeeded) {
-			return (
-				<p className={'text-grey-800 text-lg'}>
-					{formatTAmount({
-						value: configuration.asset.normalizedBigAmount.raw,
-						decimals: configuration.asset.token?.decimals || 18
-					})}{' '}
-					{configuration.asset.token?.symbol}
-				</p>
-			);
-		}
-
-		if (isFetchingQuote || !quote) {
-			return (
-				<div className={'flex h-8 w-28 flex-col justify-center'}>
-					<div className={'skeleton-lg h-4 w-full'} />
-				</div>
-			);
-		}
-
-		return (
-			<p className={'text-grey-800 text-lg'}>
-				{formatTAmount({
-					value: toBigInt(quote?.outputAmount),
-					decimals: +quote?.outputTokenDecimals
-				})}{' '}
-				{configuration.tokenToReceive?.symbol}
-			</p>
-		);
-	}, [
-		configuration.asset.normalizedBigAmount.raw,
-		configuration.asset.token?.decimals,
-		configuration.asset.token?.symbol,
-		configuration.tokenToReceive?.symbol,
-		isFetchingQuote,
-		isZapNeeded,
-		quote
-	]);
-
-	const getFiatReceivingValue = useCallback(() => {
-		const receivingTokenPrice = configuration.tokenToReceive
-			? getPrice(configuration.tokenToReceive)?.normalized || 0
-			: 0;
-
-		if (!isZapNeeded) {
-			return (
-				<p className={'text-grey-700 text-xs'}>
-					{formatCounterValue(configuration.asset.normalizedBigAmount.normalized, receivingTokenPrice)}
-				</p>
-			);
-		}
-
-		if (isFetchingQuote || !quote) {
-			return (
-				<div className={'flex h-4 w-10 flex-col justify-center'}>
-					<div className={'skeleton-lg h-3 w-full'} />
-				</div>
-			);
-		}
-
-		return (
-			<p className={'text-grey-700 text-xs'}>
-				{formatCounterValue(
-					toNormalizedValue(toBigInt(quote.outputAmount), quote.outputTokenDecimals),
-					receivingTokenPrice
-				)}
-			</p>
-		);
-	}, [
-		configuration.asset.normalizedBigAmount.normalized,
-		configuration.tokenToReceive,
-		getPrice,
-		isFetchingQuote,
-		isZapNeeded,
-		quote
-	]);
-
 	return (
 		<div className={'outline-grey-200 flex w-full items-center justify-between rounded-2xl p-4 outline sm:px-6'}>
 			<div className={'text-left'}>
-				{getReceivingAmount()}
-				{getFiatReceivingValue()}
+				<ReceivingAmount
+					isZapNeeded={isZapNeeded}
+					isFetchingQuote={isFetchingQuote}
+					quote={quote}
+				/>
+				<FiatReceivingValue
+					price={receivingTokenPrice}
+					isZapNeeded={isZapNeeded}
+					isFetchingQuote={isFetchingQuote}
+					quote={quote}
+				/>
 			</div>
 			<div>
 				<button

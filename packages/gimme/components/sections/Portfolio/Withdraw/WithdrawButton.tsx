@@ -11,7 +11,7 @@ import {Button} from '@lib/primitives/Button';
 
 import {useWithdrawFlow} from './useWithdrawFlow';
 
-export function WithdrawWizard(props: {onClose: () => void}): ReactElement {
+export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	const {configuration, onResetWithdraw} = useWithdrawFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 	const {onRefresh, getToken} = useWallet();

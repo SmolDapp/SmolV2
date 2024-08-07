@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useMemo, useReducer, useState} from 'react';
 import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {getNewInput} from '@lib/utils/helpers';
 
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
 import type {Dispatch, ReactElement} from 'react';
@@ -26,14 +26,7 @@ export type TEarn = {
 
 const defaultProps: TEarn = {
 	configuration: {
-		asset: {
-			amount: '',
-			normalizedBigAmount: zeroNormalizedBN,
-			isValid: 'undetermined',
-			token: undefined,
-			status: 'none',
-			UUID: crypto.randomUUID()
-		},
+		asset: getNewInput(),
 		opportunity: undefined
 	},
 	isDeposited: false,
@@ -62,14 +55,7 @@ export const EarnContextApp = ({children}: {children: TOptionalRenderProps<TEarn
 
 			case 'RESET':
 				return {
-					asset: {
-						amount: '',
-						normalizedBigAmount: zeroNormalizedBN,
-						isValid: 'undetermined',
-						token: undefined,
-						status: 'none',
-						UUID: crypto.randomUUID()
-					},
+					asset: getNewInput(),
 					opportunity: undefined
 				};
 		}

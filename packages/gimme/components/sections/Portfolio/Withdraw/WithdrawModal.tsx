@@ -1,4 +1,4 @@
-import {Fragment, type ReactElement, useCallback} from 'react';
+import {Fragment, type ReactElement, type ReactNode, useCallback} from 'react';
 import {cl, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {GimmeTokenAmountInput} from '@gimmeDesignSystem/GimmeTokenAmountInput';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
@@ -7,18 +7,17 @@ import {IconCross} from '@lib/icons/IconCross';
 import {FromVault} from './FromVault';
 import {ToToken} from './ToToken';
 import {useWithdrawFlow} from './useWithdrawFlow';
-import {WithdrawWizard} from './WithdrawWizard';
+import {WithdrawButton} from './WithdrawButton';
 
 import type {TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
+import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-type TWithdrawPopupProps = {
-	isOpen: boolean;
+function WithdrawModalContents(props: {
+	vault: TYDaemonVault | undefined;
 	balances: TDict<TNormalizedBN>;
 	onOpenChange: (isOpen: boolean) => void;
-};
-
-export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
+}): ReactNode {
 	const {configuration, dispatchConfiguration} = useWithdrawFlow();
 
 	const onSetAsset = useCallback(
@@ -27,6 +26,43 @@ export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
 		},
 		[dispatchConfiguration]
 	);
+
+	if (!props.vault) {
+		return null;
+	}
+
+	return (
+		<div className={'flex w-full flex-col gap-8'}>
+			<div className={'flex w-full flex-col gap-1'}>
+				<FromVault
+					vault={props.vault}
+					balance={props.balances[props.vault.address] || zeroNormalizedBN}
+				/>
+
+				<GimmeTokenAmountInput
+					onSetValue={onSetAsset}
+					value={configuration.asset}
+					shouldDisplayTokenLogo={false}
+					title={'Amount'}
+				/>
+			</div>
+			<div className={'flex flex-col gap-4'}>
+				<p className={'text-grey-900 text-left font-bold'}>{'Receive to your wallet'}</p>
+				<ToToken />
+			</div>
+			<WithdrawButton onClose={() => props.onOpenChange(false)} />
+		</div>
+	);
+}
+
+type TWithdrawPopupProps = {
+	isOpen: boolean;
+	balances: TDict<TNormalizedBN>;
+	onOpenChange: (isOpen: boolean) => void;
+};
+
+export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
+	const {configuration} = useWithdrawFlow();
 
 	return (
 		<Transition
@@ -74,31 +110,11 @@ export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
 										/>
 									</button>
 								</div>
-								<div className={'flex w-full flex-col gap-8'}>
-									<div className={'flex w-full flex-col gap-1'}>
-										{configuration.vault && (
-											<FromVault
-												vault={configuration.vault}
-												balance={
-													props.balances[configuration.vault.address] || zeroNormalizedBN
-												}
-											/>
-										)}
-										<GimmeTokenAmountInput
-											onSetValue={onSetAsset}
-											value={configuration.asset}
-											shouldDisplayTokenLogo={false}
-											title={'Amount'}
-										/>
-									</div>
-									<div className={'flex flex-col gap-4'}>
-										<p className={'text-grey-900 text-left font-bold'}>
-											{'Receive to your wallet'}
-										</p>
-										<ToToken />
-									</div>
-									<WithdrawWizard onClose={() => props.onOpenChange(false)} />
-								</div>
+								<WithdrawModalContents
+									vault={configuration.vault}
+									balances={props.balances}
+									onOpenChange={props.onOpenChange}
+								/>
 							</DialogPanel>
 						</TransitionChild>
 					</div>

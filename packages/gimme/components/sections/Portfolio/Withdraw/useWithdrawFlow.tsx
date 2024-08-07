@@ -1,41 +1,14 @@
 import React, {createContext, useContext, useMemo, useReducer} from 'react';
 import {optionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import {zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {getNewInput} from '@lib/utils/helpers';
 
 import type {TOptionalRenderProps} from 'lib/utils/react/optionalRenderProps';
-import type {Dispatch, ReactElement} from 'react';
-import type {TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/utils';
-import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
-
-export type TWithdrawConfiguration = {
-	asset: TTokenAmountInputElement;
-	vault: TYDaemonVault | undefined;
-	tokenToReceive: TToken | undefined;
-};
-
-export type TWithdrawActions =
-	| {type: 'SET_ASSET'; payload: Partial<TTokenAmountInputElement>}
-	| {type: 'SET_VAULT'; payload: TYDaemonVault | undefined}
-	| {type: 'SET_TOKEN_TO_RECEIVE'; payload: TToken}
-	| {type: 'RESET'; payload: undefined};
-
-export type TWithdraw = {
-	configuration: TWithdrawConfiguration;
-	dispatchConfiguration: Dispatch<TWithdrawActions>;
-	onResetWithdraw: () => void;
-};
+import type {ReactElement} from 'react';
+import type {TWithdraw, TWithdrawActions, TWithdrawConfiguration} from './useWithdraw.types';
 
 const defaultProps: TWithdraw = {
 	configuration: {
-		asset: {
-			amount: '',
-			normalizedBigAmount: zeroNormalizedBN,
-			isValid: 'undetermined',
-			token: undefined,
-			status: 'none',
-			UUID: crypto.randomUUID()
-		},
+		asset: getNewInput(),
 		vault: undefined,
 		tokenToReceive: undefined
 	},
@@ -66,16 +39,12 @@ export const WithdrawContextApp = ({
 			case 'SET_VAULT': {
 				return {...state, vault: action.payload};
 			}
+			case 'SET_CONFIGURATION': {
+				return action.payload;
+			}
 			case 'RESET': {
 				return {
-					asset: {
-						amount: '',
-						normalizedBigAmount: zeroNormalizedBN,
-						isValid: 'undetermined',
-						token: undefined,
-						status: 'none',
-						UUID: crypto.randomUUID()
-					},
+					asset: getNewInput(),
 					vault: undefined,
 					tokenToReceive: undefined
 				};

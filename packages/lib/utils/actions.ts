@@ -278,7 +278,6 @@ export async function redeemV3Shares(props: TRedeemV3Shares): Promise<TTxRespons
 
 	const isAskingToWithdrawAll = availableShares - convertToShare < tolerance;
 	if (isAskingToWithdrawAll) {
-		console.warn(availableShares, wagmiProvider.address, wagmiProvider.address, props.maxLoss);
 		return await handleTx(props, {
 			address: props.contractAddress,
 			chainId: props.chainID,

@@ -150,6 +150,16 @@ export function GimmeTokenAmountInput({
 		);
 	};
 
+	const onSelectToken = useCallback(() => {
+		onOpenCurtain(token => {
+			validate(
+				value.amount === '0' ? '' : value.amount,
+				token,
+				token.balance.raw === 0n ? undefined : token.balance
+			);
+		});
+	}, [onOpenCurtain, validate, value.amount]);
+
 	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
 	 ** information and what we have in the token list, we will try to find the correct icon source
@@ -253,15 +263,7 @@ export function GimmeTokenAmountInput({
 							{selectedToken ? (
 								<button
 									className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
-									onClick={() =>
-										onOpenCurtain(token => {
-											validate(
-												value.amount === '0' ? '' : value.amount,
-												token,
-												token.balance.raw === 0n ? undefined : token.balance
-											);
-										})
-									}>
+									onClick={onSelectToken}>
 									<IconChevron className={'text-grey-800 size-6 min-w-4'} />
 								</button>
 							) : (
@@ -269,15 +271,7 @@ export function GimmeTokenAmountInput({
 									className={
 										'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
 									}
-									onClick={() =>
-										onOpenCurtain(token =>
-											validate(
-												value.amount === '0' ? '' : value.amount,
-												token,
-												token.balance.raw === 0n ? undefined : token.balance
-											)
-										)
-									}>
+									onClick={onSelectToken}>
 									<p className={'hidden font-bold md:inline'}>{'Select'}</p>
 									<IconChevron className={'size-6'} />
 								</button>
