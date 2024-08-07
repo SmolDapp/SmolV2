@@ -22,7 +22,7 @@ import {deposit, depositViaRouter} from '@lib/utils/actions';
 import {CHAINS} from '@lib/utils/tools.chains';
 import {getApproveTransaction, getDepositTransaction} from '@lib/utils/tools.gnosis';
 
-import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
+import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver.types';
 import type {BaseError} from 'viem';
 import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
@@ -43,7 +43,6 @@ export const useVanilaSolver = (
 	const [allowance, set_allowance] = useState<TNormalizedBN>(zeroNormalizedBN);
 	const isAboveAllowance = allowance.raw >= inputAsset.normalizedBigAmount.raw;
 
-	const shouldDisableFetches = !inputAsset.amount || !outputTokenAddress || !inputAsset.token || isZapNeeded;
 	const [permitSignature, set_permitSignature] = useState<TPermitSignature | undefined>(undefined);
 
 	/**********************************************************************************************
@@ -68,6 +67,9 @@ export const useVanilaSolver = (
 			abi: erc20Abi,
 			address: toAddress(inputAsset.token.address),
 			functionName: 'allowance',
+			/**************************************************************************************
+			 ** outputTokenAddress is a vault user is going to deposit in
+			 *************************************************************************************/
 			args: [toAddress(address), toAddress(outputTokenAddress)]
 		});
 
@@ -81,11 +83,13 @@ export const useVanilaSolver = (
 	 ** is called when amount/in or out changes. Calls the allowanceFetcher callback.
 	 *********************************************************************************************/
 	useAsyncTrigger(async (): Promise<void> => {
+		const shouldDisableFetches = !inputAsset.amount || !outputTokenAddress || !inputAsset.token || isZapNeeded;
+
 		if (shouldDisableFetches) {
 			return;
 		}
 		set_allowance(await onRetrieveAllowance());
-	}, [shouldDisableFetches, onRetrieveAllowance]);
+	}, [inputAsset.amount, inputAsset.token, outputTokenAddress, isZapNeeded, onRetrieveAllowance]);
 
 	/**********************************************************************************************
 	 ** Trigger an approve web3 action, simply trying to approve `amount` tokens

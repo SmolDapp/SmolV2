@@ -56,30 +56,29 @@ export function VaultRow(props: {
 		}
 	};
 
-	/**********************************************************************************************
-	 * TODO: GROUP THE DISPATCHES INTO A SINGLE DISPATCH
-	 *********************************************************************************************/
 	const onWithdraw = (): void => {
-		dispatchConfiguration({type: 'SET_VAULT', payload: props.vault});
 		dispatchConfiguration({
-			type: 'SET_ASSET',
+			type: 'SET_CONFIGURATION',
 			payload: {
-				amount: props.balance.display,
-				normalizedBigAmount: props.balance,
-				isValid: true,
-				error: undefined,
-				token: {
-					...props.vault.token,
-					chainID: props.vault.chainID,
-					value: 0,
-					balance: props.balance
-				}
+				vault: props.vault,
+				asset: {
+					UUID: crypto.randomUUID(),
+					amount: props.balance.display,
+					normalizedBigAmount: props.balance,
+					status: 'none',
+					isValid: true,
+					error: undefined,
+					token: {
+						...props.vault.token,
+						chainID: props.vault.chainID,
+						value: 0,
+						balance: props.balance
+					}
+				},
+				tokenToReceive: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
 			}
 		});
-		dispatchConfiguration({
-			type: 'SET_TOKEN_TO_RECEIVE',
-			payload: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
-		});
+
 		props.onWithdrawModalChange(true);
 	};
 

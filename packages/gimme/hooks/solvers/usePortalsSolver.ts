@@ -26,7 +26,7 @@ import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
 import {isValidPortalsErrorObject} from '../helpers/isValidPortalsErrorObject';
 import {useGetIsStablecoin} from '../helpers/useGetIsStablecoin';
 
-import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver';
+import type {TSolverContextBase} from 'packages/gimme/contexts/useSolver.types';
 import type {TAddress, TDict, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TTxResponse} from '@builtbymom/web3/utils/wagmi';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';

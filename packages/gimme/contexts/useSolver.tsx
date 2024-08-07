@@ -1,6 +1,6 @@
 import {createContext, useContext, useMemo} from 'react';
 import {zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {defaultTxStatus, type TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
 import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 
 import {useIsZapNeeded} from '../hooks/helpers/useIsZapNeeded';
@@ -8,37 +8,7 @@ import {usePortalsSolver} from '../hooks/solvers/usePortalsSolver';
 import {useVanilaSolver} from '../hooks/solvers/useVanilaSolver';
 
 import type {ReactElement} from 'react';
-import type {TNormalizedBN} from '@builtbymom/web3/types';
-import type {TPortalsEstimate} from '@lib/utils/api.portals';
-
-/**************************************************************************************************
- * This type is a return type of every solver. It should stay the same for every new solver added
- *************************************************************************************************/
-export type TSolverContextBase = {
-	/** Approval part */
-	approvalStatus: TTxStatus;
-	onApprove: (onSuccess?: () => void) => Promise<void>;
-	allowance: TNormalizedBN;
-	isDisabled: boolean;
-	isApproved: boolean;
-	isFetchingAllowance: boolean;
-
-	/** Deposit part */
-	depositStatus: TTxStatus;
-	onExecuteDeposit: (onSuccess: () => void) => Promise<void>;
-	set_depositStatus: (value: TTxStatus) => void;
-
-	onExecuteForGnosis: (onSuccess: () => void) => Promise<void>;
-
-	isFetchingQuote: boolean;
-	quote: TPortalsEstimate | null;
-};
-
-/**
- * Return type of the solver context. It consists of 2 parts:
- * 1. Current solver actions
- * 2. Current solver withdraw actions (same for every solver)
- */
+import type {TSolverContextBase} from './useSolver.types';
 
 const SolverContext = createContext<TSolverContextBase>({
 	approvalStatus: defaultTxStatus,
