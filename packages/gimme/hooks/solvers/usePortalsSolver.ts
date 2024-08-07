@@ -18,7 +18,7 @@ import {approveERC20, defaultTxStatus, retrieveConfig, toWagmiProvider} from '@b
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
-import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
+import {isPermitSupported, signPermit} from '@lib/hooks/usePermit';
 import {getPortalsApproval, getPortalsTx, getQuote, PORTALS_NETWORK} from '@lib/utils/api.portals';
 import {getApproveTransaction} from '@lib/utils/tools.gnosis';
 import {allowanceKey} from '@yearn-finance/web-lib/utils/helpers';
@@ -196,9 +196,10 @@ export const usePortalsSolver = (
 			assert(inputAsset.normalizedBigAmount, 'Input amount is not set');
 			assert(outputTokenAddress, 'Output token is not set');
 
-			const shouldUsePermit = await isSupportingPermit({
+			const shouldUsePermit = await isPermitSupported({
 				contractAddress: inputAsset.token.address,
-				chainID: Number(inputAsset?.token.chainID)
+				chainID: Number(inputAsset?.token.chainID),
+				options: {disableExceptions: true}
 			});
 
 			const amount = inputAsset.normalizedBigAmount.raw;
