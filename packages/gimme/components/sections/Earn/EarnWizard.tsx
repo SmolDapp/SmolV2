@@ -1,4 +1,6 @@
 import {useCallback, useMemo, useState} from 'react';
+import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
@@ -9,6 +11,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {Button} from '@lib/primitives/Button';
 
 import {useEarnFlow} from './useEarnFlow';
@@ -95,6 +98,15 @@ export function EarnWizard(): ReactElement {
 		isExecuted: false,
 		message: null
 	});
+
+	const router = useRouter();
+	const currentPage = router.pathname;
+	const plausible = usePlausible();
+
+	const onConnect = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
+		openLoginModal();
+	}, [currentPage, openLoginModal, plausible]);
 
 	/**********************************************************************************************
 	 ** Based on the user action, we can display a different message in the success modal.
@@ -210,15 +222,45 @@ export function EarnWizard(): ReactElement {
 		onResetEarn();
 	}, [onResetEarn]);
 
+	const triggerPlausibleEvent = useCallback(() => {
+		const {token} = configuration.asset;
+		const vault = configuration.opportunity;
+		plausible(PLAUSIBLE_EVENTS.DEPOSIT, {
+			props: {
+				tokenAddress: toAddress(token?.address),
+				tokenName: token?.name,
+				vaultAddress: toAddress(vault?.address),
+				vaultName: vault?.name,
+				vaultChainID: vault?.chainID,
+				isSwap: isZapNeeded,
+				tokenAmount: configuration.asset.amount
+			}
+		});
+	}, [configuration.asset, configuration.opportunity, isZapNeeded, plausible]);
+
 	const onAction = useCallback(async () => {
 		if (isWalletSafe) {
-			return onExecuteForGnosis(() => onRefreshTokens('DEPOSIT'));
+			return onExecuteForGnosis(() => {
+				triggerPlausibleEvent();
+				onRefreshTokens('DEPOSIT');
+			});
 		}
 		if (isApproved) {
-			return onExecuteDeposit(() => onRefreshTokens('DEPOSIT'));
+			return onExecuteDeposit(() => {
+				triggerPlausibleEvent();
+				onRefreshTokens('DEPOSIT');
+			});
 		}
 		return onApprove(() => onRefreshTokens('APPROVE'));
-	}, [isApproved, isWalletSafe, onApprove, onExecuteDeposit, onExecuteForGnosis, onRefreshTokens]);
+	}, [
+		isApproved,
+		isWalletSafe,
+		onApprove,
+		onExecuteDeposit,
+		onExecuteForGnosis,
+		onRefreshTokens,
+		triggerPlausibleEvent
+	]);
 
 	const isValid = useMemo((): boolean => {
 		if (isAboveBalance) {
@@ -283,7 +325,7 @@ export function EarnWizard(): ReactElement {
 			) : (
 				<Button
 					className={'w-full !rounded-2xl !font-bold'}
-					onClick={openLoginModal}>
+					onClick={onConnect}>
 					{'Connect Wallet'}
 				</Button>
 			)}

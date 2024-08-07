@@ -1,5 +1,7 @@
-import {type ReactElement, type ReactNode, useEffect, useMemo, useState} from 'react';
+import {type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {erc20Abi} from 'viem';
 import {useBlockNumber} from 'wagmi';
@@ -7,6 +9,7 @@ import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {toAddress, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {readContracts} from '@wagmi/core';
 import {Counter} from '@lib/common/Counter';
 import {usePrices} from '@lib/contexts/usePrices';
@@ -24,6 +27,16 @@ import type {TPossibleSortBy} from './useSortedVaults';
 
 function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 	const {address, openLoginModal} = useWeb3();
+	const plausible = usePlausible();
+
+	const router = useRouter();
+	const currentPage = router.pathname;
+
+	const onConnect = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
+		openLoginModal();
+	}, [currentPage, openLoginModal, plausible]);
+
 	return (
 		<div
 			className={
@@ -45,9 +58,7 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 				<div className={'flex w-full max-w-[320px] flex-col items-center px-1'}>
 					<p className={'text-center'}>{'Get started by connecting your wallet'}</p>
 					<button
-						onClick={(): void => {
-							openLoginModal();
-						}}
+						onClick={onConnect}
 						className={
 							'bg-primary hover:bg-primaryHover text-grey-900 mt-6 h-14 !w-full rounded-2xl px-[13px] font-bold transition-colors'
 						}>

@@ -1,10 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import InputNumber from 'rc-input-number';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatAmount, formatCounterValue, percentOf, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
@@ -47,6 +49,8 @@ export function GimmeTokenAmountInput({
 	const [selectedTokenBalance, set_selectedTokenBalance] = useState<TNormalizedBN>(
 		selectedToken?.balance ?? zeroNormalizedBN
 	);
+
+	const plausible = usePlausible();
 
 	/**********************************************************************************************
 	 ** This effect hook will be triggered when the property token changes, indicating that we need
@@ -157,8 +161,11 @@ export function GimmeTokenAmountInput({
 				token,
 				token.balance.raw === 0n ? undefined : token.balance
 			);
+			plausible(PLAUSIBLE_EVENTS.SELECT_TOKEN, {
+				props: {tokenAddress: toAddress(token.address), tokenName: token.name, tokenChainId: token.chainID}
+			});
 		});
-	}, [onOpenCurtain, validate, value.amount]);
+	}, [onOpenCurtain, plausible, validate, value.amount]);
 
 	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided

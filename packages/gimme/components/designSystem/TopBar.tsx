@@ -1,10 +1,12 @@
-import {type ReactElement, useMemo} from 'react';
+import {type ReactElement, useCallback, useMemo} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {type Router, useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {polygon} from 'wagmi/chains';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, truncateHex} from '@builtbymom/web3/utils';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {useAccountModal} from '@rainbow-me/rainbowkit';
 import {LinkOrDiv} from '@lib/common/LinkOrDiv';
 import {Button} from '@lib/primitives/Button';
@@ -51,6 +53,16 @@ function WalletSection(): ReactElement {
 	const {openAccountModal} = useAccountModal();
 	const {address, ens, clusters, openLoginModal} = useWeb3();
 
+	const router = useRouter();
+	const currentPage = router.pathname;
+
+	const plausible = usePlausible();
+
+	const onConnect = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
+		openLoginModal();
+	}, [currentPage, openLoginModal, plausible]);
+
 	const buttonLabel = useMemo(() => {
 		if (ens) {
 			return ens;
@@ -64,9 +76,7 @@ function WalletSection(): ReactElement {
 	if (!address) {
 		return (
 			<button
-				onClick={(): void => {
-					openLoginModal();
-				}}
+				onClick={onConnect}
 				className={
 					'bg-primary hover:bg-primaryHover h-14 rounded-2xl px-[13px] font-bold transition-colors md:w-full'
 				}>

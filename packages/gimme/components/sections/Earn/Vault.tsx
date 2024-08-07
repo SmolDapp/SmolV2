@@ -1,8 +1,10 @@
 import {useCallback} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {cl, formatTAmount, formatUSD, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {IconArrow} from '@gimmeDesignSystem/IconArrow';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import * as Popover from '@radix-ui/react-popover';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -34,6 +36,8 @@ export function Vault({
 	const {connector} = useAccount();
 	const chain = useCurrentChain();
 
+	const plausible = usePlausible();
+
 	const assetAmountUSD = assetPrice.normalized * configuration.asset.normalizedBigAmount.normalized;
 
 	const earnings = percentOf(assetAmountUSD, vault.apr.netAPR * 100);
@@ -50,9 +54,12 @@ export function Vault({
 			await switchChainAsync({connector, chainId: vault.chainID});
 		}
 
+		plausible(PLAUSIBLE_EVENTS.SELECT_VAULT, {
+			props: {vaultAddress: toAddress(vault.address), vaultName: vault.name, vaultChainId: vault.chainID}
+		});
 		onSelect(vault);
 		onClose();
-	}, [chain.id, connector, onClose, onSelect, switchChainAsync, vault]);
+	}, [chain.id, connector, onClose, onSelect, plausible, switchChainAsync, vault]);
 
 	return (
 		<div
