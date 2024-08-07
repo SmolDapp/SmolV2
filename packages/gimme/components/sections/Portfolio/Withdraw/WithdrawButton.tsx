@@ -127,6 +127,12 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 		]
 	);
 
+	/******************************************************************************************
+	 ** There are 3 cases we should handle:
+	 ** 1. Gnosis Safe wallet is connected - if zap needed we should batch approve and withdraw tx
+	 ** 2. Zap is not needed - execute simple withdraw
+	 ** 3. Zap is needed - approve token first and use portals deposit
+	 *****************************************************************************************/
 	const onAction = useCallback(async () => {
 		if (isWalletSafe && isZapNeeded) {
 			return onExecuteWithdrawForGnosis(() => onRefreshTokens('WITHDRAW'));
@@ -149,10 +155,19 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 		onApprove
 	]);
 
+	/******************************************************************************************
+	 ** Display loader if anything is being fetched or in the process
+	 *****************************************************************************************/
 	const isBusy = useMemo(() => {
 		return withdrawStatus.pending || isFetchingAllowance || portalsWithdrawStatus.pending || approvalStatus.pending;
 	}, [approvalStatus.pending, isFetchingAllowance, portalsWithdrawStatus.pending, withdrawStatus.pending]);
 
+	/******************************************************************************************
+	 ** Disable button if:
+	 ** 1. Input amount is greater than it is available to withdraw
+	 ** 2. Zap is needed but quote is not fetched yet
+	 ** 3. Form is not populated fully
+	 *****************************************************************************************/
 	const isValid = useMemo((): boolean => {
 		const availableBalance = toBigInt(configuration.asset.token?.balance.raw);
 		const tryingToWithdraw = toBigInt(configuration.asset.normalizedBigAmount.raw);
@@ -184,10 +199,16 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 			return 'Select Token to Receive';
 		}
 
+		/******************************************************************************************
+		 ** If Safe wallet connected approve and withdraw tx are batched
+		 *****************************************************************************************/
 		if (isWalletSafe && isZapNeeded) {
 			return 'Approve and Withdraw';
 		}
 
+		/******************************************************************************************
+		 ** Zap is not needed, simple withdraw contract call will be executed
+		 *****************************************************************************************/
 		if (!isZapNeeded) {
 			return 'Withdraw';
 		}
