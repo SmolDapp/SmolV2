@@ -1,5 +1,6 @@
 import {type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
 import {erc20Abi} from 'viem';
@@ -28,10 +29,13 @@ function EmptyView({isLoading = false}: {isLoading?: boolean}): ReactElement {
 	const {address, openLoginModal} = useWeb3();
 	const plausible = usePlausible();
 
+	const router = useRouter();
+	const currentPage = router.pathname;
+
 	const onConnect = useCallback(() => {
-		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET);
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
 		openLoginModal();
-	}, [openLoginModal, plausible]);
+	}, [currentPage, openLoginModal, plausible]);
 
 	return (
 		<div

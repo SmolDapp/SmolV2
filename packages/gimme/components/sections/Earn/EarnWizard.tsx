@@ -1,4 +1,5 @@
 import {useCallback, useMemo, useState} from 'react';
+import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {useSolver} from 'packages/gimme/contexts/useSolver';
 import {useVaults} from 'packages/gimme/contexts/useVaults';
@@ -98,12 +99,14 @@ export function EarnWizard(): ReactElement {
 		message: null
 	});
 
+	const router = useRouter();
+	const currentPage = router.pathname;
 	const plausible = usePlausible();
 
 	const onConnect = useCallback(() => {
-		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET);
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
 		openLoginModal();
-	}, [openLoginModal, plausible]);
+	}, [currentPage, openLoginModal, plausible]);
 
 	/**********************************************************************************************
 	 ** Based on the user action, we can display a different message in the success modal.
@@ -220,10 +223,20 @@ export function EarnWizard(): ReactElement {
 	}, [onResetEarn]);
 
 	const triggerPlausibleEvent = useCallback(() => {
+		const {token} = configuration.asset;
+		const vault = configuration.opportunity;
 		plausible(PLAUSIBLE_EVENTS.DEPOSIT, {
-			props: {amount: `${configuration.asset.amount} ${configuration.asset.token?.symbol}`}
+			props: {
+				tokenAddress: toAddress(token?.address),
+				tokenName: token?.name,
+				vaultAddress: toAddress(vault?.address),
+				vaultName: vault?.name,
+				vaultChainID: vault?.chainID,
+				isSwap: isZapNeeded,
+				tokenAmount: configuration.asset.amount
+			}
 		});
-	}, [configuration.asset.amount, configuration.asset.token?.symbol, plausible]);
+	}, [configuration.asset, configuration.opportunity, isZapNeeded, plausible]);
 
 	const onAction = useCallback(async () => {
 		if (isWalletSafe) {

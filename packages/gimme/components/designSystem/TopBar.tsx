@@ -53,12 +53,15 @@ function WalletSection(): ReactElement {
 	const {openAccountModal} = useAccountModal();
 	const {address, ens, clusters, openLoginModal} = useWeb3();
 
+	const router = useRouter();
+	const currentPage = router.pathname;
+
 	const plausible = usePlausible();
 
 	const onConnect = useCallback(() => {
-		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET);
+		plausible(PLAUSIBLE_EVENTS.CONNECT_WALLET, {props: {currentPage}});
 		openLoginModal();
-	}, [openLoginModal, plausible]);
+	}, [currentPage, openLoginModal, plausible]);
 
 	const buttonLabel = useMemo(() => {
 		if (ens) {

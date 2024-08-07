@@ -132,10 +132,21 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	);
 
 	const triggerPlausibleEvent = useCallback(() => {
-		plausible(PLAUSIBLE_EVENTS.WITHDRAW, {
-			props: {amount: `${configuration.asset.amount} ${configuration.asset.token?.symbol}`}
-		});
-	}, [configuration.asset.amount, configuration.asset.token?.symbol, plausible]);
+		const {token} = configuration.asset;
+		const {vault} = configuration;
+		plausible(PLAUSIBLE_EVENTS.WITHDRAW),
+			{
+				props: {
+					vaultAddress: toAddress(vault?.address),
+					vaultName: vault?.name,
+					vaultChainID: vault?.chainID,
+					tokenAddress: toAddress(token?.address),
+					tokenName: token?.name,
+					isSwap: isZapNeeded,
+					tokenAmount: configuration.asset.amount
+				}
+			};
+	}, [configuration, isZapNeeded, plausible]);
 
 	/******************************************************************************************
 	 ** There are 3 cases we should handle:

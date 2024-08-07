@@ -54,7 +54,9 @@ export function Vault({
 			await switchChainAsync({connector, chainId: vault.chainID});
 		}
 
-		plausible(PLAUSIBLE_EVENTS.SELECT_VAULT);
+		plausible(PLAUSIBLE_EVENTS.SELECT_VAULT, {
+			props: {vaultAddress: toAddress(vault.address), vaultName: vault.name, vaultChainId: vault.chainID}
+		});
 		onSelect(vault);
 		onClose();
 	}, [chain.id, connector, onClose, onSelect, plausible, switchChainAsync, vault]);
