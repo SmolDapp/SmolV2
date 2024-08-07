@@ -191,7 +191,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	const [searchValue, set_searchValue] = useState('');
 	const [filter, set_filter] = useState<'all' | 'stables' | 'other'>('all');
 	const {getIsStablecoin} = useGetIsStablecoin();
-	const {vaults, vaultsArray} = useVaults();
+	const {vaults} = useVaults();
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -219,15 +219,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		return undefined;
 	}, [props.tokensWithBalance, searchValue]);
 
-	const underlyingTokens = useMemo(() => {
-		return vaultsArray.map(vault => ({
-			...vault.token,
-			chainID: vault.chainID,
-			value: 0,
-			balance: zeroNormalizedBN
-		}));
-	}, [vaultsArray]);
-
 	/**********************************************************************************************
 	 ** Memo function that filters the tokens user have on the search value.
 	 ** Only tokens the symbol or the address of which includes the search value will be returned.
@@ -240,7 +231,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	}
 
 	const filteredTokens = useDeepCompareMemo(() => {
-		const tokensToUse: TToken[] = isAddress(address) ? props.tokensWithBalance : underlyingTokens;
+		const tokensToUse: TToken[] = isAddress(address) ? props.tokensWithBalance : props.underlyingTokens;
 
 		/******************************************************************************************
 		 ** Lowercase the search value to make the search case-insensitive, but if the search
@@ -248,7 +239,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		 *****************************************************************************************/
 		const searchFor = searchValue.toLocaleLowerCase();
 		if (searchFor === '') {
-			return tokensToUse;
+			return tokensToUse.slice(0, 20);
 		}
 
 		/******************************************************************************************
@@ -296,7 +287,7 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 		 ** and only display the 20 first results.
 		 *****************************************************************************************/
 		return sorted.slice(0, 20);
-	}, [address, props.tokensWithBalance, searchValue, underlyingTokens]);
+	}, [address, props.tokensWithBalance, searchValue, props.underlyingTokens]);
 
 	const filteredVaultTokens = filteredTokens.filter(token => !vaults[toAddress(token.address)]);
 
@@ -388,6 +379,20 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
 	const chain = useCurrentChain();
+	const {vaultsArray} = useVaults();
+
+	/**********************************************************************************************
+	 ** underlyingTokens corresponds to the tokens of the vaults we are displaying in the
+	 ** Gimme app.
+	 *********************************************************************************************/
+	const underlyingTokens = useMemo(() => {
+		return vaultsArray.map(vault => ({
+			...vault.token,
+			chainID: vault.chainID,
+			value: 0,
+			balance: zeroNormalizedBN
+		}));
+	}, [vaultsArray]);
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -429,21 +434,43 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 		(callbackFn, _options): void => {
 			if (_options?.chainID) {
 				const allPopularTokens = listTokens(_options.chainID);
-				const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
-				const noDuplicates: TToken[] = [];
-				for (const item of allPopularTokensWithBalance) {
-					if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
-						noDuplicates.push(item);
+				/**********************************************************************************
+				 ** COMMENT
+				 *********************************************************************************/
+				if (_options?.shouldBypassBalanceCheck) {
+					const sortedByBalance = allPopularTokens.sort((a, b): number => {
+						return b.balance.normalized - a.balance.normalized;
+					});
+					let withUnderlyingTokens = [...underlyingTokens, ...sortedByBalance];
+					if (_options.highlightedTokens) {
+						withUnderlyingTokens = [..._options.highlightedTokens, ...withUnderlyingTokens];
 					}
+
+					const unique: TToken[] = [];
+					for (const item of withUnderlyingTokens) {
+						if (!unique.some(token => token.address === item.address && token.chainID === item.chainID)) {
+							unique.push(item);
+						}
+					}
+
+					set_tokensToUse(unique);
+				} else {
+					const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
+					const unique: TToken[] = [];
+					for (const item of allPopularTokensWithBalance) {
+						if (!unique.some(token => token.address === item.address && token.chainID === item.chainID)) {
+							unique.push(item);
+						}
+					}
+					set_tokensToUse(unique);
 				}
-				set_tokensToUse(noDuplicates);
 				set_allTokensToUse(allPopularTokens);
 				set_options(_options);
 			}
 			set_currentCallbackFunction(() => callbackFn);
 			set_shouldOpenCurtain(true);
 		},
-		[listTokens]
+		[listTokens, underlyingTokens]
 	);
 
 	/**********************************************************************************************
@@ -466,6 +493,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 				isOpen={shouldOpenCurtain}
 				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
+				underlyingTokens={underlyingTokens}
 				allTokens={allTokensToUse}
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}

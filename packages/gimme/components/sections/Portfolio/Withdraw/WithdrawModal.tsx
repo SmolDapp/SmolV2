@@ -88,7 +88,6 @@ export function WithdrawModal(props: TWithdrawPopupProps): ReactElement {
 											onSetValue={onSetAsset}
 											value={configuration.asset}
 											shouldDisplayTokenLogo={false}
-											shouldDisableSelect={true}
 											title={'Amount'}
 										/>
 									</div>

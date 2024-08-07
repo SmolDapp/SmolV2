@@ -115,8 +115,10 @@ export function ToToken(): ReactElement {
 						'text-grey-800 bg-grey-100 hover:bg-grey-200 flex items-center gap-2 rounded-2xl p-2 text-lg font-medium transition-colors'
 					}
 					onClick={() =>
-						onOpenCurtain(token => {
-							onSetAssetToReceive(token);
+						onOpenCurtain(token => onSetAssetToReceive(token), {
+							chainID: configuration.asset.token?.chainID,
+							shouldBypassBalanceCheck: true,
+							highlightedTokens: [configuration.asset.token as TToken]
 						})
 					}>
 					<ImageWithFallback
