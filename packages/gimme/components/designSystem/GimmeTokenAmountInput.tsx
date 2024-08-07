@@ -1,9 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useBalancesModal} from 'packages/gimme/contexts/useBalancesModal';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import InputNumber from 'rc-input-number';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl, formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, formatAmount, formatCounterValue, percentOf, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {TextTruncate} from '@lib/common/TextTruncate';
@@ -19,15 +22,25 @@ import type {TTokenAmountInputElement} from '@lib/types/utils';
 type TTokenAmountInput = {
 	onSetValue: (value: Partial<TTokenAmountInputElement>) => void;
 	value: TTokenAmountInputElement;
+	shouldDisplayTokenLogo?: boolean;
+	shouldDisableSelect?: boolean;
+	title?: string;
 };
 
 const percentIntervals = [10, 50, 100];
 
-export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): ReactElement {
+export function GimmeTokenAmountInput({
+	onSetValue,
+	value,
+	shouldDisplayTokenLogo = true,
+	shouldDisableSelect = false,
+	title = 'Asset'
+}: TTokenAmountInput): ReactElement {
 	const {onOpenCurtain} = useBalancesModal();
 	const {getPrice, pricingHash} = usePrices();
 	const {getToken} = useTokenList();
 	const chain = useCurrentChain();
+	const {address} = useWeb3();
 
 	const [isFocused, set_isFocused] = useState<boolean>(false);
 	const [price, set_price] = useState<TNormalizedBN | undefined>(undefined);
@@ -36,6 +49,8 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 	const [selectedTokenBalance, set_selectedTokenBalance] = useState<TNormalizedBN>(
 		selectedToken?.balance ?? zeroNormalizedBN
 	);
+
+	const plausible = usePlausible();
 
 	/**********************************************************************************************
 	 ** This effect hook will be triggered when the property token changes, indicating that we need
@@ -110,6 +125,15 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 			);
 		}
 
+		if (!address) {
+			return (
+				<TextTruncate
+					className={'text-red'}
+					value={'Wallet not connected'}
+				/>
+			);
+		}
+
 		if (value.error) {
 			return (
 				<TextTruncate
@@ -129,6 +153,19 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 			</p>
 		);
 	};
+
+	const onSelectToken = useCallback(() => {
+		onOpenCurtain(token => {
+			validate(
+				value.amount === '0' ? '' : value.amount,
+				token,
+				token.balance.raw === 0n ? undefined : token.balance
+			);
+			plausible(PLAUSIBLE_EVENTS.SELECT_TOKEN, {
+				props: {tokenAddress: toAddress(token.address), tokenName: token.name, tokenChainId: token.chainID}
+			});
+		});
+	}, [onOpenCurtain, plausible, validate, value.amount]);
 
 	/**********************************************************************************************
 	 ** The tokenIcon memoized value contains the URL of the token icon. Based on the provided
@@ -174,7 +211,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 					getBorderColor()
 				)}>
 				<div className={'flex w-fit items-center gap-2 justify-self-start'}>
-					<p className={'text-grey-800 text-xs font-medium'}>{'Asset'}</p>
+					<p className={'text-grey-800 text-xs font-medium'}>{title}</p>
 					{selectedToken && (
 						<div className={'flex items-center justify-start gap-0.5'}>
 							{percentIntervals.map(percent => (
@@ -194,7 +231,7 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 				</div>
 				<div className={'flex justify-between gap-2 md:items-start'}>
 					<div className={'flex w-full gap-2'}>
-						{selectedToken && (
+						{selectedToken && shouldDisplayTokenLogo && (
 							<ImageWithFallback
 								className={'mt-1'}
 								alt={selectedToken?.symbol || 'token'}
@@ -225,31 +262,29 @@ export function GimmeTokenAmountInput({onSetValue, value}: TTokenAmountInput): R
 									step={0.1}
 								/>
 							</div>
-							<div className={'ml-0.5 mt-auto text-xs'}>{getErrorOrButton()}</div>
+							<div className={'ml-0.5 mt-auto text-left text-xs'}>{getErrorOrButton()}</div>
 						</div>
 					</div>
-					<div>
-						{selectedToken ? (
-							<button
-								className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
-								onClick={() =>
-									onOpenCurtain(token => {
-										validate(value.amount, token, token.balance);
-									})
-								}>
-								<IconChevron className={'text-grey-800 size-6 min-w-4'} />
-							</button>
-						) : (
-							<button
-								className={
-									'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
-								}
-								onClick={() => onOpenCurtain(token => validate(value.amount, token, token.balance))}>
-								<p className={'hidden font-bold md:inline'}>{'Select'}</p>
-								<IconChevron className={'size-6'} />
-							</button>
-						)}
-					</div>
+					{!shouldDisableSelect && (
+						<div>
+							{selectedToken ? (
+								<button
+									className={'hover:bg-grey-200 rounded-full p-2 transition-colors'}
+									onClick={onSelectToken}>
+									<IconChevron className={'text-grey-800 size-6 min-w-4'} />
+								</button>
+							) : (
+								<button
+									className={
+										'bg-primary hover:bg-primaryHover mb-6 flex items-center justify-between rounded-2xl p-2 md:mb-0 md:w-[102px] md:pl-4'
+									}
+									onClick={onSelectToken}>
+									<p className={'hidden font-bold md:inline'}>{'Select'}</p>
+									<IconChevron className={'size-6'} />
+								</button>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

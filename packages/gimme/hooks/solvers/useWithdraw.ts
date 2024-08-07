@@ -1,13 +1,12 @@
 import {useCallback, useState} from 'react';
-import {useVaults} from 'packages/gimme/contexts/useVaults';
-import {isAddressEqual} from 'viem';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
-import {assert, toAddress} from '@builtbymom/web3/utils';
+import {assert} from '@builtbymom/web3/utils';
 import {defaultTxStatus} from '@builtbymom/web3/utils/wagmi';
-import {useEarnFlow} from '@gimmmeSections/Earn/useEarnFlow';
 import {redeemV3Shares, withdrawShares} from '@lib/utils/actions';
 
 import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TTokenAmountInputElement} from '@lib/types/utils';
+import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
 export type TWithdrawSolverHelper = {
 	withdrawStatus: TTxStatus;
@@ -19,10 +18,10 @@ export type TWithdrawSolverHelper = {
  * As long as Withdraw logic is shared between every solver, it makes sense to keep it
  * outside of solver hooks and reuse
  *************************************************************************************************/
-export const useWithdraw = (): TWithdrawSolverHelper => {
-	const {configuration} = useEarnFlow();
-	const {vaultsArray} = useVaults();
-
+export const useWithdraw = (
+	inputAsset: TTokenAmountInputElement,
+	vault: TYDaemonVault | undefined
+): TWithdrawSolverHelper => {
 	const {provider} = useWeb3();
 
 	const [withdrawStatus, set_withdrawStatus] = useState<TTxStatus>(defaultTxStatus);
@@ -33,16 +32,13 @@ export const useWithdraw = (): TWithdrawSolverHelper => {
 	 *********************************************************************************************/
 	const onExecuteWithdraw = useCallback(
 		async (onSuccess: () => void): Promise<void> => {
-			assert(configuration.asset.token, 'Output token is not set');
-			assert(configuration.asset.amount, 'Input amount is not set');
-			const vault = vaultsArray.find(vault =>
-				isAddressEqual(vault.address, toAddress(configuration.asset.token?.address))
-			);
+			assert(inputAsset.token, 'Input token is not set');
+			assert(inputAsset.amount, 'Input amount is not set');
+
 			if (!vault) {
 				throw new Error('Vault not found');
 			}
 			const isV3 = vault.version.split('.')?.[0] === '3';
-
 			set_withdrawStatus({...defaultTxStatus, pending: true});
 
 			let result;
@@ -50,16 +46,16 @@ export const useWithdraw = (): TWithdrawSolverHelper => {
 				result = await redeemV3Shares({
 					connector: provider,
 					chainID: vault.chainID,
-					contractAddress: configuration.asset.token.address,
-					amount: configuration.asset.normalizedBigAmount.raw,
+					contractAddress: vault.address,
+					amount: inputAsset.normalizedBigAmount.raw,
 					maxLoss: 1n
 				});
 			} else {
 				result = await withdrawShares({
 					connector: provider,
 					chainID: vault.chainID,
-					contractAddress: configuration.asset.token.address,
-					amount: configuration.asset.normalizedBigAmount.raw
+					contractAddress: vault.address,
+					amount: inputAsset.normalizedBigAmount.raw
 				});
 			}
 
@@ -70,13 +66,7 @@ export const useWithdraw = (): TWithdrawSolverHelper => {
 			}
 			set_withdrawStatus({...defaultTxStatus, error: true});
 		},
-		[
-			configuration.asset.amount,
-			configuration.asset.normalizedBigAmount.raw,
-			configuration.asset.token,
-			provider,
-			vaultsArray
-		]
+		[inputAsset.amount, inputAsset.normalizedBigAmount.raw, inputAsset.token, provider, vault]
 	);
 
 	return {

@@ -4,6 +4,8 @@ import React, {createContext, Fragment, useCallback, useContext, useEffect, useM
 import {usePlausible} from 'next-plausible';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {isAddressEqual} from 'viem';
+import {serialize} from 'wagmi';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
@@ -15,15 +17,15 @@ import {useTokensWithBalance} from '@smolHooks/useTokensWithBalance';
 import {usePopularTokens} from '@lib/contexts/usePopularTokens';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconCross} from '@lib/icons/IconCross';
-import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
 import {useCurrentChain} from '../hooks/useCurrentChain';
 import {useVaults} from './useVaults';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
@@ -45,45 +47,9 @@ const defaultProps: TBalancesCurtainContextProps = {
  ** BalancesCurtain component. It displays the list of tokens the user has in their wallet.
  *************************************************************************************************/
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
-	const {address, onConnect} = useWeb3();
 	const {addCustomToken} = useTokenList();
 	const {isLoadingOnChain} = useTokensWithBalance();
-	const {getPrices, pricingHash} = usePrices();
-	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
-
-	/**********************************************************************************************
-	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
-	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
-	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
-	 ** fetch them from an external endpoint (depending on the price availability).
-	 *********************************************************************************************/
-	useDeepCompareEffect(() => {
-		if (props.filteredTokens.length === 0) {
-			return;
-		}
-		const pricesForChain = getPrices(props.filteredTokens);
-		set_prices(pricesForChain[props.chainID] || {});
-	}, [props.filteredTokens, props.chainID, pricingHash]);
-
-	/**********************************************************************************************
-	 ** If the wallet is not connected, we want to display a message and a button to connect.
-	 ** Once the button is clicked, the wallet will be connected and the curtain will be closed.
-	 *********************************************************************************************/
-	if (!address) {
-		return (
-			<div className={'mt-16 flex w-full max-w-80 flex-col justify-center gap-6'}>
-				<p className={'text-grey-700 text-center'}>{'Get started by connecting your wallet'}</p>
-				<Button
-					onClick={() => {
-						onConnect();
-						props.onOpenChange(false);
-					}}
-					className={'!rounded-2xl !font-bold'}>
-					{'Connect Wallet'}
-				</Button>
-			</div>
-		);
-	}
+	const {prices} = usePrices();
 
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
@@ -118,7 +84,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<GimmeTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
-				price={prices ? prices[toAddress(token.address)] : undefined}
+				price={prices?.[token.chainID] ? prices?.[token.chainID]?.[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
 						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
@@ -253,35 +219,63 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 	}
 
 	const filteredTokens = useDeepCompareMemo(() => {
+		const tokensToUse: TToken[] = isAddress(address) ? props.tokensWithBalance : props.underlyingTokens;
+
+		/******************************************************************************************
+		 ** Lowercase the search value to make the search case-insensitive, but if the search
+		 ** value is empty, we want to return all the tokens.
+		 *****************************************************************************************/
 		const searchFor = searchValue.toLocaleLowerCase();
 		if (searchFor === '') {
-			return props.tokensWithBalance;
+			return tokensToUse.slice(0, 20);
 		}
-		const filtering = props.tokensWithBalance.filter(
+
+		/******************************************************************************************
+		 ** First we filter the tokens based on the search value. We want to include tokens that
+		 ** have the search value in their name, symbol or address.
+		 *****************************************************************************************/
+		const filtering = tokensToUse.filter(
 			token =>
 				token.symbol.toLocaleLowerCase().includes(searchFor) ||
 				token.name.toLocaleLowerCase().includes(searchFor) ||
 				toAddress(token.address).toLocaleLowerCase().includes(searchFor)
 		);
 
-		const sorted = filtering
+		/******************************************************************************************
+		 ** Then, we remove all duplicates from the list. We want to keep only one instance of
+		 ** each token, even if it appears multiple times in the list.
+		 *****************************************************************************************/
+		const noDuplicates: TToken[] = [];
+		for (const item of filtering) {
+			if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
+				noDuplicates.push(item);
+			}
+		}
+
+		/******************************************************************************************
+		 ** Then, we use this sorted method to actually sort the tokens based on the search value.
+		 ** The most different the token is from the search value, the lower it will be in the
+		 ** list.
+		 *****************************************************************************************/
+		const sorted = noDuplicates
 			.map(item => ({
 				item,
-				exactness:
-					item.name.toLocaleLowerCase() === searchFor || item.symbol.toLocaleLowerCase() === searchFor
-						? 1
-						: 0,
-				diffName: getDifference(item.name.toLocaleLowerCase(), searchFor),
-				diffSymbol: getDifference(item.symbol.toLocaleLowerCase(), searchFor)
+				exactness: item.name.toLowerCase() === searchFor || item.symbol.toLowerCase() === searchFor ? 1 : 0,
+				diffName: getDifference(item.name.toLowerCase(), searchFor),
+				diffSymbol: getDifference(item.symbol.toLowerCase(), searchFor)
 			}))
 			.sort(
 				(a, b) =>
 					b.exactness - a.exactness || Math.min(a.diffName, a.diffSymbol) - Math.min(b.diffName, b.diffSymbol)
-			) // Sort by exactness first, then by the smallest ascending difference of name or symbol
-			.map(sortedItem => sortedItem.item); // Return sorted items
+			)
+			.map(sortedItem => sortedItem.item);
 
+		/******************************************************************************************
+		 ** No need to overload the user with too many results. We want to keep the list short
+		 ** and only display the 20 first results.
+		 *****************************************************************************************/
 		return sorted.slice(0, 20);
-	}, [props.tokensWithBalance, searchValue]);
+	}, [address, props.tokensWithBalance, searchValue, props.underlyingTokens]);
 
 	const filteredVaultTokens = filteredTokens.filter(token => !vaults[toAddress(token.address)]);
 
@@ -318,7 +312,6 @@ function BalancesModal(props: TBalancesCurtain): ReactElement {
 					autoCorrect={'off'}
 					spellCheck={'false'}
 					value={searchValue}
-					disabled={!address}
 					onChange={e => set_searchValue(e.target.value)}
 				/>
 
@@ -374,6 +367,49 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const [allTokensToUse, set_allTokensToUse] = useState<TToken[]>([]);
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
 	const chain = useCurrentChain();
+	const {vaultsArray} = useVaults();
+	const {balances, getBalance} = useWallet();
+	const {prices, pricingHash, getPrices} = usePrices();
+
+	/**********************************************************************************************
+	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
+	 ** it to know when it changes. This new hash will be used to trigger the useEffect hook.
+	 ** We will use classic hash function to create a hash from the balances object.
+	 *********************************************************************************************/
+	const currentBalanceIdentifier = useMemo(() => {
+		const hash = createUniqueID(serialize(balances));
+		return hash;
+	}, [balances]);
+
+	/**********************************************************************************************
+	 ** underlyingTokens corresponds to the tokens of the vaults we are displaying in the
+	 ** Gimme app.
+	 *********************************************************************************************/
+	const underlyingTokens = useMemo(() => {
+		if (!pricingHash || !currentBalanceIdentifier) {
+			return [];
+		}
+		return vaultsArray.map(vault => ({
+			...vault.token,
+			chainID: vault.chainID,
+			value: prices?.[vault.chainID]?.[vault.token.address]?.normalized || 0,
+			balance: getBalance({address: vault.token.address, chainID: vault.chainID})
+		}));
+	}, [currentBalanceIdentifier, vaultsArray, prices, getBalance, pricingHash]);
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect((): void => {
+		const allTokens: TToken[] = [];
+		for (const vault of underlyingTokens) {
+			allTokens.push({address: vault.address, chainID: vault.chainID} as TToken);
+		}
+		getPrices(allTokens);
+	}, [underlyingTokens, pricingHash, getPrices]);
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -393,7 +429,13 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	useEffect((): void => {
 		const allPopularTokens = listTokens(options.chainID);
 		const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
-		set_tokensToUse(allPopularTokensWithBalance);
+		const noDuplicates: TToken[] = [];
+		for (const item of allPopularTokensWithBalance) {
+			if (!noDuplicates.some(token => token.address === item.address && token.chainID === item.chainID)) {
+				noDuplicates.push(item);
+			}
+		}
+		set_tokensToUse(noDuplicates);
 		set_allTokensToUse(allPopularTokens);
 	}, [listTokensWithBalance, options.chainID, listTokens]);
 
@@ -409,15 +451,66 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 		(callbackFn, _options): void => {
 			if (_options?.chainID) {
 				const allPopularTokens = listTokens(_options.chainID);
-				const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
-				set_tokensToUse(allPopularTokensWithBalance);
+				/**********************************************************************************
+				 ** If the shouldBypassBalanceCheck option is set to true, we want to sort the
+				 ** tokens based on their balance instead of filtering the one with a balance of 0.
+				 *********************************************************************************/
+				if (_options?.shouldBypassBalanceCheck) {
+					const popularWithBalance = [];
+					const popularWithoutBalance = [];
+					for (const token of allPopularTokens) {
+						if (token.balance.raw > 0n) {
+							popularWithBalance.push(token);
+						} else {
+							popularWithoutBalance.push(token);
+						}
+					}
+
+					const underlyingWithBalance = [];
+					const underlyingWithoutBalance = [];
+					for (const token of underlyingTokens) {
+						if (token.balance.raw > 0n) {
+							underlyingWithBalance.push(token);
+						} else {
+							underlyingWithoutBalance.push(token);
+						}
+					}
+
+					let withUnderlyingTokens = [
+						...underlyingWithBalance,
+						...underlyingWithoutBalance,
+						...popularWithBalance,
+						...popularWithoutBalance
+					];
+					if (_options.highlightedTokens) {
+						withUnderlyingTokens = [..._options.highlightedTokens, ...withUnderlyingTokens];
+					}
+
+					const unique: TToken[] = [];
+					for (const item of withUnderlyingTokens) {
+						if (!unique.some(token => token.address === item.address && token.chainID === item.chainID)) {
+							unique.push(item);
+						}
+					}
+
+					set_tokensToUse(unique);
+				} else {
+					const allPopularTokensWithBalance = allPopularTokens.filter(e => e.balance.raw > 0n);
+					const unique: TToken[] = [];
+					for (const item of allPopularTokensWithBalance) {
+						if (!unique.some(token => token.address === item.address && token.chainID === item.chainID)) {
+							unique.push(item);
+						}
+					}
+					set_tokensToUse(unique);
+				}
 				set_allTokensToUse(allPopularTokens);
 				set_options(_options);
 			}
 			set_currentCallbackFunction(() => callbackFn);
 			set_shouldOpenCurtain(true);
 		},
-		[listTokens]
+		[listTokens, underlyingTokens]
 	);
 
 	/**********************************************************************************************
@@ -440,6 +533,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 				isOpen={shouldOpenCurtain}
 				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
+				underlyingTokens={underlyingTokens}
 				allTokens={allTokensToUse}
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}

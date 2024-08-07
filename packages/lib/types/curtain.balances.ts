@@ -27,6 +27,7 @@ export type TBalancesCurtain = {
 	tokensWithBalance: TToken[];
 	allTokens: TToken[];
 	selectedTokens?: TToken[];
+	underlyingTokens: TToken[];
 	options: TBalancesCurtainOptions;
 	onOpenChange: (isOpen: boolean) => void;
 	onSelect: TSelectCallback | undefined;
@@ -39,6 +40,8 @@ export type TBalancesCurtain = {
 export type TBalancesCurtainOptions = {
 	chainID?: number;
 	withTabs?: boolean;
+	shouldBypassBalanceCheck?: boolean;
+	highlightedTokens?: TToken[];
 };
 /**************************************************************************************************
  ** The TBalancesCurtainContextProps type is used to type the props of the BalancesCurtainContext

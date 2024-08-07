@@ -1,51 +1,51 @@
 import {type ReactElement} from 'react';
 import toast from 'react-hot-toast';
 import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {formatCounterValue, formatTAmount, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {IconMinus} from '@gimmeDesignSystem/IconMinus';
 import {IconPlus} from '@gimmeDesignSystem/IconPlus';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import {Counter} from '@lib/common/Counter';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {Button} from '@lib/primitives/Button';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
+import {useWithdrawFlow} from './Withdraw/useWithdrawFlow';
+
 import type {BaseError} from 'wagmi';
 import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
 import type {TYDaemonVault} from '@yearn-finance/web-lib/utils/schemas/yDaemonVaultsSchemas';
 
-export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; price?: TNormalizedBN}): ReactElement {
+export function VaultRow(props: {
+	vault: TYDaemonVault;
+	balance: TNormalizedBN;
+	price?: TNormalizedBN;
+	onWithdrawModalChange: (isOpen: boolean) => void;
+}): ReactElement {
 	const vaultChainName = supportedNetworks.find(network => network.id === props.vault.chainID)?.name;
 	const tokenNetworkString = `${props.vault.token.symbol} on ${vaultChainName}`.toLocaleUpperCase();
 	const router = useRouter();
 	const {connector} = useAccount();
 	const {switchChainAsync} = useSwitchChain();
 	const chain = useCurrentChain();
+	const {dispatchConfiguration} = useWithdrawFlow();
+
+	const plausible = usePlausible();
 
 	/**********************************************************************************************
 	 * Function that is used to handle redirecting to the earn page with proper query params.
-	 * There 2 cases this function can be used:
-	 * 1. Deposit
 	 * @param tokenAddress is vault token address
 	 * @param vaultAddress is address of the current vault
-	 *
-	 * 2. Withdraw
-	 * @param tokenAddress is a vault address (form should be populated with staking token to be
-	 * able to withraw)
-	 * @param vaultAddress is not present
+
 	 *********************************************************************************************/
-	const onAction = async ({
-		tokenAddress,
-		vaultAddress
-	}: {
-		tokenAddress: TAddress;
-		vaultAddress?: TAddress;
-	}): Promise<void> => {
+	const onAction = async (args: {tokenAddress: TAddress; vaultAddress: TAddress}): Promise<void> => {
 		try {
 			const URLQueryParam = new URLSearchParams();
-			URLQueryParam.set('tokenAddress', toAddress(tokenAddress));
-			vaultAddress && URLQueryParam.set('vaultAddress', toAddress(vaultAddress));
+			URLQueryParam.set('tokenAddress', toAddress(args.tokenAddress));
+			URLQueryParam.set('vaultAddress', toAddress(args.vaultAddress));
 
 			if (props.vault.chainID !== chain.id) {
 				await switchChainAsync({connector, chainId: props.vault.chainID});
@@ -58,6 +58,32 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 		} catch (err) {
 			toast.error((err as BaseError)?.message || 'An error occured while creating your transaction!');
 		}
+	};
+
+	const onWithdraw = (): void => {
+		dispatchConfiguration({
+			type: 'SET_CONFIGURATION',
+			payload: {
+				vault: props.vault,
+				asset: {
+					UUID: crypto.randomUUID(),
+					amount: props.balance.display,
+					normalizedBigAmount: props.balance,
+					status: 'none',
+					isValid: true,
+					error: undefined,
+					token: {
+						...props.vault.token,
+						chainID: props.vault.chainID,
+						value: 0,
+						balance: props.balance
+					}
+				},
+				tokenToReceive: {...props.vault.token, chainID: props.vault.chainID, value: 0, balance: props.balance}
+			}
+		});
+		plausible(PLAUSIBLE_EVENTS.OPEN_WITHDRAW_MODAL);
+		props.onWithdrawModalChange(true);
 	};
 
 	return (
@@ -124,7 +150,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 				</div>
 				<div className={'group col-span-2 hidden flex-row items-center justify-end gap-4 md:flex'}>
 					<button
-						onClick={async () => onAction({tokenAddress: props.vault.address})}
+						onClick={onWithdraw}
 						className={
 							'border-grey-700 hover:bg-grey-200 relative flex size-8 items-center justify-center rounded-full border transition-colors'
 						}>
@@ -142,7 +168,7 @@ export function VaultRow(props: {vault: TYDaemonVault; balance: TNormalizedBN; p
 				</div>
 				<div className={'col-span-2 flex items-center justify-center gap-2 md:hidden'}>
 					<Button
-						onClick={async () => onAction({tokenAddress: props.vault.address})}
+						onClick={onWithdraw}
 						className={'!h-10 w-full'}>
 						{'Withdraw'}
 					</Button>

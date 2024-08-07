@@ -1,6 +1,5 @@
 import {Fragment, type ReactElement, useCallback, useMemo, useState} from 'react';
 import {IconCross} from 'packages/lib/icons/IconCross';
-import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {cl, formatPercent, numberSort, zeroNormalizedBN} from '@builtbymom/web3/utils';
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import * as Popover from '@radix-ui/react-popover';
@@ -172,7 +171,6 @@ export function SelectVault({
 	availableVaults: TYDaemonVault[];
 }): ReactElement {
 	const {configuration} = useEarnFlow();
-	const {address} = useWeb3();
 	const {getPrice} = usePrices();
 	const [vaultInfo, set_vaultInfo] = useState<TVaultInfoModal>(undefined);
 	const [filter, set_filter] = useState<'all' | 'token'>('all');
@@ -330,7 +328,6 @@ export function SelectVault({
 															key={`${vault.address}-${vault.chainID}`}
 															vault={vault}
 															assetPrice={assetPrice}
-															isDisabled={!address}
 															onSelect={onSelect}
 															onClose={onClose}
 															onChangeVaultInfo={set_vaultInfo}

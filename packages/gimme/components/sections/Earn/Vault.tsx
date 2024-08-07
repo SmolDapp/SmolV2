@@ -1,8 +1,10 @@
 import {useCallback} from 'react';
+import {usePlausible} from 'next-plausible';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import {useAccount, useSwitchChain} from 'wagmi';
 import {cl, formatTAmount, formatUSD, percentOf, toAddress} from '@builtbymom/web3/utils';
 import {IconArrow} from '@gimmeDesignSystem/IconArrow';
+import {PLAUSIBLE_EVENTS} from '@gimmeutils/plausible';
 import * as Popover from '@radix-ui/react-popover';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
@@ -17,14 +19,12 @@ import type {TVaultInfoModal} from './SelectVault';
 export function Vault({
 	vault,
 	assetPrice,
-	isDisabled = false,
 	onSelect,
 	onClose,
 	onChangeVaultInfo
 }: {
 	vault: TYDaemonVault;
 	assetPrice: TNormalizedBN;
-	isDisabled: boolean;
 	onSelect: (value: TYDaemonVault) => void;
 	onClose: () => void;
 	onChangeVaultInfo: Dispatch<SetStateAction<TVaultInfoModal>>;
@@ -35,6 +35,8 @@ export function Vault({
 
 	const {connector} = useAccount();
 	const chain = useCurrentChain();
+
+	const plausible = usePlausible();
 
 	const assetAmountUSD = assetPrice.normalized * configuration.asset.normalizedBigAmount.normalized;
 
@@ -52,9 +54,12 @@ export function Vault({
 			await switchChainAsync({connector, chainId: vault.chainID});
 		}
 
+		plausible(PLAUSIBLE_EVENTS.SELECT_VAULT, {
+			props: {vaultAddress: toAddress(vault.address), vaultName: vault.name, vaultChainId: vault.chainID}
+		});
 		onSelect(vault);
 		onClose();
-	}, [chain.id, connector, onClose, onSelect, switchChainAsync, vault]);
+	}, [chain.id, connector, onClose, onSelect, plausible, switchChainAsync, vault]);
 
 	return (
 		<div
@@ -66,9 +71,9 @@ export function Vault({
 			}
 			className={cl(
 				'flex justify-between rounded-lg px-4 py-3 gap-x-6 transition-colors hover:bg-grey-100',
-				isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+				'cursor-pointer'
 			)}
-			onClick={isDisabled ? undefined : onSelectVault}>
+			onClick={onSelectVault}>
 			<div className={'relative flex items-center gap-4'}>
 				<ImageWithFallback
 					alt={token.symbol}

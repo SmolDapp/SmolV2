@@ -12,6 +12,7 @@ import {
 	ZERO_ADDRESS
 } from '@builtbymom/web3/utils';
 
+import type {Hex} from 'viem';
 import type {TFetchReturn} from '@builtbymom/web3/utils';
 import type {TInitSolverArgs} from '@lib/types/solvers';
 
@@ -40,6 +41,7 @@ type TGetEstimateProps = {
 		inputAmount: string;
 		outputToken: string;
 		slippageTolerancePercentage: string;
+		sender?: TAddress;
 	};
 };
 
@@ -47,6 +49,8 @@ type TGetTransactionProps = Omit<TGetEstimateProps, 'params'> & {
 	params: Required<Pick<TGetEstimateProps, 'params'>['params']> & {
 		sender: TAddress;
 		validate?: string;
+		permitDeadline?: string;
+		permitSignature?: Hex;
 		feePercentage?: string;
 	};
 };
@@ -89,6 +93,7 @@ type TGetApprovalProps = {
 		sender: TAddress;
 		inputToken: string;
 		inputAmount: string;
+		permitDeadline?: string;
 	};
 };
 
@@ -151,9 +156,13 @@ export async function getPortalsTx({params}: TGetTransactionProps): Promise<{
 	params.inputToken = params.inputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 	params.outputToken = params.outputToken.toLowerCase().replaceAll(ETH_TOKEN_ADDRESS.toLowerCase(), ZERO_ADDRESS);
 
+	const urlParams = new URLSearchParams(params);
+	urlParams.delete('permitSignature', 'undefined');
+	urlParams.delete('permitDeadline', 'undefined');
+
 	try {
 		const result = await fetch<TPortalsTransaction>({
-			endpoint: `${url}?${new URLSearchParams(params)}`,
+			endpoint: `${url}?${urlParams}`,
 			schema: portalsTransactionSchema
 		});
 
@@ -212,7 +221,8 @@ export async function getQuote(
 			inputToken: `${network}:${toAddress(inputToken)}`,
 			outputToken: `${network}:${toAddress(request.outputToken)}`,
 			inputAmount: toBigInt(request.inputAmount).toString(),
-			slippageTolerancePercentage: String(zapSlippage)
+			slippageTolerancePercentage: String(zapSlippage),
+			sender: request.from
 		}
 	});
 }

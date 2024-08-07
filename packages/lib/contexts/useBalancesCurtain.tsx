@@ -482,6 +482,7 @@ export const BalancesCurtainContextApp = (props: TBalancesCurtainContextAppProps
 				isOpen={shouldOpenCurtain}
 				onRefresh={onRefresh}
 				tokensWithBalance={tokensToUse}
+				underlyingTokens={[]}
 				allTokens={allTokensToUse}
 				selectedTokens={props.selectedTokens}
 				onOpenChange={set_shouldOpenCurtain}

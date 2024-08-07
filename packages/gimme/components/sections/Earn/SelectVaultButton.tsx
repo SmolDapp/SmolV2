@@ -43,7 +43,7 @@ export function SelectOpportunityButton(props: {onSetOpportunity: (value: TYDaem
 				<div
 					className={cl(
 						'h-[120px] z-20 relative transition-all w-full',
-						'cursor-text',
+						'cursor-text border border-transparent',
 						'focus:placeholder:text-neutral-300 placeholder:transition-colors',
 						'group bg-grey-100 rounded-2xl',
 						configuration?.opportunity
