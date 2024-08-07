@@ -40,7 +40,7 @@ export const WithPrices = (props: {children: ReactElement; supportedNetworks?: C
 	const tokensToUse = useMemo((): TPriceTokens => {
 		const tokens = listAllTokensWithBalance();
 		const tokensForThisChain = listTokensWithBalance();
-		if (!tokens.length) {
+		if (isLoadingOnCurrentChain && isLoading && !tokens.length) {
 			return [];
 		}
 		if (!isLoadingOnCurrentChain && isLoading && tokensForThisChain.length) {

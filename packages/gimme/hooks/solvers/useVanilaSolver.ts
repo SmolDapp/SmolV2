@@ -16,7 +16,7 @@ import {approveERC20, defaultTxStatus, retrieveConfig} from '@builtbymom/web3/ut
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {TransactionStatus} from '@gnosis.pm/safe-apps-sdk';
 import {readContract} from '@wagmi/core';
-import {isSupportingPermit, signPermit} from '@lib/hooks/usePermit';
+import {isPermitSupported, signPermit} from '@lib/hooks/usePermit';
 import {YEARN_4626_ROUTER_ABI} from '@lib/utils/abi/yearn4626Router.abi';
 import {deposit, depositViaRouter} from '@lib/utils/actions';
 import {CHAINS} from '@lib/utils/tools.chains';
@@ -102,9 +102,10 @@ export const useVanilaSolver = (
 			assert(inputAsset.token, 'Input token is not set');
 			assert(outputTokenAddress, 'Output token is not set');
 
-			const shouldUsePermit = await isSupportingPermit({
+			const shouldUsePermit = await isPermitSupported({
 				contractAddress: inputAsset.token.address,
-				chainID: inputAsset.token.chainID
+				chainID: inputAsset.token.chainID,
+				options: {disableExceptions: true}
 			});
 			try {
 				if (shouldUsePermit && isV3Vault && isAddress(CHAINS[inputAsset.token.chainID].yearnRouterAddress)) {

@@ -4,9 +4,11 @@ import React, {createContext, Fragment, useCallback, useContext, useEffect, useM
 import {usePlausible} from 'next-plausible';
 import {IconLoader} from 'lib/icons/IconLoader';
 import {isAddressEqual} from 'viem';
+import {serialize} from 'wagmi';
+import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
-import {cl, isAddress, toAddress, zeroNormalizedBN} from '@builtbymom/web3/utils';
+import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {FetchedTokenButton} from '@gimmeDesignSystem/FetchedTokenButton';
 import {GimmeTokenButton} from '@gimmeDesignSystem/GimmeTokenButton';
 import {Dialog as HeadlessUiDialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
@@ -16,13 +18,14 @@ import {usePopularTokens} from '@lib/contexts/usePopularTokens';
 import {usePrices} from '@lib/contexts/usePrices';
 import {IconCross} from '@lib/icons/IconCross';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import {useGetIsStablecoin} from '../hooks/helpers/useGetIsStablecoin';
 import {useCurrentChain} from '../hooks/useCurrentChain';
 import {useVaults} from './useVaults';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
@@ -46,22 +49,7 @@ const defaultProps: TBalancesCurtainContextProps = {
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	const {addCustomToken} = useTokenList();
 	const {isLoadingOnChain} = useTokensWithBalance();
-	const {getPrices, pricingHash} = usePrices();
-	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
-
-	/**********************************************************************************************
-	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
-	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
-	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
-	 ** fetch them from an external endpoint (depending on the price availability).
-	 *********************************************************************************************/
-	useDeepCompareEffect(() => {
-		if (props.filteredTokens.length === 0) {
-			return;
-		}
-		const pricesForChain = getPrices(props.filteredTokens);
-		set_prices(pricesForChain[props.chainID] || {});
-	}, [props.filteredTokens, props.chainID, pricingHash]);
+	const {prices} = usePrices();
 
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
@@ -96,7 +84,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<GimmeTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
-				price={prices ? prices[toAddress(token.address)] : undefined}
+				price={prices?.[token.chainID] ? prices?.[token.chainID]?.[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
 						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
@@ -380,19 +368,48 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const [options, set_options] = useState<TBalancesCurtainOptions>({chainID: -1});
 	const chain = useCurrentChain();
 	const {vaultsArray} = useVaults();
+	const {balances, getBalance} = useWallet();
+	const {prices, pricingHash, getPrices} = usePrices();
+
+	/**********************************************************************************************
+	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
+	 ** it to know when it changes. This new hash will be used to trigger the useEffect hook.
+	 ** We will use classic hash function to create a hash from the balances object.
+	 *********************************************************************************************/
+	const currentBalanceIdentifier = useMemo(() => {
+		const hash = createUniqueID(serialize(balances));
+		return hash;
+	}, [balances]);
 
 	/**********************************************************************************************
 	 ** underlyingTokens corresponds to the tokens of the vaults we are displaying in the
 	 ** Gimme app.
 	 *********************************************************************************************/
 	const underlyingTokens = useMemo(() => {
+		if (!pricingHash || !currentBalanceIdentifier) {
+			return [];
+		}
 		return vaultsArray.map(vault => ({
 			...vault.token,
 			chainID: vault.chainID,
-			value: 0,
-			balance: zeroNormalizedBN
+			value: prices?.[vault.chainID]?.[vault.token.address]?.normalized || 0,
+			balance: getBalance({address: vault.token.address, chainID: vault.chainID})
 		}));
-	}, [vaultsArray]);
+	}, [currentBalanceIdentifier, vaultsArray, prices, getBalance, pricingHash]);
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect((): void => {
+		const allTokens: TToken[] = [];
+		for (const vault of underlyingTokens) {
+			allTokens.push({address: vault.address, chainID: vault.chainID} as TToken);
+		}
+		getPrices(allTokens);
+	}, [underlyingTokens, pricingHash, getPrices]);
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.
@@ -435,13 +452,36 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 			if (_options?.chainID) {
 				const allPopularTokens = listTokens(_options.chainID);
 				/**********************************************************************************
-				 ** COMMENT
+				 ** If the shouldBypassBalanceCheck option is set to true, we want to sort the
+				 ** tokens based on their balance instead of filtering the one with a balance of 0.
 				 *********************************************************************************/
 				if (_options?.shouldBypassBalanceCheck) {
-					const sortedByBalance = allPopularTokens.sort((a, b): number => {
-						return b.balance.normalized - a.balance.normalized;
-					});
-					let withUnderlyingTokens = [...underlyingTokens, ...sortedByBalance];
+					const popularWithBalance = [];
+					const popularWithoutBalance = [];
+					for (const token of allPopularTokens) {
+						if (token.balance.raw > 0n) {
+							popularWithBalance.push(token);
+						} else {
+							popularWithoutBalance.push(token);
+						}
+					}
+
+					const underlyingWithBalance = [];
+					const underlyingWithoutBalance = [];
+					for (const token of underlyingTokens) {
+						if (token.balance.raw > 0n) {
+							underlyingWithBalance.push(token);
+						} else {
+							underlyingWithoutBalance.push(token);
+						}
+					}
+
+					let withUnderlyingTokens = [
+						...underlyingWithBalance,
+						...underlyingWithoutBalance,
+						...popularWithBalance,
+						...popularWithoutBalance
+					];
 					if (_options.highlightedTokens) {
 						withUnderlyingTokens = [..._options.highlightedTokens, ...withUnderlyingTokens];
 					}

@@ -3,6 +3,7 @@ import {useWithdrawSolver} from 'packages/gimme/contexts/useWithdrawSolver';
 import {useIsZapNeeded} from 'packages/gimme/hooks/helpers/useIsZapNeeded';
 import {useCurrentChain} from 'packages/gimme/hooks/useCurrentChain';
 import useWallet from '@builtbymom/web3/contexts/useWallet';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {ETH_TOKEN_ADDRESS, isAddress, toAddress, toBigInt} from '@builtbymom/web3/utils';
 import {getNetwork} from '@builtbymom/web3/utils/wagmi';
 import {SuccessModal} from '@gimmeDesignSystem/SuccessModal';
@@ -14,9 +15,11 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	const {configuration, onResetWithdraw} = useWithdrawFlow();
 	const {isZapNeeded} = useIsZapNeeded(configuration.asset.token?.address, configuration.tokenToReceive?.address);
 	const {onRefresh, getToken} = useWallet();
+	const {isWalletSafe} = useWeb3();
 	const {
 		onExecuteWithdraw,
 		onExecuteDeposit: onExecutePortalsWithdraw,
+		onExecuteForGnosis: onExecuteWithdrawForGnosis,
 		isApproved,
 		isFetchingAllowance,
 		onApprove,
@@ -125,6 +128,9 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 	);
 
 	const onAction = useCallback(async () => {
+		if (isWalletSafe && isZapNeeded) {
+			return onExecuteWithdrawForGnosis(() => onRefreshTokens('WITHDRAW'));
+		}
 		if (!isZapNeeded) {
 			return onExecuteWithdraw(() => onRefreshTokens('WITHDRAW'));
 		}
@@ -132,7 +138,16 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 			return onApprove(() => onRefreshTokens('APPROVE'));
 		}
 		return onExecutePortalsWithdraw(() => onRefreshTokens('WITHDRAW'));
-	}, [isApproved, isZapNeeded, onApprove, onExecutePortalsWithdraw, onExecuteWithdraw, onRefreshTokens]);
+	}, [
+		isWalletSafe,
+		isZapNeeded,
+		isApproved,
+		onExecutePortalsWithdraw,
+		onExecuteWithdrawForGnosis,
+		onRefreshTokens,
+		onExecuteWithdraw,
+		onApprove
+	]);
 
 	const isBusy = useMemo(() => {
 		return withdrawStatus.pending || isFetchingAllowance || portalsWithdrawStatus.pending || approvalStatus.pending;
@@ -169,6 +184,10 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 			return 'Select Token to Receive';
 		}
 
+		if (isWalletSafe && isZapNeeded) {
+			return 'Approve and Withdraw';
+		}
+
 		if (!isZapNeeded) {
 			return 'Withdraw';
 		}
@@ -178,7 +197,7 @@ export function WithdrawButton(props: {onClose: () => void}): ReactElement {
 		}
 
 		return 'Approve';
-	}, [configuration.asset.token, configuration.tokenToReceive, isApproved, isZapNeeded]);
+	}, [configuration.asset.token, configuration.tokenToReceive, isApproved, isWalletSafe, isZapNeeded]);
 
 	return (
 		<>
