@@ -25,7 +25,7 @@ import {useCurrentChain} from '../hooks/useCurrentChain';
 import {useVaults} from './useVaults';
 
 import type {ReactElement, ReactNode} from 'react';
-import type {TChainTokens, TDict, TNormalizedBN, TToken} from '@builtbymom/web3/types';
+import type {TChainTokens, TToken} from '@builtbymom/web3/types';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextAppProps,
@@ -49,22 +49,7 @@ const defaultProps: TBalancesCurtainContextProps = {
 function WalletLayout(props: TWalletLayoutProps): ReactNode {
 	const {addCustomToken} = useTokenList();
 	const {isLoadingOnChain} = useTokensWithBalance();
-	const {getPrices, pricingHash} = usePrices();
-	const [prices, set_prices] = useState<TDict<TNormalizedBN>>({});
-
-	/**********************************************************************************************
-	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
-	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
-	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
-	 ** fetch them from an external endpoint (depending on the price availability).
-	 *********************************************************************************************/
-	useDeepCompareEffect(() => {
-		if (props.filteredTokens.length === 0) {
-			return;
-		}
-		const pricesForChain = getPrices(props.filteredTokens);
-		set_prices(pricesForChain[props.chainID] || {});
-	}, [props.filteredTokens, props.chainID, pricingHash]);
+	const {prices} = usePrices();
 
 	/**********************************************************************************************
 	 ** If the balances are loading, we want to display a spinner as placeholder.
@@ -99,7 +84,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 			<GimmeTokenButton
 				key={`${token.address}_${token.chainID}`}
 				token={token}
-				price={prices ? prices[toAddress(token.address)] : undefined}
+				price={prices?.[token.chainID] ? prices?.[token.chainID]?.[toAddress(token.address)] : undefined}
 				isDisabled={
 					props.selectedTokens?.some(
 						t => isAddressEqual(t.address, token.address) && t.chainID === token.chainID
@@ -384,6 +369,7 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	const chain = useCurrentChain();
 	const {vaultsArray} = useVaults();
 	const {balances, getBalance} = useWallet();
+	const {prices, pricingHash, getPrices} = usePrices();
 
 	/**********************************************************************************************
 	 ** Balances is an object with multiple level of depth. We want to create a unique hash from
@@ -400,14 +386,30 @@ export const BalancesModalContextApp = (props: TBalancesCurtainContextAppProps):
 	 ** Gimme app.
 	 *********************************************************************************************/
 	const underlyingTokens = useMemo(() => {
-		currentBalanceIdentifier;
+		if (!pricingHash || !currentBalanceIdentifier) {
+			return [];
+		}
 		return vaultsArray.map(vault => ({
 			...vault.token,
 			chainID: vault.chainID,
-			value: 0,
+			value: prices?.[vault.chainID]?.[vault.token.address]?.normalized || 0,
 			balance: getBalance({address: vault.token.address, chainID: vault.chainID})
 		}));
-	}, [currentBalanceIdentifier, vaultsArray, getBalance]);
+	}, [currentBalanceIdentifier, vaultsArray, prices, getBalance, pricingHash]);
+
+	/**********************************************************************************************
+	 ** This useDeepCompareEffect hook will be triggered when the filteredTokens, safeChainID or
+	 ** pricingHash changes, indicating that we need to update the prices for the tokens.
+	 ** It will ask the usePrices context to retrieve the prices for the tokens (from cache), or
+	 ** fetch them from an external endpoint (depending on the price availability).
+	 *********************************************************************************************/
+	useDeepCompareEffect((): void => {
+		const allTokens: TToken[] = [];
+		for (const vault of underlyingTokens) {
+			allTokens.push({address: vault.address, chainID: vault.chainID} as TToken);
+		}
+		getPrices(allTokens);
+	}, [underlyingTokens, pricingHash, getPrices]);
 
 	/**********************************************************************************************
 	 ** We want to update the chainIDToUse when the chainID changes.

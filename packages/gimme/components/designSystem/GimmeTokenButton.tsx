@@ -1,4 +1,5 @@
 import {type ReactElement, useMemo} from 'react';
+import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useTokenList} from '@builtbymom/web3/contexts/WithTokenList';
 import {cl, formatAmount, isAddress, toBigInt, truncateHex} from '@builtbymom/web3/utils';
 import {ImageWithFallback} from '@lib/common/ImageWithFallback';
@@ -16,6 +17,7 @@ export function GimmeTokenButton(props: {
 
 	className?: string;
 }): ReactElement {
+	const {address} = useWeb3();
 	const {getToken} = useTokenList();
 
 	/**********************************************************************************************
@@ -65,11 +67,13 @@ export function GimmeTokenButton(props: {
 		if (toBigInt(props.price?.raw) === 0n) {
 			return 'N/A';
 		}
+		if (!isAddress(address)) {
+			return `1 ${props.token.symbol} = $${formatAmount(props.price?.normalized || 0, 2)}`;
+		}
 		const value = props.token.balance.normalized * (props.price?.normalized || 0);
-
 		const formatedValue = formatAmount(value, 2);
 		return `$${formatedValue}`;
-	}, [props.token, props.price]);
+	}, [props.token, props.price?.raw, props.price?.normalized, address]);
 
 	return (
 		<button
