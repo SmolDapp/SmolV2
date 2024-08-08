@@ -310,7 +310,7 @@ export async function withdrawShares(props: TWithdrawShares): Promise<TTxRespons
 
 	return await handleTx(props, {
 		address: props.contractAddress,
-		abi: VAULT_ABI,
+		abi: VAULT_V2_ABI,
 		functionName: 'withdraw',
 		args: [props.amount]
 	});
