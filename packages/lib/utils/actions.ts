@@ -4,8 +4,8 @@ import {assertAddress, decodeAsBigInt, MAX_UINT_256, toAddress, toBigInt} from '
 import {handleTx, retrieveConfig, toWagmiProvider} from '@builtbymom/web3/utils/wagmi';
 import {readContract, readContracts} from '@wagmi/core';
 import DISPERSE_ABI from '@lib/utils/abi/disperse.abi';
-import {VAULT_ABI} from '@yearn-finance/web-lib/utils/abi/vault.abi';
 
+import {VAULT_V2_ABI} from './abi/vaultV2.abi';
 import {VAULT_V3_ABI} from './abi/vaultV3.abi';
 import {YEARN_4626_ROUTER_ABI} from './abi/yearn4626Router.abi';
 
@@ -121,7 +121,7 @@ export async function deposit(props: TDeposit): Promise<TTxResponse> {
 
 	return await handleTx(props, {
 		address: props.contractAddress,
-		abi: VAULT_ABI,
+		abi: VAULT_V2_ABI,
 		functionName: 'deposit',
 		args: [props.amount, wagmiProvider.address]
 	});
