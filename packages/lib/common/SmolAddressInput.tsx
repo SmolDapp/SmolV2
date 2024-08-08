@@ -7,7 +7,6 @@ import {useAsyncTrigger} from '@builtbymom/web3/hooks/useAsyncTrigger';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, isZeroAddress, toAddress, truncateHex} from '@builtbymom/web3/utils';
 import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
-import {IconPlus} from '@gimmeDesignSystem/IconPlus';
 import {useAsyncAbortable} from '@react-hookz/web';
 import {getEnsAddress} from '@wagmi/core';
 import {TextTruncate} from '@lib/common/TextTruncate';
@@ -18,6 +17,7 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconLoader} from '@lib/icons/IconLoader';
+import {IconPlus} from '@lib/icons/IconPlus';
 import {getIsSmartContract, type TInputAddressLike} from '@lib/utils/tools.address';
 
 import {AvatarWrapper} from './Avatar';

@@ -14,7 +14,6 @@ export function SmolTokenSelectorButton(props: {
 	chainID?: number;
 	shouldUseCurtainWithTabs?: boolean;
 	displayNetworkIcon?: boolean;
-	variant?: 'gimme' | 'smol';
 }): JSX.Element {
 	const {onOpenCurtain} = useBalancesCurtain();
 	const {getToken} = useTokenList();
@@ -47,9 +46,7 @@ export function SmolTokenSelectorButton(props: {
 			}
 			className={cl(
 				'flex items-center justify-between gap-2 rounded-[4px] py-4 pl-4 pr-2 w-full transition-colors',
-				props.variant === 'gimme' && !props.token
-					? 'bg-primary hover:bg-primaryHover'
-					: 'bg-neutral-200 hover:bg-neutral-300'
+				'bg-neutral-200 hover:bg-neutral-300'
 			)}>
 			<div className={'flex w-full items-center gap-2'}>
 				<div className={'realtive bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
@@ -82,7 +79,6 @@ export function SmolTokenSelectorButton(props: {
 				<p
 					className={cl(
 						'truncate max-w-[88px]',
-						props.variant === 'gimme' ? 'text-neutral-900' : '',
 						isAddress(props.token?.address) && (props.token?.symbol || props.token?.name)
 							? 'font-bold'
 							: 'text-neutral-600 text-sm font-normal'
@@ -91,9 +87,7 @@ export function SmolTokenSelectorButton(props: {
 				</p>
 			</div>
 
-			<IconChevron
-				className={cl('size-4 min-w-4', props.variant === 'gimme' ? 'text-neutral-900' : 'text-neutral-600')}
-			/>
+			<IconChevron className={cl('size-4 min-w-4 text-neutral-600')} />
 		</button>
 	);
 }
