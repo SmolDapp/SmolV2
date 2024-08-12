@@ -270,7 +270,9 @@ const Disperse = memo(function Disperse(): ReactElement {
 			const pattern =
 				/^(0x[a-fA-F0-9]{40})[\s,;]+((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)(?:\r?\n|$)/gm;
 			if (!pattern.test(trimedText)) {
-				toast.error('NO FACU');
+				toast.error(
+					'Invalid pattern. Please make sure that your clipboard contains a valid pattern: address, amount'
+				);
 				return;
 			}
 
