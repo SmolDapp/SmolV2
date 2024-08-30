@@ -10,7 +10,7 @@ export default function Index(): ReactElement {
 }
 
 Index.AppName = 'Wallet';
-Index.AppDescription = 'If you want to see tokens form another chains - switch chain in the side bar.';
+Index.AppDescription = 'If you want to see tokens from another chains - switch chain in the side bar.';
 Index.AppInfo = <WalletAppInfo />;
 
 /**************************************************************************************************
