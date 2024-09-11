@@ -27,7 +27,7 @@ const QRModal = (props: TQRModalProps): ReactElement => {
 		<ModalWrapper
 			isOpen={props.isOpen}
 			onClose={props.onClose}
-			shouldHasHeader={true}
+			shouldDisplayHeader={true}
 			title={props.title}>
 			<>
 				<div>

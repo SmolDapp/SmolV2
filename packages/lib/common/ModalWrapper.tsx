@@ -8,7 +8,7 @@ type TModalWrapperProps = {
 	isOpen: boolean;
 	onClose: VoidFunction;
 	children: ReactElement;
-	shouldHasHeader?: boolean;
+	shouldDisplayHeader?: boolean;
 	title?: string;
 	shouldTriggerConfettis?: boolean;
 	className?: string;
@@ -18,7 +18,7 @@ export function ModalWrapper({
 	isOpen,
 	onClose,
 	children,
-	shouldHasHeader = false,
+	shouldDisplayHeader = false,
 	shouldTriggerConfettis = false,
 	title,
 	className
@@ -68,7 +68,7 @@ export function ModalWrapper({
 									'sm:my-8 sm:w-full md:max-w-2xl sm:max-w-lg',
 									className
 								)}>
-								{shouldHasHeader && (
+								{shouldDisplayHeader && (
 									<div className={'top-0 flex'}>
 										<button
 											className={
