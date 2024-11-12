@@ -12,6 +12,7 @@ import {IconFile} from '@lib/icons/IconFile';
 import {IconImport} from '@lib/icons/IconImport';
 import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {getAddressAndEns, type TInputAddressLike} from '@lib/utils/tools.address';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -23,12 +24,13 @@ import {DisperseWizard} from './Wizard';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput} from '@lib/types/app.disperse';
-import type {TInputAddressLike} from '@lib/utils/tools.address';
+import type {TAddressAndEns} from '@lib/utils/tools.address';
 
 function ImportConfigurationButton(): ReactElement {
 	const plausible = usePlausible();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {validate: validateAmount} = useValidateAmountInput();
+	const {chainID} = useChainID();
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
 		if (!e.target.files) {
@@ -69,37 +71,39 @@ function ImportConfigurationButton(): ReactElement {
 				/**************************************************************************************
 				 ** Process each row to create records
 				 *************************************************************************************/
-				const records: TDisperseInput[] = parsedCSV.data.reduce((acc: TDisperseInput[], row: any) => {
-					const address = toAddress(row[receiverAddress]);
-					const amount = row[value];
+				parsedCSV.data
+					.reduce(async (acc: TDisperseInput[], row: any) => {
+						const receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
+						const amount = row[value];
 
-					/**************************************************************************************
-					 ** Validate address and amount
-					 *************************************************************************************/
-					if (isAddress(address) && amount) {
-						const parsedAmount = parseFloat(amount).toString();
+						/**************************************************************************************
+						 ** Validate address and amount
+						 *************************************************************************************/
+						if (isAddress(receiver.address) && amount) {
+							const parsedAmount = parseFloat(amount).toString();
 
-						const record: TDisperseInput = {
-							receiver: {
-								address: toAddress(address),
-								label: toAddress(address)
-							} as TInputAddressLike,
-							value: {
-								...newDisperseVoidRow().value,
-								...validateAmount(parsedAmount, configuration.tokenToSend)
-							},
-							UUID: crypto.randomUUID()
-						};
+							const record: TDisperseInput = {
+								receiver: {
+									address: receiver.address,
+									label: receiver.label ? receiver.label : receiver.address
+								} as TInputAddressLike,
+								value: {
+									...newDisperseVoidRow().value,
+									...validateAmount(parsedAmount, configuration.tokenToSend)
+								},
+								UUID: crypto.randomUUID()
+							};
 
-						acc.push(record);
-					}
-					return acc;
-				}, []);
-
-				/**************************************************************************************
-				 ** Update the state with the new records
-				 *************************************************************************************/
-				dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: records});
+							acc.push(record);
+						}
+						return acc;
+					}, [])
+					.then((records: TDisperseInput[]) => {
+						/**************************************************************************************
+						 ** Update the state with the new records
+						 *************************************************************************************/
+						dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: records});
+					});
 			} else {
 				console.error('The file you are trying to upload seems to be broken');
 				toast.error('The file you are trying to upload seems to be broken');
