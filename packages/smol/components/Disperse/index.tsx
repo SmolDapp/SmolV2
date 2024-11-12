@@ -12,7 +12,7 @@ import {IconFile} from '@lib/icons/IconFile';
 import {IconImport} from '@lib/icons/IconImport';
 import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {getAddressAndEns, type TInputAddressLike} from '@lib/utils/tools.address';
+import {getAddressAndEns, type TAddressAndEns, type TInputAddressLike} from '@lib/utils/tools.address';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -24,7 +24,6 @@ import {DisperseWizard} from './Wizard';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput} from '@lib/types/app.disperse';
-import type {TAddressAndEns} from '@lib/utils/tools.address';
 
 function ImportConfigurationButton(): ReactElement {
 	const plausible = usePlausible();
