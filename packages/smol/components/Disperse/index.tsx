@@ -4,14 +4,17 @@ import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
+import {getClient} from '@builtbymom/web3/utils/wagmi';
 import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
 import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
 import {IconFile} from '@lib/icons/IconFile';
 import {IconImport} from '@lib/icons/IconImport';
+import {IconLoader} from '@lib/icons/IconLoader';
 import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {getAddressAndEns, type TAddressAndEns, type TInputAddressLike} from '@lib/utils/tools.address';
 
 import {DisperseAddressAndAmountInputs} from './DisperseAddressAndAmountInputs';
 import {DisperseStatus} from './DisperseStatus';
@@ -23,12 +26,16 @@ import {DisperseWizard} from './Wizard';
 import type {ChangeEvent, ComponentPropsWithoutRef, ReactElement} from 'react';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TDisperseInput} from '@lib/types/app.disperse';
-import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-function ImportConfigurationButton(): ReactElement {
+function ImportConfigurationButton({
+	set_isLoadingReceivers
+}: {
+	set_isLoadingReceivers: (value: boolean) => void;
+}): ReactElement {
 	const plausible = usePlausible();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {validate: validateAmount} = useValidateAmountInput();
+	const {chainID} = useChainID();
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
 		if (!e.target.files) {
@@ -36,7 +43,8 @@ function ImportConfigurationButton(): ReactElement {
 		}
 		const [file] = e.target.files as unknown as Blob[];
 		const reader = new FileReader();
-		reader.onload = event => {
+		set_isLoadingReceivers(true);
+		reader.onload = async event => {
 			if (!event?.target?.result) {
 				return;
 			}
@@ -66,23 +74,28 @@ function ImportConfigurationButton(): ReactElement {
 				 *************************************************************************************/
 				const [receiverAddress, value] = parsedCSV.meta.fields;
 
+				/**********************************************************************************
+				 ** Initialize an empty array for results
+				 **********************************************************************************/
+				const records: TDisperseInput[] = [];
+
 				/**************************************************************************************
 				 ** Process each row to create records
 				 *************************************************************************************/
-				const records: TDisperseInput[] = parsedCSV.data.reduce((acc: TDisperseInput[], row: any) => {
-					const address = toAddress(row[receiverAddress]);
+				for (const row of parsedCSV.data) {
+					const receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
 					const amount = row[value];
 
 					/**************************************************************************************
 					 ** Validate address and amount
 					 *************************************************************************************/
-					if (isAddress(address) && amount) {
+					if (isAddress(receiver?.address) && amount) {
 						const parsedAmount = parseFloat(amount).toString();
 
 						const record: TDisperseInput = {
 							receiver: {
-								address: toAddress(address),
-								label: toAddress(address)
+								address: receiver.address,
+								label: receiver.label ? receiver.label : receiver.address
 							} as TInputAddressLike,
 							value: {
 								...newDisperseVoidRow().value,
@@ -90,20 +103,15 @@ function ImportConfigurationButton(): ReactElement {
 							},
 							UUID: crypto.randomUUID()
 						};
-
-						acc.push(record);
+						records.push(record);
 					}
-					return acc;
-				}, []);
-
-				/**************************************************************************************
-				 ** Update the state with the new records
-				 *************************************************************************************/
+				}
 				dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: records});
 			} else {
 				console.error('The file you are trying to upload seems to be broken');
 				toast.error('The file you are trying to upload seems to be broken');
 			}
+			set_isLoadingReceivers(false);
 		};
 		reader.readAsText(file);
 	};
@@ -170,7 +178,7 @@ export function ExportConfigurationButton({
 }
 
 const Disperse = memo(function Disperse(): ReactElement {
-	const {safeChainID} = useChainID();
+	const {safeChainID, chainID} = useChainID();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {hasInitialInputs} = useDisperseQueryManagement();
 	const {getPrice, pricingHash} = usePrices();
@@ -178,6 +186,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {validate: validateAmount} = useValidateAmountInput();
 	const {validate: validateAddress} = useValidateAddressInput();
 	const plausible = usePlausible();
+	const [isLoadingReceivers, set_isLoadingReceivers] = useState(false);
 
 	/**********************************************************************************************
 	 ** TODO: Add explanation of the downloadFile function
@@ -268,7 +277,8 @@ const Disperse = memo(function Disperse(): ReactElement {
 			 *************************************************************************************/
 			const trimedText = text.trim();
 			const pattern =
-				/^(0x[a-fA-F0-9]{40})[\s,;]+((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)(?:\r?\n|$)/gm;
+				/^((?:0x[a-fA-F0-9]{40}|[a-zA-Z0-9-]+\.eth))[\s,;]+((?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?|\d+e[+-]?\d+)(?:\r?\n|$)/gm;
+
 			if (!pattern.test(trimedText)) {
 				toast.error(
 					'Invalid pattern. Please make sure that your clipboard contains a valid pattern: address, amount'
@@ -281,6 +291,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 			 *************************************************************************************/
 			const lines = trimedText.split('\n');
 			const inputs: TDisperseInput[] = [];
+			set_isLoadingReceivers(true);
 			for (const line of lines) {
 				/**********************************************************************************
 				 ** Trim the line but preserve internal whitespace
@@ -291,25 +302,28 @@ const Disperse = memo(function Disperse(): ReactElement {
 				}
 
 				/**********************************************************************************
-				 ** Extract the address (first 42 characters starting with 0x)
+				 ** Extract the address (first 42 characters starting with 0x) or the ens name.
 				 *********************************************************************************/
-				const addressMatch = trimmedLine.match(/^(0x[a-fA-F0-9]{40})/);
-				if (!addressMatch) {
+				const addressOrEnsMatch =
+					trimmedLine.match(/^(0x[a-fA-F0-9]{40})/) || trimmedLine.match(/^[a-zA-Z0-9-]+\.eth/);
+				if (!addressOrEnsMatch) {
 					continue;
 				}
-				const [theAddress] = addressMatch;
+				const [theAddressOrEns] = addressOrEnsMatch;
 
 				/**********************************************************************************
 				 ** Validate the address
 				 *********************************************************************************/
-				if (!isAddress(theAddress)) {
+				if (!isAddress(theAddressOrEns) && !theAddressOrEns.endsWith('.eth')) {
 					continue;
 				}
+
+				const addressOrEns = await getAddressAndEns(theAddressOrEns, chainID);
 
 				/**********************************************************************************
 				 ** Extract the amount (everything after the address and any separators)
 				 *********************************************************************************/
-				const amountPart = trimmedLine.slice(theAddress.length).trim();
+				const amountPart = trimmedLine.slice(theAddressOrEns.length).trim();
 
 				/**********************************************************************************
 				 ** Find the first valid number in the remaining part
@@ -321,11 +335,13 @@ const Disperse = memo(function Disperse(): ReactElement {
 				/**********************************************************************************
 				 ** Create the receiver object
 				 *********************************************************************************/
-				const receiver = toAddress(theAddress);
+				const receiver = toAddress(theAddressOrEns);
+				const ensName = await getClient(chainID).getEnsName({address: receiver});
+				const label = addressOrEns?.label ? addressOrEns?.label : ensName ? ensName : toAddress(receiver);
 				const value = {
 					receiver: {
-						address: toAddress(receiver),
-						label: toAddress(receiver),
+						address: addressOrEns?.address ?? toAddress(receiver),
+						label,
 						error: '',
 						isValid: 'undetermined',
 						source: 'typed'
@@ -336,6 +352,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 
 				inputs.push(value);
 			}
+			set_isLoadingReceivers(false);
 			dispatchConfiguration({type: 'PASTE_RECEIVERS', payload: inputs});
 		};
 
@@ -343,12 +360,19 @@ const Disperse = memo(function Disperse(): ReactElement {
 		return () => {
 			document.removeEventListener('paste', handlePaste);
 		};
-	}, [configuration.inputs, configuration.tokenToSend, dispatchConfiguration, validateAddress, validateAmount]);
+	}, [
+		chainID,
+		configuration.inputs,
+		configuration.tokenToSend,
+		dispatchConfiguration,
+		validateAddress,
+		validateAmount
+	]);
 
 	return (
 		<div className={'w-full'}>
 			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
-				<ImportConfigurationButton />
+				<ImportConfigurationButton set_isLoadingReceivers={set_isLoadingReceivers} />
 				<ExportConfigurationButton className={'!h-8 !text-xs'} />
 				<Button
 					className={'!h-8 !text-xs'}
@@ -361,12 +385,15 @@ const Disperse = memo(function Disperse(): ReactElement {
 					{'Download Template'}
 				</Button>
 			</div>
-			<div className={'md:max-w-108 mb-6 w-full max-w-full'}>
-				<p className={'mb-2 font-medium'}>{'Token'}</p>
-				<SmolTokenSelector
-					token={configuration.tokenToSend}
-					onSelectToken={onSelectToken}
-				/>
+			<div className={'flex items-center gap-4'}>
+				<div className={'md:max-w-108 mb-6 w-full max-w-full'}>
+					<p className={'mb-2 font-medium'}>{'Token'}</p>
+					<SmolTokenSelector
+						token={configuration.tokenToSend}
+						onSelectToken={onSelectToken}
+					/>
+				</div>
+				<div>{isLoadingReceivers && <IconLoader className={'animate-spin'} />}</div>
 			</div>
 			<div className={'flex flex-col items-start'}>
 				<p className={'mb-2 font-medium'}>{'Send to'}</p>

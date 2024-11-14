@@ -1,10 +1,18 @@
+import {isAddress} from 'viem';
 import axios from 'axios';
-import {getClient} from '@builtbymom/web3/utils/wagmi';
+import {toAddress} from '@builtbymom/web3/utils';
+import {getClient, retrieveConfig} from '@builtbymom/web3/utils/wagmi';
+import {getEnsAddress} from '@wagmi/core';
 import {assertFulfilled} from '@lib/types/assertType';
 import {CHAINS, supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {GetBytecodeReturnType} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
+
+export type TAddressAndEns = {
+	address: TAddress;
+	label: string;
+};
 
 export type TInputAddressLike = {
 	address: TAddress | undefined;
@@ -75,4 +83,17 @@ export async function getIsSmartContract({
 	} catch (error) {
 		return false;
 	}
+}
+
+export async function getAddressAndEns(address: string, chainID: number): Promise<TAddressAndEns | undefined> {
+	if (isAddress(address)) {
+		const ensName = await getClient(chainID).getEnsName({address});
+		return {address: toAddress(address), label: ensName ?? ''};
+	}
+	if (address.endsWith('.eth')) {
+		const receiverAddress = toAddress(await getEnsAddress(retrieveConfig(), {name: address, chainId: chainID}));
+
+		return isAddress(receiverAddress) ? {address: toAddress(receiverAddress), label: address} : undefined;
+	}
+	return;
 }
