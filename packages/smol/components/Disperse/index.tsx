@@ -82,20 +82,40 @@ function ImportConfigurationButton({
 				/**************************************************************************************
 				 ** Process each row to create records
 				 *************************************************************************************/
+				const {length} = parsedCSV.data;
 				for (const row of parsedCSV.data) {
-					const receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
+					const address = toAddress(row[receiverAddress]);
 					const amount = row[value];
+					let receiver = undefined;
+					if (length < 20) {
+						receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
+					}
 
 					/**************************************************************************************
 					 ** Validate address and amount
 					 *************************************************************************************/
-					if (isAddress(receiver?.address) && amount) {
+					if (receiver && isAddress(receiver?.address) && amount) {
 						const parsedAmount = parseFloat(amount).toString();
 
 						const record: TDisperseInput = {
 							receiver: {
 								address: receiver.address,
 								label: receiver.label ? receiver.label : receiver.address
+							} as TInputAddressLike,
+							value: {
+								...newDisperseVoidRow().value,
+								...validateAmount(parsedAmount, configuration.tokenToSend)
+							},
+							UUID: crypto.randomUUID()
+						};
+						records.push(record);
+					} else if (isAddress(address) && amount) {
+						const parsedAmount = parseFloat(amount).toString();
+
+						const record: TDisperseInput = {
+							receiver: {
+								address: toAddress(address),
+								label: toAddress(address)
 							} as TInputAddressLike,
 							value: {
 								...newDisperseVoidRow().value,
