@@ -94,6 +94,17 @@ const MENU = [
 ];
 
 function MyApp(props: AppProps): ReactElement {
+	const {Component, router} = props;
+
+	console.warn(router.pathname);
+	if (router.pathname === '/pixel') {
+		return (
+			<IndexedDB>
+				<Component {...props} />
+			</IndexedDB>
+		);
+	}
+
 	return (
 		<WithFonts>
 			<IndexedDB>

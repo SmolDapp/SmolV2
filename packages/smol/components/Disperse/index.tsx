@@ -336,7 +336,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 ** Create the receiver object
 				 *********************************************************************************/
 				const receiver = toAddress(theAddressOrEns);
-				const ensName = await getClient(chainID).getEnsName({address: receiver});
+				const ensName = await getClient(1).getEnsName({address: receiver});
 				const label = addressOrEns?.label ? addressOrEns?.label : ensName ? ensName : toAddress(receiver);
 				const value = {
 					receiver: {
