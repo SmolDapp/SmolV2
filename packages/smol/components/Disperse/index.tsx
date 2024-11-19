@@ -6,6 +6,7 @@ import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {cl, isAddress, toAddress} from '@builtbymom/web3/utils';
 import {getClient} from '@builtbymom/web3/utils/wagmi';
 import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {usePrices} from '@lib/contexts/usePrices';
 import {useValidateAddressInput} from '@lib/hooks/useValidateAddressInput';
 import {useValidateAmountInput} from '@lib/hooks/useValidateAmountInput';
@@ -36,7 +37,7 @@ function ImportConfigurationButton({
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {validate: validateAmount} = useValidateAmountInput();
 	const {chainID} = useChainID();
-
+	const {getEntry} = useAddressBook();
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
 		if (!e.target.files) {
 			return;
@@ -84,18 +85,24 @@ function ImportConfigurationButton({
 				 *************************************************************************************/
 				for (const row of parsedCSV.data) {
 					const receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
+					let abEntry;
 					const amount = row[value];
 
+					if (!isAddress(receiver?.address)) {
+						abEntry = await getEntry({label: row.receiverAddress});
+					} else {
+						abEntry = await getEntry({address: receiver?.address});
+					}
 					/**************************************************************************************
 					 ** Validate address and amount
 					 *************************************************************************************/
-					if (isAddress(receiver?.address) && amount) {
+					if (isAddress(receiver?.address) || (isAddress(abEntry?.address) && amount)) {
 						const parsedAmount = parseFloat(amount).toString();
 
 						const record: TDisperseInput = {
 							receiver: {
-								address: receiver.address,
-								label: receiver.label ? receiver.label : receiver.address
+								address: receiver?.address || abEntry?.address,
+								label: abEntry ? abEntry.label : receiver.label ? receiver.label : receiver.address
 							} as TInputAddressLike,
 							value: {
 								...newDisperseVoidRow().value,
@@ -187,6 +194,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const {validate: validateAddress} = useValidateAddressInput();
 	const plausible = usePlausible();
 	const [isLoadingReceivers, set_isLoadingReceivers] = useState(false);
+	const {getEntry} = useAddressBook();
 
 	/**********************************************************************************************
 	 ** TODO: Add explanation of the downloadFile function
@@ -297,7 +305,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 ** Trim the line but preserve internal whitespace
 				 *********************************************************************************/
 				const trimmedLine = line.trim();
-				if (trimmedLine === '') {
+				if (trimmedLine === '' || trimmedLine.split(',')[0] === 'receiverAddress') {
 					continue;
 				}
 
@@ -305,16 +313,27 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 ** Extract the address (first 42 characters starting with 0x) or the ens name.
 				 *********************************************************************************/
 				const addressOrEnsMatch =
-					trimmedLine.match(/^(0x[a-fA-F0-9]{40})/) || trimmedLine.match(/^[a-zA-Z0-9-]+\.eth/);
+					trimmedLine.match(/^(0x[a-fA-F0-9]{40})/) ||
+					trimmedLine.match(/^[a-zA-Z0-9-]+\.eth/) ||
+					trimmedLine.match(/^((?!0x|\.|\d)[^\s\d]{1,22})/);
+
 				if (!addressOrEnsMatch) {
 					continue;
 				}
 				const [theAddressOrEns] = addressOrEnsMatch;
+				let fromAddressBook;
+
+				if (!theAddressOrEns.endsWith('.eth') && !theAddressOrEns.startsWith('0x')) {
+					fromAddressBook = await getEntry({label: theAddressOrEns});
+				}
+				if (theAddressOrEns.startsWith('0x')) {
+					fromAddressBook = await getEntry({address: toAddress(theAddressOrEns)});
+				}
 
 				/**********************************************************************************
 				 ** Validate the address
 				 *********************************************************************************/
-				if (!isAddress(theAddressOrEns) && !theAddressOrEns.endsWith('.eth')) {
+				if (!isAddress(theAddressOrEns) && !theAddressOrEns.endsWith('.eth') && !fromAddressBook) {
 					continue;
 				}
 
@@ -337,10 +356,18 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 *********************************************************************************/
 				const receiver = toAddress(theAddressOrEns);
 				const ensName = await getClient(chainID).getEnsName({address: receiver});
-				const label = addressOrEns?.label ? addressOrEns?.label : ensName ? ensName : toAddress(receiver);
+				const label = fromAddressBook
+					? fromAddressBook?.label || fromAddressBook?.ens
+					: addressOrEns?.label
+						? addressOrEns?.label
+						: ensName
+							? ensName
+							: toAddress(receiver);
+
+				const address = addressOrEns?.address ? addressOrEns?.address : fromAddressBook?.address;
 				const value = {
 					receiver: {
-						address: addressOrEns?.address ?? toAddress(receiver),
+						address,
 						label,
 						error: '',
 						isValid: 'undetermined',
@@ -365,6 +392,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 		configuration.inputs,
 		configuration.tokenToSend,
 		dispatchConfiguration,
+		getEntry,
 		validateAddress,
 		validateAmount
 	]);
