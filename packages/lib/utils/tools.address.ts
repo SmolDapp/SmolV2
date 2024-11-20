@@ -87,7 +87,7 @@ export async function getIsSmartContract({
 
 export async function getAddressAndEns(address: string, chainID: number): Promise<TAddressAndEns | undefined> {
 	if (isAddress(address)) {
-		const ensName = await getClient(chainID).getEnsName({address});
+		const ensName = await getClient(1).getEnsName({address});
 		return {address: toAddress(address), label: ensName ?? ''};
 	}
 	if (address.endsWith('.eth')) {

@@ -83,10 +83,15 @@ function ImportConfigurationButton({
 				/**************************************************************************************
 				 ** Process each row to create records
 				 *************************************************************************************/
+				const {length} = parsedCSV.data;
 				for (const row of parsedCSV.data) {
-					const receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
 					let abEntry;
+					const address = toAddress(row[receiverAddress]);
 					const amount = row[value];
+					let receiver = undefined;
+					if (length < 20) {
+						receiver = (await getAddressAndEns(row[receiverAddress], chainID)) as TAddressAndEns;
+					}
 
 					if (!isAddress(receiver?.address)) {
 						abEntry = await getEntry({label: row.receiverAddress});
@@ -96,13 +101,28 @@ function ImportConfigurationButton({
 					/**************************************************************************************
 					 ** Validate address and amount
 					 *************************************************************************************/
-					if (isAddress(receiver?.address) || (isAddress(abEntry?.address) && amount)) {
+					if (receiver && isAddress(receiver?.address) && amount) {
 						const parsedAmount = parseFloat(amount).toString();
 
 						const record: TDisperseInput = {
 							receiver: {
 								address: receiver?.address || abEntry?.address,
 								label: abEntry ? abEntry.label : receiver.label ? receiver.label : receiver.address
+							} as TInputAddressLike,
+							value: {
+								...newDisperseVoidRow().value,
+								...validateAmount(parsedAmount, configuration.tokenToSend)
+							},
+							UUID: crypto.randomUUID()
+						};
+						records.push(record);
+					} else if (isAddress(address) && amount) {
+						const parsedAmount = parseFloat(amount).toString();
+
+						const record: TDisperseInput = {
+							receiver: {
+								address: toAddress(address),
+								label: toAddress(address)
 							} as TInputAddressLike,
 							value: {
 								...newDisperseVoidRow().value,
@@ -355,7 +375,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 ** Create the receiver object
 				 *********************************************************************************/
 				const receiver = toAddress(theAddressOrEns);
-				const ensName = await getClient(chainID).getEnsName({address: receiver});
+				const ensName = await getClient(1).getEnsName({address: receiver});
 				const label = fromAddressBook
 					? fromAddressBook?.label || fromAddressBook?.ens
 					: addressOrEns?.label
