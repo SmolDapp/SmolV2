@@ -1,6 +1,5 @@
-import {Fragment, type ReactElement, useCallback, useEffect, useState} from 'react';
+import {type ReactElement, useCallback, useEffect} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
-import {useEventListener} from '@react-hookz/web';
 
 import type {TAddressBookEntry} from '@lib/types/AddressBook';
 
@@ -9,18 +8,17 @@ type TMessageEvent = {
 	key: string;
 };
 
-const ALLOWED_ORIGIN = 'http://localhost:3000';
+const ALLOWED_ORIGIN = ['http://localhost:3000', 'https://app.safe.global', 'https://playground.smold.app'];
 
 function PixelPage(): ReactElement {
 	const {getAll} = useIndexedDBStore<TAddressBookEntry>('address-book');
 
 	const handleMessage = useCallback(
 		async (event: MessageEvent) => {
-			// Security: Verify origin
 			const messageData = event.data as TMessageEvent;
 
 			if (messageData.type === 'GET_DB_DATA') {
-				if (event.origin !== ALLOWED_ORIGIN) {
+				if (!ALLOWED_ORIGIN.includes(event.origin)) {
 					console.warn('Rejected message from unauthorized origin:', event.origin);
 					return;
 				}
@@ -32,17 +30,18 @@ function PixelPage(): ReactElement {
 		[getAll]
 	);
 
-	useEventListener(window, 'message', handleMessage);
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			window.addEventListener('message', handleMessage);
+			return () => window.removeEventListener('message', handleMessage);
+		}
+		return;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [handleMessage, typeof window]);
 
 	return <span className={'hidden'} />;
 }
 
 export default function Wrapper(): ReactElement {
-	const [isMounted, set_isMounted] = useState(false);
-
-	useEffect(() => {
-		set_isMounted(true);
-	}, []);
-
-	return isMounted ? <PixelPage /> : <Fragment />;
+	return <PixelPage />;
 }
