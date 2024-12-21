@@ -4,6 +4,7 @@ import useWallet from '@builtbymom/web3/contexts/useWallet';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
 import {useChainID} from '@builtbymom/web3/hooks/useChainID';
 import {
+	assertAddress,
 	ETH_TOKEN_ADDRESS,
 	isZeroAddress,
 	slugify,
@@ -12,9 +13,16 @@ import {
 	truncateHex,
 	ZERO_ADDRESS
 } from '@builtbymom/web3/utils';
-import {defaultTxStatus, getNetwork, transferERC20, transferEther} from '@builtbymom/web3/utils/wagmi';
+import {
+	defaultTxStatus,
+	getNetwork,
+	retrieveConfig,
+	toWagmiProvider,
+	transferERC20
+} from '@builtbymom/web3/utils/wagmi';
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {useDeepCompareMemo} from '@react-hookz/web';
+import {getGasPrice, sendTransaction, waitForTransactionReceipt} from '@wagmi/core';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {notifySend} from '@lib/utils/notifier';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
@@ -22,12 +30,75 @@ import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {useSendContext} from './useSendContext';
 
 import type {Hex} from 'viem';
+import type {BaseError} from 'wagmi';
 import type {TUseBalancesTokens} from '@builtbymom/web3/hooks/useBalances.multichains';
 import type {TAddress, TChainTokens} from '@builtbymom/web3/types';
-import type {TTxResponse, TTxStatus} from '@builtbymom/web3/utils/wagmi';
+import type {TTxResponse, TTxStatus, TWriteTransaction} from '@builtbymom/web3/utils/wagmi';
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
 import type {TDisperseTxInfo, TInputWithToken} from '@lib/types/app.disperse';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
+
+type TTransferEther = Omit<TWriteTransaction, 'contractAddress'> & {
+	receiver: TAddress | undefined;
+	amount: bigint;
+	shouldAdjustForGas?: boolean;
+	confirmation?: number;
+};
+export async function transferLegacyEther(props: TTransferEther): Promise<TTxResponse> {
+	assertAddress(props.receiver, 'receiver');
+
+	props.statusHandler?.({...defaultTxStatus, pending: true});
+	const wagmiProvider = await toWagmiProvider(props.connector);
+
+	assertAddress(wagmiProvider.address, 'userAddress');
+	try {
+		let adjustedAmount = props.amount;
+
+		let gasFee: bigint = 0n;
+		if (props.shouldAdjustForGas) {
+			// Estimate gas for the transaction
+			gasFee = await getGasPrice(retrieveConfig(), {
+				chainId: wagmiProvider.chainId
+			});
+
+			// Calculate gas cost and subtract from amount
+			const gasCost = 21000n * gasFee;
+			adjustedAmount = props.amount - gasCost;
+
+			// Ensure we don't go negative
+			if (adjustedAmount <= 0n) {
+				throw new Error('Insufficient funds to cover gas costs');
+			}
+		}
+
+		const hash = await sendTransaction(retrieveConfig(), {
+			chainId: wagmiProvider.chainId,
+			to: props.receiver,
+			value: adjustedAmount,
+			type: 'legacy'
+		});
+		const receipt = await waitForTransactionReceipt(retrieveConfig(), {
+			chainId: wagmiProvider.chainId,
+			hash,
+			confirmations: props.confirmation ?? (process.env.NODE_ENV === 'development' ? 1 : undefined)
+		});
+		if (receipt.status === 'success') {
+			props.statusHandler?.({...defaultTxStatus, success: true});
+		} else if (receipt.status === 'reverted') {
+			props.statusHandler?.({...defaultTxStatus, error: true});
+		}
+		return {isSuccessful: receipt.status === 'success', receipt};
+	} catch (error) {
+		console.error(error);
+		const errorAsBaseError = error as BaseError;
+		props.statusHandler?.({...defaultTxStatus, error: true});
+		return {isSuccessful: false, error: errorAsBaseError || ''};
+	} finally {
+		setTimeout((): void => {
+			props.statusHandler?.({...defaultTxStatus});
+		}, 3000);
+	}
+}
 
 export const useSend = (
 	txInfo?: TDisperseTxInfo,
@@ -149,10 +220,11 @@ export const useSend = (
 
 			const isSendingBalance =
 				toBigInt(ethAmountRaw) >= toBigInt(getBalance({address: ETH_TOKEN_ADDRESS, chainID: chainID})?.raw);
-			const result = await transferEther({
+
+			const result = await transferLegacyEther({
 				connector: provider,
 				chainID: chainID,
-				receiverAddress: configuration.receiver?.address ?? txInfo?.receiver,
+				receiver: configuration.receiver?.address ?? txInfo?.receiver,
 				amount: toBigInt(ethAmountRaw),
 				shouldAdjustForGas: isSendingBalance
 			});

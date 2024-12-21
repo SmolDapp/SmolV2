@@ -57,6 +57,7 @@ export function SendWizard({isReceiverERC20}: {isReceiverERC20: boolean}): React
 				onClick={onMigration}>
 				<b>{'Send'}</b>
 			</Button>
+
 			<SuccessModal
 				title={'Success!'}
 				content={
