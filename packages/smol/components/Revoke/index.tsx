@@ -18,7 +18,7 @@ import type {TToken} from '@builtbymom/web3/types';
 export function Revoke(): ReactElement {
 	const {chainID} = useChainID();
 	const {onOpenCurtain} = useBalancesCurtain();
-	const {dispatchConfiguration, allowances} = useAllowances();
+	const {dispatchConfiguration, allowances, isLoading, isLoadingInitialDB, isDoneWithInitialFetch} = useAllowances();
 
 	/**********************************************************************************************
 	 ** We take all unique tokens from allowances and form TToken array to get prices for them.
