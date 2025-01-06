@@ -129,7 +129,7 @@ export const AllowanceFilterDropdown = ({
 
 	return (
 		<DropdownMenu.Root modal>
-			<DropdownMenu.Trigger disabled={allOptions?.length === 0} className='disabled:cursor-not-allowed'>
+			<DropdownMenu.Trigger disabled={allOptions?.length === 0} className={'disabled:cursor-not-allowed'}>
 				{children}
 			</DropdownMenu.Trigger>
 

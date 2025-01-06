@@ -112,8 +112,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 			</div>
 			<div className={'mb-6 grid grid-cols-3 gap-3 md:mb-2 md:flex md:gap-y-3'}>
 				<AllowanceFilterDropdown
-					type="asset"
-					title="Select Asset"
+					type={'asset'}
+					title={'Select Asset'}
 					allOptions={allTokenOptions}>
 					<div
 						className={cl(
@@ -134,8 +134,8 @@ export const AllowancesFilters = (): ReactElement | null => {
 				</AllowanceFilterDropdown>
 
 				<AllowanceFilterDropdown
-					type="spender"
-					title="Select Spender"
+					type={'spender'}
+					title={'Select Spender'}
 					allOptions={allSpenderOptions}>
 					<div
 						className={cl(
