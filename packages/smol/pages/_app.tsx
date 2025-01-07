@@ -11,10 +11,8 @@ import {WithPrices} from '@lib/contexts/usePrices';
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
-	IconAppEarn,
 	IconAppRevoke,
 	IconAppSend,
-	IconAppStream,
 	IconAppSwap
 } from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
@@ -78,19 +76,19 @@ const MENU = [
 				icon: <IconClone />
 			}
 		]
-	},
-	{
-		href: '/apps/earn',
-		label: 'Earn',
-		isDisabled: true,
-		icon: <IconAppEarn />
-	},
-	{
-		href: '/apps/stream',
-		label: 'Stream',
-		isDisabled: true,
-		icon: <IconAppStream />
 	}
+	// {
+	// 	href: '/apps/earn',
+	// 	label: 'Earn',
+	// 	isDisabled: true,
+	// 	icon: <IconAppEarn />
+	// },
+	// {
+	// 	href: '/apps/stream',
+	// 	label: 'Stream',
+	// 	isDisabled: true,
+	// 	icon: <IconAppStream />
+	// }
 ];
 
 function MyApp(props: AppProps): ReactElement {
