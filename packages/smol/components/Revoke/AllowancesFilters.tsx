@@ -3,8 +3,7 @@ import {cl} from '@builtbymom/web3/utils';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {getUniqueExpandedAllowancesBySpender, getUniqueExpandedAllowancesByToken} from '@lib/utils/tools.revoke';
 
-import {AssetFilterDropdown} from './AssetFilterDropdown';
-import {SpenderFilterDropdown} from './SpenderFilterDropdown';
+import {AllowanceFilterDropdown} from './AllowanceFilterDropdown';
 import {useAllowances} from './useAllowances';
 
 import type {TUnlimitedFilter, TWithBalanceFilter} from '@lib/types/app.revoke';
@@ -101,15 +100,26 @@ export const AllowancesFilters = (): ReactElement | null => {
 				<p className={'mr-2 text-xs text-neutral-800'}>{'Filters'}</p>
 				<button
 					onClick={onResetFilters}
-					className={'text-xs text-neutral-600 underline'}>
+					disabled={
+						configuration.allowancesFilters.asset.filter.length === 0 &&
+						configuration.allowancesFilters.spender.filter.length === 0 &&
+						configuration.allowancesFilters.unlimited.filter === undefined &&
+						configuration.allowancesFilters.withBalance.filter === undefined
+						}
+					className={'text-xs text-neutral-600 underline disabled:cursor-not-allowed'}>
 					{'Clear'}
 				</button>
 			</div>
 			<div className={'mb-6 grid grid-cols-3 gap-3 md:mb-2 md:flex md:gap-y-3'}>
-				<AssetFilterDropdown allOptions={allTokenOptions}>
+				<AllowanceFilterDropdown
+					type={'asset'}
+					title={'Select Asset'}
+					allOptions={allTokenOptions}>
 					<div
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 h-12 md:h-8 font-medium md:font-normal  justify-center',
+							'flex items-center rounded-md bg-neutral-200',
+							'h-12 md:h-8 font-medium md:font-normal justify-center',
+							allTokenOptions?.length === 0 ? '' : 'hover:bg-neutral-300',
 							configuration.allowancesFilters.asset.filter.length
 								? 'bg-neutral-400 hover:bg-neutral-600'
 								: ''
@@ -121,12 +131,17 @@ export const AllowancesFilters = (): ReactElement | null => {
 							<IconChevronBottom className={'ml-2 size-4'} />
 						</div>
 					</div>
-				</AssetFilterDropdown>
-				<SpenderFilterDropdown allOptions={allSpenderOptions}>
+				</AllowanceFilterDropdown>
+
+				<AllowanceFilterDropdown
+					type={'spender'}
+					title={'Select Spender'}
+					allOptions={allSpenderOptions}>
 					<div
 						className={cl(
-							'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
+							'flex items-center rounded-md bg-neutral-200 justify-center h-12 font-medium ',
 							'md:h-8 md:font-normal',
+							allSpenderOptions?.length === 0 ? '' : 'hover:bg-neutral-300',
 							configuration.allowancesFilters.spender.filter.length
 								? 'bg-neutral-400 hover:bg-neutral-400'
 								: ''
@@ -138,12 +153,14 @@ export const AllowancesFilters = (): ReactElement | null => {
 							<IconChevronBottom className={'ml-2 size-4'} />
 						</div>
 					</div>
-				</SpenderFilterDropdown>
+				</AllowanceFilterDropdown>
+
 				<button
 					onClick={() => onDispatchUnlimitedFilter('unlimited')}
-					className={cl(
+					disabled={allTokenOptions?.length === 0}
+						className={cl(
 						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
-						'md:h-8 md:font-normal',
+						'md:h-8 md:font-normal disabled:cursor-not-allowed disabled:hover:bg-neutral-200',
 						configuration.allowancesFilters.unlimited.filter === 'unlimited'
 							? 'bg-neutral-400 hover:bg-neutral-400'
 							: ''
@@ -152,9 +169,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 				</button>
 				<button
 					onClick={() => onDispatchUnlimitedFilter('limited')}
+					disabled={allTokenOptions?.length === 0}
 					className={cl(
 						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
-						'md:h-8 md:font-normal',
+						'md:h-8 md:font-normal disabled:cursor-not-allowed disabled:hover:bg-neutral-200',
 						configuration.allowancesFilters.unlimited.filter === 'limited'
 							? 'bg-neutral-400 hover:bg-neutral-400'
 							: ''
@@ -164,9 +182,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 
 				<button
 					onClick={() => onDispatchWithBalanceFilter('with-balance')}
+					disabled={allTokenOptions?.length === 0}
 					className={cl(
 						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium ',
-						'md:h-8 md:font-normal',
+						'md:h-8 md:font-normal disabled:cursor-not-allowed disabled:hover:bg-neutral-200',
 						configuration.allowancesFilters?.withBalance.filter === 'with-balance'
 							? 'bg-neutral-400 hover:bg-neutral-400'
 							: ''
@@ -176,9 +195,10 @@ export const AllowancesFilters = (): ReactElement | null => {
 
 				<button
 					onClick={() => onDispatchWithBalanceFilter('without-balance')}
-					className={cl(
+					disabled={allTokenOptions?.length === 0}
+						className={cl(
 						'flex items-center rounded-md bg-neutral-200 hover:bg-neutral-300 justify-center h-12 font-medium',
-						'md:h-8 md:font-normal',
+						'md:h-8 md:font-normal disabled:cursor-not-allowed disabled:hover:bg-neutral-200',
 						configuration.allowancesFilters.withBalance.filter === 'without-balance'
 							? 'bg-neutral-400 hover:bg-neutral-400'
 							: ''
