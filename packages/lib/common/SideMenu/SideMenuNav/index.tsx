@@ -10,6 +10,7 @@ import {LinkOrDiv} from '@lib/common/LinkOrDiv';
 import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {CurtainContent} from '@lib/primitives/Curtain';
+import {isInIframe} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 export type TSideMenuItem = {
@@ -42,6 +43,7 @@ function NavItem({
 			<LinkOrDiv
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
+				target={isInIframe() && href === 'https://v1.smold.app/stream' ? '_self' : '_blank'}
 				onClick={onClick}>
 				<div
 					className={cl(

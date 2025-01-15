@@ -45,3 +45,7 @@ export function truncateHexTx(hash: string | undefined, size: number): string {
 	}
 	return `0x${ZERO_ADDRESS.slice(2, size)}...${ZERO_ADDRESS.slice(-size)}`;
 }
+
+export function isInIframe(): boolean {
+	return typeof window !== 'undefined' && window.self !== window.top;
+}
