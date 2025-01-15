@@ -14,6 +14,8 @@ import {CurtainContent} from '@lib/primitives/Curtain';
 import {isInIframe} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
+import type {NextRouter} from 'next/router';
+
 export type TSideMenuItem = {
 	href: string;
 	label: string;
@@ -29,6 +31,21 @@ type TNavItemProps = {
 	hasSubmenu: boolean;
 	isDisabled?: boolean;
 	onClick?: () => void;
+};
+
+/******************************************************************************
+ ** Handle navigation within Safe app context by updating the appUrl query param
+ ** while preserving the existing Safe context and other query parameters
+ *****************************************************************************/
+const goToSafeApp = (router: NextRouter, href: string): void => {
+	const url = {
+		pathname: router.pathname,
+		query: {
+			...router.query,
+			appUrl: href
+		}
+	};
+	router.replace(url);
 };
 
 function NavItem({
@@ -47,28 +64,15 @@ function NavItem({
 			? '_self'
 			: '_blank';
 
-	/******************************************************************************
-	 ** Handle navigation within Safe app context by updating the appUrl query param
-	 ** while preserving the existing Safe context and other query parameters
-	 *****************************************************************************/
-	const goToSafeApp = (): void => {
-		const url = {
-			pathname: router.pathname,
-			query: {
-				...router.query,
-				appUrl: href
-			}
-		};
-		router.replace(url);
-	};
-
 	return (
 		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
 			<LinkOrDiv
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
 				target={target}
-				onClick={href === 'https://v1.smold.app/stream' && isInIframe() ? goToSafeApp : onClick}>
+				onClick={
+					href === 'https://v1.smold.app/stream' && isInIframe() ? () => goToSafeApp(router, href) : onClick
+				}>
 				<div
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
