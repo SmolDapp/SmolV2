@@ -5,37 +5,6 @@ const withPWA = require('next-pwa')({
 });
 const {withPlausibleProxy} = require('next-plausible');
 
-const cspHeader = `
-  default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://plausible.io;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: ${[
-		'gib.to',
-		'rawcdn.githack.com',
-		'raw.githubusercontent.com',
-		'ipfs.io',
-		's3.amazonaws.com',
-		'1inch.exchange',
-		'hut34.io',
-		'www.coingecko.com',
-		'defiprime.com',
-		'cdn.furucombo.app',
-		'gemini.com',
-		'messari.io',
-		'ethereum-optimism.github.io',
-		'tryroll.com',
-		'logo.assets.tkn.eth.limo',
-		'umaproject.org',
-		'cloudflare-ipfs.com',
-		'assets.smold.app'
-  ]
-		.map(domain => `https://${domain}`)
-		.join(' ')};
-  frame-ancestors 'self' https://smold.app https://mylittlestable.mom http://localhost:3000;
-  connect-src 'self' https://plausible.io;
-  frame-src 'self' https://smold.app https://mylittlestable.mom http://localhost:3000;
-`;
-
 module.exports = withPlausibleProxy({
 	scriptName: 'script',
 	customDomain: 'https://smold.app'
@@ -118,19 +87,6 @@ module.exports = withPlausibleProxy({
 				{
 					source: '/api/event',
 					destination: 'https://plausible.io/api/event'
-				}
-			];
-		},
-		async headers() {
-			return [
-				{
-					source: '/pixel',
-					headers: [
-						{
-							key: 'Content-Security-Policy',
-							value: cspHeader.replace(/\n/g, '')
-						}
-					]
 				}
 			];
 		},
