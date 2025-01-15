@@ -8,13 +8,7 @@ import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
-import {
-	IconAppAddressBook,
-	IconAppDisperse,
-	IconAppRevoke,
-	IconAppSend,
-	IconAppSwap
-} from '@lib/icons/IconApps';
+import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
@@ -94,8 +88,8 @@ const MENU = [
 function MyApp(props: AppProps): ReactElement {
 	const {Component, router} = props;
 
-	console.warn(router.pathname);
 	if (router.pathname === '/pixel') {
+		console.warn(router.pathname);
 		return (
 			<IndexedDB>
 				<Component {...props} />

@@ -1,6 +1,5 @@
-import React, {createContext} from 'react';
+import React, {createContext, useEffect} from 'react';
 import setupIndexedDB from 'use-indexeddb';
-import {useMountEffect} from '@react-hookz/web';
 
 import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';
 
@@ -55,9 +54,15 @@ const smolIDBConfig: IndexedDBConfig = {
 const defaultProps = smolIDBConfig;
 const IndexDBContext = createContext<IndexedDBConfig>(defaultProps);
 export const IndexedDB = ({children}: {children: React.ReactElement}): React.ReactElement => {
-	useMountEffect(async () => {
-		setupIndexedDB(smolIDBConfig);
-	});
+	useEffect(() => {
+		setupIndexedDB(smolIDBConfig)
+			.then(() => {
+				console.log('IndexedDB initialized');
+			})
+			.catch(error => {
+				console.error('Error initializing IndexedDB:', error);
+			});
+	}, []);
 
 	return <IndexDBContext.Provider value={smolIDBConfig}>{children}</IndexDBContext.Provider>;
 };

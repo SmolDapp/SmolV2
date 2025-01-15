@@ -28,8 +28,13 @@ function PixelPage(): ReactElement {
 					return;
 				}
 
-				const data = await getAll();
-				window.parent.postMessage({type: 'DB_RESPONSE', data}, event.origin);
+				try {
+					const data = await getAll();
+					console.warn('Sending data to parent:', data);
+					window.parent.postMessage({type: 'DB_RESPONSE', data}, event.origin);
+				} catch (error) {
+					console.error('Error getting data from IndexedDB:', error);
+				}
 			}
 		},
 		[getAll]
