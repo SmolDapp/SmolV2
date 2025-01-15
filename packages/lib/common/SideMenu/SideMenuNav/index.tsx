@@ -1,6 +1,7 @@
 import {cloneElement, Fragment, type ReactElement, useCallback, useEffect, useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
+import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import {motion} from 'framer-motion';
 import {useWeb3} from '@builtbymom/web3/contexts/useWeb3';
@@ -29,6 +30,7 @@ type TNavItemProps = {
 	isDisabled?: boolean;
 	onClick?: () => void;
 };
+
 function NavItem({
 	label,
 	href,
@@ -38,7 +40,27 @@ function NavItem({
 	hasSubmenu,
 	isDisabled = false
 }: TNavItemProps): ReactElement {
-	const target = isInIframe() ? '_self' : href === 'https://v1.smold.app/stream' ? '_blank' : '_self';
+	const router = useRouter();
+	const target = isInIframe()
+		? '_self'
+		: !isInIframe() && href === 'https://v1.smold.app/stream'
+			? '_self'
+			: '_blank';
+
+	/******************************************************************************
+	 ** Handle navigation within Safe app context by updating the appUrl query param
+	 ** while preserving the existing Safe context and other query parameters
+	 *****************************************************************************/
+	const goToSafeApp = (): void => {
+		const url = {
+			pathname: router.pathname,
+			query: {
+				...router.query,
+				appUrl: href
+			}
+		};
+		router.replace(url);
+	};
 
 	return (
 		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
@@ -46,7 +68,7 @@ function NavItem({
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
 				target={target}
-				onClick={onClick}>
+				onClick={href === 'https://v1.smold.app/stream' && isInIframe() ? goToSafeApp : onClick}>
 				<div
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
