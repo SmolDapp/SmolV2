@@ -8,7 +8,12 @@ type TMessageEvent = {
 	key: string;
 };
 
-const ALLOWED_ORIGIN = ['http://localhost:3000', 'https://app.safe.global', 'https://playground.smold.app'];
+const ALLOWED_ORIGIN = [
+	'http://localhost:3000',
+	'https://app.safe.global',
+	'https://playground.smold.app',
+	'https://mylittlestable.mom'
+];
 
 function PixelPage(): ReactElement {
 	const {getAll} = useIndexedDBStore<TAddressBookEntry>('address-book');
