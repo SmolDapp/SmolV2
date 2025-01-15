@@ -8,7 +8,14 @@ import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
-import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
+import {
+	IconAppAddressBook,
+	IconAppDisperse,
+	IconAppRevoke,
+	IconAppSend,
+	IconAppStream,
+	IconAppSwap
+} from '@lib/icons/IconApps';
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
@@ -70,6 +77,11 @@ const MENU = [
 				icon: <IconClone />
 			}
 		]
+	},
+	{
+		href: 'https://v1.smold.app/stream',
+		label: 'Stream',
+		icon: <IconAppStream />
 	}
 	// {
 	// 	href: '/apps/earn',
@@ -77,12 +89,6 @@ const MENU = [
 	// 	isDisabled: true,
 	// 	icon: <IconAppEarn />
 	// },
-	// {
-	// 	href: '/apps/stream',
-	// 	label: 'Stream',
-	// 	isDisabled: true,
-	// 	icon: <IconAppStream />
-	// }
 ];
 
 function MyApp(props: AppProps): ReactElement {
