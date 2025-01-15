@@ -1,4 +1,4 @@
-import {cloneElement, Fragment, type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {cloneElement, Fragment, type ReactElement, useCallback, useEffect, useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useRouter} from 'next/router';
@@ -41,18 +41,6 @@ function NavItem({
 	isDisabled = false
 }: TNavItemProps): ReactElement {
 	const router = useRouter();
-	const target = useMemo(() => {
-		if (isInIframe()) {
-			return '_self';
-		}
-		if (!isInIframe()) {
-			if (href === 'https://v1.smold.app/stream') {
-				return '_blank';
-			}
-			return '_self';
-		}
-		return '_self';
-	}, [href]);
 
 	/******************************************************************************
 	 ** Handle navigation within Safe app context by updating the appUrl query param
@@ -74,7 +62,7 @@ function NavItem({
 			<LinkOrDiv
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
-				target={target}
+				target={'_self'}
 				onClick={href === 'https://v1.smold.app/stream' && isInIframe() ? goToSafeApp : onClick}>
 				<div
 					className={cl(
