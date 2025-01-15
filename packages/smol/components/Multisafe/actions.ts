@@ -1,34 +1,10 @@
 import assert from 'assert';
-import {SINGLETON_L2} from 'packages/smol/components/Multisafe/constants';
 import {assertAddress} from '@builtbymom/web3/utils';
 import {handleTx, type TTxResponse, type TWriteTransaction} from '@builtbymom/web3/utils/wagmi';
-import GNOSIS_SAFE_PROXY_FACTORY from '@lib/utils/abi/gnosisSafeProxyFactory.abi';
 import {MULTICALL_ABI} from '@lib/utils/abi/multicall3.abi';
 
 import type {Hex} from 'viem';
 import type {TAddress} from '@builtbymom/web3/types';
-
-/* 🔵 - Smold App **************************************************************
- ** cloneSafe is a _WRITE_ function that clone an existing safe using the
- ** createProxyWithNonce method.
- **
- ** @param receivers - The addresses of the receivers.
- ** @param amounts - The amounts of ETH to send to each receiver.
- ******************************************************************************/
-type TCloneSafe = TWriteTransaction & {
-	initializers: Hex;
-	salt: bigint;
-};
-export async function cloneSafe(props: TCloneSafe): Promise<TTxResponse> {
-	assertAddress(props.contractAddress);
-
-	return await handleTx(props, {
-		address: props.contractAddress,
-		abi: GNOSIS_SAFE_PROXY_FACTORY,
-		functionName: 'createProxyWithNonce',
-		args: [SINGLETON_L2, props.initializers, props.salt]
-	});
-}
 
 /* 🔵 - Yearn Finance **********************************************************
  ** multicall is a _WRITE_ function that can be used to cast a multicall

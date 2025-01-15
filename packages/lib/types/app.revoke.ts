@@ -1,7 +1,6 @@
 import type {Dispatch} from 'react';
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TAddress} from '@builtbymom/web3/types/address';
-import type {TTxStatus} from '@builtbymom/web3/utils/wagmi';
 
 export type TAllowances = TAllowance[];
 
@@ -77,7 +76,7 @@ export type TRevokeContext = {
 /**************************************************************************************************
  ** TAllowancesFilters is type for all filters you can apply to allowances on the revoke page.
  *************************************************************************************************/
-export type TAllowancesFilters = {
+type TAllowancesFilters = {
 	unlimited: {
 		filter: TUnlimitedFilter;
 	};
@@ -168,14 +167,6 @@ export type TAllowanceItemProps = {
 	isTable?: boolean;
 };
 
-/**************************************************************************************************
- **TRevokeSortType is a type for sorting allowances in the UI.
- *************************************************************************************************/
-export type TRevokeSort = {
-	sortBy: TRevokeSortBy;
-	asc: boolean | undefined;
-};
-
 export type TRevokeSortBy = 'spender' | 'amount' | 'token' | '';
 
 export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | 'address' | 'args'> & {
@@ -184,26 +175,9 @@ export type TFilterAllowance = Pick<TExpandedAllowance, 'symbol' | 'chainID' | '
 };
 
 /**************************************************************************************************
- ** The TRevokeWizardProps type is used to type the props of the Revoke Wizard component.
- *************************************************************************************************/
-export type TRevokeWizardProps = {
-	revokeStatus: TTxStatus;
-	set_revokeStatus: (value: TTxStatus) => void;
-};
-
-/**************************************************************************************************
  ** The TAllowancesTableProps type is used to type the props of the AllowancesTable component.
  *************************************************************************************************/
 export type TAllowancesTableProps = {
 	prices?: {[key: TAddress]: TNormalizedBN};
 	handleOpenCurtain: VoidFunction;
-};
-
-/**************************************************************************************************
- ** TSpenderData is type of spender contract info.
- *************************************************************************************************/
-export type TSpenderData = {
-	name: string;
-	exploits?: string[];
-	riskFactors?: string[];
 };

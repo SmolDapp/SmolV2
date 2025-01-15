@@ -195,7 +195,7 @@ export const AllowancesTable = ({prices, handleOpenCurtain}: TAllowancesTablePro
 	);
 };
 
-export const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): ReactElement => {
+const TableHeader = ({allowances}: {allowances: TExpandedAllowance[]}): ReactElement => {
 	const {sortBy, sortDirection} = useSortedAllowances(allowances || []);
 
 	/**********************************************************************************************

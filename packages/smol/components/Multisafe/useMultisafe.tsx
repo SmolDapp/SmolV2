@@ -8,10 +8,10 @@ import {CHAINS} from '@lib/utils/tools.chains';
 import type {TAddress, TDict} from '@builtbymom/web3/types';
 import type {TInputAddressLike} from '@lib/utils/tools.address';
 
-export type TPriceFromGecko = TDict<{usd: number}>;
 export type TInputAddressLikeWithUUID = TInputAddressLike & {UUID: string};
+type TPriceFromGecko = TDict<{usd: number}>;
 
-export type TMultisafeProps = {
+type TMultisafeProps = {
 	threshold: number;
 	onUpdateThreshold: (threshold: number) => void;
 	owners: TInputAddressLikeWithUUID[];

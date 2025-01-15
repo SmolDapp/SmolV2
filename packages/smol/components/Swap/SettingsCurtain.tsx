@@ -17,7 +17,7 @@ import type {TSwapConfiguration} from '@lib/types/app.swap';
 /**************************************************************************************************
  ** The TSwapCurtain type is used to type the props of the SwapCurtain component.
  *************************************************************************************************/
-export type TSwapCurtain = {
+type TSwapCurtain = {
 	isOpen: boolean;
 	onOpenChange: (isOpen: boolean) => void;
 };

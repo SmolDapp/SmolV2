@@ -4,9 +4,9 @@ import {IconSpinner} from '@lib/icons/IconSpinner';
 
 import type {ComponentPropsWithoutRef, ForwardedRef, MouseEvent, ReactElement, ReactNode} from 'react';
 
-export type TButtonVariant = 'filled' | 'outlined' | 'light' | 'inherit' | string;
+type TButtonVariant = 'filled' | 'outlined' | 'light' | 'inherit' | string;
 
-export type TButton = {
+type TButton = {
 	children: ReactNode;
 	variant?: TButtonVariant;
 	shouldStopPropagation?: boolean;
@@ -14,7 +14,7 @@ export type TButton = {
 	isDisabled?: boolean;
 } & ComponentPropsWithoutRef<'button'>;
 
-export type TMouseEvent = MouseEvent<HTMLButtonElement> & MouseEvent<HTMLAnchorElement>;
+type TMouseEvent = MouseEvent<HTMLButtonElement> & MouseEvent<HTMLAnchorElement>;
 
 export const Button = forwardRef((props: TButton, ref: ForwardedRef<HTMLButtonElement | null>): ReactElement => {
 	const {

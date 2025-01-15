@@ -59,7 +59,7 @@ export const DisperseQueryManagement = (props: {
 	);
 };
 
-export function useDisperseQuery(): {
+function useDisperseQuery(): {
 	initialStateFromUrl: TDisperseQuery | null;
 	stateFromUrl: TDisperseQuery;
 	hasInitialInputs: boolean;

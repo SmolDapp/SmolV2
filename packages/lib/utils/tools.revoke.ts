@@ -49,14 +49,6 @@ export const isUnlimitedBN = (value: bigint, decimals: number): boolean => {
 	return toNormalizedValue(value as bigint, decimals) > Math.pow(10, 9);
 };
 
-/**************************************************************************************************
- ** The same as unlimited bigint we want to know if the number is large enough to be called
- ** unlimited.
- **************************************************************************************************/
-export const isUnlimitedNumber = (value: number): boolean => {
-	return value > Math.pow(10, 10);
-};
-
 /**********************************************************************************************
  ** Here, we obtain distinctive tokens based on their token addresses to avoid making
  ** additional requests for the same tokens.

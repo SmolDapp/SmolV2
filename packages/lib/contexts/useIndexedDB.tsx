@@ -1,4 +1,4 @@
-import React, {createContext, useContext} from 'react';
+import React, {createContext} from 'react';
 import setupIndexedDB from 'use-indexeddb';
 import {useMountEffect} from '@react-hookz/web';
 
@@ -60,12 +60,4 @@ export const IndexedDB = ({children}: {children: React.ReactElement}): React.Rea
 	});
 
 	return <IndexDBContext.Provider value={smolIDBConfig}>{children}</IndexDBContext.Provider>;
-};
-
-export const useIndexDB = (): IndexedDBConfig => {
-	const ctx = useContext(IndexDBContext);
-	if (!ctx) {
-		throw new Error('IndexDBContext not found');
-	}
-	return ctx;
 };

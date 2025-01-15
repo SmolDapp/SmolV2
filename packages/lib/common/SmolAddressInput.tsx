@@ -33,7 +33,7 @@ type TAddressInput = {
 	isSplitted?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
-export function AddressAvatarButton(props: {address: TAddress; onClick: () => void}): ReactElement {
+function AddressAvatarButton(props: {address: TAddress; onClick: () => void}): ReactElement {
 	return (
 		<div className={'w-fit flex-1'}>
 			<button
@@ -75,7 +75,7 @@ function AddButton({onClick}: {onClick: VoidFunction}): ReactElement {
 	);
 }
 
-export function SquareAddressAvatarButton(props: {address: TAddress; onClick: () => void}): ReactElement {
+function SquareAddressAvatarButton(props: {address: TAddress; onClick: () => void}): ReactElement {
 	return (
 		<div className={'h-20 w-fit flex-1'}>
 			<button

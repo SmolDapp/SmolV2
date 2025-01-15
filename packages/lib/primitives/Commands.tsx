@@ -52,7 +52,7 @@ export const CommandEmpty = React.forwardRef<
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
 
-export const CommandGroup = React.forwardRef<
+const CommandGroup = React.forwardRef<
 	React.ElementRef<typeof CommandPrimitive.Group>,
 	React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
 >(({className, ...props}, ref) => (

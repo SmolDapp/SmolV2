@@ -28,7 +28,7 @@ export const defaultInputAddressLike: TInputAddressLike = {
 	isValid: 'undetermined',
 	source: 'typed'
 };
-export async function getBytecodeAsync(networkId: number, address: TAddress): Promise<GetBytecodeReturnType> {
+async function getBytecodeAsync(networkId: number, address: TAddress): Promise<GetBytecodeReturnType> {
 	const publicClient = getClient(networkId);
 	return publicClient.getBytecode({address});
 }

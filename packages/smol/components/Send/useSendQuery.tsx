@@ -68,7 +68,7 @@ export const SendQueryManagement = (props: {
 	);
 };
 
-export function useSendQuery(): {
+function useSendQuery(): {
 	initialStateFromUrl: TSendQuery | null;
 	stateFromUrl: TSendQuery;
 	hasInitialInputs: boolean;

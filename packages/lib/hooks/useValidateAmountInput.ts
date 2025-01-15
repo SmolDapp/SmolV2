@@ -1,11 +1,8 @@
 import {useCallback, useState} from 'react';
 import {fromNormalized, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {getNewInput} from '@lib/utils/helpers';
 
 import type {TNormalizedBN, TToken} from '@builtbymom/web3/types';
 import type {TTokenAmountInputElement} from '@lib/types/utils';
-
-export const defaultTokenInputLike: TTokenAmountInputElement = getNewInput();
 
 /**************************************************************************************************
  ** TODO: Add comment

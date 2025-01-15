@@ -14,7 +14,7 @@ type TLifiToken = {
 	logoURI: string;
 	priceUSD: string;
 };
-export type TTransactionRequest = {
+type TTransactionRequest = {
 	data: string;
 	to: string;
 	value: string;

@@ -53,7 +53,7 @@ type TAssignRPCUrls = {
 		http: string[];
 	};
 };
-export function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls {
+function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls {
 	const availableRPCs: string[] = [];
 
 	const newRPC = process.env.RPC_URI_FOR?.[chain.id] || '';
@@ -401,4 +401,4 @@ const supportedNetworks: Chain[] = Object.values(CHAINS).filter(e => !e.testnet)
 const supportedTestNetworks: Chain[] = Object.values(CHAINS).filter(e => e.testnet);
 const networks: Chain[] = [...supportedNetworks, ...supportedTestNetworks];
 
-export {CHAINS, isDev, networks, supportedNetworks, supportedTestNetworks};
+export {CHAINS, isDev, networks, supportedNetworks};
