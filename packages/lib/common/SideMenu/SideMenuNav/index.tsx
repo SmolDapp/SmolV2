@@ -38,12 +38,14 @@ function NavItem({
 	hasSubmenu,
 	isDisabled = false
 }: TNavItemProps): ReactElement {
+	const target = isInIframe() ? '_self' : href === 'https://v1.smold.app/stream' ? '_blank' : '_self';
+
 	return (
 		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
 			<LinkOrDiv
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
-				target={isInIframe() && href === 'https://v1.smold.app/stream' ? '_self' : '_blank'}
+				target={target}
 				onClick={onClick}>
 				<div
 					className={cl(
