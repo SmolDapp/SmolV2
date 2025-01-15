@@ -8,9 +8,6 @@ import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WithPrices} from '@lib/contexts/usePrices';
-<<<<<<< Updated upstream
-import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
-=======
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
@@ -19,7 +16,6 @@ import {
 	IconAppStream,
 	IconAppSwap
 } from '@lib/icons/IconApps';
->>>>>>> Stashed changes
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconClone} from '@lib/icons/IconClone';
