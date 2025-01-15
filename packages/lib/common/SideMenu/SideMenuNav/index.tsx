@@ -1,4 +1,4 @@
-import {cloneElement, Fragment, type ReactElement, useCallback, useEffect, useState} from 'react';
+import {cloneElement, Fragment, type ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useRouter} from 'next/router';
@@ -13,8 +13,6 @@ import {IconChevron} from '@lib/icons/IconChevron';
 import {CurtainContent} from '@lib/primitives/Curtain';
 import {isInIframe} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-
-import type {NextRouter} from 'next/router';
 
 export type TSideMenuItem = {
 	href: string;
@@ -33,21 +31,6 @@ type TNavItemProps = {
 	onClick?: () => void;
 };
 
-/******************************************************************************
- ** Handle navigation within Safe app context by updating the appUrl query param
- ** while preserving the existing Safe context and other query parameters
- *****************************************************************************/
-const goToSafeApp = (router: NextRouter, href: string): void => {
-	const url = {
-		pathname: router.pathname,
-		query: {
-			...router.query,
-			appUrl: href
-		}
-	};
-	router.replace(url);
-};
-
 function NavItem({
 	label,
 	href,
@@ -58,11 +41,33 @@ function NavItem({
 	isDisabled = false
 }: TNavItemProps): ReactElement {
 	const router = useRouter();
-	const target = isInIframe()
-		? '_self'
-		: !isInIframe() && href === 'https://v1.smold.app/stream'
-			? '_self'
-			: '_blank';
+	const target = useMemo(() => {
+		if (isInIframe()) {
+			return '_self';
+		}
+		if (!isInIframe()) {
+			if (href === 'https://v1.smold.app/stream') {
+				return '_blank';
+			}
+			return '_self';
+		}
+		return '_self';
+	}, [href]);
+
+	/******************************************************************************
+	 ** Handle navigation within Safe app context by updating the appUrl query param
+	 ** while preserving the existing Safe context and other query parameters
+	 *****************************************************************************/
+	const goToSafeApp = useCallback(() => {
+		const url = {
+			pathname: router.pathname,
+			query: {
+				...router.query,
+				appUrl: href
+			}
+		};
+		router.replace(url);
+	}, [href, router]);
 
 	return (
 		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
@@ -70,9 +75,7 @@ function NavItem({
 				href={hasSubmenu ? href : href}
 				isDisabled={isDisabled}
 				target={target}
-				onClick={
-					href === 'https://v1.smold.app/stream' && isInIframe() ? () => goToSafeApp(router, href) : onClick
-				}>
+				onClick={href === 'https://v1.smold.app/stream' && isInIframe() ? goToSafeApp : onClick}>
 				<div
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
