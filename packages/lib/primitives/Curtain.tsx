@@ -1,10 +1,11 @@
 'use client';
 
-import {cl} from '@builtbymom/web3/utils';
 import {Content} from '@radix-ui/react-dialog';
 
-import type {ReactElement} from 'react';
+import {cl} from '@lib/utils/helpers';
+
 import type {DialogContentProps} from '@radix-ui/react-dialog';
+import type {ReactElement} from 'react';
 
 export const CurtainContent = (props: DialogContentProps): ReactElement => {
 	const {className, children, ...rest} = props;

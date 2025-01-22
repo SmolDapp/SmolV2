@@ -1,6 +1,6 @@
-import {type ReactElement, type ReactNode, useState} from 'react';
-import Link from 'next/link';
 import {Button} from '@lib/primitives/Button';
+import Link from 'next/link';
+import {useState} from 'react';
 
 import {MobileNavBar} from './MobileNavBar';
 import {NavBar} from './NavBar';
@@ -8,6 +8,7 @@ import {NavBar} from './NavBar';
 import type {NextComponentType} from 'next';
 import type {AppProps} from 'next/app';
 import type {NextRouter} from 'next/router';
+import type {ReactElement, ReactNode} from 'react';
 
 type TAppProps = {
 	children: ReactNode;
@@ -24,11 +25,11 @@ type TComponent = NextComponentType & {
 export default function Layout(props: AppProps): ReactElement {
 	const {Component, router} = props;
 	const getLayout = (Component as TComponent).getLayout || ((page: ReactElement): ReactElement => page);
-	const [isNavBarOpen, set_isNavBarOpen] = useState<boolean>(false);
+	const [isNavBarOpen, setIsNavBarOpen] = useState<boolean>(false);
 
 	return (
 		<div className={'mx-auto mt-10 flex w-full max-w-6xl flex-col justify-center px-6 md:px-0'}>
-			{isNavBarOpen && <MobileNavBar set_isNavBarOpen={set_isNavBarOpen} />}
+			{isNavBarOpen && <MobileNavBar set_isNavBarOpen={setIsNavBarOpen} />}
 			<div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
 				<span className={'flex items-center font-[Monument] text-lg font-extrabold leading-snug md:text-2xl'}>
 					{'MOM HUB'}
@@ -38,7 +39,7 @@ export default function Layout(props: AppProps): ReactElement {
 				</div>
 				<div className={'flex justify-end md:hidden'}>
 					<Button
-						onClick={() => set_isNavBarOpen(true)}
+						onClick={() => setIsNavBarOpen(true)}
 						className={'!h-8 w-min justify-end py-1.5 !text-xs'}>
 						{'Menu'}
 					</Button>

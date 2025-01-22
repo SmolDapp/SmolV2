@@ -53,13 +53,10 @@
 		"packages",
 		"public",
 		"public/manifest.json",
-		"stylelint.config.js",
-		"commitlint.config.js",
 
 		"packages/*/postcss.config.js",
 		"packages/*/tailwind.config.js",
 		"packages/*/next.config.js",
-		"packages/*/stylelint.config.js",
 		".eslintrc.js",
 		".next/types/**/*.ts",
 		"jest.config.js",

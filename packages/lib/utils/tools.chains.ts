@@ -26,16 +26,17 @@ import {
 	polygonZkEvm,
 	scroll,
 	sepolia,
-	zkSync,
+	zksync,
 	zora
 } from 'viem/chains';
-import {toAddress} from '@builtbymom/web3/utils';
-import {localhost} from '@builtbymom/web3/utils/wagmi';
 
-import type {Chain} from 'viem/chains';
-import type {TAddress, TNDict} from '@builtbymom/web3/types';
+import {toAddress} from '@lib/utils/tools.addresses';
 
-type TSmolChains = TNDict<
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {Chain} from 'viem';
+
+type TSmolChains = Record<
+	number,
 	Chain & {
 		isLifiSwapSupported: boolean;
 		isMultisafeSupported: boolean;
@@ -90,6 +91,33 @@ function assignRPCUrls(chain: Chain, rpcUrls?: string[]): TAssignRPCUrls {
 		default: {http}
 	};
 }
+
+const localhost = {
+	id: 1337,
+	name: 'Localhost',
+	nativeCurrency: {
+		decimals: 18,
+		name: 'Ether',
+		symbol: 'ETH'
+	},
+	rpcUrls: {
+		default: {http: ['http://localhost:8545', 'http://0.0.0.0:8545']},
+		public: {http: ['http://localhost:8545', 'http://0.0.0.0:8545']}
+	},
+	contracts: {
+		ensRegistry: {
+			address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+		},
+		ensUniversalResolver: {
+			address: '0xE4Acdd618deED4e6d2f03b9bf62dc6118FC9A4da',
+			blockCreated: 16773775
+		},
+		multicall3: {
+			address: '0xca11bde05977b3631167028862be2a173976ca11',
+			blockCreated: 14353601
+		}
+	}
+} as const satisfies Chain;
 
 const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 const CHAINS: TSmolChains = {
@@ -177,8 +205,8 @@ const CHAINS: TSmolChains = {
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(fantom)
 	},
-	[zkSync.id]: {
-		...zkSync,
+	[zksync.id]: {
+		...zksync,
 		isLifiSwapSupported: true,
 		isMultisafeSupported: false,
 		safeAPIURI: 'https://safe-transaction-zksync.safe.global',
@@ -186,7 +214,7 @@ const CHAINS: TSmolChains = {
 		coingeckoGasCoinID: 'ethereum',
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
 		yearnRouterAddress: undefined,
-		rpcUrls: assignRPCUrls(zkSync)
+		rpcUrls: assignRPCUrls(zksync)
 	},
 	[mantle.id]: {
 		...mantle,

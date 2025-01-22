@@ -1,6 +1,6 @@
 import Layout from '@smolLandingDesignSystem/Layout';
-import {Meta} from '@lib/common/Meta';
-import {WithFonts} from '@lib/common/WithFonts';
+import {Meta} from 'packages/smol/common/Meta';
+import {WithFonts} from 'packages/smol/common/WithFonts';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';

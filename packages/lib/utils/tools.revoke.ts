@@ -1,12 +1,19 @@
-import {contractDataURL} from 'packages/smol/components/Revoke/constants';
-import {erc20Abi as abi} from 'viem';
-import axios from 'axios';
-import {toAddress, toNormalizedValue} from '@builtbymom/web3/utils';
-import {retrieveConfig} from '@builtbymom/web3/utils/wagmi';
 import {readContracts} from '@wagmi/core';
+import axios from 'axios';
+import {contractDataURL} from 'packages/smol/app/(apps)/revoke/constants';
+import {erc20Abi as abi} from 'viem';
 
-import type {TAddress, TNormalizedBN} from '@builtbymom/web3/types';
-import type {TAllowance, TAllowances, TExpandedAllowance} from '@lib/types/app.revoke';
+import {toNormalizedValue} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
+
+import type {TNormalizedBN} from '@lib/utils/numbers';
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {Config} from '@wagmi/core';
+import type {TAllowance, TAllowances, TExpandedAllowance} from 'packages/smol/app/(apps)/revoke/app.revoke';
+import app from 'next/app';
+import {types} from 'util';
+
+packages / smol / app / apps / revoke / types;
 
 export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
 	const noDuplicate = events.filter(
@@ -22,7 +29,7 @@ export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
  ** supposed to compare them by logIndex.
  *************************************************************************************************/
 export const getLatestNotEmptyEvents = (approvalEvents: TAllowances): TAllowances => {
-	const filteredEvents = approvalEvents.reduce((acc: {[key: string]: TAllowance}, event: TAllowance) => {
+	const filteredEvents = approvalEvents.reduce((acc: Record<string, TAllowance>, event: TAllowance) => {
 		const key = `${event.address}-${event.args.sender}`;
 		if (
 			!acc[key] ||
@@ -95,7 +102,7 @@ export const getUniqueExpandedAllowancesByToken = (allowances: TExpandedAllowanc
  *************************************************************************************************/
 export const getTotalAmountAtRisk = (
 	allowances: TExpandedAllowance[],
-	prices?: {[key: TAddress]: TNormalizedBN}
+	prices?: Record<TAddress, TNormalizedBN>
 ): number => {
 	if (!prices) {
 		return 0;
@@ -131,11 +138,12 @@ export async function getNameDictionaries(
 	uniqueAllowancesBySpender: TAllowances,
 	uniqueAllowancesByToken: TAllowances,
 	address: TAddress,
-	set_isLoadingInitialDB: (value: boolean) => void
+	config: Config,
+	setIsLoadingInitialDB: (value: boolean) => void
 ): Promise<
 	| {
-			tokenInfoDictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}};
-			spenderDictionary: {[key: TAddress]: {name: string}};
+			tokenInfoDictionary: Record<TAddress, {symbol: string; decimals: number; balanceOf: bigint; name: string}>;
+			spenderDictionary: Record<TAddress, {name: string}>;
 	  }
 	| undefined
 > {
@@ -148,12 +156,12 @@ export async function getNameDictionaries(
 		calls.push({...from, functionName: 'name'});
 	}
 
-	const data = await readContracts(retrieveConfig(), {contracts: calls});
-	const tokenInfoDictionary: {[key: TAddress]: {symbol: string; decimals: number; balanceOf: bigint; name: string}} =
+	const data = await readContracts(config, {contracts: calls});
+	const tokenInfoDictionary: Record<TAddress, {symbol: string; decimals: number; balanceOf: bigint; name: string}> =
 		{};
 	if (data.length < 4) {
 		// Stop if we don't have enough data
-		set_isLoadingInitialDB(false);
+		setIsLoadingInitialDB(false);
 		return;
 	}
 
@@ -174,7 +182,7 @@ export async function getNameDictionaries(
 			name: name as string
 		};
 	}
-	const spenderDictionary: {[key: TAddress]: {name: string}} = {};
+	const spenderDictionary: Record<TAddress, {name: string}> = {};
 
 	/******************************************************************************************
 	 ** Here, we're making request to get names for each spender contract.

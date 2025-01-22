@@ -38,14 +38,13 @@ module.exports = withPlausibleProxy({
 		transpilePackages: ['lib'],
 		redirects() {
 			return [
-				{source: '/disperse', destination: '/apps/disperse', permanent: true},
-				{source: '/migratooor', destination: '/apps/send', permanent: true},
-				{source: '/safe', destination: '/apps/multisafe', permanent: true},
+				{source: '/migratooor', destination: '/send', permanent: true},
+				{source: '/safe', destination: '/multisafe', permanent: true},
 				{source: '/stream', destination: 'https://v1.smold.app/stream', permanent: false},
 				{
 					source: '/',
 					has: [{type: 'host', value: 'multisafe.app'}],
-					destination: '/apps/multisafe',
+					destination: '/multisafe',
 					permanent: true
 				},
 				{
@@ -57,7 +56,7 @@ module.exports = withPlausibleProxy({
 				{
 					source: '/',
 					has: [{type: 'host', value: 'disperse.smold.app'}],
-					destination: '/apps/disperse',
+					destination: '/disperse',
 					permanent: true
 				},
 				{
@@ -68,7 +67,7 @@ module.exports = withPlausibleProxy({
 						{type: 'host', value: 'migrate.smold.app'},
 						{type: 'host', value: 'migratooor.smold.app'}
 					],
-					destination: '/apps/send',
+					destination: '/send',
 					permanent: true
 				},
 				{

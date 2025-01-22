@@ -1,11 +1,9 @@
-import {isNonNullable} from '@lib/types/utils';
-
 /**
  * Converts a state object into a query params string that can be used in an URL.
  *
  * It is a generic helper.
  */
-export function serializeSearchStateForUrl(state: {[key: string]: unknown}): string {
+export function serializeSearchStateForUrl(state: Record<string, unknown>): string {
 	const mappedStateEntries = Object.entries(state).map(([key, value]) => {
 		if (!value) {
 			return undefined;
@@ -24,7 +22,7 @@ export function serializeSearchStateForUrl(state: {[key: string]: unknown}): str
 		return `${key}=${value}`;
 	});
 
-	const filteredStateEntries = mappedStateEntries.filter(isNonNullable);
+	const filteredStateEntries = mappedStateEntries.filter(v => v !== null && v !== undefined);
 
 	return encodeURI(filteredStateEntries.join('&'));
 }

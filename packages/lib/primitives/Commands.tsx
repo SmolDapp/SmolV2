@@ -1,8 +1,9 @@
 'use client';
 
-import * as React from 'react';
 import {Command as CommandPrimitive} from 'cmdk';
-import {cl} from '@builtbymom/web3/utils';
+import * as React from 'react';
+
+import {cl} from '@lib/utils/helpers';
 
 export const Command = React.forwardRef<
 	React.ElementRef<typeof CommandPrimitive>,

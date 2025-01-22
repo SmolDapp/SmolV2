@@ -180,6 +180,9 @@ select:focus {
 .skeleton-full {
 	@apply animate-pulse rounded-full bg-neutral-400;
 }
+.skeleton-md {
+	@apply animate-pulse rounded-md bg-neutral-400;
+}
 
 .withRing:focus-visible {
 	@apply ring-2 ring-primary ring-offset-2;

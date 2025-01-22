@@ -38,9 +38,8 @@ module.exports = withPlausibleProxy({
 		transpilePackages: ['lib'],
 		redirects() {
 			return [
-				{source: '/disperse', destination: '/apps/disperse', permanent: true},
-				{source: '/migratooor', destination: '/apps/send', permanent: true},
-				{source: '/safe', destination: '/apps/multisafe', permanent: true},
+				{source: '/migratooor', destination: '/send', permanent: true},
+				{source: '/safe', destination: '/multisafe', permanent: true},
 				{source: '/stream', destination: 'https://v1.smold.app/stream', permanent: false},
 				{
 					source: '/',

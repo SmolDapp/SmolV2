@@ -1,8 +1,22 @@
 /* eslint-disable prefer-destructuring */
 
-import {formatAmount, ZERO_ADDRESS} from '@builtbymom/web3/utils';
+import {zeroAddress} from 'viem';
 
-import type {TNormalizedBN} from '@builtbymom/web3/types';
+import {formatAmount} from '@lib/utils/numbers';
+
+import type {TNormalizedBN} from '@lib/utils/numbers';
+
+/************************************************************************************************
+ ** Joins the given classes into a single string.
+ ** @example cl('foo', 'bar') // 'foo bar'
+ ** @example cl('foo', false && 'bar') // 'foo'
+ **
+ ** @param classes the classes to be joined
+ ** @returns the joined classes
+ ************************************************************************************************/
+export function cl(...classes: (string | null | undefined)[]): string {
+	return classes.filter(Boolean).join(' ');
+}
 
 /******************************************************************************
  ** Used to slugify a string.
@@ -38,10 +52,43 @@ export function truncateHexTx(hash: string | undefined, size: number): string {
 		if (hash.length <= size * 2 + 4) {
 			return hash;
 		}
-		return `0x${hash.slice(2, size + 2)}...${hash.slice(-size)}`;
+		return `0x${hash.slice(2, size + 2)}…${hash.slice(-size)}`;
 	}
 	if (size === 0) {
-		return ZERO_ADDRESS;
+		return zeroAddress;
 	}
-	return `0x${ZERO_ADDRESS.slice(2, size)}...${ZERO_ADDRESS.slice(-size)}`;
+	return `0x${zeroAddress.slice(2, size)}…${zeroAddress.slice(-size)}`;
+}
+
+/***************************************************************************
+ ** Helper function to deep merge two objects
+ **************************************************************************/
+function isObject(input: unknown): input is Record<string, unknown> {
+	return typeof input === 'object' && input !== null && !Array.isArray(input);
+}
+
+export function deepMerge(target: unknown, source: unknown): unknown {
+	if (!isObject(target) || !isObject(source)) {
+		return target;
+	}
+
+	Object.keys(target).forEach((key: string | number): void => {
+		const targetValue = target[key];
+		target[key] = targetValue;
+	});
+
+	Object.keys(source).forEach((key: string | number): void => {
+		const targetValue = target[key];
+		const sourceValue = source[key];
+
+		if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
+			target[key] = sourceValue; //no concat, replace
+		} else if (isObject(targetValue) && isObject(sourceValue)) {
+			target[key] = deepMerge(Object.assign({}, targetValue), sourceValue);
+		} else {
+			target[key] = sourceValue;
+		}
+	});
+
+	return target;
 }

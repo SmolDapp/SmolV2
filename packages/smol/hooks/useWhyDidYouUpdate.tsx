@@ -4,7 +4,7 @@ import {useEffect, useRef} from 'react';
 function useWhyDidYouUpdate(name: string, props: any): void {
 	// Get a mutable ref object where we can store props ...
 	// ... for comparison next time this hook runs.
-	const previousProps = useRef<any>();
+	const previousProps = useRef<any>(null);
 
 	useEffect((): void => {
 		if (previousProps.current) {

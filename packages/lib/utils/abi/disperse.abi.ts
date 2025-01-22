@@ -1,4 +1,4 @@
-const DISPERSE_ABI = [
+export const DISPERSE_ABI = [
 	{
 		constant: false,
 		inputs: [

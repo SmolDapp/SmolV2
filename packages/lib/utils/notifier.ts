@@ -1,12 +1,16 @@
-import {zora} from 'wagmi/chains';
+import {getChains} from '@wagmi/core';
 import axios from 'axios';
-import {formatAmount, toNormalizedBN, truncateHex, zeroNormalizedBN} from '@builtbymom/web3/utils';
-import {getNetwork} from '@builtbymom/web3/utils/wagmi';
-import {EIP3770_PREFIX} from '@lib/utils/eip-3770';
+import {zora} from 'wagmi/chains';
 
+import {EIP3770_PREFIX} from '@lib/utils/eip-3770';
+import {formatAmount, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
+import {truncateHex} from '@lib/utils/tools.addresses';
+
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
+import type {Config} from '@wagmi/core';
+import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Hex} from 'viem';
-import type {TAddress, TToken} from '@builtbymom/web3/types';
-import type {TTokenAmountInputElement} from '@lib/types/utils';
 
 const safeBaseURIForNetwork = (network: number): string => {
 	if (network === zora.id) {
@@ -17,7 +21,8 @@ const safeBaseURIForNetwork = (network: number): string => {
 
 export function notifyDisperse(props: {
 	chainID: number;
-	tokenToDisperse: TToken | undefined;
+	config: Config;
+	tokenToDisperse: TERC20TokensWithBalance | undefined;
 	receivers: TAddress[];
 	amounts: bigint[];
 	hash: Hex;
@@ -27,7 +32,8 @@ export function notifyDisperse(props: {
 	if (!props.tokenToDisperse) {
 		return;
 	}
-	const currentChain = getNetwork(props.chainID);
+	const chains = getChains(props.config);
+	const currentChain = chains.find(chain => chain.id === props.chainID);
 	const explorerBaseURI = currentChain?.blockExplorers?.default?.url || 'https://etherscan.io';
 	const decimals = props.tokenToDisperse.decimals || 18;
 	const sumDispersed = props.amounts.reduce((sum, amount): bigint => sum + amount, 0n);
@@ -55,20 +61,22 @@ export function notifyDisperse(props: {
 			),
 			props.type === 'EOA'
 				? `\t\t\t\t\t\t[View on Explorer](${explorerBaseURI}/tx/${props.hash})`
-				: `\t\t\t\t\t\t[View on Safe](${safeBaseURIForNetwork(currentChain.id)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hash})`
+				: `\t\t\t\t\t\t[View on Safe](${safeBaseURIForNetwork(props.chainID)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hash})`
 		]
 	});
 }
 
 export function notifySend(props: {
 	chainID: number;
+	config: Config;
 	tokensMigrated: TTokenAmountInputElement[];
 	hashes: Hex[];
 	to: TAddress;
 	from: TAddress;
 	type: 'EOA' | 'SAFE';
 }): void {
-	const currentChain = getNetwork(props.chainID);
+	const chains = getChains(props.config);
+	const currentChain = chains.find(chain => chain.id === props.chainID);
 	const explorerBaseURI = currentChain?.blockExplorers?.default?.url || 'https://etherscan.io';
 	const getChainPrefix = EIP3770_PREFIX.find((item): boolean => item.chainId === props.chainID);
 	const chainPrefix = getChainPrefix?.shortName || 'eth';
@@ -84,7 +92,7 @@ export function notifySend(props: {
 				const txHashLink =
 					props.type === 'EOA'
 						? `${explorerBaseURI}/tx/${props.hashes[index]}`
-						: `${safeBaseURIForNetwork(currentChain.id)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hashes[index]}`;
+						: `${safeBaseURIForNetwork(props.chainID)}${chainPrefix}:${props.from}/transactions/tx?safe=eth:${props.from}&id=multisig_${props.from}_${props.hashes[index]}`;
 				return `\t\t\t\t\t\t\t- ${formatAmount(
 					(normalizedBigAmount || zeroNormalizedBN).normalized,
 					6,

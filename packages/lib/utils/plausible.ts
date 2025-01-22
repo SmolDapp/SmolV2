@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+
 export const PLAUSIBLE_EVENTS = {
 	// Open the curtains
 	OPEN_INFO_CURTAIN: 'open info curtain',

@@ -1,24 +1,17 @@
-import {useRouter} from 'next/router';
-import {useDeepCompareEffect} from '@react-hookz/web';
-import {getPathWithoutQueryParams} from '@lib/utils/url/getPathWithoutQueryParams';
 import {serializeSearchStateForUrl} from '@lib/utils/url/serializeStateForUrl';
+import {usePathname, useRouter} from 'next/navigation';
 
-export function useSyncUrlParams(state: {[key: string]: unknown}, disabled?: boolean): void {
+import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
+
+export function useSyncUrlParams(state: Record<string, unknown>, disabled?: boolean): void {
 	const router = useRouter();
+	const pathname = usePathname();
 
 	useDeepCompareEffect(() => {
 		if (!disabled) {
-			router.replace(
-				{
-					pathname: getPathWithoutQueryParams(router.asPath),
-					query: serializeSearchStateForUrl(state)
-				},
-				undefined,
-				{
-					scroll: false,
-					shallow: true
-				}
-			);
+			router.replace(`${pathname}?${serializeSearchStateForUrl(state)}`, {
+				scroll: false
+			});
 		}
 	}, [state, disabled]);
 }

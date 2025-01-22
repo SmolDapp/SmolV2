@@ -1,4 +1,4 @@
-const GNOSIS_SAFE_PROXY_FACTORY = [
+export const GNOSIS_SAFE_PROXY_FACTORY = [
 	{
 		anonymous: false,
 		inputs: [

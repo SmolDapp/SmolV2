@@ -1,10 +1,10 @@
 import abiCoder from 'web3-eth-abi';
-import {ETH_TOKEN_ADDRESS, toAddress} from '@builtbymom/web3/utils';
 
-import type {AbiCoder} from 'web3-eth-abi';
-import type {AbiItem} from 'web3-utils';
-import type {TAddress} from '@builtbymom/web3/types';
+import {isEthAddress} from '@lib/utils/tools.addresses';
+
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {AbiItem} from 'web3-utils';
 
 const ERC20ABI_TRANSFER: AbiItem = {
 	constant: false,
@@ -20,15 +20,15 @@ const ERC20ABI_TRANSFER: AbiItem = {
 };
 
 export function getTransferTransaction(amount: string, token: TAddress, recipient: string): BaseTransaction {
-	if (token === toAddress(ETH_TOKEN_ADDRESS)) {
+	if (isEthAddress(token)) {
 		return {to: recipient, value: amount, data: '0x'};
 	}
 
-	const coder = abiCoder as unknown as AbiCoder;
+	const coder = abiCoder;
 	return {
 		// For other token types, generate a contract tx
 		to: token,
 		value: '0',
-		data: coder.encodeFunctionCall(ERC20ABI_TRANSFER, [recipient, amount])
+		data: coder.encodeFunctionCall(ERC20ABI_TRANSFER as any, [recipient, amount])
 	};
 }

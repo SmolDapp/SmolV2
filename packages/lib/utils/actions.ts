@@ -1,10 +1,11 @@
 import assert from 'assert';
-import {assertAddress, toAddress} from '@builtbymom/web3/utils';
-import {handleTx} from '@builtbymom/web3/utils/wagmi';
-import DISPERSE_ABI from '@lib/utils/abi/disperse.abi';
 
-import type {TAddress} from '@builtbymom/web3/types';
-import type {TTxResponse, TWriteTransaction} from '@builtbymom/web3/utils/wagmi';
+import {DISPERSE_ABI} from '@lib/utils/abi/disperse.abi';
+import {assertAddress, toAddress} from '@lib/utils/tools.addresses';
+import {handleTx} from '@lib/utils/tools.transactions';
+
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {TTxResponse, TWriteTransaction} from '@lib/utils/tools.transactions';
 
 /* 🔵 - Smold App **************************************************************
  ** disperseETH is a _WRITE_ function that disperses ETH to a list of addresses.
