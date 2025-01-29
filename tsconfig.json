@@ -6,8 +6,7 @@
 			"@lib/*": ["packages/lib/*"],
 			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
 			"@smolContexts/*": ["packages/smol/contexts/*"],
-			"@smolHooks/*": ["packages/smol/hooks/*"],
-			"@smolLandingDesignSystem/*": ["packages/smol-landing/components/designSystem/*"]
+			"@smolHooks/*": ["packages/smol/hooks/*"]
 		},
 		"types": ["bun-types"],
 		"target": "esnext",
