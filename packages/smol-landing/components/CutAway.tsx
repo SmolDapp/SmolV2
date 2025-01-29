@@ -1,5 +1,6 @@
-import {Button} from '@lib/primitives/Button';
 import Link from 'next/link';
+
+import {Button} from 'packages/smol-landing/components/Button';
 
 import type {ReactElement} from 'react';
 

@@ -1,6 +1,7 @@
-import {Button} from '@lib/primitives/Button';
 import Link from 'next/link';
 import {useState} from 'react';
+
+import {Button} from 'packages/smol-landing/components/Button';
 
 import {MobileNavBar} from './MobileNavBar';
 import {NavBar} from './NavBar';
@@ -29,7 +30,7 @@ export default function Layout(props: AppProps): ReactElement {
 
 	return (
 		<div className={'mx-auto mt-10 flex w-full max-w-6xl flex-col justify-center px-6 md:px-0'}>
-			{isNavBarOpen && <MobileNavBar set_isNavBarOpen={setIsNavBarOpen} />}
+			{isNavBarOpen && <MobileNavBar setIsNavBarOpen={setIsNavBarOpen} />}
 			<div className={'grid grid-cols-2 px-2 md:grid-cols-3'}>
 				<span className={'flex items-center font-[Monument] text-lg font-extrabold leading-snug md:text-2xl'}>
 					{'MOM HUB'}

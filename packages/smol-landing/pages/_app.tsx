@@ -1,11 +1,11 @@
-import Layout from '@smolLandingDesignSystem/Layout';
-import {Meta} from 'packages/smol/common/Meta';
-import {WithFonts} from 'packages/smol/common/WithFonts';
+import Layout from 'packages/smol-landing/components/Layout';
+import {Meta} from 'packages/smol-landing/components/Meta';
+import {WithFonts} from 'packages/smol-landing/components/WithFonts';
+
+import '../style.css';
 
 import type {AppProps} from 'next/app';
 import type {ReactElement} from 'react';
-
-import '../style.css';
 
 function MyApp(props: AppProps): ReactElement {
 	return (

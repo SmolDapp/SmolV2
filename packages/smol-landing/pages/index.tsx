@@ -1,9 +1,9 @@
-import {IconAppAddressBook, IconAppDisperse, IconAppSwap} from '@lib/icons/IconApps';
-import {Button} from '@lib/primitives/Button';
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 import Link from 'next/link';
 
-import {Cutaway} from '@smolLandingDesignSystem/CutAway';
+import {Button} from 'packages/smol-landing/components/Button';
+import {Cutaway} from 'packages/smol-landing/components/CutAway';
+import {IconAppAddressBook, IconAppDisperse, IconAppSwap} from 'packages/smol-landing/components/IconApps';
 
 import type {ReactElement} from 'react';
 

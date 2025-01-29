@@ -1,6 +1,7 @@
-import {IconCross} from '@lib/icons/IconCross';
 import {motion} from 'framer-motion';
 import Link from 'next/link';
+
+import {IconCross} from 'packages/smol-landing/components/IconCross';
 
 import {TOP_NAV} from './NavBar';
 
