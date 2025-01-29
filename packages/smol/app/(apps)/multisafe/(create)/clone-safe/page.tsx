@@ -114,7 +114,7 @@ function Safe(): ReactElement {
 						}
 					}
 				} catch (error) {
-					// nothing
+					console.error(error);
 				}
 			}
 			return undefined;

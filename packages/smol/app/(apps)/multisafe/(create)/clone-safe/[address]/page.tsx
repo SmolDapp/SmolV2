@@ -115,7 +115,7 @@ function Safe(): ReactElement {
 						}
 					}
 				} catch (error) {
-					// nothing
+					console.error(error);
 				}
 			}
 			return undefined;
@@ -162,6 +162,7 @@ function Safe(): ReactElement {
 						paymentReceiver
 					});
 				} catch (error) {
+					console.error(error);
 					setExistingSafeArgs({
 						...defaultExistingSafeArgs,
 						error: 'No safe found at this address',

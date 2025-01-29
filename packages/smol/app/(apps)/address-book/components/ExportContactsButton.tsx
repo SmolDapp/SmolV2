@@ -19,14 +19,12 @@ export function ExportContactsButton(): ReactElement {
 		const entriesWithoutId = clonedEntries
 			.filter(entry => !entry.isHidden)
 			.map(entry => {
-				const {id, ens, slugifiedLabel, numberOfInteractions, tags, isHidden, ...rest} = entry;
-				id;
-				ens;
-				slugifiedLabel;
-				numberOfInteractions;
-				tags;
-				isHidden;
-				return rest;
+				return {
+					address: entry.address,
+					label: entry.label,
+					chains: entry.chains,
+					isFavorite: entry.isFavorite
+				};
 			});
 		const csv = Papa.unparse(entriesWithoutId, {header: true});
 		const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});

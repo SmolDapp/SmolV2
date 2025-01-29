@@ -265,6 +265,7 @@ export const useSend = (
 					from: toAddress(address)
 				});
 			} catch (error) {
+				console.error(error);
 				setMigrateStatus?.({...defaultTxStatus, error: true});
 			}
 		},
