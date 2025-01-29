@@ -381,6 +381,7 @@ export function SmolAddressInput({
 							{...rest}
 						/>
 						<TextTruncate
+							tabIndex={-1}
 							value={(isAddress(value?.address) && toAddress(value.address)) || value.error || ''}
 							className={cl(
 								isFocused ? 'opacity-0' : 'opacity-100',

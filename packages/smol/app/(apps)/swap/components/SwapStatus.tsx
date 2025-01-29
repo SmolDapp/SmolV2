@@ -15,18 +15,18 @@ import type {ReactElement, ReactNode} from 'react';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {
 	const {setCurtainStatus, dispatchConfiguration} = useAddressBook();
-	const {configuration} = useSwapFlow();
+	const {receiver} = useSwapFlow();
 
 	return (
 		<button
 			className={'font-bold transition-all'}
 			onClick={() => {
-				const hasALabel = isZeroAddress(configuration.receiver.label);
+				const hasALabel = isZeroAddress(receiver.label);
 				dispatchConfiguration({
 					type: 'SET_SELECTED_ENTRY',
 					payload: {
-						address: configuration.receiver.address,
-						label: hasALabel ? configuration.receiver.label : '',
+						address: receiver.address,
+						label: hasALabel ? receiver.label : '',
 						slugifiedLabel: '',
 						chains: [],
 						isFavorite: false
@@ -42,7 +42,7 @@ function TriggerAddressBookButton({children}: {children: ReactNode}): ReactEleme
 export function SwapStatus(props: {destinationChainID: number}): ReactElement | null {
 	const {address} = useAccount();
 	const config = useConfig();
-	const {configuration, currentError} = useSwapFlow();
+	const {receiver, currentError} = useSwapFlow();
 	const {getEntry} = useAddressBook();
 	const [status, setStatus] = useState<{type: TWarningType; message: string | ReactElement}[]>([]);
 
@@ -53,12 +53,12 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 			allStatus.push({message: currentError, type: 'error'});
 		}
 
-		const fromAddressBook = await getEntry({address: configuration.receiver.address});
-		if (!configuration.receiver.address) {
+		const fromAddressBook = await getEntry({address: receiver.address});
+		if (!receiver.address) {
 			return setStatus(allStatus);
 		}
 
-		if (isEthAddress(configuration.receiver.address)) {
+		if (isEthAddress(receiver.address)) {
 			allStatus.push({
 				message: 'Yo… uh… hmm… this is an invalid address. Tokens sent here may be lost forever. Oh no!',
 				type: 'error'
@@ -66,7 +66,7 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 		}
 
 		if (
-			configuration.receiver.address &&
+			receiver.address &&
 			(!fromAddressBook || (fromAddressBook?.numberOfInteractions === 0 && fromAddressBook.isHidden))
 		) {
 			allStatus.push({
@@ -80,7 +80,7 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 			});
 		}
 
-		if (configuration.receiver.address && fromAddressBook?.isHidden) {
+		if (receiver.address && fromAddressBook?.isHidden) {
 			allStatus.push({
 				message: (
 					<>
@@ -92,7 +92,7 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 			});
 		}
 
-		if (configuration.receiver.address && !fromAddressBook?.chains.includes(props.destinationChainID)) {
+		if (receiver.address && !fromAddressBook?.chains.includes(props.destinationChainID)) {
 			const currentNetworkName = supportedNetworks.find(network => network.id === props.destinationChainID)?.name;
 			const fromAddressBookNetworkNames = fromAddressBook?.chains
 				.map(chain => supportedNetworks.find(network => network.id === chain)?.name)
@@ -105,7 +105,7 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 			}
 		}
 
-		if (toAddress(configuration.receiver.address) !== toAddress(address)) {
+		if (toAddress(receiver.address) !== toAddress(address)) {
 			const network = config.chains.find(chain => chain.id === props.destinationChainID);
 			allStatus.push({
 				message: (
@@ -115,9 +115,9 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 						}
 						<Link
 							target={'_blank'}
-							href={`${network?.blockExplorers?.default?.url || 'https://etherscan.io'}/address/${configuration.receiver.address}`}
+							href={`${network?.blockExplorers?.default?.url || 'https://etherscan.io'}/address/${receiver.address}`}
 							className={'cursor-alias font-bold underline transition-all'}>
-							{configuration.receiver.address}
+							{receiver.address}
 						</Link>
 						{'.'}
 					</>
@@ -127,7 +127,7 @@ export function SwapStatus(props: {destinationChainID: number}): ReactElement | 
 		}
 
 		setStatus(allStatus);
-	}, [getEntry, configuration.receiver.address, currentError, props.destinationChainID, address]);
+	}, [currentError, getEntry, receiver.address, props.destinationChainID, address, config.chains]);
 
 	if (!status) {
 		return null;

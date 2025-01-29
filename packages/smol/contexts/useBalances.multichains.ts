@@ -17,6 +17,8 @@ import type {Config, MulticallParameters} from '@wagmi/core';
 import type {DependencyList} from 'react';
 import type {Connector} from 'wagmi';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const SHOULD_FETCH_ALL_CHAINS = false;
 const MULTICALL3_ADDRESS = toAddress('0xcA11bde05977b3631167028862bE2a173976CA11');
 
 /*******************************************************************************
@@ -56,6 +58,7 @@ export type TUseBalancesRes = {
 	data: TChainERC20Tokens;
 	onUpdate: (shouldForceFetch?: boolean) => Promise<TChainERC20Tokens>;
 	onUpdateSome: (token: TUseBalancesTokens[], shouldForceFetch?: boolean) => Promise<TChainERC20Tokens>;
+	onUpdateTokensForChain: (chainID: number) => Promise<void>;
 	error?: Error;
 	status: 'error' | 'loading' | 'success' | 'unknown';
 } & Omit<TDefaultStatus, 'isFetched' | 'isRefetching' | 'isFetching'> &
@@ -633,43 +636,83 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 			}
 		}
 
-		const chainIDs = config.chains.map(({id}) => id);
-		for (const [chainIDStr, tokens] of Object.entries(tokensPerChainID)) {
-			const chainID = Number(chainIDStr);
-			if (!chainIDs.includes(chainID)) {
-				continue;
-			}
-			if (props?.priorityChainID && chainID === props.priorityChainID) {
-				continue;
-			}
-			setChainStatus(prev => ({
-				chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: true},
-				chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: false},
-				chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
-			}));
-
-			const chunks = [];
-			for (let i = 0; i < tokens.length; i += 200) {
-				chunks.push(tokens.slice(i, i + 200));
-			}
-			const allPromises = [];
-			for (const chunkTokens of chunks) {
-				allPromises.push(
-					getBalances(chainID, userAddress, chunkTokens, config).then(
-						async ([newRawData, err]): Promise<void> => {
-							updateBalancesCall(toAddress(userAddress), chainID, newRawData);
-							setError(err);
-						}
-					)
-				);
-			}
-			await Promise.all(allPromises);
-			if (currentIdentifier.current === identifier) {
+		if (SHOULD_FETCH_ALL_CHAINS) {
+			const chainIDs = config.chains.map(({id}) => id);
+			for (const [chainIDStr, tokens] of Object.entries(tokensPerChainID)) {
+				const chainID = Number(chainIDStr);
+				if (!chainIDs.includes(chainID)) {
+					continue;
+				}
+				if (props?.priorityChainID && chainID === props.priorityChainID) {
+					continue;
+				}
 				setChainStatus(prev => ({
-					chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: false},
-					chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: true},
+					chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: true},
+					chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: false},
 					chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
 				}));
+
+				const chunks = [];
+				for (let i = 0; i < tokens.length; i += 200) {
+					chunks.push(tokens.slice(i, i + 200));
+				}
+				const allPromises = [];
+				for (const chunkTokens of chunks) {
+					allPromises.push(
+						getBalances(chainID, userAddress, chunkTokens, config).then(
+							async ([newRawData, err]): Promise<void> => {
+								updateBalancesCall(toAddress(userAddress), chainID, newRawData);
+								setError(err);
+							}
+						)
+					);
+				}
+				await Promise.all(allPromises);
+				if (currentIdentifier.current === identifier) {
+					setChainStatus(prev => ({
+						chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: false},
+						chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: true},
+						chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
+					}));
+				}
+			}
+		} else {
+			if (props?.priorityChainID) {
+				// Do nothing, already done
+			} else {
+				const chainID = config.state.chainId;
+				setChainStatus(prev => ({
+					chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: true},
+					chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: false},
+					chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
+				}));
+
+				const tokens = tokensPerChainID[chainID] || [];
+				if (tokens.length > 0) {
+					const chunks = [];
+					for (let i = 0; i < tokens.length; i += 200) {
+						chunks.push(tokens.slice(i, i + 200));
+					}
+					const allPromises = [];
+					for (const chunkTokens of chunks) {
+						allPromises.push(
+							getBalances(chainID, userAddress, chunkTokens, config).then(
+								async ([newRawData, err]): Promise<void> => {
+									updateBalancesCall(toAddress(userAddress), chainID, newRawData);
+									setError(err);
+								}
+							)
+						);
+					}
+					await Promise.all(allPromises);
+					if (currentIdentifier.current === identifier) {
+						setChainStatus(prev => ({
+							chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: false},
+							chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: true},
+							chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
+						}));
+					}
+				}
 			}
 		}
 
@@ -683,11 +726,69 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 		}
 	}, [stringifiedTokens, userAddress, updateBalancesCall, props?.priorityChainID, config]);
 
+	const onUpdateTokensForChain = useCallback(
+		async (chainID: number): Promise<void> => {
+			console.log('HERRRE', chainID, props?.tokens);
+			const allTokens = (JSON.parse(stringifiedTokens) || []) as TUseBalancesTokens[];
+			const tokensPerChainID: Record<number, TUseBalancesTokens[]> = {};
+			const alreadyAdded: Record<number, Record<TAddress, boolean>> = {};
+			for (const token of allTokens) {
+				if (!tokensPerChainID[token.chainID]) {
+					tokensPerChainID[token.chainID] = [];
+				}
+				if (!alreadyAdded[token.chainID]) {
+					alreadyAdded[token.chainID] = {};
+				}
+				if (alreadyAdded[token.chainID][toAddress(token.address)]) {
+					continue;
+				}
+				tokensPerChainID[token.chainID].push(token);
+				alreadyAdded[token.chainID][toAddress(token.address)] = true;
+			}
+			console.warn(tokensPerChainID);
+
+			setChainStatus(prev => ({
+				chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: true},
+				chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: false},
+				chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
+			}));
+
+			const tokens = tokensPerChainID[chainID] || [];
+			console.warn(tokens);
+			if (tokens.length > 0) {
+				const chunks = [];
+				for (let i = 0; i < tokens.length; i += 200) {
+					chunks.push(tokens.slice(i, i + 200));
+				}
+				const allPromises = [];
+				for (const chunkTokens of chunks) {
+					allPromises.push(
+						getBalances(chainID, userAddress, chunkTokens, config).then(
+							async ([newRawData, err]): Promise<void> => {
+								updateBalancesCall(toAddress(userAddress), chainID, newRawData);
+								setError(err);
+							}
+						)
+					);
+				}
+				console.log('HERRRE', allPromises.length);
+				await Promise.all(allPromises);
+				setChainStatus(prev => ({
+					chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: false},
+					chainSuccessStatus: {...(prev?.chainSuccessStatus || {}), [chainID]: true},
+					chainErrorStatus: {...(prev?.chainErrorStatus || {}), [chainID]: false}
+				}));
+			}
+		},
+		[stringifiedTokens, userAddress, updateBalancesCall, config]
+	);
+
 	const contextValue = useDeepCompareMemo(
 		(): TUseBalancesRes => ({
 			data: balances || {},
 			onUpdate: onUpdate,
 			onUpdateSome: onUpdateSome,
+			onUpdateTokensForChain,
 			error,
 			isLoading: status.isLoading || someStatus.isLoading || updateStatus.isLoading,
 			isSuccess: status.isSuccess && someStatus.isSuccess && updateStatus.isSuccess,
@@ -709,6 +810,7 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 			error,
 			onUpdate,
 			onUpdateSome,
+			onUpdateTokensForChain,
 			someStatus.isError,
 			someStatus.isLoading,
 			someStatus.isSuccess,

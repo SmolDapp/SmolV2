@@ -1,4 +1,4 @@
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import React from 'react';
 
@@ -27,7 +27,7 @@ export function SafeDetailsCurtain(props: TSafeDetailsCurtainArgs): ReactElement
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Safe Details'}</h3>
+						<CurtainTitle className={'font-bold'}>{'Safe Details'}</CurtainTitle>
 						<CloseCurtainButton />
 					</div>
 					<p className={'text-xs text-neutral-600'}>

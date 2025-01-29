@@ -6,7 +6,7 @@ import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
 import {IconLinkOut} from '@lib/icons/IconLinkOut';
 import {IconTrash} from '@lib/icons/IconTrash';
 import {Button} from '@lib/primitives/Button';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
@@ -311,6 +311,7 @@ export function AddressBookCurtain(props: {
 							isEditMode={isEditMode}
 							onEdit={setIsEditMode}
 						/>
+						<CurtainTitle className={'hidden'}>{'Address book'}</CurtainTitle>
 						<CloseCurtainButton />
 					</div>
 

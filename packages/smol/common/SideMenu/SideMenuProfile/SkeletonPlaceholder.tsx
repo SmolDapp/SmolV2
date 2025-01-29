@@ -9,6 +9,7 @@ export function SkeletonPlaceholder(): ReactElement {
 		<section className={'p-4'}>
 			<div className={'flex gap-2'}>
 				<Avatar
+					sizeClassname={'h-10 w-10 min-w-[40px]'}
 					isLoading
 					address={undefined}
 					src={undefined}

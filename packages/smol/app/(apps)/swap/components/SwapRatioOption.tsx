@@ -6,16 +6,15 @@ import React from 'react';
 
 import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
 
-import type {TSwapConfiguration} from 'packages/smol/app/(apps)/swap/types';
 import type {ReactElement} from 'react';
 
 export function SwapRatioOption(props: {
 	label: string;
 	details: string;
-	value: TSwapConfiguration['order'];
+	value: 'RECOMMENDED' | 'SAFEST' | 'FASTEST' | 'CHEAPEST';
 }): ReactElement {
 	const plausible = usePlausible();
-	const {configuration, dispatchConfiguration} = useSwapFlow();
+	const {order, setOrder} = useSwapFlow();
 
 	return (
 		<label
@@ -25,10 +24,10 @@ export function SwapRatioOption(props: {
 				<input
 					onChange={() => {
 						plausible(PLAUSIBLE_EVENTS.SWAP_SET_ORDER, {props: {order: props.value}});
-						dispatchConfiguration({type: 'SET_ORDER', payload: props.value});
+						setOrder(props.value);
 					}}
 					id={props.label}
-					defaultChecked={configuration.order === props.value}
+					defaultChecked={order === props.value}
 					value={props.label}
 					type={'radio'}
 					className={

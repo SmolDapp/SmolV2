@@ -1,12 +1,12 @@
 'use client';
 
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import {usePlausible} from 'next-plausible';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 
 import {SwapRatioOption} from 'packages/smol/app/(apps)/swap/components/SwapRatioOption';
 import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
@@ -28,18 +28,7 @@ type TSwapCurtain = {
  *************************************************************************************************/
 export function SwapCurtain(props: TSwapCurtain): ReactElement {
 	const plausible = usePlausible();
-	const [, setSearchValue] = useState('');
-	const {configuration, dispatchConfiguration} = useSwapFlow();
-
-	/**********************************************************************************************
-	 ** When the curtain is opened, we want to reset the search value.
-	 ** This is to avoid preserving the state accross multiple openings.
-	 *********************************************************************************************/
-	useEffect((): void => {
-		if (props.isOpen) {
-			setSearchValue('');
-		}
-	}, [props.isOpen]);
+	const {slippageTolerance, setSlippageTolerance} = useSwapFlow();
 
 	return (
 		<Dialog.Root
@@ -50,7 +39,7 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Swap settings'}</h3>
+						<CurtainTitle className={'font-bold'}>{'Swap settings'}</CurtainTitle>
 						<CloseCurtainButton />
 					</div>
 					<div className={'flex h-full flex-col gap-4'}>
@@ -122,11 +111,11 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<button
 										onClick={() => {
 											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.001}});
-											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.001});
+											setSlippageTolerance(0.001);
 										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
-											configuration.slippageTolerance === 0.001
+											slippageTolerance === 0.001
 												? 'bg-neutral-400 text-neutral-900'
 												: 'text-neutral-600'
 										)}>
@@ -135,11 +124,11 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<button
 										onClick={() => {
 											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.005}});
-											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.005});
+											setSlippageTolerance(0.005);
 										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
-											configuration.slippageTolerance === 0.005
+											slippageTolerance === 0.005
 												? 'bg-neutral-400 text-neutral-900'
 												: 'text-neutral-600'
 										)}>
@@ -148,11 +137,11 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<button
 										onClick={() => {
 											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.01}});
-											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.01});
+											setSlippageTolerance(0.01);
 										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
-											configuration.slippageTolerance === 0.01
+											slippageTolerance === 0.01
 												? 'bg-neutral-400 text-neutral-900'
 												: 'text-neutral-600'
 										)}>
@@ -161,11 +150,11 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 									<button
 										onClick={() => {
 											plausible(PLAUSIBLE_EVENTS.SWAP_SET_SLIPPAGE, {props: {slippage: 0.015}});
-											dispatchConfiguration({type: 'SET_SLIPPAGE', payload: 0.015});
+											setSlippageTolerance(0.015);
 										}}
 										className={cl(
 											'p-2 text-center transition-colors hover:bg-neutral-400',
-											configuration.slippageTolerance === 0.015
+											slippageTolerance === 0.015
 												? 'bg-neutral-400 text-neutral-900'
 												: 'text-neutral-600'
 										)}>

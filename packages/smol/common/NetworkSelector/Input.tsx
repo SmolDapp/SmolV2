@@ -9,7 +9,7 @@ import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
 import {usePlausible} from 'next-plausible';
 import {useMemo, useState} from 'react';
-import {useChainId} from 'wagmi';
+import {useChainId, useChains} from 'wagmi';
 
 import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
@@ -22,6 +22,7 @@ export function NetworkInputSelector(props: {
 }): ReactElement {
 	const plausible = usePlausible();
 	const isMounted = useIsMounted();
+	const chains = useChains();
 	const chainID = useChainId();
 
 	/**********************************************************************************************
@@ -43,8 +44,8 @@ export function NetworkInputSelector(props: {
 	 ** use the safeChainID or the value provided by the user if we are in development mode.
 	 *********************************************************************************************/
 	const currentNetwork = useMemo(
-		() => networksToUse.find((network): boolean => network.id === chainID),
-		[props.value, networksToUse]
+		() => chains.find((chain): boolean => chain.id === (props.value === -1 ? chainID : props.value)),
+		[chains, props.value, chainID]
 	);
 
 	const [isOpen, setIsOpen] = useState(false);

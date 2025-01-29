@@ -27,6 +27,7 @@ type TWalletContext = {
 	isLoading: boolean;
 	isLoadingOnCurrentChain: boolean;
 	isLoadingOnChain: (chainID?: number) => boolean;
+	onUpdateTokensForChain: (chainID: number) => Promise<void>;
 	onRefresh: (
 		tokenList?: TUseBalancesTokens[],
 		shouldSaveInStorage?: boolean,
@@ -45,6 +46,7 @@ const defaultProps = {
 	isLoading: true,
 	isLoadingOnCurrentChain: true,
 	isLoadingOnChain: (): boolean => true,
+	onUpdateTokensForChain: async (): Promise<void> => {},
 	onRefresh: async (): Promise<TChainERC20Tokens> => ({}),
 	onRefreshWithList: async (): Promise<TChainERC20Tokens> => ({})
 };
@@ -124,6 +126,7 @@ export const WalletContextApp = memo(function WalletContextApp(props: {
 		data: balances,
 		onUpdate,
 		onUpdateSome,
+		onUpdateTokensForChain,
 		isLoading,
 		chainLoadingStatus
 	} = useBalances({
@@ -252,6 +255,7 @@ export const WalletContextApp = memo(function WalletContextApp(props: {
 			isLoading: isLoading || false,
 			isLoadingOnCurrentChain: chainLoadingStatus?.[chainID] || false,
 			isLoadingOnChain,
+			onUpdateTokensForChain,
 			onRefresh,
 			onRefreshWithList
 		}),
@@ -264,6 +268,7 @@ export const WalletContextApp = memo(function WalletContextApp(props: {
 			chainLoadingStatus,
 			chainID,
 			isLoadingOnChain,
+			onUpdateTokensForChain,
 			onRefresh,
 			onRefreshWithList
 		]

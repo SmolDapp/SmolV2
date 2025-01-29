@@ -112,7 +112,7 @@ type TApproveERC20 = TWriteTransaction & {
 };
 export async function approveERC20(props: TApproveERC20): Promise<TTxResponse> {
 	assertAddress(props.spenderAddress, 'spenderAddress');
-	assertAddress(props.contractAddress);
+	assertAddress(props.contractAddress, 'contractAddress');
 
 	props.onTrySomethingElse = async (): Promise<TTxResponse> => {
 		const propsWithoutOnTrySomethingElse = {...props, onTrySomethingElse: undefined};

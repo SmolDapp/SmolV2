@@ -3,12 +3,11 @@
 import {IconChevron} from '@lib/icons/IconChevron';
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
 import {cl} from '@lib/utils/helpers';
-import {supportedNetworks} from '@lib/utils/tools.chains';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
-import {useMemo, useState} from 'react';
-import {useChainId, useSwitchChain} from 'wagmi';
+import {useCallback, useState} from 'react';
+import {useChainId, useChains, useSwitchChain} from 'wagmi';
 
 import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
@@ -17,13 +16,15 @@ import type {ReactElement} from 'react';
 export function NetworkPopoverSelector(): ReactElement {
 	const isMounted = useIsMounted();
 	const chainID = useChainId();
-	const {switchChainAsync} = useSwitchChain();
-
-	const currentNetwork = useMemo(
-		() => supportedNetworks.find((network): boolean => network.id === chainID),
-		[chainID]
-	);
+	const chains = useChains();
 	const [isOpen, setIsOpen] = useState(false);
+	const {switchChainAsync} = useSwitchChain();
+	const getCurrentNetwork = useCallback(
+		() => chains.find((network): boolean => network.id === chainID),
+		[chainID, chains]
+	);
+	const currentNetwork = getCurrentNetwork();
+
 	return (
 		<Popover.Root
 			open={isOpen}
@@ -70,7 +71,7 @@ export function NetworkPopoverSelector(): ReactElement {
 					<CommandInput placeholder={'Search chain...'} />
 					<CommandEmpty>{'No chain found.'}</CommandEmpty>
 					<CommandList className={'max-h-48 overflow-y-auto'}>
-						{supportedNetworks.map(network => (
+						{chains.map(network => (
 							<CommandItem
 								key={network.id}
 								value={network.name}
@@ -86,7 +87,7 @@ export function NetworkPopoverSelector(): ReactElement {
 									if (selectedNetwork === currentNetwork?.name) {
 										return;
 									}
-									const chain = supportedNetworks.find(
+									const chain = chains.find(
 										network => network.name.toLowerCase() === selectedNetwork.toLocaleLowerCase()
 									);
 									switchChainAsync({chainId: chain?.id || 1});

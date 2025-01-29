@@ -36,6 +36,24 @@ export const toBigInt = (amount?: TNumberish): bigint => {
 };
 
 /************************************************************************************************
+ ** NoNaN returns a number or 0 if the value is null, undefined, or NaN
+ **
+ ** @param value - The value to check
+ ** @returns number - The value or 0 if it's null, undefined, or NaN
+ **
+ ** @example
+ ** ```typescript
+ ** const num = NoNaN(null); // 0
+ ** const num = NoNaN(undefined); // 0
+ ** const num = NoNaN(NaN); // 0
+ ** const num = NoNaN(123); // 123
+ ** ```
+ ************************************************************************************************/
+export function NoNaN(value: number | null | undefined): number {
+	return !value || Number.isNaN(value) ? 0 : value;
+}
+
+/************************************************************************************************
  ** toNormalizedValue converts a bigint to a normal number with decimal places
  **
  ** @param v - The bigint value to normalize

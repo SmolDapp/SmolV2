@@ -1,5 +1,3 @@
-import '../style.css';
-
 import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
 import {IconClone} from '@lib/icons/IconClone';
 import IconMultisafe from '@lib/icons/IconMultisafe';
@@ -13,6 +11,8 @@ import {config} from '@smolContexts/WithMom';
 import Providers from 'packages/smol/app/Providers';
 import {SideMenu} from 'packages/smol/common/SideMenu';
 import {SideMenuMobile} from 'packages/smol/common/SideMenu/SideMenuMobile';
+
+import '../style.css';
 
 import type {ReactElement} from 'react';
 

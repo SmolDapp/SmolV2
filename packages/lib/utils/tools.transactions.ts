@@ -10,7 +10,7 @@ import {assertAddress} from '@lib/utils/tools.addresses';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {Config, SimulateContractParameters} from '@wagmi/core';
 import type React from 'react';
-import type {TransactionReceipt, WalletClient} from 'viem';
+import type {TransactionReceipt} from 'viem';
 import type {Connector} from 'wagmi';
 
 export const defaultTxStatus = {none: true, pending: false, success: false, error: false};
@@ -111,36 +111,30 @@ export type TWriteTransaction = {
 
 type TPrepareWriteContractConfig = SimulateContractParameters & {
 	chainId?: number;
-	walletClient?: WalletClient;
 	address: TAddress | undefined;
 	confirmation?: number;
 };
 export async function handleTx(args: TWriteTransaction, props: TPrepareWriteContractConfig): Promise<TTxResponse> {
-	const {config, shouldResetStatus = true} = args;
-	const {walletClient, address} = props;
+	const {config, connector, shouldResetStatus = true} = args;
+	const {address} = props;
 
-	if (!config || !walletClient || !address) {
-		return {isSuccessful: false, error: new Error('Invalid config or walletClient or address')};
+	if (!config || !address || !connector) {
+		console.error('Invalid config or connector or address');
+		return {isSuccessful: false, error: new Error('Invalid config or connector or address')};
 	}
 
 	args.statusHandler?.({...defaultTxStatus, pending: true});
 
-	// Use debug mode
-	if ((window as any).ethereum.useForknetForMainnet) {
-		if (args.chainID === 1) {
-			args.chainID = 1337;
-		}
-	}
-
 	/*******************************************************************************************
 	 ** First, make sure we are using the correct chainID.
 	 ******************************************************************************************/
-	const chainID = await walletClient?.getChainId();
+	const chainID = await connector?.getChainId();
 	if (chainID !== args.chainID) {
 		try {
 			await switchChain(config, {chainId: args.chainID});
 		} catch (error) {
 			if (!(error instanceof BaseError)) {
+				console.error(error);
 				return {isSuccessful: false, error};
 			}
 			toast.error(error.shortMessage);
@@ -182,6 +176,7 @@ export async function handleTx(args: TWriteTransaction, props: TPrepareWriteCont
 		return {isSuccessful: receipt.status === 'success', receipt};
 	} catch (error) {
 		if (!(error instanceof BaseError)) {
+			console.error(error);
 			return {isSuccessful: false, error};
 		}
 
@@ -190,6 +185,7 @@ export async function handleTx(args: TWriteTransaction, props: TPrepareWriteCont
 				error.name === 'ContractFunctionExecutionError' &&
 				error.shortMessage !== 'User rejected the request.' // We need this because for Arbitrum, rejection is a ContractFunctionExecutionError
 			) {
+				console.log('onTrySomethingElse');
 				return await args.onTrySomethingElse();
 			}
 		}

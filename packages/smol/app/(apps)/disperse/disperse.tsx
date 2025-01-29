@@ -14,6 +14,7 @@ import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useConfig} from 'wagmi';
 
+import {useAddressBook} from '@smolContexts/useAddressBook';
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
 import {useValidateAddressInput} from '@smolHooks/web3/useValidateAddressInput';
 import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
@@ -40,6 +41,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 	const searchParams = useSearchParams();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {getPrice, pricingHash} = usePrices();
+	const {getCachedEntry} = useAddressBook();
 	const [price, setPrice] = useState<TNormalizedBN | undefined>(undefined);
 	const {validate: validateAmount} = useValidateAmountInput();
 	const {validate: validateAddress} = useValidateAddressInput();
@@ -98,7 +100,6 @@ const Disperse = memo(function Disperse(): ReactElement {
 	 *********************************************************************************************/
 	const onSelectToken = useCallback(
 		(token: TERC20TokensWithBalance | undefined): void => {
-			console.warn('onSelectToken', token);
 			dispatchConfiguration({type: 'SET_TOKEN_TO_SEND', payload: token});
 			if (token?.address) {
 				router.push(pathname + '?' + createQueryString('token', token.address));
@@ -208,7 +209,13 @@ const Disperse = memo(function Disperse(): ReactElement {
 				 *********************************************************************************/
 				const receiver = toAddress(theAddressOrEns);
 				const ensName = await getEnsName(config, {address: receiver, chainId: mainnet.id});
-				const label = addressOrEns?.label ? addressOrEns?.label : ensName ? ensName : toAddress(receiver);
+				const addressBookEntry = await getCachedEntry({address: receiver});
+				let label = toAddress(receiver) as string;
+				if (addressBookEntry) {
+					label = addressBookEntry.label;
+				} else if (ensName) {
+					label = ensName;
+				}
 				const value = {
 					receiver: {
 						address: addressOrEns?.address ?? toAddress(receiver),
@@ -238,7 +245,8 @@ const Disperse = memo(function Disperse(): ReactElement {
 		dispatchConfiguration,
 		validateAddress,
 		validateAmount,
-		config
+		config,
+		getCachedEntry
 	]);
 
 	return (

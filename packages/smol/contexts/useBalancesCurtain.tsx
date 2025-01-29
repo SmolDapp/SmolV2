@@ -8,7 +8,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {LayoutGroup, motion} from 'framer-motion';
 import {IconGears} from 'lib/icons/IconGears';
 import {IconLoader} from 'lib/icons/IconLoader';
-import {CurtainContent} from 'lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from 'lib/primitives/Curtain';
 import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import {usePlausible} from 'next-plausible';
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
@@ -17,6 +17,7 @@ import {isAddressEqual} from 'viem';
 import {useAccount, useChainId} from 'wagmi';
 
 import {usePopularTokens} from '@smolContexts/usePopularTokens';
+import {useWallet} from '@smolContexts/useWallet';
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
 import {useTokenList} from '@smolContexts/WithTokenList';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@smolHooks/useDeepCompare';
@@ -243,7 +244,7 @@ function BalancesCurtainWrapper(props: {
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<div className={'flex items-center'}>
-							<h3 className={'mr-2 font-bold'}>{'Your Wallet'}</h3>
+							<CurtainTitle className={'mr-2 font-bold'}>{'Your Wallet'}</CurtainTitle>
 							<button
 								onClick={props.onRefresh}
 								className={'text-neutral-600 hover:text-neutral-900'}>
@@ -266,8 +267,15 @@ function BalancesCurtainWrapper(props: {
 function BalancesCurtain(props: TBalancesCurtain): ReactElement {
 	const plausible = usePlausible();
 	const {address} = useAccount();
+	const {onUpdateTokensForChain} = useWallet();
 	const [searchValue, setSearchValue] = useState('');
 	const [tab, setTab] = useState(0);
+
+	useEffect(() => {
+		if (props.isOpen && props.options.chainID) {
+			onUpdateTokensForChain(props.options.chainID);
+		}
+	}, [props.isOpen, onUpdateTokensForChain, props.options.chainID]);
 
 	/**********************************************************************************************
 	 ** When the curtain is opened, we want to reset the search value.
@@ -488,7 +496,6 @@ export const BalancesCurtainContextApp = (props: {children: ReactElement}): Reac
 				tokensWithBalance={tokensToUse}
 				underlyingTokens={[]}
 				allTokens={allTokensToUse}
-				selectedTokens={props.selectedTokens}
 				onOpenChange={setShouldOpenCurtain}
 				onSelect={currentCallbackFunction}
 				options={{

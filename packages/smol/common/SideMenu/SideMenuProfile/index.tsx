@@ -13,22 +13,13 @@ import type {ReactElement} from 'react';
 
 export function SideMenuProfile(): ReactElement {
 	const isMounted = useIsMounted();
-	const {address, isConnected} = useAccount();
+	const {address, isConnected, isConnecting} = useAccount();
 
-	if (!isMounted()) {
+	if (!isMounted() || isConnecting) {
 		return <SkeletonPlaceholder />;
-		// return (
-		// 	<section
-		// 		className={cl(
-		// 			'h-[145px] w-full rounded-t-lg skeleton-lg',
-		// 			'px-10 pb-6 pt-5',
-		// 			'flex flex-col justify-center items-center'
-		// 		)}
-		// 	/>
-		// );
 	}
 
-	if (!address || !isConnected) {
+	if ((!address || !isConnected) && !isConnecting) {
 		return <ConnectButton />;
 	}
 

@@ -113,14 +113,14 @@ function SendSuccessModal(props: {
 
 export function SendWizard(): ReactElement {
 	const {
-		configuration,
-		dispatchConfiguration,
+		input,
 		hasSolverAllowance,
 		approveSolverSpender,
 		performSolverSwap,
 		isValid,
 		estimatedTime,
-		retrieveExpectedOut
+		retrieveExpectedOut,
+		reset
 	} = useSwapFlow();
 	const [approveStatus, setApproveStatus] = useState(defaultTxStatus);
 	const [swapStatus, setSwapStatus] = useState<TTxStatus & {data?: TLifiStatusResponse}>({...defaultTxStatus});
@@ -151,8 +151,7 @@ export function SendWizard(): ReactElement {
 		await performSolverSwap(setSwapStatus);
 	}, [approveSolverSpender, performSolverSwap, refreshSolverAllowance]);
 
-	const isSendButtonDisabled =
-		configuration.input.normalizedBigAmount.raw === 0n || !configuration.input.isValid || !isValid;
+	const isSendButtonDisabled = input.normalizedBigAmount.raw === 0n || !input.isValid || !isValid;
 
 	return (
 		<>
@@ -189,7 +188,7 @@ export function SendWizard(): ReactElement {
 			<SendSuccessModal
 				swapStatus={swapStatus}
 				onClose={(): void => {
-					dispatchConfiguration({type: 'RESET', payload: undefined});
+					reset();
 					setSwapStatus(defaultTxStatus);
 				}}
 			/>

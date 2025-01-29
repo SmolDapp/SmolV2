@@ -5,7 +5,7 @@ import {cl} from '@lib/utils/helpers';
 import type {InputHTMLAttributes, ReactElement} from 'react';
 
 export function TextTruncate(props: InputHTMLAttributes<HTMLInputElement>): ReactElement {
-	const {value, className} = props;
+	const {value, className, ...rest} = props;
 	return (
 		<input
 			readOnly
@@ -15,6 +15,7 @@ export function TextTruncate(props: InputHTMLAttributes<HTMLInputElement>): Reac
 				className
 			)}
 			value={value}
+			{...rest}
 		/>
 	);
 }

@@ -8,6 +8,7 @@ import React from 'react';
 import {toast} from 'react-hot-toast';
 import {useChainId, useConfig} from 'wagmi';
 
+import {useAddressBook} from '@smolContexts/useAddressBook';
 import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
 import {useDisperse} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
 import {newDisperseVoidRow} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse.helpers';
@@ -23,6 +24,7 @@ export function ImportConfigurationButton(props: {setIsLoadingReceivers: (value:
 	const config = useConfig();
 	const {configuration, dispatchConfiguration} = useDisperse();
 	const {validate: validateAmount} = useValidateAmountInput();
+	const {getCachedEntry} = useAddressBook();
 
 	const handleFileUpload = (e: ChangeEvent<HTMLInputElement>): void => {
 		if (!e.target.files) {
@@ -73,21 +75,35 @@ export function ImportConfigurationButton(props: {setIsLoadingReceivers: (value:
 				for (const row of parsedCSV.data) {
 					const address = toAddress(row[receiverAddress]);
 					const amount = row[value];
-					let receiver = undefined;
+					const cachedEntry = getCachedEntry({address});
+					let label = toAddress(row[receiverAddress]) as string;
 					if (length < 20) {
-						receiver = (await getAddressAndEns(row[receiverAddress], chainID, config)) as TAddressAndEns;
+						if (cachedEntry?.label) {
+							label = cachedEntry.label;
+						} else {
+							const fromENS = (await getAddressAndEns(
+								row[receiverAddress],
+								chainID,
+								config
+							)) as TAddressAndEns;
+							if (fromENS?.label) {
+								label = fromENS.label;
+							}
+						}
+					} else if (cachedEntry?.label) {
+						label = cachedEntry.label;
 					}
 
 					/**************************************************************************************
 					 ** Validate address and amount
 					 *************************************************************************************/
-					if (receiver && isAddress(receiver?.address) && amount) {
+					if (label && isAddress(address) && amount) {
 						const parsedAmount = parseFloat(amount).toString();
 
 						const record: TDisperseInput = {
 							receiver: {
-								address: receiver.address,
-								label: receiver.label ? receiver.label : receiver.address
+								address: address,
+								label: label
 							} as TInputAddressLike,
 							value: {
 								...newDisperseVoidRow().value,

@@ -1,7 +1,7 @@
 'use client';
 
 import {IconChevron} from '@lib/icons/IconChevron';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -108,7 +108,7 @@ function LogOutButton(): ReactElement {
 	return (
 		<button
 			className={'transition-colors hover:text-neutral-900'}
-			onClick={() => disconnectAsync()}>
+			onClick={async () => disconnectAsync()}>
 			{'Log out'}
 		</button>
 	);
@@ -230,7 +230,7 @@ export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void
 												'flex items-center gap-1 text-neutral-600 transition-colors hover:text-neutral-900'
 											}>
 											<IconChevron className={'size-3 !rotate-180'} />
-											{'Back'}
+											<CurtainTitle>{'Back'}</CurtainTitle>
 										</button>
 									</div>
 									{(subMenu || []).map(({href, label, icon}) => (

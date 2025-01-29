@@ -1,3 +1,5 @@
+'use client';
+
 import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
@@ -5,14 +7,15 @@ import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 import {cl} from '@lib/utils/helpers';
-import {formatAmount, formatCounterValue} from '@lib/utils/numbers';
+import {NoNaN, formatAmount, formatCounterValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {CHAINS} from '@lib/utils/tools.chains.ts';
 import {isZeroAddress} from 'lib/utils/tools.addresses';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import InputNumber from 'rc-input-number';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useChainId} from 'wagmi';
+import {useChainId, useSwitchChain} from 'wagmi';
 
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
 import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
@@ -164,53 +167,101 @@ function SwapTokenRow(props: {
 export function Swap(): ReactElement {
 	const plausible = usePlausible();
 	const chainID = useChainId();
-	const {isFetchingQuote, configuration, dispatchConfiguration, openSettingsCurtain, estimatedTime} = useSwapFlow();
+	const {switchChainAsync} = useSwitchChain();
+	const {isFetchingQuote, openSettingsCurtain, estimatedTime, ...ctx} = useSwapFlow();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [shouldUseCustomRecipient, setShouldUseCustomRecipient] = useState(false);
-	const [fromNetwork, setFromNetwork] = useState(-1);
-	const [toNetwork, setToNetwork] = useState(-1);
+	const [fromNetwork, setFromNetwork] = useState(NoNaN(Number(searchParams?.get('chainFrom') || -1)));
+	const [toNetwork, setToNetwork] = useState(NoNaN(Number(searchParams?.get('chainTo') || -1)));
+	const createQueryString = useCallback(
+		(args: Record<string, string | undefined>) => {
+			const params = new URLSearchParams(searchParams?.toString());
+			Object.entries(args).forEach(([key, value]) => {
+				if (value === undefined) {
+					params.delete(key);
+				} else {
+					params.set(key, value);
+				}
+			});
+			return params.toString();
+		},
+		[searchParams]
+	);
+	const {inverseTokens, setReceiver, resetInput, resetOutput, setInput, setOutput} = ctx;
+	const {receiver, input, output} = ctx;
 
 	/**********************************************************************************************
 	 ** This useEffect is used to set the fromNetwork and toNetwork values based on the
-	 ** configuration input and output tokens. If the fromNetwork or toNetwork is set to -1, then
-	 ** the value is set to the chainID. If the configuration input or output token chainID is set,
-	 ** then the value is set to the configuration input or output token chainID.
+	 ** input and output tokens. If the fromNetwork or toNetwork is set to -1, then the value is
+	 ** set to the chainID. If the input or output token chainID is set, then the value is set to
+	 ** the input or output token chainID.
 	 *********************************************************************************************/
 	useEffect(() => {
 		if (fromNetwork === -1) {
-			setFromNetwork(configuration.input.token?.chainID || chainID);
-		} else if (configuration.input.token?.chainID) {
-			setFromNetwork(configuration.input.token.chainID);
+			setFromNetwork(input.token?.chainID || chainID);
+			router.push(pathname + '?' + createQueryString({chainFrom: input.token?.chainID?.toString()}));
 		}
+
 		if (toNetwork === -1) {
-			setToNetwork(configuration.output.token?.chainID || chainID);
-		} else if (configuration.output.token?.chainID) {
-			setToNetwork(configuration.output.token.chainID);
+			setToNetwork(output.token?.chainID || chainID);
+			router.push(pathname + '?' + createQueryString({chainTo: output.token?.chainID?.toString()}));
 		}
-	}, [chainID, fromNetwork, toNetwork, configuration]);
+	}, [
+		chainID,
+		fromNetwork,
+		toNetwork,
+		pathname,
+		searchParams,
+		router,
+		createQueryString,
+		input.token?.chainID,
+		output.token?.chainID
+	]);
 
 	/**********************************************************************************************
-	 ** The swapTokens function is used to swap the fromNetwork and toNetwork values. It dispatches
-	 ** the INVERSE_TOKENS action to the configuration reducer to swap the input and output tokens.
-	 ** As the values are swapped, the output token amount will also be recomputed.
+	 ** The swapTokens function is used to swap the fromNetwork and toNetwork values.
 	 *********************************************************************************************/
 	const swapTokens = useCallback(() => {
 		plausible(PLAUSIBLE_EVENTS.SWAP_INVERSE_IN_OUT);
-		dispatchConfiguration({type: 'INVERSE_TOKENS', payload: undefined});
+		inverseTokens();
 		setFromNetwork(toNetwork);
 		setToNetwork(fromNetwork);
-	}, [dispatchConfiguration, fromNetwork, plausible, toNetwork]);
+		router.push(
+			pathname +
+				'?' +
+				createQueryString({
+					chainFrom: output.token?.chainID?.toString(),
+					chainTo: input.token?.chainID?.toString(),
+					tokenFrom: output.token?.address,
+					tokenTo: input.token?.address
+				})
+		);
+	}, [
+		plausible,
+		inverseTokens,
+		toNetwork,
+		fromNetwork,
+		router,
+		pathname,
+		createQueryString,
+		output.token?.chainID,
+		output.token?.address,
+		input.token?.chainID,
+		input.token?.address
+	]);
 
 	/**********************************************************************************************
-	 ** The onSetRecipient function is used to set the recipient address for the swap. It
-	 ** dispatches the SET_RECEIVER action to the configuration reducer to set the recipient
-	 ** address.
+	 ** The onSetRecipient function is used to set the recipient address for the swap.
 	 *********************************************************************************************/
 	const onSetRecipient = (value: Partial<TInputAddressLike>): void => {
 		if (!isZeroAddress(value.address)) {
 			plausible(PLAUSIBLE_EVENTS.SWAP_SET_RECIPIENT);
 		}
-		dispatchConfiguration({type: 'SET_RECEIVER', payload: value});
+		setReceiver(value as TInputAddressLike);
+		router.push(pathname + '?' + createQueryString({receiver: value.address}));
 	};
 
 	/**********************************************************************************************
@@ -246,20 +297,28 @@ export function Swap(): ReactElement {
 								onChange={value => {
 									plausible(PLAUSIBLE_EVENTS.SWAP_SET_FROM_NETWORK, {props: {toChainID: value}});
 									setFromNetwork(value);
-									dispatchConfiguration({type: 'RESET_INPUT', payload: undefined});
+									router.push(pathname + '?' + createQueryString({chainFrom: value.toString()}));
+									resetInput();
+									switchChainAsync({chainId: value});
 								}}
 							/>
 						</div>
 
 						<div className={'w-full'}>
 							<SwapTokenRow
-								input={configuration.input}
+								input={input}
 								chainIDToUse={fromNetwork}
 								onChangeValue={value => {
-									dispatchConfiguration({
-										type: 'SET_INPUT_VALUE',
-										payload: {...value, UUID: configuration.input.UUID}
-									});
+									setInput({
+										...value,
+										UUID: input.UUID
+									} as TTokenAmountInputElement);
+									router.push(
+										`${pathname}?${createQueryString({
+											chainFrom: value.token?.chainID?.toString(),
+											tokenFrom: value.token?.address
+										})}`
+									);
 								}}
 							/>
 						</div>
@@ -283,20 +342,28 @@ export function Swap(): ReactElement {
 								onChange={value => {
 									plausible(PLAUSIBLE_EVENTS.SWAP_SET_TO_NETWORK, {props: {toChainID: value}});
 									setToNetwork(value);
-									dispatchConfiguration({type: 'RESET_OUTPUT', payload: undefined});
+									router.push(pathname + '?' + createQueryString({chainTo: value.toString()}));
+									resetOutput();
 								}}
 							/>
 						</div>
 						<div className={'w-full'}>
 							<ReadonlySwapTokenRow
-								value={configuration.output}
+								value={output}
 								isFetchingQuote={isFetchingQuote}
 								chainIDToUse={toNetwork}
 								onChangeValue={value => {
-									dispatchConfiguration({
-										type: 'SET_OUTPUT_VALUE',
-										payload: {...value, UUID: configuration.output.UUID}
-									});
+									setOutput({
+										...value,
+										UUID: output.UUID
+									} as TTokenAmountInputElement);
+
+									router.push(
+										`${pathname}?${createQueryString({
+											chainTo: value.token?.chainID?.toString(),
+											tokenTo: value.token?.address
+										})}`
+									);
 								}}
 							/>
 						</div>
@@ -334,7 +401,7 @@ export function Swap(): ReactElement {
 								isSimple
 								isSplitted
 								onSetValue={onSetRecipient}
-								value={configuration.receiver}
+								value={receiver}
 							/>
 						</div>
 					</div>

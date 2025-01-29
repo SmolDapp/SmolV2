@@ -17,15 +17,19 @@ export const SendContextApp = (props: {children: TOptionalRenderProps<TSendConte
 	const [configuration, dispatch] = useReducer(useSendConfigurationReducer, useSendDefaultProps.configuration);
 
 	useEffect(() => {
-		const to = searchParams?.get('to');
-		if (to && isAddress(to)) {
-			dispatch({
-				type: 'SET_RECEIVER',
-				payload: {
-					address: to,
-					label: to
+		if (searchParams) {
+			if (searchParams.has('to')) {
+				const to = searchParams?.get('to');
+				if (to && isAddress(to)) {
+					dispatch({
+						type: 'SET_RECEIVER',
+						payload: {
+							address: to,
+							label: to
+						}
+					});
 				}
-			});
+			}
 		}
 	}, [searchParams]);
 

@@ -78,7 +78,7 @@ const useApproveDisperse = ({
 		if (isApproved || !shouldApprove) {
 			return;
 		}
-		await approveERC20({
+		const result = await approveERC20({
 			config: config,
 			connector: connector,
 			chainID: chainID,
@@ -86,12 +86,12 @@ const useApproveDisperse = ({
 			spenderAddress: CHAINS[chainID].disperseAddress,
 			amount: totalToDisperse,
 			statusHandler: setApprovalStatus
-		}).then(result => {
-			if (result.isSuccessful) {
-				onSuccess();
-				refetch();
-			}
 		});
+
+		if (result.isSuccessful) {
+			onSuccess();
+			refetch();
+		}
 	}, [
 		isApproved,
 		shouldApprove,

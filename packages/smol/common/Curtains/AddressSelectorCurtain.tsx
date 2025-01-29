@@ -1,7 +1,7 @@
 'use client';
 
 import {Button} from '@lib/primitives/Button';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {TextInput} from '@lib/primitives/TextInput';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -283,7 +283,7 @@ export function AddressSelectorCurtain(props: {
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Address Book'}</h3>
+						<CurtainTitle className={'font-bold'}>{'Address Book'}</CurtainTitle>
 						<CloseCurtainButton />
 					</div>
 					<div className={'flex h-full flex-col gap-4'}>

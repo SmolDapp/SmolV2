@@ -1,22 +1,33 @@
-import {toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
+'use client';
+
+import {NoNaN, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {optionalRenderProps} from '@lib/utils/react/optionalRenderProps';
 import {
 	defaultInputAddressLike,
 	ethTokenAddress,
+	isAddress,
 	isEthAddress,
 	isZeroAddress,
 	toAddress
 } from '@lib/utils/tools.addresses';
+import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
 import {allowanceOf, approveERC20} from '@lib/utils/tools.erc20';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {defaultTxStatus} from '@lib/utils/tools.transactions';
-import {estimateGas, sendTransaction, switchChain, waitForTransactionReceipt} from '@wagmi/core';
+import {
+	estimateGas,
+	getBalance,
+	readContracts,
+	sendTransaction,
+	switchChain,
+	waitForTransactionReceipt
+} from '@wagmi/core';
 import {getLifiRoutes, getLifiStatus} from 'lib/utils/api.lifi';
+import {useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {createContext, useCallback, useContext, useMemo, useReducer, useRef, useState} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {toast} from 'react-hot-toast';
-import {zeroAddress} from 'viem';
+import {erc20Abi, zeroAddress} from 'viem';
 import {serialize, useAccount, useChainId, useConfig} from 'wagmi';
 
 import {useWallet} from '@smolContexts/useWallet';
@@ -25,13 +36,12 @@ import {SwapCurtain} from 'packages/smol/app/(apps)/swap/components/SettingsCurt
 import {SwapProgressToasts} from 'packages/smol/app/(apps)/swap/components/SwapProgressToasts';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
-import type {TOptionalRenderProps} from '@lib/utils/react/optionalRenderProps';
-import type {TAddress} from '@lib/utils/tools.addresses';
+import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {TTxStatus} from '@lib/utils/tools.transactions';
 import type {TUseBalancesTokens} from '@smolContexts/useBalances.multichains';
 import type {TLifiQuoteResponse, TLifiStatusResponse} from 'lib/utils/api.lifi';
-import type {TSwapActions, TSwapConfiguration, TSwapContext} from 'packages/smol/app/(apps)/swap/types';
+import type {TSwapContext} from 'packages/smol/app/(apps)/swap/types';
 import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';
@@ -42,102 +52,8 @@ type TLastSolverFetchData = {
 	inputAmount: string;
 	receiver: TAddress;
 	slippageTolerancePercentage: number;
-	order: TSwapConfiguration['order'];
+	order: 'RECOMMENDED' | 'SAFEST' | 'FASTEST' | 'CHEAPEST';
 	time: number;
-};
-
-export function getNewInputToken(): TTokenAmountInputElement {
-	return {
-		amount: '',
-		value: 0,
-		normalizedBigAmount: zeroNormalizedBN,
-		isValid: 'undetermined',
-		token: undefined,
-		status: 'none',
-		UUID: crypto.randomUUID()
-	};
-}
-
-const defaultProps: TSwapContext = {
-	configuration: {
-		receiver: defaultInputAddressLike,
-		input: getNewInputToken(),
-		output: getNewInputToken(),
-		slippageTolerance: 0.01,
-		order: 'RECOMMENDED'
-	},
-	estimatedTime: undefined,
-	isFetchingQuote: false,
-	isValid: false,
-	currentError: undefined,
-	retrieveExpectedOut: async (): Promise<void> => undefined,
-	dispatchConfiguration: (): void => undefined,
-	hasSolverAllowance: async (): Promise<boolean> => false,
-	approveSolverSpender: async (): Promise<boolean> => false,
-	performSolverSwap: async (): Promise<boolean> => false,
-	openSettingsCurtain: (): void => undefined
-};
-
-const swapReducer = (state: TSwapConfiguration, action: TSwapActions): TSwapConfiguration => {
-	switch (action.type) {
-		case 'SET_RECEIVER':
-			return {...state, receiver: {...state.receiver, ...action.payload}};
-		case 'SET_INPUT':
-			return {...state, input: action.payload ? action.payload : getNewInputToken()};
-		case 'SET_INPUT_VALUE':
-			if (state.input.token?.address === action.payload.token?.address) {
-				return {...state, input: {...state.input, ...action.payload}};
-			}
-			return {
-				...state,
-				input: {
-					...state.input,
-					...action.payload,
-					amount: !action.payload.amount
-						? action.payload.token?.balance.display || ''
-						: action.payload.amount,
-					normalizedBigAmount: !action.payload.normalizedBigAmount
-						? action.payload.token?.balance || zeroNormalizedBN
-						: action.payload.normalizedBigAmount,
-					value: action.payload.value || undefined
-				}
-			};
-		case 'SET_OUTPUT_VALUE':
-			return {...state, output: {...state.output, ...action.payload}};
-		case 'SET_SLIPPAGE':
-			return {...state, slippageTolerance: action.payload};
-		case 'SET_ORDER':
-			return {...state, order: action.payload};
-		case 'INVERSE_TOKENS':
-			return {
-				...state,
-				input: {
-					...state.output,
-					amount: state.output.token?.balance.display || '',
-					normalizedBigAmount: state.output.token?.balance || zeroNormalizedBN
-				},
-				output: {
-					...state.input,
-					amount: state.input.token?.balance.display || '',
-					normalizedBigAmount: state.input.token?.balance || zeroNormalizedBN
-				}
-			};
-		case 'RESET_INPUT':
-			return {
-				...state,
-				input: getNewInputToken(),
-				output: {
-					...state.output,
-					amount: '',
-					value: undefined,
-					normalizedBigAmount: zeroNormalizedBN
-				}
-			};
-		case 'RESET_OUTPUT':
-			return {...state, output: getNewInputToken()};
-		case 'RESET':
-			return defaultProps.configuration;
-	}
 };
 
 /**********************************************************************************************
@@ -155,102 +71,544 @@ let lastFetch: TLastSolverFetchData = {
 	order: 'SAFEST',
 	time: 0
 };
-function assertLastSolverFetch(senderAddress: TAddress, configuration: TSwapConfiguration): boolean {
-	if (!configuration.input.token || !configuration.output.token || !senderAddress) {
+
+/**********************************************************************************************
+ ** assertLastSolverFetch checks if a new quote should be fetched based on:
+ ** 1. The validity of input parameters (tokens and sender address)
+ ** 2. Changes in any swap parameters (tokens, amounts, receiver, slippage, order)
+ ** 3. Time elapsed since last fetch (minimum 60 seconds between identical requests)
+ ** Returns true if a new quote should be fetched, false otherwise.
+ *********************************************************************************************/
+function assertLastSolverFetch(
+	senderAddress: TAddress,
+	input: TTokenAmountInputElement,
+	output: TTokenAmountInputElement,
+	receiver: TInputAddressLike,
+	slippageTolerance: number,
+	order: 'RECOMMENDED' | 'SAFEST' | 'FASTEST' | 'CHEAPEST'
+): boolean {
+	if (!input.token || !output.token || !senderAddress) {
 		return false;
 	}
 
-	const receiver = isZeroAddress(configuration.receiver.address)
-		? toAddress(senderAddress)
-		: toAddress(configuration.receiver.address);
+	const receiverAddress = isZeroAddress(receiver.address) ? toAddress(senderAddress) : toAddress(receiver.address);
 
 	if (
 		lastFetch &&
-		toAddress(lastFetch.receiver) === receiver &&
-		lastFetch.inputToken === configuration.input.token.address &&
-		lastFetch.outputToken === configuration.output.token.address &&
-		lastFetch.inputAmount === configuration.input.normalizedBigAmount.display &&
-		lastFetch.slippageTolerancePercentage === configuration.slippageTolerance &&
-		lastFetch.order === configuration.order &&
+		toAddress(lastFetch.receiver) === receiverAddress &&
+		lastFetch.inputToken === input.token.address &&
+		lastFetch.outputToken === output.token.address &&
+		lastFetch.inputAmount === input.normalizedBigAmount.display &&
+		lastFetch.slippageTolerancePercentage === slippageTolerance &&
+		lastFetch.order === order &&
 		Date.now() - lastFetch.time < 60000
 	) {
 		return false;
 	}
 
 	lastFetch = {
-		receiver: receiver,
-		inputToken: configuration.input.token.address,
-		outputToken: configuration.output.token.address,
-		inputAmount: configuration.input.normalizedBigAmount.display,
-		slippageTolerancePercentage: configuration.slippageTolerance,
-		order: configuration.order,
+		receiver: receiverAddress,
+		inputToken: input.token.address,
+		outputToken: output.token.address,
+		inputAmount: input.normalizedBigAmount.display,
+		slippageTolerancePercentage: slippageTolerance,
+		order: order,
 		time: Date.now()
 	};
 	return true;
 }
 
+/**********************************************************************************************
+ ** getNewInputToken creates a new empty token input state with default values.
+ ** This is used when initializing or resetting token input/output fields.
+ ** Returns a TTokenAmountInputElement with:
+ ** - Empty amount and value
+ ** - Zero normalized amount
+ ** - Undetermined validity
+ ** - No token selected
+ ** - Default status
+ ** - Unique UUID
+ *********************************************************************************************/
+export function getNewInputToken(): TTokenAmountInputElement {
+	return {
+		amount: '',
+		value: 0,
+		normalizedBigAmount: zeroNormalizedBN,
+		isValid: 'undetermined',
+		token: undefined,
+		status: 'none',
+		UUID: crypto.randomUUID()
+	};
+}
+
+const defaultProps: TSwapContext = {
+	receiver: defaultInputAddressLike,
+	input: getNewInputToken(),
+	output: getNewInputToken(),
+	slippageTolerance: 0.01,
+	order: 'RECOMMENDED',
+	estimatedTime: undefined,
+	isFetchingQuote: false,
+	isValid: false,
+	currentError: undefined,
+	retrieveExpectedOut: async (): Promise<void> => undefined,
+	setReceiver: () => undefined,
+	setInput: () => undefined,
+	setOutput: () => undefined,
+	setSlippageTolerance: () => undefined,
+	setOrder: () => undefined,
+	inverseTokens: () => undefined,
+	resetInput: () => undefined,
+	resetOutput: () => undefined,
+	reset: () => undefined,
+	hasSolverAllowance: async (): Promise<boolean> => false,
+	approveSolverSpender: async (): Promise<boolean> => false,
+	performSolverSwap: async (): Promise<boolean> => false,
+	openSettingsCurtain: (): void => undefined
+};
+
 const SwapContext = createContext<TSwapContext>(defaultProps);
-export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapContext, ReactElement>}): ReactElement => {
+/**********************************************************************************************
+ ** SwapContextApp is the main provider component for the swap functionality.
+ ** It manages:
+ ** 1. Token selection and amounts for input/output
+ ** 2. Swap settings (slippage, order preference)
+ ** 3. Quote fetching and processing
+ ** 4. Transaction execution and monitoring
+ ** 5. Balance updates and UI state
+ *********************************************************************************************/
+export const SwapContextApp = (props: {children: ReactElement}): ReactElement => {
 	const plausible = usePlausible();
 	const config = useConfig();
 	const chainID = useChainId();
 	const {address, connector} = useAccount();
 	const {onRefresh} = useWallet();
-	const [configuration, dispatch] = useReducer(swapReducer, defaultProps.configuration);
+	const searchParams = useSearchParams();
+
+	// State management
+	const [receiver, setReceiver] = useState<TInputAddressLike>(defaultProps.receiver);
+	const [input, setInput] = useState<TTokenAmountInputElement>(getNewInputToken());
+	const [output, setOutput] = useState<TTokenAmountInputElement>(getNewInputToken());
+	const [slippageTolerance, setSlippageTolerance] = useState<number>(defaultProps.slippageTolerance);
+	const [order, setOrder] = useState<'RECOMMENDED' | 'SAFEST' | 'FASTEST' | 'CHEAPEST'>('RECOMMENDED');
 	const [isFetchingQuote, setIsFetchingQuote] = useState<boolean>(false);
 	const [currentTxRequest, setCurrentTxRequest] = useState<TLifiQuoteResponse | undefined>(undefined);
 	const [currentError, setCurrentError] = useState<string | undefined>(undefined);
 	const [shouldOpenCurtain, setShouldOpenCurtain] = useState(false);
+	const [isPopulatingInput, setIsPopulatingInput] = useState(false);
+	const [hasPopulatedInput, setHasPopulatedInput] = useState(false);
+	const [isPopulatingOutput, setIsPopulatingOutput] = useState(false);
+	const [hasPopulatedOutput, setHasPopulatedOutput] = useState(false);
 	const quoteAbortController = useRef<AbortController>(new AbortController());
 
+	const populateInputArgs = useCallback(async () => {
+		if (
+			!searchParams?.has('tokenFrom') ||
+			!searchParams?.has('chainFrom') ||
+			hasPopulatedInput ||
+			isPopulatingInput
+		) {
+			return;
+		}
+		setIsPopulatingInput(true);
+		const tokenFrom = toAddress(searchParams.get('tokenFrom'));
+		const chainFrom = NoNaN(Number(searchParams.get('chainFrom')));
+		if (chainFrom > 0 && isAddress(tokenFrom)) {
+			if (isEthAddress(tokenFrom)) {
+				const balance = await getBalance(config, {address: toAddress(address), chainId: chainFrom});
+				const network = config.chains.find(chain => chain.id === chainFrom);
+				const nativeCoin = network?.nativeCurrency;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenFrom),
+					chainID: chainFrom,
+					symbol: nativeCoin?.symbol || '',
+					decimals: nativeCoin?.decimals || 0,
+					name: nativeCoin?.symbol || '',
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainFrom}/${tokenFrom}/logo-128.png`,
+					value: 0,
+					balance: toNormalizedBN(balance.value, nativeCoin?.decimals || 0)
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				setInput(newToken);
+			} else {
+				const from = {abi: erc20Abi, address: toAddress(tokenFrom), chainId: chainFrom};
+				const calls = [
+					{...from, functionName: 'symbol'},
+					{...from, functionName: 'decimals'},
+					{...from, functionName: 'balanceOf', args: [address]}
+				];
+
+				/******************************************************************************************
+				 ** Once we have a valid result, we just need to update the configuration with the new
+				 ** token information, mimicking the user input.
+				 *****************************************************************************************/
+				const result = await readContracts(config, {contracts: calls});
+				const [symbol, decimals, balance] = result;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenFrom),
+					chainID: chainFrom,
+					symbol: decodeAsString(symbol),
+					decimals: decodeAsNumber(decimals),
+					name: decodeAsString(symbol),
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainFrom}/${tokenFrom}/logo-128.png`,
+					value: 0,
+					balance: toNormalizedBN(decodeAsBigInt(balance), decodeAsNumber(decimals))
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				setInput(newToken);
+			}
+		}
+		setIsPopulatingInput(false);
+		setHasPopulatedInput(true);
+	}, [searchParams, hasPopulatedInput, isPopulatingInput, config, address]);
+
+	const populateOutputArgs = useCallback(async () => {
+		if (
+			!searchParams?.has('tokenTo') ||
+			!searchParams?.has('chainTo') ||
+			hasPopulatedOutput ||
+			isPopulatingOutput
+		) {
+			return;
+		}
+		setIsPopulatingOutput(true);
+		const tokenTo = toAddress(searchParams.get('tokenTo'));
+		const chainTo = NoNaN(Number(searchParams.get('chainTo')));
+		if (chainTo > 0 && isAddress(tokenTo)) {
+			if (isEthAddress(tokenTo)) {
+				const network = config.chains.find(chain => chain.id === chainTo);
+				const nativeCoin = network?.nativeCurrency;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenTo),
+					chainID: chainTo,
+					symbol: nativeCoin?.symbol || '',
+					decimals: nativeCoin?.decimals || 0,
+					name: nativeCoin?.symbol || '',
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainTo}/${tokenTo}/logo-128.png`,
+					value: 0,
+					balance: zeroNormalizedBN
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				setOutput(newToken);
+			} else {
+				const from = {abi: erc20Abi, address: toAddress(tokenTo), chainId: chainTo};
+				const calls = [
+					{...from, functionName: 'symbol'},
+					{...from, functionName: 'decimals'}
+				];
+
+				/******************************************************************************************
+				 ** Once we have a valid result, we just need to update the configuration with the new
+				 ** token information, mimicking the user input.
+				 *****************************************************************************************/
+				const result = await readContracts(config, {contracts: calls});
+				const [symbol, decimals] = result;
+				const newToken = getNewInputToken();
+				newToken.token = {
+					address: toAddress(tokenTo),
+					chainID: chainTo,
+					symbol: decodeAsString(symbol),
+					decimals: decodeAsNumber(decimals),
+					name: decodeAsString(symbol),
+					logoURI: `${process.env.SMOL_ASSETS_URL}/tokens/${chainTo}/${tokenTo}/logo-128.png`,
+					value: 0,
+					balance: zeroNormalizedBN
+				};
+				newToken.amount = newToken.token.balance.display;
+				newToken.normalizedBigAmount = newToken.token.balance;
+				setOutput(newToken);
+			}
+		}
+		setIsPopulatingOutput(false);
+		setHasPopulatedOutput(true);
+	}, [searchParams, hasPopulatedOutput, isPopulatingOutput, config]);
+
 	/**********************************************************************************************
-	 ** The getPlausibleProps function will return the plausible properties for the current swap.
-	 ** This is used to send events to Plausible in a consistent way.
+	 ** setReceiverValue updates the receiver address while preserving other receiver properties
+	 ** Used when changing the destination address for the swap
+	 *********************************************************************************************/
+	const setReceiverValue = useCallback((newReceiver: typeof defaultProps.receiver) => {
+		setReceiver(prev => ({...prev, ...newReceiver}));
+	}, []);
+
+	/**********************************************************************************************
+	 ** setInputValue handles updates to the input token and amount
+	 ** It manages:
+	 ** 1. Token selection changes
+	 ** 2. Amount updates
+	 ** 3. Balance synchronization
+	 ** 4. Value calculations
+	 *********************************************************************************************/
+	const setInputValue = useCallback((newInput: Partial<TTokenAmountInputElement> | undefined) => {
+		if (!newInput) {
+			setInput(getNewInputToken());
+			return;
+		}
+
+		setInput(prev => {
+			if (prev.token?.address === newInput.token?.address) {
+				return {...prev, ...newInput};
+			}
+			return {
+				...prev,
+				...newInput,
+				amount: !newInput.amount ? newInput.token?.balance.display || '' : newInput.amount,
+				normalizedBigAmount: !newInput.normalizedBigAmount
+					? newInput.token?.balance || zeroNormalizedBN
+					: newInput.normalizedBigAmount,
+				value: newInput.value || undefined
+			};
+		});
+	}, []);
+
+	/**********************************************************************************************
+	 ** setOutputValue handles updates to the output token and amount
+	 ** Similar to setInputValue but for the output side of the swap
+	 *********************************************************************************************/
+	const setOutputValue = useCallback((newOutput: Partial<TTokenAmountInputElement> | undefined) => {
+		if (!newOutput) {
+			setOutput(getNewInputToken());
+			return;
+		}
+		setOutput(prev => ({...prev, ...newOutput}));
+	}, []);
+
+	/**********************************************************************************************
+	 ** getPlausibleProps prepares analytics data for tracking swap events
+	 ** Includes:
+	 ** - Chain IDs and token symbols
+	 ** - Amounts and values
+	 ** - Swap settings
+	 ** - Cross-chain status
+	 ** - Transaction details
 	 *********************************************************************************************/
 	const getPlausibleProps = useCallback(
 		(args: {out: TNormalizedBN; estimate?: TLifiQuoteResponse['estimate']; txHash?: Hex}) => {
 			return {
-				inputChainID: configuration.input.token?.chainID,
-				inputAmount: configuration.input.normalizedBigAmount.display,
-				inputToken: configuration.input.token?.symbol,
-				outputChainID: configuration.output.token?.chainID,
-				outputToken: configuration.output.token?.symbol,
+				inputChainID: input.token?.chainID,
+				inputAmount: input.normalizedBigAmount.display,
+				inputToken: input.token?.symbol,
+				outputChainID: output.token?.chainID,
+				outputToken: output.token?.symbol,
 				outputAmount: args.out.display,
-				slippage: configuration.slippageTolerance,
-				order: configuration.order,
-				isBridging: configuration.input.token?.chainID !== configuration.output.token?.chainID,
+				slippage: slippageTolerance,
+				order: order,
+				isBridging: input.token?.chainID !== output.token?.chainID,
 				estimate: args.estimate,
 				txHash: args.txHash
 			};
 		},
 		[
-			configuration.input.normalizedBigAmount.display,
-			configuration.input.token?.chainID,
-			configuration.input.token?.symbol,
-			configuration.order,
-			configuration.output.token?.chainID,
-			configuration.output.token?.symbol,
-			configuration.slippageTolerance
+			input.normalizedBigAmount.display,
+			input.token?.chainID,
+			input.token?.symbol,
+			order,
+			output.token?.chainID,
+			output.token?.symbol,
+			slippageTolerance
 		]
 	);
 
 	/**********************************************************************************************
-	 ** The resetState function will reset the state of the context. It will set the fetching state
-	 ** to false, the current transaction request to undefined, the current error to undefined, and
-	 ** it will reset the configuration to its default values.
-	 ** This is mainly used after a successful swap.
+	 ** handleQuoteResponse processes the quote from the API and updates the UI
+	 ** It:
+	 ** 1. Validates the quote matches the current request
+	 ** 2. Updates loading and error states
+	 ** 3. Calculates and sets output amounts
+	 ** 4. Updates token values
+	 ** 5. Tracks analytics
 	 *********************************************************************************************/
-	const resetState = useCallback((): void => {
-		setIsFetchingQuote(false);
-		setCurrentTxRequest(undefined);
-		setCurrentError(undefined);
-		dispatch({type: 'RESET', payload: undefined});
+	const handleQuoteResponse = useCallback(
+		(result: TLifiQuoteResponse, expectedIdentifier: string): void => {
+			const decimals = output.token?.decimals || 18;
+			const out = toNormalizedBN(toBigInt(result.estimate.toAmount), decimals);
+			if (currentIdentifier !== expectedIdentifier) {
+				return;
+			}
+			setIsFetchingQuote(false);
+			setCurrentTxRequest(result);
+			setCurrentError(undefined);
+			plausible(PLAUSIBLE_EVENTS.SWAP_GET_QUOTE, {props: getPlausibleProps({out, estimate: result.estimate})});
+
+			setOutputValue({
+				...output,
+				amount: out.display,
+				value: Number(result.estimate.toAmountUSD),
+				normalizedBigAmount: out,
+				isValid: true,
+				error: undefined
+			});
+
+			setInputValue({
+				...input,
+				value: Number(result.estimate.fromAmountUSD)
+			});
+		},
+		[input, output, getPlausibleProps, plausible, setInputValue, setOutputValue]
+	);
+
+	/**********************************************************************************************
+	 ** inverseTokens swaps the input and output tokens
+	 ** Maintains token balances and amounts during the swap
+	 *********************************************************************************************/
+	const inverseTokens = useCallback(() => {
+		const newInput = {
+			...output,
+			amount: output.token?.balance.display || '',
+			normalizedBigAmount: output.token?.balance || zeroNormalizedBN
+		};
+		const newOutput = {
+			...input,
+			amount: input.token?.balance.display || '',
+			normalizedBigAmount: input.token?.balance || zeroNormalizedBN
+		};
+		setInput(newInput);
+		setOutput(newOutput);
+	}, [input, output]);
+
+	/**********************************************************************************************
+	 ** resetInput clears the input token selection and related output values
+	 *********************************************************************************************/
+	const resetInput = useCallback(() => {
+		setInput(getNewInputToken());
+		setOutput(prev => ({
+			...prev,
+			amount: '',
+			value: undefined,
+			normalizedBigAmount: zeroNormalizedBN
+		}));
 	}, []);
 
 	/**********************************************************************************************
-	 ** onRefreshSolverBalances will refresh the balances of the input and output tokens. It will
-	 ** also refresh the balance of the native token of the input token chain.
-	 ** This is triggered after a successful swap.
+	 ** resetOutput clears only the output token selection
+	 *********************************************************************************************/
+	const resetOutput = useCallback(() => {
+		setOutput(getNewInputToken());
+	}, []);
+
+	/**********************************************************************************************
+	 ** resetState resets the entire swap interface to its initial state
+	 ** Clears:
+	 ** 1. Token selections and amounts
+	 ** 2. Quote data and errors
+	 ** 3. Settings to defaults
+	 *********************************************************************************************/
+	const resetState = useCallback(() => {
+		setIsFetchingQuote(false);
+		setCurrentTxRequest(undefined);
+		setCurrentError(undefined);
+		setReceiver(defaultProps.receiver);
+		setInput(getNewInputToken());
+		setOutput(getNewInputToken());
+		setSlippageTolerance(defaultProps.slippageTolerance);
+		setOrder(defaultProps.order);
+	}, []);
+
+	/**********************************************************************************************
+	 ** retrieveExpectedOut fetches a quote from the API when swap parameters change
+	 ** Manages:
+	 ** 1. Input validation
+	 ** 2. Request throttling
+	 ** 3. Quote fetching
+	 ** 4. Error handling
+	 ** 5. State updates
+	 *********************************************************************************************/
+	const retrieveExpectedOut = useAsyncTriggerWithArgs(
+		async (force = false): Promise<void> => {
+			const hasValidInValue = input.normalizedBigAmount.raw > 0n;
+			const hasValidIn = Boolean(input.token && !isZeroAddress(input.token.address));
+			const hasValidOut = Boolean(output.token && !isZeroAddress(output.token.address));
+
+			if (hasValidIn && hasValidOut && hasValidInValue) {
+				if (
+					!assertLastSolverFetch(toAddress(address), input, output, receiver, slippageTolerance, order) &&
+					!force
+				) {
+					return;
+				}
+				if (quoteAbortController.current) {
+					quoteAbortController.current.abort();
+					if (quoteAbortController.current.signal.aborted) {
+						quoteAbortController.current = new AbortController();
+					}
+				}
+
+				const serialized = serialize({input, output, receiver, slippageTolerance, order});
+				const identifier = createUniqueID(serialized);
+				currentIdentifier = identifier;
+
+				setCurrentError(undefined);
+				setIsFetchingQuote(true);
+				setOutputValue({
+					...output,
+					amount: undefined,
+					value: 0,
+					normalizedBigAmount: zeroNormalizedBN,
+					isValid: false,
+					error: undefined
+				});
+				setInputValue({
+					...input,
+					value: undefined
+				});
+
+				setCurrentTxRequest(undefined);
+				const {result, error} = await getLifiRoutes({
+					fromAddress: toAddress(address),
+					toAddress: isZeroAddress(receiver.address) ? toAddress(address) : toAddress(receiver.address),
+					fromAmount: toBigInt(input.normalizedBigAmount.raw).toString(),
+					fromChainID: input.token?.chainID || -1,
+					fromTokenAddress: toAddress(input.token?.address),
+					toChainID: output.token?.chainID || -1,
+					toTokenAddress: toAddress(output.token?.address),
+					slippage: slippageTolerance,
+					order: order,
+					abortController: quoteAbortController.current
+				});
+
+				if (result) {
+					handleQuoteResponse(result, identifier);
+				}
+				if (error) {
+					/**********************************************************************************
+					 ** If the error is 'canceled', this probably means that the user requested a new
+					 ** quote before the previous one was finished. In this case, we should ignore the
+					 ** error and the result as a new one will arrive soon.
+					 *********************************************************************************/
+					if (error === 'canceled') {
+						if (identifier !== currentIdentifier) {
+							return;
+						}
+					}
+					setCurrentError(error);
+					setIsFetchingQuote(false);
+				}
+			}
+		},
+		[address, handleQuoteResponse, setInputValue, setOutputValue]
+	);
+
+	/**********************************************************************************************
+	 ** onOpenSettingsCurtain handles the display of swap settings
+	 ** Tracks the event in analytics
+	 *********************************************************************************************/
+	const onOpenSettingsCurtain = useCallback((): void => {
+		setShouldOpenCurtain(true);
+		plausible(PLAUSIBLE_EVENTS.OPEN_SWAP_SETTINGS_CURTAIN);
+	}, [plausible]);
+
+	/**********************************************************************************************
+	 ** onRefreshSolverBalances updates token balances after a successful swap
+	 ** Refreshes:
+	 ** 1. Native token balance
+	 ** 2. Input token balance
+	 ** 3. Output token balance
 	 *********************************************************************************************/
 	const onRefreshSolverBalances = useCallback(
 		async (
@@ -285,130 +643,15 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	);
 
 	/**********************************************************************************************
-	 ** retrieveExpectedOut will get the expected output amount and value from the Portals API. It
-	 ** will check if the input token, output token, and input amount are valid. If they are, it
-	 ** will get the expected output amount and value from the API.
-	 *********************************************************************************************/
-	const handleQuoteResponse = useCallback(
-		(result: TLifiQuoteResponse, expectedIdentifier: string): void => {
-			const decimals = configuration.output.token?.decimals || 18;
-			const out = toNormalizedBN(toBigInt(result.estimate.toAmount), decimals);
-			if (currentIdentifier !== expectedIdentifier) {
-				return;
-			}
-			setIsFetchingQuote(false);
-			setCurrentTxRequest(result);
-			setCurrentError(undefined);
-			plausible(PLAUSIBLE_EVENTS.SWAP_GET_QUOTE, {props: getPlausibleProps({out, estimate: result.estimate})});
-			dispatch({
-				type: 'SET_OUTPUT_VALUE',
-				payload: {
-					...configuration.output,
-					amount: out.display,
-					value: Number(result.estimate.toAmountUSD),
-					normalizedBigAmount: out,
-					isValid: true,
-					error: undefined
-				}
-			});
-			dispatch({
-				type: 'SET_INPUT_VALUE',
-				payload: {
-					...configuration.input,
-					value: Number(result.estimate.fromAmountUSD)
-				}
-			});
-		},
-		[configuration.input, configuration.output, getPlausibleProps, plausible]
-	);
-	const retrieveExpectedOut = useAsyncTriggerWithArgs(
-		async (force = false): Promise<void> => {
-			const hasValidInValue = configuration.input.normalizedBigAmount.raw > 0n;
-			const hasValidIn = Boolean(configuration.input.token && !isZeroAddress(configuration.input.token.address));
-			const hasValidOut = Boolean(
-				configuration.output.token && !isZeroAddress(configuration.output.token.address)
-			);
-
-			if (hasValidIn && hasValidOut && hasValidInValue) {
-				if (!assertLastSolverFetch(toAddress(address), configuration) && !force) {
-					return;
-				}
-				if (quoteAbortController.current) {
-					quoteAbortController.current.abort();
-					if (quoteAbortController.current.signal.aborted) {
-						quoteAbortController.current = new AbortController();
-					}
-				}
-
-				const identifier = createUniqueID(serialize(configuration));
-				currentIdentifier = identifier;
-
-				setCurrentError(undefined);
-				setIsFetchingQuote(true);
-				dispatch({
-					type: 'SET_INPUT_VALUE',
-					payload: {...configuration.input, value: undefined}
-				});
-				dispatch({
-					type: 'SET_OUTPUT_VALUE',
-					payload: {
-						...configuration.output,
-						amount: undefined,
-						value: 0,
-						normalizedBigAmount: zeroNormalizedBN,
-						isValid: false,
-						error: undefined
-					}
-				});
-
-				setCurrentTxRequest(undefined);
-				const {result, error} = await getLifiRoutes({
-					fromAddress: toAddress(address),
-					toAddress: isZeroAddress(configuration.receiver.address)
-						? toAddress(address)
-						: toAddress(configuration.receiver.address),
-					fromAmount: toBigInt(configuration.input.normalizedBigAmount.raw).toString(),
-					fromChainID: configuration.input.token?.chainID || -1,
-					fromTokenAddress: toAddress(configuration.input.token?.address),
-					toChainID: configuration.output.token?.chainID || -1,
-					toTokenAddress: toAddress(configuration.output.token?.address),
-					slippage: configuration.slippageTolerance,
-					order: configuration.order,
-					abortController: quoteAbortController.current
-				});
-
-				if (result) {
-					handleQuoteResponse(result, identifier);
-				}
-				if (error) {
-					/**********************************************************************************
-					 ** If the error is 'canceled', this probably means that the user requested a new
-					 ** quote before the previous one was finished. In this case, we should ignore the
-					 ** error and the result as a new one will arrive soon.
-					 *********************************************************************************/
-					if (error === 'canceled') {
-						if (identifier !== currentIdentifier) {
-							return;
-						}
-					}
-					setCurrentError(error);
-					setIsFetchingQuote(false);
-				}
-			}
-		},
-		[address, configuration, handleQuoteResponse]
-	);
-
-	/**********************************************************************************************
-	 ** canProceedWithAllowanceFlow checks if the user can proceed with the allowance flow. It will
-	 ** check if the current transaction request, input token, and output token are valid. It will
-	 ** also check if the input amount is greater than 0 and if the input token is not an ETH token
-	 ** or the zero address.
-	 ** If all these conditions are met, it will return true meaning we can either retrieve the
-	 ** allowance or proceed allowance request.
+	 ** canProceedWithAllowanceFlow checks if token approval is needed
+	 ** Validates:
+	 ** 1. Transaction request existence
+	 ** 2. Token validity
+	 ** 3. Amount > 0
+	 ** 4. Token type (excludes ETH and zero address)
 	 *********************************************************************************************/
 	const canProceedWithAllowanceFlow = useMemo((): boolean => {
-		if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
+		if (!currentTxRequest || !input.token || !output.token) {
 			return false;
 		}
 
@@ -421,12 +664,14 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			return false;
 		}
 		return true;
-	}, [configuration.input.token, configuration.output.token, currentTxRequest]);
+	}, [input.token, output.token, currentTxRequest]);
 
 	/**********************************************************************************************
-	 ** hasSolverAllowance checks if the user has enough allowance to perform the swap. It will
-	 ** check the allowance of the input token to the contract that will perform the swap, contract
-	 ** which is provided by the Portals API.
+	 ** hasSolverAllowance checks if the spender has sufficient allowance
+	 ** For:
+	 ** 1. ERC20 tokens: Checks allowance against required amount
+	 ** 2. ETH: Returns true (no approval needed)
+	 ** 3. Invalid states: Returns false
 	 *********************************************************************************************/
 	const hasSolverAllowance = useCallback(async (): Promise<boolean> => {
 		if (!currentTxRequest || !canProceedWithAllowanceFlow) {
@@ -445,9 +690,12 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	}, [canProceedWithAllowanceFlow, currentTxRequest, config, address]);
 
 	/**********************************************************************************************
-	 ** approveSolverSpender will approve the contract that will perform the swap to spend the
-	 ** input token. It will use the Portals API to get the contract address and the amount to
-	 ** approve.
+	 ** approveSolverSpender handles the token approval transaction
+	 ** Manages:
+	 ** 1. Validation checks
+	 ** 2. Approval transaction
+	 ** 3. Success notification
+	 ** 4. Status updates
 	 *********************************************************************************************/
 	const approveSolverSpender = useCallback(
 		async (statusHandler: Dispatch<SetStateAction<TTxStatus>>): Promise<boolean> => {
@@ -472,14 +720,18 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	);
 
 	/**********************************************************************************************
-	 ** performSolverSwap will perform the swap using the Portals API. It will get the transaction
-	 ** data from the API and send the transaction. It will also wait for the transaction to be
-	 ** mined and check if the transaction was successful.
-	 ** Once this is done, it will refresh the balances of the input and output tokens.
+	 ** performSolverSwap executes the swap transaction
+	 ** Handles:
+	 ** 1. Chain switching if needed
+	 ** 2. Transaction sending and monitoring
+	 ** 3. Cross-chain swap status tracking
+	 ** 4. Balance updates
+	 ** 5. Success/error notifications
+	 ** 6. Analytics tracking
 	 *********************************************************************************************/
 	const performSolverSwap = useCallback(
 		async (statusHandler: Dispatch<SetStateAction<TTxStatus & {data?: TLifiStatusResponse}>>): Promise<boolean> => {
-			if (!currentTxRequest || !configuration.input.token || !configuration.output.token) {
+			if (!currentTxRequest || !input.token || !output.token) {
 				return false;
 			}
 			statusHandler({...defaultTxStatus, pending: true});
@@ -540,7 +792,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				 ** send the event.
 				 *********************************************************************************/
 				plausible(PLAUSIBLE_EVENTS.SWAP_EXECUTED, {
-					props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
+					props: getPlausibleProps({out: output.normalizedBigAmount, txHash})
 				});
 				const receipt = await waitForTransactionReceipt(config, {
 					chainId: currentTxRequest.transactionRequest.chainId,
@@ -602,10 +854,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 				} while (result.status !== 'DONE' && result.status !== 'FAILED');
 
 				toast.dismiss(toastID);
-				await onRefreshSolverBalances(configuration.input.token, configuration.output.token);
+				await onRefreshSolverBalances(input.token, output.token);
 				if (result.status === 'DONE') {
 					plausible(PLAUSIBLE_EVENTS.SWAP_CONFIRMED, {
-						props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
+						props: getPlausibleProps({out: output.normalizedBigAmount, txHash})
 					});
 					toast.custom(
 						t => (
@@ -642,7 +894,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 					resetState();
 				} else {
 					plausible(PLAUSIBLE_EVENTS.SWAP_REVERTED, {
-						props: getPlausibleProps({out: configuration.output.normalizedBigAmount, txHash})
+						props: getPlausibleProps({out: output.normalizedBigAmount, txHash})
 					});
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Transaction failed'});
 				}
@@ -659,9 +911,9 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			}
 		},
 		[
-			configuration.input.token,
-			configuration.output.normalizedBigAmount,
-			configuration.output.token,
+			input.token,
+			output.normalizedBigAmount,
+			output.token,
 			currentTxRequest,
 			getPlausibleProps,
 			onRefreshSolverBalances,
@@ -672,25 +924,32 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 		]
 	);
 
-	/**********************************************************************************************
-	 ** onOpenSettingsCurtain will open the settings curtain. This is used to show the user the
-	 ** settings of the swap.
-	 *********************************************************************************************/
-	const onOpenSettingsCurtain = useCallback((): void => {
-		setShouldOpenCurtain(true);
-		plausible(PLAUSIBLE_EVENTS.OPEN_SWAP_SETTINGS_CURTAIN);
-	}, [plausible]);
+	useEffect(() => {
+		const populate = async (): Promise<void> => {
+			await populateInputArgs();
+			await populateOutputArgs();
+		};
+		if (address) {
+			populate();
+		}
+	}, [populateInputArgs, populateOutputArgs, address]);
 
-	/**********************************************************************************************
-	 ** The context value is the value that will be provided to the children of the SwapContext.
-	 ** It contains the configuration, the dispatch function, the current error, the fetching state,
-	 ** the validity of the configuration, and the functions to check the allowance, retrieve the
-	 ** expected output, approve the spender, and perform the swap.
-	 *********************************************************************************************/
 	const contextValue = useMemo(
 		(): TSwapContext => ({
-			configuration,
-			dispatchConfiguration: dispatch,
+			input,
+			output,
+			receiver,
+			slippageTolerance,
+			order,
+			setReceiver: setReceiverValue,
+			setInput: setInputValue,
+			setOutput: setOutputValue,
+			setSlippageTolerance,
+			setOrder,
+			inverseTokens,
+			resetInput,
+			resetOutput,
+			reset: resetState,
 			currentError,
 			isFetchingQuote,
 			isValid: Boolean(currentTxRequest !== undefined && address && !currentError),
@@ -702,7 +961,20 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 			openSettingsCurtain: onOpenSettingsCurtain
 		}),
 		[
-			configuration,
+			input,
+			output,
+			receiver,
+			slippageTolerance,
+			order,
+			setReceiverValue,
+			setInputValue,
+			setOutputValue,
+			setSlippageTolerance,
+			setOrder,
+			inverseTokens,
+			resetInput,
+			resetOutput,
+			resetState,
 			currentError,
 			isFetchingQuote,
 			currentTxRequest,
@@ -717,7 +989,7 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 
 	return (
 		<SwapContext.Provider value={contextValue}>
-			{optionalRenderProps(props.children, contextValue)}
+			{props.children}
 			<SwapCurtain
 				isOpen={shouldOpenCurtain}
 				onOpenChange={setShouldOpenCurtain}
@@ -726,6 +998,10 @@ export const SwapContextApp = (props: {children: TOptionalRenderProps<TSwapConte
 	);
 };
 
+/**********************************************************************************************
+ ** useSwapFlow is a custom hook that provides access to the swap context
+ ** Throws an error if used outside of SwapContext.Provider
+ *********************************************************************************************/
 export const useSwapFlow = (): TSwapContext => {
 	const ctx = useContext(SwapContext);
 	if (!ctx) {

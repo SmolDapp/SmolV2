@@ -36,4 +36,14 @@
     - Documented state management and reset functionality
     - Added detailed comments for effect hooks and memoization
 
+### Changed
+
+- Refactored `useSwapFlow.lifi.tsx` to use state management instead of reducer
+    - Replaced reducer with individual state variables and their setters
+    - Improved code organization and readability
+    - Maintained same functionality with cleaner state management approach
+    - Added proper TypeScript types for state management
+    - Improved error handling and state updates
+    - Better separation of concerns between state management and business logic
+
 // ... existing code ...

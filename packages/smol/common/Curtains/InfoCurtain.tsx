@@ -1,5 +1,5 @@
 import {IconCross} from '@lib/icons/IconCross';
-import {CurtainContent} from '@lib/primitives/Curtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import * as Dialog from '@radix-ui/react-dialog';
 import {usePathname} from 'next/navigation';
@@ -43,7 +43,7 @@ export function InfoCurtain(props: TCurtainElement): ReactElement {
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
 					className={'bg-neutral-0 flex h-full flex-col p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
-						<h3 className={'font-bold'}>{'Info'}</h3>
+						<CurtainTitle className={'font-bold'}>{'Info'}</CurtainTitle>
 						<CloseCurtainButton />
 					</div>
 					<div className={'scrollable !-mr-4 !pr-3 text-neutral-600'}>{props.info}</div>

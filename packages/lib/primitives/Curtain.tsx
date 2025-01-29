@@ -1,10 +1,10 @@
 'use client';
 
-import {Content} from '@radix-ui/react-dialog';
+import {Content, Title} from '@radix-ui/react-dialog';
 
 import {cl} from '@lib/utils/helpers';
 
-import type {DialogContentProps} from '@radix-ui/react-dialog';
+import type {DialogContentProps, DialogTitleProps} from '@radix-ui/react-dialog';
 import type {ReactElement} from 'react';
 
 export const CurtainContent = (props: DialogContentProps): ReactElement => {
@@ -30,5 +30,16 @@ export const CurtainContent = (props: DialogContentProps): ReactElement => {
 				{children}
 			</Content>
 		</>
+	);
+};
+
+export const CurtainTitle = (props: DialogTitleProps): ReactElement => {
+	const {className, children, ...rest} = props;
+	return (
+		<Title
+			{...rest}
+			className={cl(className)}>
+			{children}
+		</Title>
 	);
 };
