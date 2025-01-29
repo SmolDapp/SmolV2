@@ -23,7 +23,7 @@ export function ConnectButton(): ReactElement {
 			<div className={'w-full max-w-72'}>
 				<button
 					onClick={openLoginModal}
-					className={'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'}>
+					className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
 					{'Connect Wallet'}
 				</button>
 			</div>

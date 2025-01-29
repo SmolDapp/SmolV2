@@ -1,3 +1,5 @@
+'use client';
+
 import {Button} from '@lib/primitives/Button';
 import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, toNormalizedValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';

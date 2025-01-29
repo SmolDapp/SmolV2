@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import formidable from 'formidable';
 import {Input, Telegram} from 'telegraf';
 

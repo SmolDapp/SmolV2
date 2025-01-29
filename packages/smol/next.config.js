@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+const {withPlausibleProxy} = require('next-plausible');
 const withPWA = require('next-pwa')({
 	dest: 'public',
 	disable: process.env.NODE_ENV !== 'production'
 });
-const {withPlausibleProxy} = require('next-plausible');
 
 module.exports = withPlausibleProxy({
 	scriptName: 'script',

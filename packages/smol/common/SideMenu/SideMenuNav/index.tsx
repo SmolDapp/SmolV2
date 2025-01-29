@@ -81,7 +81,7 @@ function NavItem({
 						</p>
 					</div>
 					{isDisabled && (
-						<span className={'text-xxs rounded-full bg-[#FFF3D3] px-2.5 py-0.5 text-center text-[#FF9900]'}>
+						<span className={'rounded-full bg-[#FFF3D3] px-2.5 py-0.5 text-center text-xxs text-[#FF9900]'}>
 							{'Soon'}
 						</span>
 					)}
@@ -171,7 +171,7 @@ export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void
 							href={'https://dump.services/'}>
 							<div
 								className={
-									'bg-neutral-0 group relative mb-2 flex w-full flex-col rounded-lg border border-neutral-400 p-2 opacity-60 transition-opacity hover:opacity-100'
+									'group relative mb-2 flex w-full flex-col rounded-lg border border-neutral-400 bg-neutral-0 p-2 opacity-60 transition-opacity hover:opacity-100'
 								}>
 								<p className={'pb-1 text-xs font-semibold text-neutral-700'}>{'Dump Services'}</p>
 								<svg
@@ -198,7 +198,7 @@ export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void
 								</span>
 							</div>
 						</Link>
-						<div className={'text-xxs flex justify-between pb-2 pt-6 text-neutral-600'}>
+						<div className={'flex justify-between pb-2 pt-6 text-xxs text-neutral-600'}>
 							<div className={'flex gap-4'}>
 								<Link
 									onClick={() => plausible(PLAUSIBLE_EVENTS.NAVIGATE_TO_GITHUB)}
@@ -220,7 +220,7 @@ export function SideMenuNav(props: {menu?: TSideMenuItem[]; onClose?: () => void
 					</div>
 
 					<CurtainContent onInteractOutside={e => e.preventDefault()}>
-						<aside className={'bg-neutral-0 flex h-full flex-col'}>
+						<aside className={'flex h-full flex-col bg-neutral-0'}>
 							<div className={'scrollable text-neutral-600'}>
 								<ul className={'grid gap-2 pb-8 pt-4'}>
 									<div className={'px-4 pb-4 text-xs'}>

@@ -43,7 +43,7 @@ function SafeOwner(props: {
 
 	return (
 		<div className={'flex w-full md:max-w-full'}>
-			<div className={'md:max-w-108 w-full'}>
+			<div className={'w-full md:max-w-108'}>
 				<SmolAddressInput
 					inputRef={inputRef as RefObject<HTMLInputElement>}
 					onSetValue={props.updateOwner}

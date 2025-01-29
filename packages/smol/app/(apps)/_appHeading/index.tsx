@@ -73,7 +73,7 @@ export default function AppHeading(): ReactElement {
 	const {title, description} = getContent();
 
 	return (
-		<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
+		<div className={'mb-6 flex w-full flex-row justify-between md:max-w-108'}>
 			<div>
 				<h1 className={'pr-6 text-2xl font-bold text-neutral-900 md:whitespace-nowrap md:pr-0 md:text-3xl'}>
 					{title}

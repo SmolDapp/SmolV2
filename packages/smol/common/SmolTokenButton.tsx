@@ -106,7 +106,7 @@ export function SmolTokenButton(props: {
 							height={32}
 						/>
 					) : (
-						<div className={'bg-neutral-0 flex size-8 items-center justify-center rounded-full'}>
+						<div className={'flex size-8 items-center justify-center rounded-full bg-neutral-0'}>
 							<IconWallet className={'size-4 text-neutral-600'} />
 						</div>
 					)}

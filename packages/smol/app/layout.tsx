@@ -99,13 +99,13 @@ export default async function RootLayout(props: {children: ReactElement}): Promi
 				/>
 			</head>
 			<body className={'bg-neutral-200 font-sans transition-colors duration-150'}>
-				<main className={'h-app flex flex-col'}>
+				<main className={'flex h-app flex-col'}>
 					<Providers initialState={initialState}>
 						<div className={'mx-auto mt-10 w-full max-w-6xl'}>
-							<div className={'grid-cols-root grid w-full'}>
+							<div className={'grid w-full grid-cols-root'}>
 								<nav
 									className={
-										'col-sidebar h-app bg-neutral-0 sticky top-10 z-20 hidden flex-col rounded-lg md:ml-3 md:flex lg:ml-4 '
+										'sticky top-10 z-20 col-sidebar hidden h-app flex-col rounded-lg bg-neutral-0 md:ml-3 md:flex lg:ml-4 '
 									}>
 									<SideMenu menu={MENU} />
 								</nav>
@@ -114,10 +114,10 @@ export default async function RootLayout(props: {children: ReactElement}): Promi
 									<SideMenuMobile menu={MENU} />
 								</div>
 
-								<div className={'md:col-main col-span-full px-4 md:px-3 lg:px-4'}>
+								<div className={'col-span-full px-4 md:col-main md:px-3 lg:px-4'}>
 									<div
 										className={
-											'min-h-app bg-neutral-0 relative mb-10 w-full overflow-x-hidden rounded-lg'
+											'relative mb-10 min-h-app w-full overflow-x-hidden rounded-lg bg-neutral-0'
 										}>
 										<WithAddressBook>{props.children}</WithAddressBook>
 									</div>

@@ -1,3 +1,5 @@
+'use client';
+
 import {toNormalizedBN} from '@lib/utils/numbers';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 import axios from 'axios';

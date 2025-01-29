@@ -1,4 +1,5 @@
 module.exports = {
+	root: true,
 	env: {
 		node: true,
 		browser: true,
@@ -35,6 +36,7 @@ module.exports = {
 		}
 	},
 	rules: {
+		'tailwindcss/classnames-order': 2,
 		'import/default': 0,
 		'react/prop-types': 0,
 		'no-async-promise-executor': 0,

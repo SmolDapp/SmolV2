@@ -178,7 +178,7 @@ function ContactList(props: {
 			{props.searchValue !== '' && props.favorite.length === 0 && props.availableEntries.length === 0 && (
 				<div
 					className={
-						'bg-primary flex min-h-[72px] w-full flex-col items-center justify-center rounded-lg px-10 pb-2 pt-4'
+						'flex min-h-[72px] w-full flex-col items-center justify-center rounded-lg bg-primary px-10 pb-2 pt-4'
 					}>
 					<p className={'text-center text-xs text-neutral-900'}>
 						{`We couldn't find any contact matching "${props.searchValue}".`}
@@ -281,7 +281,7 @@ export function AddressSelectorCurtain(props: {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
+					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<CurtainTitle className={'font-bold'}>{'Address Book'}</CurtainTitle>
 						<CloseCurtainButton />

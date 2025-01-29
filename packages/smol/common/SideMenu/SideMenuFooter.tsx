@@ -4,7 +4,7 @@ import type {ReactElement} from 'react';
 
 export function SideMenuFooter(): ReactElement {
 	return (
-		<div className={'bg-primary flex justify-between rounded-b-lg px-6 py-3'}>
+		<div className={'flex justify-between rounded-b-lg bg-primary px-6 py-3'}>
 			<Image
 				src={'/smol.svg'}
 				alt={'smol'}

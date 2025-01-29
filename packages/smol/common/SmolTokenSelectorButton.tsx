@@ -54,7 +54,7 @@ export function SmolTokenSelectorButton(props: {
 				'bg-neutral-200 hover:bg-neutral-300'
 			)}>
 			<div className={'flex w-full items-center gap-2'}>
-				<div className={'realtive bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
+				<div className={'realtive flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
 					{props.token && isAddress(props.token.address) ? (
 						<div className={'relative'}>
 							{props.displayNetworkIcon && (

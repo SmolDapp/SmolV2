@@ -31,7 +31,7 @@ export function SwapRatioOption(props: {
 					value={props.label}
 					type={'radio'}
 					className={
-						'text-primary mt-0.5 size-4 !border border-neutral-400 !outline-none !ring-0 !ring-transparent !ring-offset-0'
+						'mt-0.5 size-4 !border border-neutral-400 text-primary !outline-none !ring-0 !ring-transparent !ring-offset-0'
 					}
 					name={'swapPreference'}
 				/>

@@ -77,7 +77,7 @@ export function AddressBookEntryAddress(props: {
 			<div className={'flex'}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'text-xxs !max-w-[264px] cursor-pointer tabular-nums'}
+					className={'!max-w-[264px] cursor-pointer text-xxs tabular-nums'}
 				/>
 				<button
 					onClick={e => {
@@ -116,7 +116,7 @@ export function AddressBookEntryAddress(props: {
 							value={
 								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
 							}
-							className={'text-xxs cursor-copy hover:underline'}
+							className={'cursor-copy text-xxs hover:underline'}
 						/>
 					</button>
 				</div>

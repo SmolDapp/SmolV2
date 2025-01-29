@@ -388,7 +388,7 @@ function ChainStatus({
 					<span className={'tooltipLight top-full mt-1'}>
 						<div
 							className={
-								'font-number text-xxs w-40 border border-neutral-300 bg-neutral-100 p-1 px-2 text-center text-neutral-900'
+								'font-number w-40 border border-neutral-300 bg-neutral-100 p-1 px-2 text-center text-xxs text-neutral-900'
 							}>
 							<p>{'The Safe was deployed using an un-cloneable legacy method. Soz 😕'}</p>
 						</div>

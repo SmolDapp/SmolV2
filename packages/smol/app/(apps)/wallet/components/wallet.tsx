@@ -138,7 +138,7 @@ export function Wallet(): ReactElement {
 	]);
 
 	return (
-		<div className={'max-w-108 w-full gap-4'}>
+		<div className={'w-full max-w-108 gap-4'}>
 			<input
 				className={cl(
 					'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 mb-4 text-base',

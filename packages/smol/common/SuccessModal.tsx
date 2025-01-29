@@ -46,9 +46,9 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 			shouldTriggerConfettis={shouldTriggerConfettis}
 			className={'!max-w-lg'}>
 			<>
-				<div className={'bg-green flex w-full items-center justify-center'}>
+				<div className={'flex w-full items-center justify-center bg-green'}>
 					<div className={'my-6 rounded-full bg-white p-4'}>
-						<IconCheck className={'text-green size-10'} />
+						<IconCheck className={'size-10 text-green'} />
 					</div>
 				</div>
 				<div className={'w-full px-10 pt-10'}>

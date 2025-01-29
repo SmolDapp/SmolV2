@@ -88,7 +88,7 @@ function WalletLayout(props: TWalletLayoutProps): ReactNode {
 							onConnect();
 							props.onOpenChange(false);
 						}}
-						className={'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'}>
+						className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
 						{'Connect Wallet'}
 					</button>
 				</div>
@@ -201,7 +201,7 @@ function TokenListSelectorLayout(): ReactNode {
 							'flex items-center gap-2 p-2 rounded-lg text-neutral-900 w-full relative',
 							'bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer'
 						)}>
-						<div className={'bg-neutral-0 flex size-10 items-center justify-center rounded-lg'}>
+						<div className={'flex size-10 items-center justify-center rounded-lg bg-neutral-0'}>
 							<ImageWithFallback
 								alt={e.name}
 								src={e.logoURI}
@@ -219,7 +219,7 @@ function TokenListSelectorLayout(): ReactNode {
 						<div className={'absolute right-2'}>
 							<input
 								type={'checkbox'}
-								className={'text-primary accent-primary rounded-lg focus:ring-0 focus:ring-offset-0'}
+								className={'rounded-lg text-primary accent-primary focus:ring-0 focus:ring-offset-0'}
 								checked={listsURI.includes(e.URI)}
 							/>
 						</div>
@@ -243,7 +243,7 @@ function BalancesCurtainWrapper(props: {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
+					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<div className={'flex items-center'}>
 							<CurtainTitle className={'mr-2 font-bold'}>{'Your Wallet'}</CurtainTitle>

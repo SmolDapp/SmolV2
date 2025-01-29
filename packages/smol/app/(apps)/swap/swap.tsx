@@ -144,10 +144,10 @@ function SwapTokenRow(props: {
 			return <IconSpinner className={'size-4'} />;
 		}
 		if (props.input.status === 'success') {
-			return <IconCircleCheck className={'text-green size-4'} />;
+			return <IconCircleCheck className={'size-4 text-green'} />;
 		}
 		if (props.input.status === 'error') {
-			return <IconCircleCross className={'text-red size-4'} />;
+			return <IconCircleCross className={'size-4 text-red'} />;
 		}
 		return null;
 	};
@@ -281,7 +281,7 @@ export function Swap(): ReactElement {
 					<p className={'font-medium'}>{'Your crosschain swap'}</p>
 					<button
 						className={
-							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
+							'group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
 						}
 						onClick={openSettingsCurtain}>
 						<IconGears className={'size-4 transition-colors group-hover:text-white'} />
@@ -328,7 +328,7 @@ export function Swap(): ReactElement {
 						<button
 							onClick={swapTokens}
 							className={
-								'bg-neutral-0 hover:bg-primaryHover group rounded-lg border border-neutral-400 p-2 text-neutral-600 transition-all hover:scale-110'
+								'group rounded-lg border border-neutral-400 bg-neutral-0 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
 							}>
 							<IconChevronBoth className={'size-6 transition-colors group-hover:text-white'} />
 						</button>

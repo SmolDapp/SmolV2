@@ -1,3 +1,5 @@
+'use client';
+
 import {toNormalizedValue} from '@lib/utils/numbers';
 import {toAddress} from 'lib/utils/tools.addresses';
 import {useRouter, useSearchParams} from 'next/navigation';

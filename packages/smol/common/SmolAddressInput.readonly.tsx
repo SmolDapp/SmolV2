@@ -20,7 +20,7 @@ export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement
 	const clusters = useClusters({address: props.value});
 
 	return (
-		<div className={'max-w-108 group relative size-full rounded-lg'}>
+		<div className={'group relative size-full max-w-108 rounded-lg'}>
 			<label
 				className={cl(
 					'h-20 z-20 relative',
@@ -60,7 +60,7 @@ export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement
 								'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 							)}>
 							<div
-								className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
+								className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
 								<AvatarWrapper
 									key={props.value}
 									address={toAddress(props.value)}

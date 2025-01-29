@@ -267,7 +267,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 			</div>
 
 			<div className={'flex items-center gap-4'}>
-				<div className={'md:max-w-108 mb-6 w-full max-w-full'}>
+				<div className={'mb-6 w-full max-w-full md:max-w-108'}>
 					<p className={'mb-2 font-medium'}>{'Token'}</p>
 					<SmolTokenSelector
 						token={configuration.tokenToSend}

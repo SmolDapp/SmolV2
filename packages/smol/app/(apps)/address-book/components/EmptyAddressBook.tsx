@@ -11,13 +11,13 @@ import type {ReactElement} from 'react';
 export function EmptyAddressBook(props: {onOpenCurtain: VoidFunction}): ReactElement {
 	return (
 		<div className={'flex w-full flex-col items-center  rounded-lg bg-neutral-200 px-11 py-[72px]'}>
-			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
+			<div className={'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'}>
 				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
 					<IconAppAddressBook className={'size-20'} />
 					<button
 						onClick={props.onOpenCurtain}
 						className={
-							'bg-primary hover:bg-primaryHover absolute bottom-0 right-0 flex size-12 cursor-pointer items-center justify-center rounded-full'
+							'absolute bottom-0 right-0 flex size-12 cursor-pointer items-center justify-center rounded-full bg-primary hover:bg-primaryHover'
 						}>
 						<IconPlus className={'size-4'} />
 					</button>

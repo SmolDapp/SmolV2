@@ -97,7 +97,7 @@ export default function AddressBookPage(): ReactElement {
 									}>
 									<div
 										className={
-											'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'
+											'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'
 										}>
 										<IconEmptyAddressBook />
 									</div>

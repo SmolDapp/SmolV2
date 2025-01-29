@@ -24,7 +24,7 @@ export function SwapProgressToasts(props: {
 				props.t.visible ? 'animate-enter' : 'animate-leave'
 			)}>
 			{props.isCompleted ? (
-				<div className={'bg-primary mt-0.5 flex size-4 items-center justify-center rounded-full'}>
+				<div className={'mt-0.5 flex size-4 items-center justify-center rounded-full bg-primary'}>
 					<IconCheck className={'size-3.5 text-white'} />
 				</div>
 			) : (
@@ -53,7 +53,7 @@ export function SwapProgressToasts(props: {
 					{({animationDuration, progress}) => (
 						<div className={'relative h-2 w-full overflow-hidden rounded-lg bg-neutral-300'}>
 							<div
-								className={'bg-primary absolute inset-y-0 left-0 size-full'}
+								className={'absolute inset-y-0 left-0 size-full bg-primary'}
 								style={{
 									marginLeft: `${(-1 + progress) * 100}%`,
 									transition: `margin-left ${animationDuration}ms linear`,

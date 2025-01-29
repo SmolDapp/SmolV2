@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {Telegram} from 'telegraf';
 
 import type {NextApiRequest, NextApiResponse} from 'next';
