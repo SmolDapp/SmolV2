@@ -2,6 +2,7 @@ import {AGGREGATE3_ABI} from '@lib/utils/abi/aggregate.abi';
 import {toNormalizedBN} from '@lib/utils/numbers';
 import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {deserialize, multicall, serialize} from '@wagmi/core';
 import {ethTokenAddress, isEthAddress, isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -9,7 +10,6 @@ import {erc20Abi} from 'viem';
 import {useAccount, useConfig} from 'wagmi';
 
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';

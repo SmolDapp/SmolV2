@@ -1,3 +1,4 @@
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useState} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
@@ -5,7 +6,6 @@ import {isAddressEqual} from 'viem';
 import {useAccount, useChainId} from 'wagmi';
 
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 
 import type {TApproveEventChainSyncEntry} from 'packages/smol/app/(apps)/revoke/types';
 

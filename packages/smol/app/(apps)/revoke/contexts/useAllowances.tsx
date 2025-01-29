@@ -2,6 +2,7 @@
 
 import {toNormalizedBN} from '@lib/utils/numbers';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {serialize} from '@wagmi/core';
 import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
@@ -11,7 +12,6 @@ import {isAddressEqual} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
 import {useApproveEventsChainSync} from 'packages/smol/app/(apps)/revoke/contexts/useApproveEventsChainSync';
 import {useHistoricalAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useHistoricalAllowances';

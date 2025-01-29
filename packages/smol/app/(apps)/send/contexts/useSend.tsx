@@ -5,6 +5,7 @@ import {toBigInt} from '@lib/utils/numbers';
 import {transferERC20} from '@lib/utils/tools.erc20';
 import {getTransferTransaction} from '@lib/utils/tools.gnosis';
 import {defaultTxStatus} from '@lib/utils/tools.transactions';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {ethTokenAddress, isZeroAddress, toAddress, truncateHex} from 'lib/utils/tools.addresses';
 import {useCallback} from 'react';
 import {isAddressEqual, zeroAddress} from 'viem';
@@ -12,7 +13,6 @@ import {useAccount, useChainId, useConfig} from 'wagmi';
 
 import {useAddressBook} from '@smolContexts/useAddressBook';
 import {useWallet} from '@smolContexts/useWallet';
-import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {useIsSafe} from '@smolHooks/web3/useIsSafe';
 import {transferEthers} from 'packages/smol/app/(apps)/send/contexts/transferEthers';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';

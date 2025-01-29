@@ -1,6 +1,7 @@
 import {toBigInt} from '@lib/utils/numbers';
 import {decodeAsBigInt} from '@lib/utils/tools.decoder';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareMemo} from '@react-hookz/web';
 import {getBlockNumber, readContracts, serialize} from '@wagmi/core';
 import {toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useRef, useState} from 'react';
@@ -9,7 +10,6 @@ import {getLogs} from 'viem/actions';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/web3/useInfiniteContractLogs';
 import {filterDuplicateEvents, getLatestNotEmptyEvents} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
