@@ -22,7 +22,6 @@ import {
 	switchChain,
 	waitForTransactionReceipt
 } from '@wagmi/core';
-import {getLifiRoutes, getLifiStatus} from 'lib/utils/api.lifi';
 import {useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
@@ -34,14 +33,15 @@ import {useWallet} from '@smolContexts/useWallet';
 import {useAsyncTriggerWithArgs} from '@smolHooks/useAsyncTrigger';
 import {SwapCurtain} from 'packages/smol/app/(apps)/swap/components/SettingsCurtain';
 import {SwapProgressToasts} from 'packages/smol/app/(apps)/swap/components/SwapProgressToasts';
+import {getLifiRoutes, getLifiStatus} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {TTxStatus} from '@lib/utils/tools.transactions';
 import type {TUseBalancesTokens} from '@smolContexts/useBalances.multichains';
-import type {TLifiQuoteResponse, TLifiStatusResponse} from 'lib/utils/api.lifi';
 import type {TSwapContext} from 'packages/smol/app/(apps)/swap/types';
+import type {TLifiQuoteResponse, TLifiStatusResponse} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
 import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Hex} from 'viem';

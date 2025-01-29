@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import {Button} from '@lib/primitives/Button';
+import Link from 'next/link';
 
 import type {ReactElement} from 'react';
 

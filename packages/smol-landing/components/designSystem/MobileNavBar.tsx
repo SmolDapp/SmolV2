@@ -1,12 +1,12 @@
-import Link from 'next/link';
-import {motion} from 'framer-motion';
 import {IconCross} from '@lib/icons/IconCross';
+import {motion} from 'framer-motion';
+import Link from 'next/link';
 
 import {TOP_NAV} from './NavBar';
 
 import type {ReactElement} from 'react';
 
-export const MobileNavBar = ({set_isNavBarOpen}: {set_isNavBarOpen: (value: boolean) => void}): ReactElement => {
+export const MobileNavBar = ({setIsNavBarOpen}: {setIsNavBarOpen: (value: boolean) => void}): ReactElement => {
 	return (
 		<div className={'z-20 min-h-screen w-screen max-w-full'}>
 			<motion.nav className={'flex flex-wrap items-center justify-between px-6 lg:px-12'}>
@@ -21,7 +21,7 @@ export const MobileNavBar = ({set_isNavBarOpen}: {set_isNavBarOpen: (value: bool
 						))}
 					</div>
 					<div>
-						<button onClick={() => set_isNavBarOpen(false)}>
+						<button onClick={() => setIsNavBarOpen(false)}>
 							<IconCross className={'size-6'} />
 						</button>
 					</div>

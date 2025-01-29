@@ -1,10 +1,13 @@
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {cl} from '@lib/utils/helpers';
-import {getUniqueExpandedAllowancesBySpender, getUniqueExpandedAllowancesByToken} from '@lib/utils/tools.revoke';
 import {useCallback, useMemo} from 'react';
 
 import {AllowanceFilterDropdown} from 'packages/smol/app/(apps)/revoke/components/AllowanceFilterDropdown';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
+import {
+	getUniqueExpandedAllowancesBySpender,
+	getUniqueExpandedAllowancesByToken
+} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
 import type {TUnlimitedFilter, TWithBalanceFilter} from 'packages/smol/app/(apps)/revoke/types';
 import type {ReactElement} from 'react';

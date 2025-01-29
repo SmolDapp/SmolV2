@@ -9,12 +9,11 @@ import {IconAppSwap} from 'packages/lib/icons/IconApps';
 import React, {useCallback, useState} from 'react';
 
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
 import {SuccessModal} from 'packages/smol/common/SuccessModal';
 
-import {useSwapFlow} from '../contexts/useSwapFlow.lifi';
-
 import type {TTxStatus} from '@lib/utils/tools.transactions';
-import type {TLifiStatusResponse} from 'lib/utils/api.lifi';
+import type {TLifiStatusResponse} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
 import type {ReactElement} from 'react';
 
 function SendSuccessModal(props: {

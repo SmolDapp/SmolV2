@@ -2,7 +2,6 @@ import {Button} from '@lib/primitives/Button';
 import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, toNormalizedValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {approveERC20} from '@lib/utils/tools.erc20';
-import {isUnlimitedBN} from '@lib/utils/tools.revoke';
 import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {toAddress, truncateHex} from 'lib/utils/tools.addresses';
 import {usePlausible} from 'next-plausible';
@@ -14,6 +13,7 @@ import {useAccount, useChainId, useConfig} from 'wagmi';
 
 import {useTokenList} from '@smolContexts/WithTokenList';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
+import {isUnlimitedBN} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
 import type {TAddress} from '@lib/utils/tools.addresses';

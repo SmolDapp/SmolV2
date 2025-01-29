@@ -1,8 +1,6 @@
+import {toAddress} from '@lib/utils/tools.addresses';
 import axios from 'axios';
 
-import {toAddress} from '@lib/utils/tools.addresses';
-
-import type {TSwapConfiguration} from '@lib/types/app.swap';
 import type {TAddress} from '@lib/utils/tools.addresses';
 
 type TLifiToken = {
@@ -66,7 +64,7 @@ export async function getLifiRoutes(params: {
 	fromAddress: TAddress;
 	toAddress: TAddress;
 	slippage: number; // default 0.05 -> 5%
-	order: TSwapConfiguration['order'];
+	order: 'RECOMMENDED' | 'SAFEST' | 'FASTEST' | 'CHEAPEST';
 	abortController: AbortController;
 }): Promise<{result: TLifiQuoteResponse | undefined; error?: string}> {
 	try {

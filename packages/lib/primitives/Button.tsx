@@ -3,12 +3,11 @@ import React, {forwardRef} from 'react';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 import {cl} from '@lib/utils/helpers';
 
-import type {ComponentPropsWithoutRef, ForwardedRef, MouseEvent, ReactElement, ReactNode} from 'react';
+import type {ComponentPropsWithoutRef, ForwardedRef, MouseEvent, ReactElement} from 'react';
 
 type TButtonVariant = 'filled' | 'outlined' | 'light' | 'inherit' | string;
 
 type TButton = {
-	children: ReactNode;
 	variant?: TButtonVariant;
 	shouldStopPropagation?: boolean;
 	isBusy?: boolean;

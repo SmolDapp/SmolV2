@@ -1,19 +1,15 @@
-import {readContracts} from '@wagmi/core';
-import axios from 'axios';
-import {contractDataURL} from 'packages/smol/app/(apps)/revoke/constants';
-import {erc20Abi as abi} from 'viem';
-
 import {toNormalizedValue} from '@lib/utils/numbers';
 import {toAddress} from '@lib/utils/tools.addresses';
+import {readContracts} from '@wagmi/core';
+import axios from 'axios';
+import {erc20Abi as abi} from 'viem';
+
+import {contractDataURL} from 'packages/smol/app/(apps)/revoke/constants';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {Config} from '@wagmi/core';
-import type {TAllowance, TAllowances, TExpandedAllowance} from 'packages/smol/app/(apps)/revoke/app.revoke';
-import app from 'next/app';
-import {types} from 'util';
-
-packages / smol / app / apps / revoke / types;
+import type {TAllowance, TAllowances, TExpandedAllowance} from 'packages/smol/app/(apps)/revoke/types';
 
 export const filterDuplicateEvents = (events: TAllowances): TAllowances => {
 	const noDuplicate = events.filter(

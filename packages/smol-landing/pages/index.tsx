@@ -1,8 +1,9 @@
-import Link from 'next/link';
-import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
-import {Cutaway} from '@smolLandingDesignSystem/CutAway';
 import {IconAppAddressBook, IconAppDisperse, IconAppSwap} from '@lib/icons/IconApps';
 import {Button} from '@lib/primitives/Button';
+import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
+import Link from 'next/link';
+
+import {Cutaway} from '@smolLandingDesignSystem/CutAway';
 
 import type {ReactElement} from 'react';
 

@@ -3,7 +3,6 @@ import {decodeAsBigInt} from '@lib/utils/tools.decoder';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {getBlockNumber, readContracts, serialize} from '@wagmi/core';
 import {toAddress} from 'lib/utils/tools.addresses';
-import {filterDuplicateEvents, getLatestNotEmptyEvents} from 'packages/lib/utils/tools.revoke';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {erc20Abi as abi} from 'viem';
 import {getLogs} from 'viem/actions';
@@ -12,6 +11,7 @@ import {useAccount, useChainId, useConfig} from 'wagmi';
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
 import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/web3/useInfiniteContractLogs';
+import {filterDuplicateEvents, getLatestNotEmptyEvents} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAllowances} from 'packages/smol/app/(apps)/revoke/types';
@@ -67,7 +67,7 @@ function useHistoricalAllowances(props: {
 			currentIdentifier.current = identifier;
 
 			if (data) {
-				const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map((item: Log) => ({
+				const filteredEvents = getLatestNotEmptyEvents(data as TAllowances).map(item => ({
 					...item,
 					chainID
 				}));
@@ -136,7 +136,7 @@ function useHistoricalAllowances(props: {
 				logs.push(...res);
 			}
 
-			const filteredEvents = getLatestNotEmptyEvents(logs as unknown as TAllowances).map((item: Log) => ({
+			const filteredEvents = getLatestNotEmptyEvents(logs as unknown as TAllowances).map(item => ({
 				...item,
 				chainID
 			}));

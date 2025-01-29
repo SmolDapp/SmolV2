@@ -1,7 +1,6 @@
 import {IconPlus} from '@lib/icons/IconPlus';
 import {Button} from '@lib/primitives/Button';
 import {toNormalizedBN} from '@lib/utils/numbers';
-import {getTotalAmountAtRisk} from '@lib/utils/tools.revoke';
 import {toAddress} from 'lib/utils/tools.addresses';
 import {Fragment, useMemo} from 'react';
 import {serialize, useChainId} from 'wagmi';
@@ -11,6 +10,7 @@ import {usePrices} from '@smolContexts/WithPrices/WithPrices';
 import {AllowancesFilters} from 'packages/smol/app/(apps)/revoke/components/AllowancesFilters';
 import {AllowancesTable} from 'packages/smol/app/(apps)/revoke/components/AllowancesTable';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
+import {getTotalAmountAtRisk} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 import {Counter} from 'packages/smol/common/Counter';
 
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';

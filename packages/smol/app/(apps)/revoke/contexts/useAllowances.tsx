@@ -3,12 +3,6 @@ import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {serialize} from '@wagmi/core';
 import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
-import {
-	getNameDictionaries,
-	getUniqueAllowancesBySpender,
-	getUniqueAllowancesByToken,
-	isUnlimitedBN
-} from 'packages/lib/utils/tools.revoke';
 import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
@@ -19,6 +13,12 @@ import {useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
 import {useApproveEventsChainSync} from 'packages/smol/app/(apps)/revoke/contexts/useApproveEventsChainSync';
 import {useHistoricalAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useHistoricalAllowances';
+import {
+	getNameDictionaries,
+	getUniqueAllowancesBySpender,
+	getUniqueAllowancesByToken,
+	isUnlimitedBN
+} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
 import type {TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import type {
