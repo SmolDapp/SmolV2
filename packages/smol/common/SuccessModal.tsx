@@ -18,7 +18,7 @@ type TSuccessModal = {
 	content: ReactElement | string;
 	ctaLabel: string;
 	className?: string;
-	downloadConfigButton?: JSX.Element;
+	downloadConfigButton?: ReactElement;
 	twitterShareContent?: string;
 };
 function SuccessModal(props: TSuccessModal): ReactElement {

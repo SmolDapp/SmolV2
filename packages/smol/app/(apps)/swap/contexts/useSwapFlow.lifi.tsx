@@ -44,6 +44,7 @@ import type {TSwapContext} from 'packages/smol/app/(apps)/swap/types';
 import type {TLifiQuoteResponse, TLifiStatusResponse} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
 import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
+import type {Toast} from 'react-hot-toast';
 import type {Hex} from 'viem';
 
 type TLastSolverFetchData = {
@@ -820,7 +821,7 @@ export const SwapContextApp = (props: {children: ReactElement}): ReactElement =>
 				const durationInMs = durationInSeconds * 1000;
 				const expectedEnd = new Date(Date.now() + durationInMs).toLocaleTimeString();
 				const toastID = toast.custom(
-					t => (
+					(t: Toast) => (
 						<SwapProgressToasts
 							t={t}
 							sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
@@ -838,7 +839,7 @@ export const SwapContextApp = (props: {children: ReactElement}): ReactElement =>
 					result = await getLifiStatus({fromChainID, toChainID, txHash});
 					await new Promise(resolve => setTimeout(resolve, 5000));
 					toast.custom(
-						t => (
+						(t: Toast) => (
 							<SwapProgressToasts
 								t={t}
 								sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
@@ -860,7 +861,7 @@ export const SwapContextApp = (props: {children: ReactElement}): ReactElement =>
 						props: getPlausibleProps({out: output.normalizedBigAmount, txHash})
 					});
 					toast.custom(
-						t => (
+						(t: Toast) => (
 							<SwapProgressToasts
 								t={t}
 								sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}
@@ -876,7 +877,7 @@ export const SwapContextApp = (props: {children: ReactElement}): ReactElement =>
 					statusHandler({...defaultTxStatus, success: true, data: result});
 					await new Promise(resolve => setTimeout(resolve, 1000));
 					toast.custom(
-						t => (
+						(t: Toast) => (
 							<SwapProgressToasts
 								t={t}
 								sendingTokenSymbol={currentTxRequest.action.fromToken.symbol}

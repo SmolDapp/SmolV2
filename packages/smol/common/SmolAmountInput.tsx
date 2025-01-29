@@ -55,7 +55,7 @@ export function SmolAmountInput({onSetValue, value, token, price}: TAmountInput)
 		return 'border-neutral-400';
 	}, [isFocused, value.isValid]);
 
-	const getErrorOrButton = (): JSX.Element => {
+	const getErrorOrButton = (): ReactElement => {
 		if (!selectedTokenBalance.normalized) {
 			return <p>{'No token selected'}</p>;
 		}

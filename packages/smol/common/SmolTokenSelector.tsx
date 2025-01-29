@@ -11,11 +11,12 @@ import {SmolTokenButton} from 'packages/smol/common/SmolTokenButton';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
+import type {ReactElement} from 'react';
 
 export function SmolTokenSelector(props: {
 	onSelectToken: (token: TERC20TokensWithBalance | undefined) => void;
 	token: TERC20TokensWithBalance | undefined;
-}): JSX.Element {
+}): ReactElement {
 	const chainID = useChainId();
 	const [isFocused] = useState<boolean>(false);
 	const {onOpenCurtain} = useBalancesCurtain();

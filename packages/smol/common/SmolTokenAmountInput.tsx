@@ -116,7 +116,7 @@ export function SmolTokenAmountInput({
 		return 'border-neutral-400';
 	}, [isFocused, value.isValid]);
 
-	const getErrorOrButton = (): JSX.Element => {
+	const getErrorOrButton = (): ReactElement => {
 		if (showPercentButtons) {
 			return (
 				<div className={'flex gap-1 '}>

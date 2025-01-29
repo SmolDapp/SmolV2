@@ -11,6 +11,7 @@ import {useTokenList} from '@smolContexts/WithTokenList';
 import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
+import type {ReactElement} from 'react';
 
 export function SmolTokenSelectorButton(props: {
 	onSelectToken: (token: TERC20TokensWithBalance) => void;
@@ -18,7 +19,7 @@ export function SmolTokenSelectorButton(props: {
 	chainID?: number;
 	shouldUseCurtainWithTabs?: boolean;
 	displayNetworkIcon?: boolean;
-}): JSX.Element {
+}): ReactElement {
 	const {onOpenCurtain} = useBalancesCurtain();
 	const {getToken} = useTokenList();
 

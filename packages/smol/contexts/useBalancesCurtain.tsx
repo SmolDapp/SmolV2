@@ -168,14 +168,16 @@ function TokenListSelectorLayout(): ReactNode {
 		}
 		const {lists} = data;
 		const excludedTheses = ['(Static)', 'Token Pairs', 'Token Pools', 'RouteScan', 'Uniswap Labs'];
-		const filteredLists = lists.filter(list => !excludedTheses.some(excluded => list.name.includes(excluded)));
+		const filteredLists = lists.filter(
+			(list: TTokenListSummary['lists'][number]) => !excludedTheses.some(excluded => list.name.includes(excluded))
+		);
 		return filteredLists;
 	}, [data]);
 
 	//Sort by if in selectedLists, then by tokenCount
 	const sortedData = useMemo(() => {
-		const inSelected = relevantData.filter(e => listsURI.includes(e.URI));
-		const notSelected = relevantData.filter(e => !listsURI.includes(e.URI));
+		const inSelected = relevantData.filter((e: {URI: string}) => listsURI.includes(e.URI));
+		const notSelected = relevantData.filter((e: {URI: string}) => !listsURI.includes(e.URI));
 		return [...inSelected, ...notSelected];
 	}, [relevantData, listsURI]);
 
