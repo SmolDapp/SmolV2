@@ -146,18 +146,10 @@ module.exports = {
 		'@typescript-eslint/prefer-includes': 'error',
 		'@typescript-eslint/promise-function-async': 'error',
 		'@typescript-eslint/require-array-sort-compare': 'error',
-		'@typescript-eslint/type-annotation-spacing': [
-			'error',
-			{
-				before: true,
-				after: true,
-				overrides: {colon: {before: false, after: true}}
-			}
-		],
-		'brace-style': 'off',
-		'@typescript-eslint/brace-style': ['error', '1tbs'],
-		'comma-dangle': 'off',
-		'@typescript-eslint/comma-dangle': ['error'],
+		'brace-style': ['error', '1tbs'],
+		// '@typescript-eslint/brace-style': ['error', '1tbs'],
+		'comma-dangle': ['error', 'never'],
+		// '@typescript-eslint/comma-dangle': ['error'],
 		'@typescript-eslint/prefer-optional-chain': 'error',
 		indent: 'off',
 		'@typescript-eslint/indent': 0,
