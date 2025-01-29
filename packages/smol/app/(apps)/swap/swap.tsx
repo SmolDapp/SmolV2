@@ -10,6 +10,7 @@ import {cl} from '@lib/utils/helpers';
 import {NoNaN, formatAmount, formatCounterValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {CHAINS} from '@lib/utils/tools.chains.ts';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {isZeroAddress} from 'lib/utils/tools.addresses';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
@@ -18,7 +19,6 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useChainId, useSwitchChain} from 'wagmi';
 
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 import {formatSeconds} from '@smolHooks/useTimer';
 import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
 import {NetworkInputSelector} from 'packages/smol/common/NetworkSelector/Input';
@@ -144,10 +144,10 @@ function SwapTokenRow(props: {
 			return <IconSpinner className={'size-4'} />;
 		}
 		if (props.input.status === 'success') {
-			return <IconCircleCheck className={'size-4 text-green'} />;
+			return <IconCircleCheck className={'text-green size-4'} />;
 		}
 		if (props.input.status === 'error') {
-			return <IconCircleCross className={'size-4 text-red'} />;
+			return <IconCircleCross className={'text-red size-4'} />;
 		}
 		return null;
 	};
@@ -281,7 +281,7 @@ export function Swap(): ReactElement {
 					<p className={'font-medium'}>{'Your crosschain swap'}</p>
 					<button
 						className={
-							'group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
+							'hover:bg-primaryHover group rounded-lg bg-neutral-300 p-2 text-neutral-600 transition-all hover:scale-110'
 						}
 						onClick={openSettingsCurtain}>
 						<IconGears className={'size-4 transition-colors group-hover:text-white'} />
@@ -328,7 +328,7 @@ export function Swap(): ReactElement {
 						<button
 							onClick={swapTokens}
 							className={
-								'group rounded-lg border border-neutral-400 bg-neutral-0 p-2 text-neutral-600 transition-all hover:scale-110 hover:bg-primaryHover'
+								'bg-neutral-0 hover:bg-primaryHover group rounded-lg border border-neutral-400 p-2 text-neutral-600 transition-all hover:scale-110'
 							}>
 							<IconChevronBoth className={'size-6 transition-colors group-hover:text-white'} />
 						</button>

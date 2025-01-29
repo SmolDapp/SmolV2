@@ -1,3 +1,5 @@
+'use client';
+
 import {IconPlus} from '@lib/icons/IconPlus';
 import {Button} from '@lib/primitives/Button';
 import {toNormalizedBN} from '@lib/utils/numbers';

@@ -2,6 +2,7 @@
 
 import {toNormalizedBN} from '@lib/utils/numbers';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import axios from 'axios';
 import {toAddress} from 'lib/utils/tools.addresses';
 import {createContext, useCallback, useContext, useMemo, useState} from 'react';
@@ -16,7 +17,6 @@ import {
 	prepareQueryStringForYDaemon,
 	usePricesDefaultProps
 } from '@smolContexts/WithPrices/utils';
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';

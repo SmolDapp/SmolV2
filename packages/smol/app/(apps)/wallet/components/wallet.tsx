@@ -2,6 +2,7 @@
 
 import {IconLoader} from '@lib/icons/IconLoader';
 import {cl} from '@lib/utils/helpers';
+import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import Link from 'next/link';
 import {useMemo, useState} from 'react';
@@ -10,7 +11,6 @@ import {useAccount, useChainId} from 'wagmi';
 
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
 import {useTokenList} from '@smolContexts/WithTokenList';
-import {useDeepCompareEffect, useDeepCompareMemo} from '@smolHooks/useDeepCompare';
 import {useLoginModal} from '@smolHooks/web3/useLoginModal';
 import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
 import {WalletListHeader} from 'packages/smol/app/(apps)/wallet/components/WalletListHeader';
@@ -138,7 +138,7 @@ export function Wallet(): ReactElement {
 	]);
 
 	return (
-		<div className={'w-full max-w-108 gap-4'}>
+		<div className={'max-w-108 w-full gap-4'}>
 			<input
 				className={cl(
 					'w-full border-neutral-400 rounded-lg bg-transparent py-3 px-4 mb-4 text-base',

@@ -1,5 +1,6 @@
 import {zeroNormalizedBN} from '@lib/utils/numbers';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import axios from 'axios';
 import {ethTokenAddress, toAddress} from 'lib/utils/tools.addresses';
 import {createContext, useCallback, useContext, useMemo, useState} from 'react';
@@ -7,7 +8,6 @@ import {serialize, useChainId, useChains} from 'wagmi';
 
 import {useWallet} from '@smolContexts/useWallet';
 import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TERC20TokenList, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';

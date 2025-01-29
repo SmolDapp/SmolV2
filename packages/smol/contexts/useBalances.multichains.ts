@@ -728,7 +728,6 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 
 	const onUpdateTokensForChain = useCallback(
 		async (chainID: number): Promise<void> => {
-			console.log('HERRRE', chainID, props?.tokens);
 			const allTokens = (JSON.parse(stringifiedTokens) || []) as TUseBalancesTokens[];
 			const tokensPerChainID: Record<number, TUseBalancesTokens[]> = {};
 			const alreadyAdded: Record<number, Record<TAddress, boolean>> = {};
@@ -745,7 +744,6 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 				tokensPerChainID[token.chainID].push(token);
 				alreadyAdded[token.chainID][toAddress(token.address)] = true;
 			}
-			console.warn(tokensPerChainID);
 
 			setChainStatus(prev => ({
 				chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: true},
@@ -754,7 +752,6 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 			}));
 
 			const tokens = tokensPerChainID[chainID] || [];
-			console.warn(tokens);
 			if (tokens.length > 0) {
 				const chunks = [];
 				for (let i = 0; i < tokens.length; i += 200) {
@@ -771,7 +768,6 @@ export function useBalances(props?: TUseBalancesReq): TUseBalancesRes {
 						)
 					);
 				}
-				console.log('HERRRE', allPromises.length);
 				await Promise.all(allPromises);
 				setChainStatus(prev => ({
 					chainLoadingStatus: {...(prev?.chainLoadingStatus || {}), [chainID]: false},

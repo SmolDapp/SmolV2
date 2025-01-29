@@ -2,13 +2,12 @@
 
 import {cl, handleLowAmount} from '@lib/utils/helpers';
 import {formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@lib/utils/numbers';
-import {useUpdateEffect} from '@react-hookz/web';
+import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import InputNumber from 'rc-input-number';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useChainId} from 'wagmi';
 
 import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
 import {TextTruncate} from 'packages/smol/common/TextTruncate';
 

@@ -1,11 +1,10 @@
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {isZeroAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useState} from 'react';
 import {parseAbiItem} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useBlockNumber, useConfig} from 'wagmi';
-
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {Log} from 'viem';
@@ -104,7 +103,7 @@ export function useInfiniteApprovalLogs({
 	 *********************************************************************************************/
 	const query = useInfiniteQuery({
 		retry: false,
-		queryKey: ['infinite_contract_logs', addresses, startBlock.toString(), chainID, owner, config],
+		queryKey: ['infinite_contract_logs', addresses, startBlock.toString(), chainID, owner],
 		queryFn: async ({pageParam}) => {
 			return getLogs(config.getClient(), {
 				address: addresses,

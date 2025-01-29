@@ -82,7 +82,7 @@ function TokenFetchingLoader(): ReactElement {
 			<IconSpinner className={'size-6'} />
 			<div className={'relative h-2 w-full overflow-hidden rounded-lg bg-neutral-300'}>
 				<div
-					className={'absolute inset-y-0 left-0 size-full bg-primary'}
+					className={'bg-primary absolute inset-y-0 left-0 size-full'}
 					style={{
 						width: `${(Number(allowanceFetchingFromBlock) / Number(allowanceFetchingToBlock || 1)) * 100}%`,
 						transition: 'width 0.5s',
@@ -120,7 +120,7 @@ function Table({prices}: TAllowancesTableProps): ReactElement {
 		<>
 			<table
 				className={
-					'text-gray-500 dark:text-gray-400 hidden w-full border-separate border-spacing-y-4 text-left text-sm md:table md:w-full rtl:text-right'
+					'hidden w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 md:table md:w-full rtl:text-right dark:text-gray-400'
 				}>
 				<TableHeader allowances={sortedAllowances || []} />
 				{sortedAllowances && sortedAllowances?.length > 0 && (

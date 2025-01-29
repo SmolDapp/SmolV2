@@ -2,13 +2,13 @@
 
 import {zeroNormalizedBN} from '@lib/utils/numbers';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useDeepCompareEffect} from '@react-hookz/web';
 import {ethTokenAddress, toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useMemo, useState} from 'react';
 import {serialize, useChainId, useChains} from 'wagmi';
 
 import {useWallet} from '@smolContexts/useWallet';
 import {useTokenList} from '@smolContexts/WithTokenList';
-import {useDeepCompareEffect} from '@smolHooks/useDeepCompare';
 
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 
