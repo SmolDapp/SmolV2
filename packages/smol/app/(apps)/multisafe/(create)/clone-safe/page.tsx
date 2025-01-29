@@ -91,7 +91,7 @@ function Safe(): ReactElement {
 									return {hash: txHash, chainID: chain.id};
 								}
 							} catch (error) {
-								// nothing
+								console.error(error);
 							}
 						}
 						if (!safeAPI) {
@@ -231,7 +231,7 @@ function Safe(): ReactElement {
 	]);
 
 	return (
-		<div className={'grid w-full max-w-full gap-4 md:max-w-108'}>
+		<div className={'md:max-w-108 grid w-full max-w-full gap-4'}>
 			<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
 				<Button
 					className={'!h-8 !text-xs'}

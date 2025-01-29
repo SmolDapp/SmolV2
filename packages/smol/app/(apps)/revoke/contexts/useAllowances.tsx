@@ -141,7 +141,7 @@ export const RevokeContextApp = (props: {
 				}
 				await add(entry);
 			} catch (error) {
-				//Do nothing
+				console.error(error);
 			}
 		},
 		[add, getAll, deleteByID]

@@ -748,6 +748,7 @@ export const SwapContextApp = (props: {children: ReactElement}): ReactElement =>
 				try {
 					await switchChain(config, {chainId: fromChainID});
 				} catch (error) {
+					console.error(error);
 					statusHandler({...defaultTxStatus, error: true, errorMessage: 'Failed to switch chain'});
 					return false;
 				}

@@ -86,7 +86,15 @@ module.exports = {
 			}
 		],
 		'@typescript-eslint/no-var-requires': 0,
-		'@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
+		'@typescript-eslint/no-unused-vars': [
+			'error',
+			{
+				vars: 'all',
+				varsIgnorePattern: '^_',
+				args: 'after-used',
+				argsIgnorePattern: '^_'
+			}
+		],
 		'@typescript-eslint/no-explicit-any': [1],
 		'@typescript-eslint/array-type': ['error', {default: 'array'}],
 		'@typescript-eslint/consistent-type-assertions': 0,

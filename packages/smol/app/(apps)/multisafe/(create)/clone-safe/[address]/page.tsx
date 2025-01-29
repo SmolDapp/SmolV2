@@ -92,7 +92,7 @@ function Safe(): ReactElement {
 									return {hash: txHash, chainID: chain.id};
 								}
 							} catch (error) {
-								// nothing
+								console.error(error);
 							}
 						}
 						if (!safeAPI) {

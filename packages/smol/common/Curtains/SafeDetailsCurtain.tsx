@@ -25,7 +25,7 @@ export function SafeDetailsCurtain(props: TSafeDetailsCurtainArgs): ReactElement
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<CurtainTitle className={'font-bold'}>{'Safe Details'}</CurtainTitle>
 						<CloseCurtainButton />

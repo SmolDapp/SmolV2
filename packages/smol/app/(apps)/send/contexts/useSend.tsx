@@ -102,7 +102,9 @@ export const useSend = (
 			const tokenAddress = input?.token.address;
 			const inputUUID = input?.UUID;
 
-			inputUUID && onUpdateStatus(inputUUID, 'pending');
+			if (inputUUID) {
+				onUpdateStatus(inputUUID, 'pending');
+			}
 			setDisperseStatus?.({...defaultTxStatus, pending: true});
 
 			const result = await transferERC20({
@@ -115,11 +117,15 @@ export const useSend = (
 			});
 
 			if (result.isSuccessful) {
-				inputUUID && onUpdateStatus(inputUUID, 'success');
+				if (inputUUID) {
+					onUpdateStatus(inputUUID, 'success');
+				}
 				setDisperseStatus?.({...defaultTxStatus, success: result.isSuccessful});
 			}
 			if (result.error) {
-				inputUUID && onUpdateStatus(inputUUID, 'error');
+				if (inputUUID) {
+					onUpdateStatus(inputUUID, 'error');
+				}
 				setDisperseStatus?.({...defaultTxStatus, error: Boolean(result.error)});
 			}
 
@@ -150,7 +156,9 @@ export const useSend = (
 	const onMigrateETH = useCallback(
 		async (input?: TInputWithToken, txInfo?: TDisperseTxInfo): Promise<TTxResponse> => {
 			const inputUUID = input?.UUID;
-			inputUUID && onUpdateStatus(inputUUID, 'pending');
+			if (inputUUID) {
+				onUpdateStatus(inputUUID, 'pending');
+			}
 			setDisperseStatus?.({...defaultTxStatus, pending: true});
 
 			const ethAmountRaw = input?.normalizedBigAmount.raw ?? txInfo?.amount.raw;
@@ -166,10 +174,14 @@ export const useSend = (
 				shouldAdjustForGas: isSendingBalance
 			});
 			if (result.isSuccessful) {
-				inputUUID && onUpdateStatus(inputUUID, 'success');
+				if (inputUUID) {
+					onUpdateStatus(inputUUID, 'success');
+				}
 			}
 			if (result.error) {
-				inputUUID && onUpdateStatus(inputUUID, 'error');
+				if (inputUUID) {
+					onUpdateStatus(inputUUID, 'error');
+				}
 			}
 			await handleSuccessCallback(zeroAddress);
 			return result;
