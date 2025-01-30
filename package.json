@@ -1,12 +1,13 @@
 {
-	"name": "monosmol",
-	"private": true,
-	"workspaces": [
-		"packages/*"
-	],
+	"name": "smol",
 	"scripts": {
-		"prettier-format": "prettier --config .prettierrc ./packages/**/**/*.{json,js,ts,tsx,css,md} --write",
-		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+		"dev": "next",
+		"dev:ts": "tsc --watch",
+		"start": "tsc && next build && next start",
+		"build": "tsc && next build",
+		"export": "tsc && next build && next export -o ipfs",
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+		"prettier-format": "prettier --config .prettierrc ./packages/**/**/*.{json,js,ts,tsx,css,md} --write"
 	},
 	"dependencies": {
 		"@clustersxyz/sdk": "^0.4.3",
