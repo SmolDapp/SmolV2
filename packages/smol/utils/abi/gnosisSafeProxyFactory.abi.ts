@@ -57,5 +57,3 @@ export const GNOSIS_SAFE_PROXY_FACTORY = [
 		type: 'function'
 	}
 ] as const;
-
-export default GNOSIS_SAFE_PROXY_FACTORY;

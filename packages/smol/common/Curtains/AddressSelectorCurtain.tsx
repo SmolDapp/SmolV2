@@ -1,23 +1,23 @@
 'use client';
 
-import {Button} from '@lib/primitives/Button';
-import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
-import {TextInput} from '@lib/primitives/TextInput';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {AddressBookEntry} from '@lib/common/AddressBookEntry';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import * as Dialog from '@radix-ui/react-dialog';
 import {getEnsAddress} from '@wagmi/core';
 import {LayoutGroup, motion} from 'framer-motion';
-import {toAddress} from 'lib/utils/tools.addresses';
 import {usePlausible} from 'next-plausible';
 import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
 import {isAddress} from 'viem';
 import {mainnet} from 'viem/chains';
 import {useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useIsMounted} from '@smolHooks/useIsMounted';
-import {AddressBookEntry} from 'packages/smol/common/AddressBookEntry';
-import {CloseCurtainButton} from 'packages/smol/common/Curtains/InfoCurtain';
+import {Button} from '@lib/primitives/Button';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
+import {TextInput} from '@lib/primitives/TextInput';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAddressBookEntry, TSelectCallback} from 'packages/smol/app/(apps)/address-book/types';

@@ -1,13 +1,12 @@
 'use client';
 
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
+import {CoinBalance} from '@lib/common/SideMenu/SideMenuProfile/CoinBalance';
+import {ConnectButton} from '@lib/common/SideMenu/SideMenuProfile/ConnectButton';
+import {ProfileBox} from '@lib/common/SideMenu/SideMenuProfile/ProfileBox';
+import {SkeletonPlaceholder} from '@lib/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
 import {useIsMounted} from '@react-hookz/web';
 import {useAccount} from 'wagmi';
-
-import {NetworkPopoverSelector} from 'packages/smol/common/NetworkSelector/Popover';
-import {CoinBalance} from 'packages/smol/common/SideMenu/SideMenuProfile/CoinBalance';
-import {ConnectButton} from 'packages/smol/common/SideMenu/SideMenuProfile/ConnectButton';
-import {ProfileBox} from 'packages/smol/common/SideMenu/SideMenuProfile/ProfileBox';
-import {SkeletonPlaceholder} from 'packages/smol/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
 
 import type {ReactElement} from 'react';
 

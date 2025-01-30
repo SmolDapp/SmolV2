@@ -1,14 +1,14 @@
 'use client';
 
 import {usePathname} from 'next/navigation';
-import {useCallback} from 'react';
+import {Fragment, useCallback} from 'react';
 
 import type {ReactElement} from 'react';
 
 export default function AppHeading(): ReactElement {
 	const pathName = usePathname();
 	const getContent = useCallback((): {title: string; description: string} => {
-		if (pathName?.startsWith('/wallet') || pathName?.startsWith('/apps/wallet') || pathName === '/') {
+		if (pathName?.startsWith('/wallet') || pathName?.startsWith('/apps/wallet')) {
 			return {title: 'Wallet', description: 'Check your wallet on any chain (it’s in the sidebar bruv)'};
 		}
 		if (pathName?.startsWith('/address-book') || pathName?.startsWith('/apps/address-book')) {
@@ -72,8 +72,12 @@ export default function AppHeading(): ReactElement {
 
 	const {title, description} = getContent();
 
+	if (pathName === '/') {
+		return <Fragment />;
+	}
+
 	return (
-		<div className={'mb-6 flex w-full flex-row justify-between md:max-w-108'}>
+		<div className={'md:max-w-108 mb-6 flex w-full flex-row justify-between'}>
 			<div>
 				<h1 className={'pr-6 text-2xl font-bold text-neutral-900 md:whitespace-nowrap md:pr-0 md:text-3xl'}>
 					{title}

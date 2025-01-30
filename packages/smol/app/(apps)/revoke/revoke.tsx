@@ -1,19 +1,19 @@
 'use client';
 
-import {IconPlus} from '@lib/icons/IconPlus';
-import {Button} from '@lib/primitives/Button';
-import {toNormalizedBN} from '@lib/utils/numbers';
-import {toAddress} from 'lib/utils/tools.addresses';
+import {Counter} from '@lib/common/Counter';
+import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
 import {Fragment, useMemo} from 'react';
 import {serialize, useChainId} from 'wagmi';
 
-import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
+import {IconPlus} from '@lib/icons/IconPlus';
+import {Button} from '@lib/primitives/Button';
+import {toNormalizedBN} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
 import {AllowancesFilters} from 'packages/smol/app/(apps)/revoke/components/AllowancesFilters';
 import {AllowancesTable} from 'packages/smol/app/(apps)/revoke/components/AllowancesTable';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 import {getTotalAmountAtRisk} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
-import {Counter} from 'packages/smol/common/Counter';
 
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {ReactElement} from 'react';

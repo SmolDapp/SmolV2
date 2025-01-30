@@ -1,5 +1,16 @@
 'use client';
 
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import {useValidateAddressInput} from '@lib/hooks/web3/useValidateAddressInput';
+import {useAsyncAbortable} from '@react-hookz/web';
+import {getEnsAddress} from '@wagmi/core';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useOnClickOutside} from 'usehooks-ts';
+import {mainnet} from 'viem/chains';
+import {useChainId, useConfig} from 'wagmi';
+
 import {IconAppAddressBook} from '@lib/icons/IconApps';
 import {IconChevron} from '@lib/icons/IconChevron';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
@@ -8,18 +19,7 @@ import {IconLoader} from '@lib/icons/IconLoader';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {cl} from '@lib/utils/helpers';
 import {getIsSmartContract, isAddress, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
-import {useAsyncAbortable} from '@react-hookz/web';
-import {getEnsAddress} from '@wagmi/core';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useOnClickOutside} from 'usehooks-ts';
-import {mainnet} from 'viem/chains';
-import {useChainId, useConfig} from 'wagmi';
-
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useValidateAddressInput} from '@smolHooks/web3/useValidateAddressInput';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
 
 import {AvatarWrapper} from './Avatar';
 
@@ -44,7 +44,7 @@ function AddressAvatarButton(props: {address: TAddress; onClick: () => void}): R
 					'flex items-center gap-4 rounded-[4px] p-4 w-22',
 					'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 				)}>
-				<div className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+				<div className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 					{!isAddress(props.address) ? (
 						<IconAppAddressBook className={'size-4 text-neutral-600'} />
 					) : (
@@ -339,12 +339,12 @@ export function SmolAddressInput({
 							{getHasStatusIcon() ? (
 								<div className={'pointer-events-none relative size-4 min-w-[16px]'}>
 									<IconCircleCheck
-										className={`absolute size-4 text-green transition-opacity ${
+										className={`text-green absolute size-4 transition-opacity ${
 											!isCheckingValidity && value.isValid === true ? 'opacity-100' : 'opacity-0'
 										}`}
 									/>
 									<IconCircleCross
-										className={`absolute size-4 text-red transition-opacity ${
+										className={`text-red absolute size-4 transition-opacity ${
 											!isCheckingValidity && value.isValid === false ? 'opacity-100' : 'opacity-0'
 										}`}
 									/>

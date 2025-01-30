@@ -1,18 +1,17 @@
 'use client';
 
-import {toNormalizedBN} from '@lib/utils/numbers';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {serialize} from '@wagmi/core';
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
-import {optionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
+import {toNormalizedBN} from '@lib/utils/numbers';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {useApproveEventsChainSync} from 'packages/smol/app/(apps)/revoke/contexts/useApproveEventsChainSync';
 import {useHistoricalAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useHistoricalAllowances';
 import {
@@ -22,7 +21,6 @@ import {
 	isUnlimitedBN
 } from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
-import type {TOptionalRenderProps} from 'packages/lib/utils/react/optionalRenderProps';
 import type {
 	TApproveEventEntry,
 	TExpandedAllowance,
@@ -78,9 +76,7 @@ const configurationReducer = (state: TRevokeConfiguration, action: TRevokeAction
 };
 
 const RevokeContext = createContext<TRevokeContext>(defaultProps);
-export const RevokeContextApp = (props: {
-	children: TOptionalRenderProps<TRevokeContext, ReactElement>;
-}): ReactElement => {
+export const RevokeContextApp = (props: {children: ReactElement}): ReactElement => {
 	const chainID = useChainId();
 	const config = useConfig();
 	const {address} = useAccount();
@@ -394,11 +390,7 @@ export const RevokeContextApp = (props: {
 		]
 	);
 
-	return (
-		<RevokeContext.Provider value={contextValue}>
-			{optionalRenderProps(props.children, contextValue)}
-		</RevokeContext.Provider>
-	);
+	return <RevokeContext.Provider value={contextValue}>{props.children}</RevokeContext.Provider>;
 };
 
 export const useAllowances = (): TRevokeContext => {

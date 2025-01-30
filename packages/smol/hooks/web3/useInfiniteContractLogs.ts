@@ -1,10 +1,11 @@
 import {useDeepCompareEffect} from '@react-hookz/web';
 import {useInfiniteQuery} from '@tanstack/react-query';
-import {isZeroAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useState} from 'react';
 import {parseAbiItem} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useBlockNumber, useConfig} from 'wagmi';
+
+import {isZeroAddress} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {Log} from 'viem';

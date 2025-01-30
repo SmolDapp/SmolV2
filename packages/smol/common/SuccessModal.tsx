@@ -1,11 +1,12 @@
 'use client';
 
-import {IconCheck} from '@lib/icons/IconCheck';
-import {Button} from '@lib/primitives/Button';
-import {cl} from '@lib/utils/helpers';
 import {useUpdateEffect} from '@react-hookz/web';
 import Link from 'next/link';
 import {useMemo, useState} from 'react';
+
+import {IconCheck} from '@lib/icons/IconCheck';
+import {Button} from '@lib/primitives/Button';
+import {cl} from '@lib/utils/helpers';
 
 import {ModalWrapper} from './ModalWrapper';
 
@@ -46,9 +47,9 @@ function SuccessModal(props: TSuccessModal): ReactElement {
 			shouldTriggerConfettis={shouldTriggerConfettis}
 			className={'!max-w-lg'}>
 			<>
-				<div className={'flex w-full items-center justify-center bg-green'}>
+				<div className={'bg-green flex w-full items-center justify-center'}>
 					<div className={'my-6 rounded-full bg-white p-4'}>
-						<IconCheck className={'size-10 text-green'} />
+						<IconCheck className={'text-green size-10'} />
 					</div>
 				</div>
 				<div className={'w-full px-10 pt-10'}>

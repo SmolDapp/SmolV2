@@ -1,14 +1,14 @@
 'use client';
 
-import {zeroNormalizedBN} from '@lib/utils/numbers';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useTokenList} from '@lib/contexts/WithTokenList';
 import {useDeepCompareEffect} from '@react-hookz/web';
-import {ethTokenAddress, toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useMemo, useState} from 'react';
 import {serialize, useChainId, useChains} from 'wagmi';
 
-import {useWallet} from '@smolContexts/useWallet';
-import {useTokenList} from '@smolContexts/WithTokenList';
+import {zeroNormalizedBN} from '@lib/utils/numbers';
+import {ethTokenAddress, toAddress} from '@lib/utils/tools.addresses';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 

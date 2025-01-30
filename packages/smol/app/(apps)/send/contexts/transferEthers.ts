@@ -1,6 +1,7 @@
-import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {sendTransaction, waitForTransactionReceipt} from '@wagmi/core';
-import {assertAddress} from 'lib/utils/tools.addresses';
+
+import {assertAddress} from '@lib/utils/tools.addresses';
+import {defaultTxStatus} from '@lib/utils/tools.transactions';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TTxResponse, TWriteTransaction} from '@lib/utils/tools.transactions';

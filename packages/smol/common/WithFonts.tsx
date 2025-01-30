@@ -1,6 +1,7 @@
 'use client';
 
 import {Rubik, Source_Code_Pro} from 'next/font/google';
+import localFont from 'next/font/local';
 import React from 'react';
 
 import type {ReactElement, ReactNode} from 'react';
@@ -19,9 +20,18 @@ const sourceCodePro = Source_Code_Pro({
 	variable: '--scp-font'
 });
 
+const monument = localFont({
+	src: '../public/fonts/MonumentExtended-Regular.otf',
+	variable: '--monument-font',
+	display: 'swap'
+});
+
 export function WithFonts({children}: {children: ReactNode}): ReactElement {
 	return (
-		<div style={{fontFamily: `${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily}`}}>
+		<div
+			style={{
+				fontFamily: `${rubik.style.fontFamily}, ${sourceCodePro.style.fontFamily}, ${monument.style.fontFamily}	`
+			}}>
 			<style
 				jsx
 				global>
@@ -29,7 +39,7 @@ export function WithFonts({children}: {children: ReactNode}): ReactElement {
 					:root {
 						--rubik-font: ${rubik.style.fontFamily};
 						--scp-font: ${sourceCodePro.style.fontFamily};
-					}
+						--monument-font: ${monument.style.fontFamily};
 				`}
 			</style>
 

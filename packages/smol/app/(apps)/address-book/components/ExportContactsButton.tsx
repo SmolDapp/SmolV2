@@ -1,11 +1,11 @@
 'use client';
 
-import {IconImport} from '@lib/icons/IconImport';
-import {cl} from '@lib/utils/helpers';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import Papa from 'papaparse';
 import {useCallback} from 'react';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {IconImport} from '@lib/icons/IconImport';
+import {cl} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
 

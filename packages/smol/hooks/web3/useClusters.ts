@@ -1,11 +1,11 @@
 import {Clusters, getImageUrl} from '@clustersxyz/sdk';
-import {isAddress} from 'lib/utils/tools.addresses';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useState} from 'react';
 import {useAccount} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {isAddress} from '@lib/utils/tools.addresses';
 
-import type {TAddress} from 'lib/utils/tools.addresses';
+import type {TAddress} from '@lib/utils/tools.addresses';
 
 type TClusters = {name: string; avatar: string};
 

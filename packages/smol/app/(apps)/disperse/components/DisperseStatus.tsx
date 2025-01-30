@@ -1,15 +1,15 @@
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useMemo, useState} from 'react';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useWallet} from '@smolContexts/useWallet';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {Warning} from 'packages/smol/common/Warning';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 
 import {useDisperse} from '../contexts/useDisperse';
 
+import type {TWarningType} from '@lib/common/Warning';
 import type {TAddress} from '@lib/utils/tools.addresses';
-import type {TWarningType} from 'packages/smol/common/Warning';
 import type {ReactElement} from 'react';
 
 export function DisperseStatus(): ReactElement | null {

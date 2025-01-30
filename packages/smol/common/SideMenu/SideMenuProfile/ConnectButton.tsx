@@ -1,9 +1,9 @@
 'use client';
 
+import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
+
 import {IconWallet} from '@lib/icons/IconWallet';
 import {cl} from '@lib/utils/helpers';
-
-import {useLoginModal} from '@smolHooks/web3/useLoginModal';
 
 import type {ReactElement} from 'react';
 
@@ -23,7 +23,7 @@ export function ConnectButton(): ReactElement {
 			<div className={'w-full max-w-72'}>
 				<button
 					onClick={openLoginModal}
-					className={'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'}>
+					className={'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'}>
 					{'Connect Wallet'}
 				</button>
 			</div>

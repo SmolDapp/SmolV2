@@ -1,15 +1,15 @@
 'use client';
 
-import {IconImport} from '@lib/icons/IconImport';
-import {cl} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {toAddress} from 'lib/utils/tools.addresses';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {IconImport} from '@lib/icons/IconImport';
+import {cl} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {toAddress} from '@lib/utils/tools.addresses';
 
-import type {TAddress} from 'lib/utils/tools.addresses';
+import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAddressBookEntry} from 'packages/smol/app/(apps)/address-book/types';
 import type {ChangeEvent, ReactElement} from 'react';
 

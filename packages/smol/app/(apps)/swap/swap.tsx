@@ -1,5 +1,20 @@
 'use client';
 
+import {NetworkInputSelector} from '@lib/common/NetworkSelector/Input';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
+import {SmolTokenSelectorButton} from '@lib/common/SmolTokenSelectorButton';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {formatSeconds} from '@lib/hooks/useTimer';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
+import {useDeepCompareEffect} from '@react-hookz/web';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {usePlausible} from 'next-plausible';
+import InputNumber from 'rc-input-number';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useChainId, useSwitchChain} from 'wagmi';
+
 import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
@@ -9,31 +24,16 @@ import {IconSpinner} from '@lib/icons/IconSpinner';
 import {cl} from '@lib/utils/helpers';
 import {NoNaN, formatAmount, formatCounterValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {isZeroAddress} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains.ts';
-import {useDeepCompareEffect} from '@react-hookz/web';
-import {isZeroAddress} from 'lib/utils/tools.addresses';
-import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import {usePlausible} from 'next-plausible';
-import InputNumber from 'rc-input-number';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useChainId, useSwitchChain} from 'wagmi';
-
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {formatSeconds} from '@smolHooks/useTimer';
-import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
-import {NetworkInputSelector} from 'packages/smol/common/NetworkSelector/Input';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {SmolTokenAmountInput} from 'packages/smol/common/SmolTokenAmountInput';
-import {SmolTokenSelectorButton} from 'packages/smol/common/SmolTokenSelectorButton';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
 
 import {SwapStatus} from './components/SwapStatus';
 import {SendWizard} from './components/Wizard';
 import {useSwapFlow} from './contexts/useSwapFlow.lifi';
 
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {ReactElement, RefObject} from 'react';
 
 function ReadonlySwapTokenRow(props: {

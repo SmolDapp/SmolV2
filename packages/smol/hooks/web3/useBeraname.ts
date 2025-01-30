@@ -1,10 +1,10 @@
-import {toAddress} from 'lib/utils/tools.addresses';
+import {withRPC} from '@lib/contexts/WithMom';
 import {useCallback, useEffect, useState} from 'react';
 import {createPublicClient} from 'viem';
 import {berachainTestnetbArtio} from 'viem/chains';
 import {useAccount} from 'wagmi';
 
-import {withRPC} from '@smolContexts/WithMom';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 type TENS = {name: string; avatar: string; isLoading: boolean};
 

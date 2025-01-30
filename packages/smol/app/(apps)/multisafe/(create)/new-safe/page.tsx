@@ -2,6 +2,14 @@
 
 import assert from 'assert';
 
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
+import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
+import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex, zeroAddress} from 'viem';
+import {serialize} from 'wagmi';
+
 import {IconCross} from '@lib/icons/IconCross';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconFire} from '@lib/icons/IconFire';
@@ -9,13 +17,7 @@ import {Button} from '@lib/primitives/Button';
 import {cl} from '@lib/utils/helpers';
 import {toBigInt} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
-import {useRouter} from 'next/router';
-import {usePlausible} from 'next-plausible';
-import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex, zeroAddress} from 'viem';
-import {serialize} from 'wagmi';
-
+import {isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
 import {ConfigurationStatus} from 'packages/smol/app/(apps)/multisafe/components/ConfigurationStatus';
 import {
 	GNOSIS_SAFE_PROXY_CREATION_CODE,
@@ -26,8 +28,6 @@ import {
 } from 'packages/smol/app/(apps)/multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
 import {createUniqueID, generateArgInitializers} from 'packages/smol/app/(apps)/multisafe/utils';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {ReadonlySmolAddressInput} from 'packages/smol/common/SmolAddressInput.readonly';
 
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TInputAddressLikeWithUUID} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
@@ -43,7 +43,7 @@ function SafeOwner(props: {
 
 	return (
 		<div className={'flex w-full md:max-w-full'}>
-			<div className={'w-full md:max-w-108'}>
+			<div className={'md:max-w-108 w-full'}>
 				<SmolAddressInput
 					inputRef={inputRef as RefObject<HTMLInputElement>}
 					onSetValue={props.updateOwner}

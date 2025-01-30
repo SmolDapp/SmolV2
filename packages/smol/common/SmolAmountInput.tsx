@@ -1,12 +1,12 @@
 'use client';
 
-import {cl, handleLowAmount} from '@lib/utils/helpers';
-import {formatCounterValue, zeroNormalizedBN} from '@lib/utils/numbers';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import InputNumber from 'rc-input-number';
 import {useCallback, useEffect, useState} from 'react';
 
-import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
+import {cl, handleLowAmount} from '@lib/utils/helpers';
+import {formatCounterValue, zeroNormalizedBN} from '@lib/utils/numbers';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';

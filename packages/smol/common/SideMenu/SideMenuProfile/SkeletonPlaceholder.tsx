@@ -1,6 +1,6 @@
-import {AddressBookEntryAddress} from 'packages/smol/common/AddressBookEntry';
-import {Avatar} from 'packages/smol/common/Avatar';
-import {NetworkPopoverSelector} from 'packages/smol/common/NetworkSelector/Popover';
+import {AddressBookEntryAddress} from '@lib/common/AddressBookEntry';
+import {Avatar} from '@lib/common/Avatar';
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
 
 import type {ReactElement} from 'react';
 

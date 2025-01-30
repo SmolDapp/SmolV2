@@ -1,19 +1,19 @@
+import {EmptyView} from '@lib/common/EmptyView';
+import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
+import Link from 'next/link';
+import {Fragment, useCallback} from 'react';
+import {useAccount} from 'wagmi';
+
+import IconChevronPlain from '@lib/icons/IconChevronPlain';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {IconSpinner} from '@lib/icons/IconSpinner';
 import {Button} from '@lib/primitives/Button';
 import {cl} from '@lib/utils/helpers';
 import {formatAmount} from '@lib/utils/numbers';
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
-import Link from 'next/link';
-import IconChevronPlain from 'packages/lib/icons/IconChevronPlain';
-import {Fragment, useCallback} from 'react';
-import {useAccount} from 'wagmi';
-
-import {useLoginModal} from '@smolHooks/web3/useLoginModal';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {AllowanceItem} from 'packages/smol/app/(apps)/revoke/components/AllowanceItem';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 import {useSortedAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useSortedAllowances';
-import {EmptyView} from 'packages/smol/common/EmptyView';
 
 import type {TAllowancesTableProps, TExpandedAllowance} from 'packages/smol/app/(apps)/revoke/types';
 import type {ReactElement, ReactNode} from 'react';

@@ -1,9 +1,9 @@
 import {deepMerge} from '@lib/utils/helpers';
 import {fromNormalized, toBigInt, toNormalizedBN} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
-import {toAddress} from 'lib/utils/tools.addresses';
 
-import type {TLLamaPricesEndpointResponse, TPriceTokens, TPrices, TPricesProps} from '@smolContexts/WithPrices/types';
+import type {TLLamaPricesEndpointResponse, TPriceTokens, TPrices, TPricesProps} from '@lib/contexts/WithPrices/types';
 import type {AxiosResponse} from 'axios';
 
 export const usePricesDefaultProps: TPricesProps = {

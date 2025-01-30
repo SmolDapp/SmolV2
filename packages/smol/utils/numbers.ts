@@ -8,7 +8,7 @@ import {formatUnits, parseUnits as vParseUnits} from 'viem';
  ** - string: For number representations as strings
  ** - Template literal type for type safety with string numbers
  ************************************************************************************************/
-export type TNumberish = bigint | number | string | `${number}`; //wagmi weird type
+type TNumberish = bigint | number | string | `${number}`; //wagmi weird type
 
 /************************************************************************************************
  ** TNormalizedBN represents a normalized BigNumber with different representations
@@ -114,23 +114,6 @@ export const zeroNormalizedBN: TNormalizedBN = toNormalizedBN(0, 18);
  ************************************************************************************************/
 export function fromNormalized(value: number | string, decimals = 18): bigint {
 	return vParseUnits(eToNumber(String(value)), decimals);
-}
-
-/************************************************************************************************
- ** parseUnits converts a number-like value to a bigint with the specified decimals
- **
- ** @param value - The value to parse (can be any TNumberish type)
- ** @param decimals - Optional number of decimals (defaults to 18)
- ** @returns bigint - The parsed value as a bigint
- **
- ** @example
- ** ```typescript
- ** const parsed = parseUnits(1.0); // 1000000000000000000n
- ** ```
- ************************************************************************************************/
-export function parseUnits(value: TNumberish, decimals = 18): bigint {
-	const valueAsNumber = Number(value);
-	return vParseUnits(`${valueAsNumber}`, decimals);
 }
 
 /************************************************************************************************
@@ -259,7 +242,7 @@ type TAmountOptions = {
  ** - symbol: Optional currency or token symbol (e.g., "USD", "ETH")
  ** - options: Optional formatting configuration
  ************************************************************************************************/
-export type TAmount = {
+type TAmount = {
 	value: bigint | number;
 	decimals: number | bigint;
 	symbol?: string;
@@ -283,7 +266,7 @@ type TFormatCurrencyWithPrecision = {
  ** defaultOptions provides default formatting options for amounts
  ** Sets reasonable defaults for fraction digits and display preferences
  ************************************************************************************************/
-export const defaultOptions: TAmountOptions = {
+const defaultOptions: TAmountOptions = {
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 	displayDigits: 0,
@@ -407,7 +390,7 @@ function formatCurrencyWithPrecision({
  ** formatLocalAmount(1234567, 2, "ETH", {...defaultOptions, shouldCompactValue: true}); // "1.23M ETH"
  ** ```
  ************************************************************************************************/
-export function formatLocalAmount(amount: number, decimals: number, symbol: string, options: TAmountOptions): string {
+function formatLocalAmount(amount: number, decimals: number, symbol: string, options: TAmountOptions): string {
 	let locale = 'en-US';
 	if (typeof navigator !== 'undefined') {
 		locale = navigator.language || 'fr-FR';

@@ -1,18 +1,18 @@
 'use client';
 
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
-import {IconCheck} from '@lib/icons/IconCheck';
-import {IconCircleCross} from '@lib/icons/IconCircleCross';
-import {networks, supportedNetworks} from '@lib/utils/tools.chains';
+import {WithFonts} from '@lib/common/WithFonts';
+import {IndexedDB} from '@lib/contexts/useIndexedDB';
+import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
+import {WalletContextApp} from '@lib/contexts/useWallet';
+import {WithMom} from '@lib/contexts/WithMom';
+import {WithPrices} from '@lib/contexts/WithPrices/WithPrices';
 import PlausibleProvider from 'next-plausible';
 import {Toaster} from 'react-hot-toast';
 
-import {IndexedDB} from '@smolContexts/useIndexedDB';
-import {WithPopularTokens} from '@smolContexts/usePopularTokens';
-import {WalletContextApp} from '@smolContexts/useWallet';
-import {WithMom} from '@smolContexts/WithMom';
-import {WithPrices} from '@smolContexts/WithPrices/WithPrices';
-import {WithFonts} from 'packages/smol/common/WithFonts';
+import {IconCheck} from '@lib/icons/IconCheck';
+import {IconCircleCross} from '@lib/icons/IconCircleCross';
+import {networks, supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {ReactElement, ReactNode} from 'react';
 import type {State} from 'wagmi';

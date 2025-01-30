@@ -1,9 +1,9 @@
 'use client';
 
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {usePlausible} from 'next-plausible';
 import React from 'react';
 
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
 
 import type {ReactElement} from 'react';
@@ -31,7 +31,7 @@ export function SwapRatioOption(props: {
 					value={props.label}
 					type={'radio'}
 					className={
-						'mt-0.5 size-4 !border border-neutral-400 text-primary !outline-none !ring-0 !ring-transparent !ring-offset-0'
+						'text-primary mt-0.5 size-4 !border border-neutral-400 !outline-none !ring-0 !ring-transparent !ring-offset-0'
 					}
 					name={'swapPreference'}
 				/>

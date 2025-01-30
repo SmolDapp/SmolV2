@@ -1,19 +1,19 @@
 'use client';
 
-import {IconCopy} from '@lib/icons/IconCopy';
-import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
-import {cl} from '@lib/utils/helpers';
-import {toAddress, toSafeAddress, truncateHex} from 'lib/utils/tools.addresses';
+import {Avatar} from '@lib/common/Avatar';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
+import {useClusters} from '@lib/hooks/web3/useClusters';
 import React, {useEffect, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useEnsAvatar, useEnsName} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useIsMounted} from '@smolHooks/useIsMounted';
-import {useClusters} from '@smolHooks/web3/useClusters';
-import {Avatar} from 'packages/smol/common/Avatar';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
+import {IconCopy} from '@lib/icons/IconCopy';
+import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
+import {cl} from '@lib/utils/helpers';
+import {toAddress, toSafeAddress, truncateHex} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAddressBookEntry} from 'packages/smol/app/(apps)/address-book/types';
@@ -77,7 +77,7 @@ export function AddressBookEntryAddress(props: {
 			<div className={'flex'}>
 				<TextTruncate
 					value={props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address}
-					className={'!max-w-[264px] cursor-pointer text-xxs tabular-nums'}
+					className={'text-xxs !max-w-[264px] cursor-pointer tabular-nums'}
 				/>
 				<button
 					onClick={e => {
@@ -116,7 +116,7 @@ export function AddressBookEntryAddress(props: {
 							value={
 								props.shouldTruncateAddress ? toSafeAddress({address: props.address}) : props.address
 							}
-							className={'cursor-copy text-xxs hover:underline'}
+							className={'text-xxs cursor-copy hover:underline'}
 						/>
 					</button>
 				</div>

@@ -1,16 +1,16 @@
-import {supportedNetworks} from '@lib/utils/tools.chains';
-import {isEthAddress, isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import Link from 'next/link';
 import {useState} from 'react';
 import {useAccount, useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {Warning} from 'packages/smol/common/Warning';
+import {isEthAddress, isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import {useSwapFlow} from '../contexts/useSwapFlow.lifi';
 
-import type {TWarningType} from 'packages/smol/common/Warning';
+import type {TWarningType} from '@lib/common/Warning';
 import type {ReactElement, ReactNode} from 'react';
 
 function TriggerAddressBookButton({children}: {children: ReactNode}): ReactElement {

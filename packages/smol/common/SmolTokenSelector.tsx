@@ -1,13 +1,13 @@
 'use client';
 
-import {cl} from '@lib/utils/helpers';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
 import {useUpdateEffect} from '@react-hookz/web';
 import {useCallback, useEffect, useState} from 'react';
 import {useChainId} from 'wagmi';
 
-import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {SmolTokenButton} from 'packages/smol/common/SmolTokenButton';
+import {cl} from '@lib/utils/helpers';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';

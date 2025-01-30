@@ -1,11 +1,11 @@
 'use client';
 
-import {isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {useBalances} from '@lib/contexts/useBalances.multichains';
 import {useSearchParams} from 'next/navigation';
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
 import {useChainId} from 'wagmi';
 
-import {useBalances} from '@smolContexts/useBalances.multichains';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {
 	useDisperseConfigurationReducer,
 	useDisperseDefaultProps

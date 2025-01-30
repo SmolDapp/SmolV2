@@ -1,5 +1,14 @@
 'use client';
 
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
+import {useTokenList} from '@lib/contexts/WithTokenList';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
+import {useMountEffect} from '@react-hookz/web';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {usePlausible} from 'next-plausible';
+import {useCallback, useRef} from 'react';
+
 import {IconAppMigrate} from '@lib/icons/IconApps';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
@@ -8,23 +17,14 @@ import {IconSpinner} from '@lib/icons/IconSpinner';
 import {Button} from '@lib/primitives/Button';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {useMountEffect} from '@react-hookz/web';
-import {isEthAddress} from 'lib/utils/tools.addresses';
-import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import {usePlausible} from 'next-plausible';
-import {useCallback, useRef} from 'react';
-
-import {useTokenList} from '@smolContexts/WithTokenList';
-import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
+import {isEthAddress} from '@lib/utils/tools.addresses';
 import {SendStatus} from 'packages/smol/app/(apps)/send/components/SendStatus';
 import {SendWizard} from 'packages/smol/app/(apps)/send/components/Wizard';
 import {newSendVoidInput} from 'packages/smol/app/(apps)/send/contexts/useSend.helpers';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {SmolTokenAmountInput} from 'packages/smol/common/SmolTokenAmountInput';
 
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {ReactElement, RefObject} from 'react';
 
 function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement {
@@ -43,10 +43,10 @@ function SendTokenRow({input}: {input: TTokenAmountInputElement}): ReactElement 
 			return <IconSpinner className={'size-4'} />;
 		}
 		if (input.status === 'success') {
-			return <IconCircleCheck className={'size-4 text-green'} />;
+			return <IconCircleCheck className={'text-green size-4'} />;
 		}
 		if (input.status === 'error') {
-			return <IconCircleCross className={'size-4 text-red'} />;
+			return <IconCircleCross className={'text-red size-4'} />;
 		}
 		return null;
 	};
@@ -180,7 +180,7 @@ export function Send(): ReactElement {
 	}, [configuration.receiver.address, dispatchConfiguration, listTokensWithBalance, plausible]);
 
 	return (
-		<div className={'w-full max-w-108'}>
+		<div className={'max-w-108 w-full'}>
 			<div className={'mb-4 flex flex-wrap gap-2 text-xs'}>
 				<Button
 					onClick={onAddAllTokens}

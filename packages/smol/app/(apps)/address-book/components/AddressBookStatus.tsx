@@ -1,10 +1,9 @@
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useMemo} from 'react';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {Warning} from 'packages/smol/common/Warning';
-
+import type {TWarningType} from '@lib/common/Warning';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
-import type {TWarningType} from 'packages/smol/common/Warning';
 import type {ReactElement} from 'react';
 
 export const AddressBookStatus = (props: {

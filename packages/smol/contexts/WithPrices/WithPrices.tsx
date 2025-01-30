@@ -1,13 +1,5 @@
 'use client';
 
-import {toNormalizedBN} from '@lib/utils/numbers';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
-import {useDeepCompareEffect} from '@react-hookz/web';
-import axios from 'axios';
-import {toAddress} from 'lib/utils/tools.addresses';
-import {createContext, useCallback, useContext, useMemo, useState} from 'react';
-import {serialize} from 'wagmi';
-
 import {
 	assignLlamaPrices,
 	assignYDaemonPrices,
@@ -16,12 +8,20 @@ import {
 	prepareQueryStringForLlama,
 	prepareQueryStringForYDaemon,
 	usePricesDefaultProps
-} from '@smolContexts/WithPrices/utils';
-import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
+} from '@lib/contexts/WithPrices/utils';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
+import {useDeepCompareEffect} from '@react-hookz/web';
+import axios from 'axios';
+import {createContext, useCallback, useContext, useMemo, useState} from 'react';
+import {serialize} from 'wagmi';
 
+import {toNormalizedBN} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
+
+import type {TGetPriceProps, TPriceTokens, TPrices, TPricesProps} from '@lib/contexts/WithPrices/types';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
-import type {TGetPriceProps, TPriceTokens, TPrices, TPricesProps} from '@smolContexts/WithPrices/types';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Chain} from 'viem';
 

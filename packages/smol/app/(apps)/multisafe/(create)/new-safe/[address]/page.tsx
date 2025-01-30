@@ -1,5 +1,12 @@
 'use client';
 
+import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
+import Link from 'next/link';
+import {useRouter} from 'next/router';
+import {usePlausible} from 'next-plausible';
+import React, {Fragment, useMemo, useState} from 'react';
+
 import {IconBug} from '@lib/icons/IconBug';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconDoc} from '@lib/icons/IconDoc';
@@ -7,18 +14,11 @@ import {IconEdit} from '@lib/icons/IconEdit';
 import {Button} from '@lib/primitives/Button';
 import {toBigInt} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {toAddress} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
-import {toAddress} from 'lib/utils/tools.addresses';
-import Link from 'next/link';
-import {useRouter} from 'next/router';
-import {usePlausible} from 'next-plausible';
-import React, {Fragment, useMemo, useState} from 'react';
-
 import ChainStatus from 'packages/smol/app/(apps)/multisafe/components/ChainStatus';
 import {SINGLETON_L2, SINGLETON_L2_DDP} from 'packages/smol/app/(apps)/multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
-import {SafeDetailsCurtain} from 'packages/smol/common/Curtains/SafeDetailsCurtain';
-import {ReadonlySmolAddressInput} from 'packages/smol/common/SmolAddressInput.readonly';
 
 import type {ReactElement} from 'react';
 

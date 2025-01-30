@@ -5,7 +5,7 @@ import type {ReactElement} from 'react';
 export function EmptyView({onConnect}: {onConnect?: () => Promise<void>}): ReactElement {
 	return (
 		<div className={'mt-4 flex size-full h-full flex-col items-center rounded-lg bg-neutral-200 px-11 py-[72px]'}>
-			<div className={'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'}>
+			<div className={'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'}>
 				<div className={'relative flex size-40 items-center justify-center rounded-full bg-white'}>
 					<IconWallet className={'size-20'} />
 				</div>
@@ -21,7 +21,7 @@ export function EmptyView({onConnect}: {onConnect?: () => Promise<void>}): React
 								onConnect();
 							}}
 							className={
-								'h-8 w-full rounded-lg bg-primary text-xs transition-colors hover:bg-primaryHover'
+								'bg-primary hover:bg-primaryHover h-8 w-full rounded-lg text-xs transition-colors'
 							}>
 							{'Connect Wallet'}
 						</button>

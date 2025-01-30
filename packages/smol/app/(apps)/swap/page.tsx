@@ -1,4 +1,5 @@
-import {BalancesCurtainContextApp} from '@smolContexts/useBalancesCurtain';
+import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
+
 import {SwapContextApp} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
 import {Swap} from 'packages/smol/app/(apps)/swap/swap';
 

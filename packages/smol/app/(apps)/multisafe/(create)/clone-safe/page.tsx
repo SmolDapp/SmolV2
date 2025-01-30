@@ -1,12 +1,8 @@
 'use client';
 
-import {IconDoc} from '@lib/icons/IconDoc';
-import {IconInfoLight} from '@lib/icons/IconInfo';
-import {Button} from '@lib/primitives/Button';
-import {cl} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {defaultInputAddressLike, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
-import {CHAINS} from '@lib/utils/tools.chains';
+import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {Warning} from '@lib/common/Warning';
 import {getBlockNumber, getBytecode, getTransaction, serialize} from '@wagmi/core';
 import axios from 'axios';
 import {useRouter} from 'next/router';
@@ -16,12 +12,16 @@ import {zeroAddress} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useConfig} from 'wagmi';
 
+import {IconDoc} from '@lib/icons/IconDoc';
+import {IconInfoLight} from '@lib/icons/IconInfo';
+import {Button} from '@lib/primitives/Button';
+import {cl} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {defaultInputAddressLike, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
+import {CHAINS} from '@lib/utils/tools.chains';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from 'packages/smol/app/(apps)/multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
 import {createUniqueID, decodeArgInitializers} from 'packages/smol/app/(apps)/multisafe/utils';
-import {SafeDetailsCurtain} from 'packages/smol/common/Curtains/SafeDetailsCurtain';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {Warning} from 'packages/smol/common/Warning';
 
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {ReactElement, RefObject} from 'react';

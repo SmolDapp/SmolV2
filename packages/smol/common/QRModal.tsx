@@ -1,10 +1,11 @@
 'use client';
 
-import {IconClone} from '@lib/icons/IconClone';
-import {cl} from '@lib/utils/helpers';
-import {toAddress} from 'lib/utils/tools.addresses';
 import {useCallback} from 'react';
 import {toast} from 'react-hot-toast';
+
+import {IconClone} from '@lib/icons/IconClone';
+import {cl} from '@lib/utils/helpers';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 import {ModalWrapper} from './ModalWrapper';
 

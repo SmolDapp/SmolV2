@@ -1,36 +1,33 @@
 'use client';
 
-import {IconAppSwap} from '@lib/icons/IconApps';
-import {cl} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {baseFetcher} from '@lib/utils/tools.fetchers';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {usePopularTokens} from '@lib/contexts/usePopularTokens';
+import {useWallet} from '@lib/contexts/useWallet';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {useTokenList} from '@lib/contexts/WithTokenList';
+import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
 import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {LayoutGroup, motion} from 'framer-motion';
-import {IconGears} from 'lib/icons/IconGears';
-import {IconLoader} from 'lib/icons/IconLoader';
-import {CurtainContent, CurtainTitle} from 'lib/primitives/Curtain';
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import {usePlausible} from 'next-plausible';
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import useSWR from 'swr';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId} from 'wagmi';
 
-import {usePopularTokens} from '@smolContexts/usePopularTokens';
-import {useWallet} from '@smolContexts/useWallet';
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useTokenList} from '@smolContexts/WithTokenList';
-import {useLoginModal} from '@smolHooks/web3/useLoginModal';
-import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
-import {CloseCurtainButton} from 'packages/smol/common/Curtains/InfoCurtain';
-import {FetchedTokenButton} from 'packages/smol/common/FetchedTokenButton';
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
-import {SmolTokenButton} from 'packages/smol/common/SmolTokenButton';
+import {cl} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {baseFetcher} from '@lib/utils/tools.fetchers';
+import {IconAppSwap} from 'packages/smol/icons/IconApps';
+import {IconGears} from 'packages/smol/icons/IconGears';
+import {IconLoader} from 'packages/smol/icons/IconLoader';
+import {CurtainContent, CurtainTitle} from 'packages/smol/primitives/Curtain';
 
-import type {TNormalizedBN} from '@lib/utils/numbers';
-import type {TAddress} from '@lib/utils/tools.addresses';
-import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {
 	TBalancesCurtain,
 	TBalancesCurtainContextProps,
@@ -38,7 +35,10 @@ import type {
 	TSelectCallback,
 	TTokenListSummary,
 	TWalletLayoutProps
-} from 'packages/smol/common/Curtains/types';
+} from '@lib/common/Curtains/types';
+import type {TNormalizedBN} from '@lib/utils/numbers';
+import type {TAddress} from '@lib/utils/tools.addresses';
+import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {ReactElement, ReactNode} from 'react';
 
 const defaultProps: TBalancesCurtainContextProps = {

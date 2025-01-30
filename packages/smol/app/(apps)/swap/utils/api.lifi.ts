@@ -1,5 +1,6 @@
-import {toAddress} from '@lib/utils/tools.addresses';
 import axios from 'axios';
+
+import {toAddress} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 

@@ -6,10 +6,10 @@ import {EIP3770_PREFIX} from '@lib/utils/eip-3770';
 import {formatAmount, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
 import {truncateHex} from '@lib/utils/tools.addresses';
 
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {Config} from '@wagmi/core';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Hex} from 'viem';
 
 const safeBaseURIForNetwork = (network: number): string => {

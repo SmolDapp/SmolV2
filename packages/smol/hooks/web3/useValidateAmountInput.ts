@@ -1,9 +1,10 @@
-import {fromNormalized, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
 import {useCallback, useState} from 'react';
 
+import {fromNormalized, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
+
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 
 /**************************************************************************************************
  ** TODO: Add comment

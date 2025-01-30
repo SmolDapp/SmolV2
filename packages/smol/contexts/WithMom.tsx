@@ -1,6 +1,6 @@
 'use client';
 
-import {networks} from '@lib/utils/tools.chains';
+import {WithTokenList} from '@lib/contexts/WithTokenList';
 import {RainbowKitProvider, getDefaultConfig} from '@rainbow-me/rainbowkit';
 import {
 	coinbaseWallet,
@@ -17,7 +17,7 @@ import {cookieStorage, createStorage, fallback, http} from '@wagmi/core';
 import {Fragment} from 'react';
 import {WagmiProvider} from 'wagmi';
 
-import {WithTokenList} from '@smolContexts/WithTokenList';
+import {networks} from '@lib/utils/tools.chains';
 
 import type {AvatarComponent, DisclaimerComponent, Theme} from '@rainbow-me/rainbowkit';
 import type {ReactElement} from 'react';

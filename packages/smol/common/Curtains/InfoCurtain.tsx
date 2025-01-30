@@ -1,12 +1,12 @@
-import {IconCross} from '@lib/icons/IconCross';
-import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import * as Dialog from '@radix-ui/react-dialog';
 import {usePathname} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import {Fragment} from 'react';
 
-import {useIsMounted} from '@smolHooks/useIsMounted';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {IconCross} from 'packages/smol/icons/IconCross';
+import {CurtainContent, CurtainTitle} from 'packages/smol/primitives/Curtain';
 
 import type {ReactElement, ReactNode} from 'react';
 

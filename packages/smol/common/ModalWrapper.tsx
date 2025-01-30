@@ -1,10 +1,11 @@
 'use client';
 
 import {Dialog, DialogPanel, DialogTitle, Transition, TransitionChild} from '@headlessui/react';
-import {IconCross} from '@lib/icons/IconCross';
-import {cl} from '@lib/utils/helpers';
 import {Fragment} from 'react';
 import Confetti from 'react-dom-confetti';
+
+import {IconCross} from '@lib/icons/IconCross';
+import {cl} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
 

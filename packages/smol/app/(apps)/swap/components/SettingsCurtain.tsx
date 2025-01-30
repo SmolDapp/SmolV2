@@ -1,16 +1,16 @@
 'use client';
 
-import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
-import {cl} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import {usePlausible} from 'next-plausible';
 import React from 'react';
 
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
+import {cl} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {SwapRatioOption} from 'packages/smol/app/(apps)/swap/components/SwapRatioOption';
 import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
-import {CloseCurtainButton} from 'packages/smol/common/Curtains/InfoCurtain';
 
 import type {ReactElement} from 'react';
 
@@ -37,7 +37,7 @@ export function SwapCurtain(props: TSwapCurtain): ReactElement {
 			<CurtainContent>
 				<aside
 					style={{boxShadow: '-8px 0px 20px 0px rgba(36, 40, 51, 0.08)'}}
-					className={'flex h-full flex-col overflow-y-hidden bg-neutral-0 p-6'}>
+					className={'bg-neutral-0 flex h-full flex-col overflow-y-hidden p-6'}>
 					<div className={'mb-4 flex flex-row items-center justify-between'}>
 						<CurtainTitle className={'font-bold'}>{'Swap settings'}</CurtainTitle>
 						<CloseCurtainButton />

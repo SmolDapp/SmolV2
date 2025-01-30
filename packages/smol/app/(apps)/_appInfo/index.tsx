@@ -1,10 +1,11 @@
 'use client';
 
-import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
-import {cl} from '@lib/utils/helpers';
+import {InfoCurtain} from '@lib/common/Curtains/InfoCurtain';
 import {usePathname} from 'next/navigation';
 import {useCallback} from 'react';
 
+import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
+import {cl} from '@lib/utils/helpers';
 import {AddressBookAppInfo} from 'packages/smol/app/(apps)/_appInfo/AddressBookAppInfo';
 import {DisperseAppInfo} from 'packages/smol/app/(apps)/_appInfo/DisperseAppInfo';
 import {MultisafeAppInfo} from 'packages/smol/app/(apps)/_appInfo/MultisafeAppInfo';
@@ -12,14 +13,13 @@ import {RevokeAppInfo} from 'packages/smol/app/(apps)/_appInfo/RevokeAppInfo';
 import {SendAppInfo} from 'packages/smol/app/(apps)/_appInfo/SendAppInfo';
 import {SwapAppInfo} from 'packages/smol/app/(apps)/_appInfo/SwapAppInfo';
 import {WalletAppInfo} from 'packages/smol/app/(apps)/_appInfo/WalletAppInfo';
-import {InfoCurtain} from 'packages/smol/common/Curtains/InfoCurtain';
 
 import type {ReactElement} from 'react';
 
 export default function AppInfoCurtain(): ReactElement {
 	const pathName = usePathname();
 	const getContent = useCallback(() => {
-		if (pathName?.startsWith('/wallet') || pathName?.startsWith('/apps/wallet') || pathName === '/') {
+		if (pathName?.startsWith('/wallet') || pathName?.startsWith('/apps/wallet')) {
 			return <WalletAppInfo />;
 		}
 		if (pathName?.startsWith('/address-book') || pathName?.startsWith('/apps/address-book')) {

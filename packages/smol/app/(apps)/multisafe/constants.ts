@@ -1,4 +1,4 @@
-import {toAddress} from 'lib/utils/tools.addresses';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 export const ZERO = '0';
 export const CALL_INIT_SIGNATURE = '1688f0b9'; // 1.3.0

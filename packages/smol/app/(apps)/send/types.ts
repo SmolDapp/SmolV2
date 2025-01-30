@@ -1,5 +1,5 @@
-import type {TInputAddressLike} from 'lib/utils/tools.addresses';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
+import type {TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {Dispatch} from 'react';
 /**********************************************************************************************
  ** TSendConfiguration contains all the necessary information to perform a send operation.

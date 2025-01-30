@@ -1,9 +1,6 @@
 'use client';
 
-import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
-import {cl} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
@@ -11,7 +8,10 @@ import {usePlausible} from 'next-plausible';
 import {useMemo, useState} from 'react';
 import {useChainId, useChains} from 'wagmi';
 
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
+import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
+import {cl} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
 

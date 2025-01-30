@@ -1,16 +1,16 @@
-import {toBigInt} from '@lib/utils/numbers';
-import {decodeAsBigInt} from '@lib/utils/tools.decoder';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@lib/hooks/web3/useInfiniteContractLogs';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {getBlockNumber, readContracts, serialize} from '@wagmi/core';
-import {toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {erc20Abi as abi} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@smolHooks/web3/useInfiniteContractLogs';
+import {toBigInt} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
+import {decodeAsBigInt} from '@lib/utils/tools.decoder';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 import {filterDuplicateEvents, getLatestNotEmptyEvents} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
 
 import type {TAddress} from '@lib/utils/tools.addresses';

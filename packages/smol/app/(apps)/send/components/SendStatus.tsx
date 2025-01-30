@@ -1,15 +1,15 @@
-import {getIsSmartContract, isEthAddress} from '@lib/utils/tools.addresses';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useState} from 'react';
 import {useChainId, useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {getIsSmartContract, isEthAddress} from '@lib/utils/tools.addresses';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 import {TriggerAddressBookButton} from 'packages/smol/app/(apps)/send/components/TriggerAddressBookButton';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
-import {Warning} from 'packages/smol/common/Warning';
 
-import type {TWarningType} from 'packages/smol/common/Warning';
+import type {TWarningType} from '@lib/common/Warning';
 import type {ReactElement} from 'react';
 
 export function SendStatus({isReceiverERC20}: {isReceiverERC20: boolean}): ReactElement | null {

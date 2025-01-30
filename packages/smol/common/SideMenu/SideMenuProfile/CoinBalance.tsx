@@ -1,9 +1,8 @@
 'use client';
 
+import {Counter} from '@lib/common/Counter';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {useAccount, useBalance, useChainId} from 'wagmi';
-
-import {useIsMounted} from '@smolHooks/useIsMounted';
-import {Counter} from 'packages/smol/common/Counter';
 
 import type {ReactElement} from 'react';
 

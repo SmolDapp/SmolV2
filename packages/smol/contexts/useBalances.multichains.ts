@@ -1,15 +1,15 @@
-import {AGGREGATE3_ABI} from '@lib/utils/abi/aggregate.abi';
-import {toNormalizedBN} from '@lib/utils/numbers';
-import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {deserialize, multicall, serialize} from '@wagmi/core';
-import {ethTokenAddress, isEthAddress, isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {erc20Abi} from 'viem';
 import {useAccount, useConfig} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {AGGREGATE3_ABI} from '@lib/utils/abi/aggregate.abi';
+import {toNormalizedBN} from '@lib/utils/numbers';
+import {ethTokenAddress, isEthAddress, isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
+import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
@@ -24,7 +24,7 @@ const MULTICALL3_ADDRESS = toAddress('0xcA11bde05977b3631167028862bE2a173976CA11
 /*******************************************************************************
  ** Request, Response and helpers for the useBalances hook.
  ******************************************************************************/
-export type TDefaultStatus = {
+type TDefaultStatus = {
 	isFetching: boolean;
 	isFetched: boolean;
 	isRefetching: boolean;
@@ -40,7 +40,7 @@ export type TUseBalancesTokens = {
 	symbol?: string;
 	for?: string;
 };
-export type TUseBalancesReq = {
+type TUseBalancesReq = {
 	key?: string | number;
 	tokens: TUseBalancesTokens[];
 	priorityChainID?: number;
@@ -48,13 +48,13 @@ export type TUseBalancesReq = {
 	provider?: Connector;
 };
 
-export type TChainStatus = {
+type TChainStatus = {
 	chainLoadingStatus: Record<number, boolean>;
 	chainSuccessStatus: Record<number, boolean>;
 	chainErrorStatus: Record<number, boolean>;
 };
 
-export type TUseBalancesRes = {
+type TUseBalancesRes = {
 	data: TChainERC20Tokens;
 	onUpdate: (shouldForceFetch?: boolean) => Promise<TChainERC20Tokens>;
 	onUpdateSome: (token: TUseBalancesTokens[], shouldForceFetch?: boolean) => Promise<TChainERC20Tokens>;
@@ -91,7 +91,7 @@ const defaultChainStatus = {
 	chainErrorStatus: {}
 };
 
-export async function performCall(
+async function performCall(
 	chainID: number,
 	chunckCalls: MulticallParameters['contracts'],
 	tokens: TUseBalancesTokens[],
@@ -221,7 +221,7 @@ export async function performCall(
 	return [_data, undefined];
 }
 
-export async function getBalances(
+async function getBalances(
 	chainID: number,
 	address: TAddress | undefined,
 	tokens: TUseBalancesTokens[],

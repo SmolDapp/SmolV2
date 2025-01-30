@@ -1,17 +1,17 @@
-import {Button} from '@lib/primitives/Button';
-import {toBigInt} from '@lib/utils/numbers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {defaultTxStatus} from '@lib/utils/tools.transactions';
-import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
-import {isEthAddress, isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
+import {ErrorModal} from '@lib/common/ErrorModal';
+import {SuccessModal} from '@lib/common/SuccessModal';
 import {usePlausible} from 'next-plausible';
 import React, {useState} from 'react';
 import {useAccount, useChainId} from 'wagmi';
 
+import {Button} from '@lib/primitives/Button';
+import {toBigInt} from '@lib/utils/numbers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {isEthAddress, isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
+import {defaultTxStatus} from '@lib/utils/tools.transactions';
+import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
 import {useSend} from 'packages/smol/app/(apps)/send/contexts/useSend';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
-import {ErrorModal} from 'packages/smol/common/ErrorModal';
-import {SuccessModal} from 'packages/smol/common/SuccessModal';
 
 import type {ReactElement} from 'react';
 

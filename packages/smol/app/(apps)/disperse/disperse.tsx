@@ -1,10 +1,10 @@
 'use client';
 
-import {IconFile} from '@lib/icons/IconFile';
-import {IconLoader} from '@lib/icons/IconLoader';
-import {Button} from '@lib/primitives/Button';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {getAddressAndEns, isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {useValidateAddressInput} from '@lib/hooks/web3/useValidateAddressInput';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {getEnsName} from '@wagmi/core';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
@@ -14,10 +14,11 @@ import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useValidateAddressInput} from '@smolHooks/web3/useValidateAddressInput';
-import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
+import {IconFile} from '@lib/icons/IconFile';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {getAddressAndEns, isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {DisperseAddressAndAmountInputs} from 'packages/smol/app/(apps)/disperse/components/DisperseAddressAndAmountInputs';
 import {DisperseStatus} from 'packages/smol/app/(apps)/disperse/components/DisperseStatus';
 import {ExportConfigurationButton} from 'packages/smol/app/(apps)/disperse/components/ExportConfigurationButton';
@@ -25,7 +26,6 @@ import {ImportConfigurationButton} from 'packages/smol/app/(apps)/disperse/compo
 import {DisperseWizard} from 'packages/smol/app/(apps)/disperse/components/Wizard';
 import {useDisperse} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
 import {newDisperseVoidRow} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse.helpers';
-import {SmolTokenSelector} from 'packages/smol/common/SmolTokenSelector';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
@@ -267,7 +267,7 @@ const Disperse = memo(function Disperse(): ReactElement {
 			</div>
 
 			<div className={'flex items-center gap-4'}>
-				<div className={'mb-6 w-full max-w-full md:max-w-108'}>
+				<div className={'md:max-w-108 mb-6 w-full max-w-full'}>
 					<p className={'mb-2 font-medium'}>{'Token'}</p>
 					<SmolTokenSelector
 						token={configuration.tokenToSend}

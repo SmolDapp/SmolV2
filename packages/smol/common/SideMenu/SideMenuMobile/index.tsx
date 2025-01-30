@@ -1,22 +1,22 @@
 'use client';
 
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
-import {IconHamburger} from '@lib/icons/IconHamburger';
-import {cl} from '@lib/utils/helpers';
+import {NetworkPopoverSelector} from '@lib/common/NetworkSelector/Popover';
+import {SideMenuFooter} from '@lib/common/SideMenu/SideMenuFooter';
+import {SideMenuNav} from '@lib/common/SideMenu/SideMenuNav';
+import {CoinBalance} from '@lib/common/SideMenu/SideMenuProfile/CoinBalance';
+import {ConnectButton} from '@lib/common/SideMenu/SideMenuProfile/ConnectButton';
+import {ProfileBox} from '@lib/common/SideMenu/SideMenuProfile/ProfileBox';
+import {SkeletonPlaceholder} from '@lib/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
 import {useIsMounted} from '@react-hookz/web';
-import {isAddress} from 'lib/utils/tools.addresses';
 import {Fragment, useState} from 'react';
 import {useAccount} from 'wagmi';
 
-import {NetworkPopoverSelector} from 'packages/smol/common/NetworkSelector/Popover';
-import {SideMenuFooter} from 'packages/smol/common/SideMenu/SideMenuFooter';
-import {SideMenuNav} from 'packages/smol/common/SideMenu/SideMenuNav';
-import {CoinBalance} from 'packages/smol/common/SideMenu/SideMenuProfile/CoinBalance';
-import {ConnectButton} from 'packages/smol/common/SideMenu/SideMenuProfile/ConnectButton';
-import {ProfileBox} from 'packages/smol/common/SideMenu/SideMenuProfile/ProfileBox';
-import {SkeletonPlaceholder} from 'packages/smol/common/SideMenu/SideMenuProfile/SkeletonPlaceholder';
+import {IconHamburger} from '@lib/icons/IconHamburger';
+import {cl} from '@lib/utils/helpers';
+import {isAddress} from '@lib/utils/tools.addresses';
 
-import type {TSideMenuItem} from 'packages/smol/common/SideMenu/SideMenuNav';
+import type {TSideMenuItem} from '@lib/common/SideMenu/SideMenuNav';
 import type {ReactElement} from 'react';
 
 function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {

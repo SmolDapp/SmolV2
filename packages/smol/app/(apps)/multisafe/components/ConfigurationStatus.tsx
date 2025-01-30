@@ -1,11 +1,11 @@
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
+import {Warning} from '@lib/common/Warning';
 import {useEffect, useMemo, useState} from 'react';
 
-import {Warning} from 'packages/smol/common/Warning';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 
+import type {TWarningType} from '@lib/common/Warning';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TInputAddressLikeWithUUID} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
-import type {TWarningType} from 'packages/smol/common/Warning';
 import type {ReactElement} from 'react';
 
 export function ConfigurationStatus(props: {

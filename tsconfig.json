@@ -3,10 +3,13 @@
 		"rootDirs": ["."],
 		"baseUrl": ".",
 		"paths": {
-			"@lib/*": ["packages/lib/*"],
-			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
-			"@smolContexts/*": ["packages/smol/contexts/*"],
-			"@smolHooks/*": ["packages/smol/hooks/*"]
+			"@lib/utils/*": ["packages/smol/utils/*"],
+			"@lib/icons/*": ["packages/smol/icons/*"],
+			"@lib/primitives/*": ["packages/smol/primitives/*"],
+			"@lib/types/*": ["packages/smol/types/*"],
+			"@lib/contexts/*": ["packages/smol/contexts/*"],
+			"@lib/hooks/*": ["packages/smol/hooks/*"],
+			"@lib/common/*": ["packages/smol/common/*"]
 		},
 		"types": ["bun-types"],
 		"target": "esnext",

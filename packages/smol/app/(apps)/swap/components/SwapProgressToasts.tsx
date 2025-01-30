@@ -1,7 +1,8 @@
+import {NProgress} from '@tanem/react-nprogress';
+
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {cl} from '@lib/utils/helpers';
-import {NProgress} from '@tanem/react-nprogress';
 
 import type {ReactElement} from 'react';
 import type {Toast} from 'react-hot-toast';
@@ -24,7 +25,7 @@ export function SwapProgressToasts(props: {
 				props.t.visible ? 'animate-enter' : 'animate-leave'
 			)}>
 			{props.isCompleted ? (
-				<div className={'mt-0.5 flex size-4 items-center justify-center rounded-full bg-primary'}>
+				<div className={'bg-primary mt-0.5 flex size-4 items-center justify-center rounded-full'}>
 					<IconCheck className={'size-3.5 text-white'} />
 				</div>
 			) : (
@@ -53,7 +54,7 @@ export function SwapProgressToasts(props: {
 					{({animationDuration, progress}) => (
 						<div className={'relative h-2 w-full overflow-hidden rounded-lg bg-neutral-300'}>
 							<div
-								className={'absolute inset-y-0 left-0 size-full bg-primary'}
+								className={'bg-primary absolute inset-y-0 left-0 size-full'}
 								style={{
 									marginLeft: `${(-1 + progress) * 100}%`,
 									transition: `margin-left ${animationDuration}ms linear`,

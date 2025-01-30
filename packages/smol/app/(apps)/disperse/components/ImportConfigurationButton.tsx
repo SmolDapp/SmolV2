@@ -1,15 +1,15 @@
-import {IconImport} from '@lib/icons/IconImport';
-import {Button} from '@lib/primitives/Button';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {getAddressAndEns, isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import React from 'react';
 import {toast} from 'react-hot-toast';
 import {useChainId, useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
+import {IconImport} from '@lib/icons/IconImport';
+import {Button} from '@lib/primitives/Button';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {getAddressAndEns, isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {useDisperse} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
 import {newDisperseVoidRow} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse.helpers';
 

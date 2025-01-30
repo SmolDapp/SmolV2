@@ -1,19 +1,7 @@
 'use client';
 
-import {NoNaN, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {
-	defaultInputAddressLike,
-	ethTokenAddress,
-	isAddress,
-	isEthAddress,
-	isZeroAddress,
-	toAddress
-} from '@lib/utils/tools.addresses';
-import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
-import {allowanceOf, approveERC20} from '@lib/utils/tools.erc20';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
-import {defaultTxStatus} from '@lib/utils/tools.transactions';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useAsyncTriggerWithArgs} from '@lib/hooks/useAsyncTrigger';
 import {
 	estimateGas,
 	getBalance,
@@ -29,20 +17,32 @@ import {toast} from 'react-hot-toast';
 import {erc20Abi, zeroAddress} from 'viem';
 import {serialize, useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useWallet} from '@smolContexts/useWallet';
-import {useAsyncTriggerWithArgs} from '@smolHooks/useAsyncTrigger';
+import {NoNaN, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {
+	defaultInputAddressLike,
+	ethTokenAddress,
+	isAddress,
+	isEthAddress,
+	isZeroAddress,
+	toAddress
+} from '@lib/utils/tools.addresses';
+import {decodeAsBigInt, decodeAsNumber, decodeAsString} from '@lib/utils/tools.decoder';
+import {allowanceOf, approveERC20} from '@lib/utils/tools.erc20';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {SwapCurtain} from 'packages/smol/app/(apps)/swap/components/SettingsCurtain';
 import {SwapProgressToasts} from 'packages/smol/app/(apps)/swap/components/SwapProgressToasts';
 import {getLifiRoutes, getLifiStatus} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
 
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
+import type {TUseBalancesTokens} from '@lib/contexts/useBalances.multichains';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {TTxStatus} from '@lib/utils/tools.transactions';
-import type {TUseBalancesTokens} from '@smolContexts/useBalances.multichains';
 import type {TSwapContext} from 'packages/smol/app/(apps)/swap/types';
 import type {TLifiQuoteResponse, TLifiStatusResponse} from 'packages/smol/app/(apps)/swap/utils/api.lifi';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 import type {Toast} from 'react-hot-toast';
 import type {Hex} from 'viem';
@@ -130,7 +130,7 @@ function assertLastSolverFetch(
  ** - Default status
  ** - Unique UUID
  *********************************************************************************************/
-export function getNewInputToken(): TTokenAmountInputElement {
+function getNewInputToken(): TTokenAmountInputElement {
 	return {
 		amount: '',
 		value: 0,

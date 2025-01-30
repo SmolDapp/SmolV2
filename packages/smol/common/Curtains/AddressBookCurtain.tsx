@@ -1,5 +1,19 @@
 'use client';
 
+import {AvatarWrapper} from '@lib/common/Avatar';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
+import {NetworkDropdownSelector} from '@lib/common/NetworkSelector/Dropdown';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolNameInput} from '@lib/common/SmolNameInput';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import * as Dialog from '@radix-ui/react-dialog';
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {usePlausible} from 'next-plausible';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useChainId} from 'wagmi';
+
 import {IconEdit} from '@lib/icons/IconEdit';
 import {IconGears} from '@lib/icons/IconGears';
 import {IconHeart, IconHeartFilled} from '@lib/icons/IconHeart';
@@ -9,25 +23,11 @@ import {Button} from '@lib/primitives/Button';
 import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {isAddress, toAddress, toSafeAddress} from '@lib/utils/tools.addresses';
 import {supportedNetworks} from '@lib/utils/tools.chains';
-import * as Dialog from '@radix-ui/react-dialog';
-import {isAddress, toAddress, toSafeAddress} from 'lib/utils/tools.addresses';
-import Link from 'next/link';
-import {useRouter} from 'next/navigation';
-import {usePlausible} from 'next-plausible';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useChainId} from 'wagmi';
-
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
 import {AddressBookStatus} from 'packages/smol/app/(apps)/address-book/components/AddressBookStatus';
-import {AvatarWrapper} from 'packages/smol/common/Avatar';
-import {CloseCurtainButton} from 'packages/smol/common/Curtains/InfoCurtain';
-import {NetworkDropdownSelector} from 'packages/smol/common/NetworkSelector/Dropdown';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {SmolNameInput} from 'packages/smol/common/SmolNameInput';
 
-import type {TInputAddressLike} from 'lib/utils/tools.addresses';
+import type {TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TAddressBookEntry, TAddressBookEntryReducer} from 'packages/smol/app/(apps)/address-book/types';
 import type {Dispatch, ReactElement, RefObject, SetStateAction} from 'react';
 

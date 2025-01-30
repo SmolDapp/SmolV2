@@ -2,19 +2,19 @@
 
 import assert from 'assert';
 
-import {slugify} from '@lib/utils/helpers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {supportedNetworks} from '@lib/utils/tools.chains';
+import {AddressBookCurtain} from '@lib/common/Curtains/AddressBookCurtain';
+import {AddressSelectorCurtain} from '@lib/common/Curtains/AddressSelectorCurtain';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useMountEffect} from '@react-hookz/web';
-import {isAddress, toAddress, toSafeAddress} from 'lib/utils/tools.addresses';
 import {usePlausible} from 'next-plausible';
 import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {useChainId} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
-import {AddressBookCurtain} from 'packages/smol/common/Curtains/AddressBookCurtain';
-import {AddressSelectorCurtain} from 'packages/smol/common/Curtains/AddressSelectorCurtain';
+import {slugify} from '@lib/utils/helpers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {isAddress, toAddress, toSafeAddress} from '@lib/utils/tools.addresses';
+import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {

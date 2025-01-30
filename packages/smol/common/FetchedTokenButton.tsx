@@ -1,11 +1,11 @@
 'use client';
 
-import {IconLoader} from '@lib/icons/IconLoader';
+import {Warning} from '@lib/common/Warning';
+import {useBalances} from '@lib/contexts/useBalances.multichains';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
 import {useEffect, useState} from 'react';
 
-import {useBalances} from '@smolContexts/useBalances.multichains';
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {Warning} from 'packages/smol/common/Warning';
+import {IconLoader} from '@lib/icons/IconLoader';
 
 import {SmolTokenButton} from './SmolTokenButton';
 

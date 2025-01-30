@@ -1,11 +1,11 @@
 import {Clusters} from '@clustersxyz/sdk';
-import {defaultInputAddressLike, isAddress, toAddress} from '@lib/utils/tools.addresses';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {getEnsAddress, getEnsName} from '@wagmi/core';
 import {useState} from 'react';
 import {mainnet} from 'viem/chains';
 import {useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {defaultInputAddressLike, isAddress, toAddress} from '@lib/utils/tools.addresses';
 
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
 

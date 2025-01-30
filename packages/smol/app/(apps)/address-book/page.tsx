@@ -1,16 +1,16 @@
 'use client';
 
-import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
-import {TextInput} from '@lib/primitives/TextInput';
+import {AddressBookEntry} from '@lib/common/AddressBookEntry';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {LayoutGroup, motion} from 'framer-motion';
-import {toAddress} from 'lib/utils/tools.addresses';
 import {useMemo, useState} from 'react';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
+import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
+import {TextInput} from '@lib/primitives/TextInput';
+import {toAddress} from '@lib/utils/tools.addresses';
 import {AddContactButton} from 'packages/smol/app/(apps)/address-book/components/AddContactButton';
 import {AddressBookActions} from 'packages/smol/app/(apps)/address-book/components/AddressBookActions';
 import {EmptyAddressBook} from 'packages/smol/app/(apps)/address-book/components/EmptyAddressBook';
-import {AddressBookEntry} from 'packages/smol/common/AddressBookEntry';
 
 import type {ReactElement} from 'react';
 
@@ -97,7 +97,7 @@ export default function AddressBookPage(): ReactElement {
 									}>
 									<div
 										className={
-											'mb-6 flex size-40 items-center justify-center rounded-full bg-neutral-0'
+											'bg-neutral-0 mb-6 flex size-40 items-center justify-center rounded-full'
 										}>
 										<IconEmptyAddressBook />
 									</div>

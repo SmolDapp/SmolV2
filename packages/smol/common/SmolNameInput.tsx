@@ -1,12 +1,12 @@
 'use client';
 
-import {cl} from '@lib/utils/helpers';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useValidateNameInput} from '@lib/hooks/web3/useValidateNameInput';
 import {useMountEffect} from '@react-hookz/web';
 import {useCallback, useState} from 'react';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useValidateNameInput} from '@smolHooks/web3/useValidateNameInput';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
+import {cl} from '@lib/utils/helpers';
 
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 

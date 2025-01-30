@@ -1,8 +1,8 @@
 /* eslint-disable prefer-destructuring */
-import {toAddress} from 'lib/utils/tools.addresses';
 import {fromHex, pad, toHex, zeroAddress} from 'viem';
 import XXH from 'xxhashjs';
 
+import {toAddress} from '@lib/utils/tools.addresses';
 import {
 	ALTERNATE_FALLBACK_HANDLER,
 	FALLBACK_HANDLER,

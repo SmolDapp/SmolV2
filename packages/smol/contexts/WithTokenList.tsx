@@ -1,21 +1,21 @@
 'use client';
 
-import {zeroNormalizedBN} from '@lib/utils/numbers';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useLocalStorageValue} from '@react-hookz/web';
 import axios from 'axios';
-import {toAddress} from 'lib/utils/tools.addresses';
 import {createContext, useCallback, useContext, useMemo, useState} from 'react';
 import {isAddressEqual} from 'viem';
 import {useChainId} from 'wagmi';
 
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {zeroNormalizedBN} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TERC20TokenList, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {AxiosResponse} from 'axios';
 import type {Dispatch, ReactElement, SetStateAction} from 'react';
 
-export type TTokenListProps = {
+type TTokenListProps = {
 	tokenLists: Record<number, Record<TAddress, TERC20TokensWithBalance>>;
 	currentNetworkTokenList: Record<TAddress, TERC20TokensWithBalance>;
 	isInitialized: boolean;

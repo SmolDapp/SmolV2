@@ -1,9 +1,9 @@
-import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
+import {AddressEntry} from '@lib/common/AddressBookEntry';
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import React from 'react';
 
-import {AddressEntry} from 'packages/smol/common/AddressBookEntry';
-import {CloseCurtainButton} from 'packages/smol/common/Curtains/InfoCurtain';
+import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {ReactElement} from 'react';

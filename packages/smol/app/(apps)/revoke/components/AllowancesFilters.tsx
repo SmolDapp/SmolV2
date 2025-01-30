@@ -1,7 +1,7 @@
-import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
-import {cl} from '@lib/utils/helpers';
 import {useCallback, useMemo} from 'react';
 
+import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
+import {cl} from '@lib/utils/helpers';
 import {AllowanceFilterDropdown} from 'packages/smol/app/(apps)/revoke/components/AllowanceFilterDropdown';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 import {

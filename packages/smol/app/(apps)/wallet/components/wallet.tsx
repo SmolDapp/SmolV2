@@ -1,22 +1,22 @@
 'use client';
 
-import {IconLoader} from '@lib/icons/IconLoader';
-import {cl} from '@lib/utils/helpers';
+import {EmptyView} from '@lib/common/EmptyView';
+import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
+import {SmolTokenButton} from '@lib/common/SmolTokenButton';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {useTokenList} from '@lib/contexts/WithTokenList';
+import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import Link from 'next/link';
 import {useMemo, useState} from 'react';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId} from 'wagmi';
 
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useTokenList} from '@smolContexts/WithTokenList';
-import {useLoginModal} from '@smolHooks/web3/useLoginModal';
-import {useTokensWithBalance} from '@smolHooks/web3/useTokensWithBalance';
+import {IconLoader} from '@lib/icons/IconLoader';
+import {cl} from '@lib/utils/helpers';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {WalletListHeader} from 'packages/smol/app/(apps)/wallet/components/WalletListHeader';
-import {EmptyView} from 'packages/smol/common/EmptyView';
-import {FetchedTokenButton} from 'packages/smol/common/FetchedTokenButton';
-import {SmolTokenButton} from 'packages/smol/common/SmolTokenButton';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {ReactElement} from 'react';

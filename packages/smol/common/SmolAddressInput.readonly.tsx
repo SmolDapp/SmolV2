@@ -1,16 +1,16 @@
 'use client';
 
-import {IconLinkOut} from '@lib/icons/IconLinkOut';
-import {cl} from '@lib/utils/helpers';
-import {toAddress, truncateHex} from 'lib/utils/tools.addresses';
+import {AvatarWrapper} from '@lib/common/Avatar';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {useClusters} from '@lib/hooks/web3/useClusters';
 import Link from 'next/link';
 import React from 'react';
 import {mainnet} from 'viem/chains';
 import {useEnsName} from 'wagmi';
 
-import {useClusters} from '@smolHooks/web3/useClusters';
-import {AvatarWrapper} from 'packages/smol/common/Avatar';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
+import {IconLinkOut} from '@lib/icons/IconLinkOut';
+import {cl} from '@lib/utils/helpers';
+import {toAddress, truncateHex} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {ReactElement} from 'react';
@@ -20,7 +20,7 @@ export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement
 	const clusters = useClusters({address: props.value});
 
 	return (
-		<div className={'group relative size-full max-w-108 rounded-lg'}>
+		<div className={'max-w-108 group relative size-full rounded-lg'}>
 			<label
 				className={cl(
 					'h-20 z-20 relative',
@@ -60,7 +60,7 @@ export function ReadonlySmolAddressInput(props: {value: TAddress}): ReactElement
 								'bg-neutral-200 hover:bg-neutral-300 transition-colors'
 							)}>
 							<div
-								className={'flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+								className={'bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 								<AvatarWrapper
 									key={props.value}
 									address={toAddress(props.value)}

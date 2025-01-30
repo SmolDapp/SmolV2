@@ -38,5 +38,3 @@ export const DISPERSE_ABI = [
 		type: 'function'
 	}
 ] as const;
-
-export default DISPERSE_ABI;

@@ -1,21 +1,21 @@
 'use client';
 
-import {zeroNormalizedBN} from '@lib/utils/numbers';
-import {DEFAULT_ERC20} from '@lib/utils/tools.erc20';
-import {createUniqueID} from '@lib/utils/tools.identifiers';
+import {useBalances} from '@lib/contexts/useBalances.multichains';
+import {toTToken, toTokenListToken, useTokenList} from '@lib/contexts/WithTokenList';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useDeepCompareMemo, useLocalStorageValue} from '@react-hookz/web';
-import {ethTokenAddress, isZeroAddress, toAddress} from 'lib/utils/tools.addresses';
 import {createContext, memo, useCallback, useContext, useMemo} from 'react';
 import {serialize, useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useBalances} from '@smolContexts/useBalances.multichains';
-import {toTToken, toTokenListToken, useTokenList} from '@smolContexts/WithTokenList';
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
+import {zeroNormalizedBN} from '@lib/utils/numbers';
+import {ethTokenAddress, isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
+import {DEFAULT_ERC20} from '@lib/utils/tools.erc20';
+import {createUniqueID} from '@lib/utils/tools.identifiers';
 
+import type {TUseBalancesTokens} from '@lib/contexts/useBalances.multichains';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens, TERC20TokenList, TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
-import type {TUseBalancesTokens} from '@smolContexts/useBalances.multichains';
 import type {ReactElement} from 'react';
 
 type TTokenAndChain = {address: TAddress; chainID: number};

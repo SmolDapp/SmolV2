@@ -1,9 +1,10 @@
 'use client';
 
-import {cl} from '@lib/utils/helpers';
-import {formatAmount, parseAmount} from '@lib/utils/numbers';
 import {animate} from 'framer-motion';
 import {useLayoutEffect, useRef, useState} from 'react';
+
+import {cl} from '@lib/utils/helpers';
+import {formatAmount, parseAmount} from '@lib/utils/numbers';
 
 import type {MutableRefObject, ReactElement} from 'react';
 

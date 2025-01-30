@@ -1,14 +1,14 @@
-import {IconCross} from '@lib/icons/IconCross';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolAmountInput} from '@lib/common/SmolAmountInput';
 import {useRef} from 'react';
 
+import {IconCross} from '@lib/icons/IconCross';
 import {useDisperse} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
-import {SmolAddressInput} from 'packages/smol/common/SmolAddressInput';
-import {SmolAmountInput} from 'packages/smol/common/SmolAmountInput';
 
+import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TDisperseInput} from 'packages/smol/app/(apps)/disperse/types';
-import type {TAmountInputElement} from 'packages/smol/common/SmolAmountInput';
 import type {ReactElement, RefObject} from 'react';
 
 type TDisperseAddressAndAmountInputs = {

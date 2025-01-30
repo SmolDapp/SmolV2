@@ -21,14 +21,14 @@ type TAddressWagmi = `0x${string}`;
  ** Enforces strict hex format: 0x followed by exactly 40 hex characters
  ** Used for internal address validation and type safety
  ************************************************************************************************/
-export type TAddressSmol = '/^0x[0-9a-f]{40}$/i';
+type TAddressSmol = '/^0x[0-9a-f]{40}$/i';
 
 /************************************************************************************************
  ** TAddressLike represents any address-like value that can be converted to a valid address
  ** Union type of different address formats that can be normalized
  ** Used for flexible address input handling
  ************************************************************************************************/
-export type TAddressLike = TAddressSmol | TAddressWagmi | string;
+type TAddressLike = TAddressSmol | TAddressWagmi | string;
 
 /************************************************************************************************
  ** TAddress is the standard address type used throughout the application

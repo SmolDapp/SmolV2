@@ -1,13 +1,13 @@
 'use client';
 
-import {toAddress} from 'lib/utils/tools.addresses';
+import {QRModal} from '@lib/common/QRModal';
 import Image from 'next/image';
-import {IconQRCode} from 'packages/lib/icons/IconQRCode';
 import * as QRCode from 'qrcode';
 import {useCallback, useState} from 'react';
 import {useAccount} from 'wagmi';
 
-import {QRModal} from 'packages/smol/common/QRModal';
+import {IconQRCode} from '@lib/icons/IconQRCode';
+import {toAddress} from '@lib/utils/tools.addresses';
 
 import type {ReactElement} from 'react';
 

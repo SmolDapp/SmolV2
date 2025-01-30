@@ -1,11 +1,7 @@
 'use client';
 
-import {Button} from '@lib/primitives/Button';
-import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, toNormalizedValue} from '@lib/utils/numbers';
-import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {approveERC20} from '@lib/utils/tools.erc20';
-import {defaultTxStatus} from '@lib/utils/tools.transactions';
-import {toAddress, truncateHex} from 'lib/utils/tools.addresses';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useTokenList} from '@lib/contexts/WithTokenList';
 import {usePlausible} from 'next-plausible';
 import React, {useCallback, useMemo, useState} from 'react';
 import {toast} from 'react-hot-toast';
@@ -13,10 +9,14 @@ import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useTokenList} from '@smolContexts/WithTokenList';
+import {Button} from '@lib/primitives/Button';
+import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, toNormalizedValue} from '@lib/utils/numbers';
+import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
+import {toAddress, truncateHex} from '@lib/utils/tools.addresses';
+import {approveERC20} from '@lib/utils/tools.erc20';
+import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 import {isUnlimitedBN} from 'packages/smol/app/(apps)/revoke/utils/tools.revoke';
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAllowanceItemProps, TApproveEventEntry, TTokenAllowance} from 'packages/smol/app/(apps)/revoke/types';

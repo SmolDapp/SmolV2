@@ -1,29 +1,29 @@
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {slugify} from '@lib/utils/helpers';
-import {notifySend} from '@lib/utils/notifier';
-import {toBigInt} from '@lib/utils/numbers';
-import {transferERC20} from '@lib/utils/tools.erc20';
-import {getTransferTransaction} from '@lib/utils/tools.gnosis';
-import {defaultTxStatus} from '@lib/utils/tools.transactions';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useIsSafe} from '@lib/hooks/web3/useIsSafe';
 import {useDeepCompareMemo} from '@react-hookz/web';
-import {ethTokenAddress, isZeroAddress, toAddress, truncateHex} from 'lib/utils/tools.addresses';
 import {useCallback} from 'react';
 import {isAddressEqual, zeroAddress} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
-import {useAddressBook} from '@smolContexts/useAddressBook';
-import {useWallet} from '@smolContexts/useWallet';
-import {useIsSafe} from '@smolHooks/web3/useIsSafe';
+import {slugify} from '@lib/utils/helpers';
+import {notifySend} from '@lib/utils/notifier';
+import {toBigInt} from '@lib/utils/numbers';
+import {ethTokenAddress, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
+import {transferERC20} from '@lib/utils/tools.erc20';
+import {getTransferTransaction} from '@lib/utils/tools.gnosis';
+import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {transferEthers} from 'packages/smol/app/(apps)/send/contexts/transferEthers';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
 
 import type {BaseTransaction} from '@gnosis.pm/safe-apps-sdk';
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
+import type {TUseBalancesTokens} from '@lib/contexts/useBalances.multichains';
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TChainERC20Tokens} from '@lib/utils/tools.erc20';
 import type {TTxResponse, TTxStatus} from '@lib/utils/tools.transactions';
-import type {TUseBalancesTokens} from '@smolContexts/useBalances.multichains';
 import type {TDisperseTxInfo, TInputWithToken} from 'packages/smol/app/(apps)/disperse/types';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Hex} from 'viem';
 
 export const useSend = (

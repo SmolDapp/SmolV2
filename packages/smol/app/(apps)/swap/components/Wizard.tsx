@@ -1,16 +1,16 @@
+import {SuccessModal} from '@lib/common/SuccessModal';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import Link from 'next/link';
+import React, {useCallback, useState} from 'react';
+
+import {IconAppSwap} from '@lib/icons/IconApps';
 import {Button} from '@lib/primitives/Button';
 import {cl, truncateHexTx} from '@lib/utils/helpers';
 import {formatAmount, toNormalizedBN} from '@lib/utils/numbers';
+import {toAddress} from '@lib/utils/tools.addresses';
 import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {TWEETER_SHARE_CONTENT} from '@lib/utils/twitter';
-import {toAddress} from 'lib/utils/tools.addresses';
-import Link from 'next/link';
-import {IconAppSwap} from 'packages/lib/icons/IconApps';
-import React, {useCallback, useState} from 'react';
-
-import {useAsyncTrigger} from '@smolHooks/useAsyncTrigger';
 import {useSwapFlow} from 'packages/smol/app/(apps)/swap/contexts/useSwapFlow.lifi';
-import {SuccessModal} from 'packages/smol/common/SuccessModal';
 
 import type {TTxStatus} from '@lib/utils/tools.transactions';
 import type {TLifiStatusResponse} from 'packages/smol/app/(apps)/swap/utils/api.lifi';

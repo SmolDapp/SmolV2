@@ -1,14 +1,15 @@
 'use client';
 
-import {cl} from '@lib/utils/helpers';
 import {useAccountModal} from '@rainbow-me/rainbowkit';
 import {useUpdateEffect} from '@react-hookz/web';
 import Identicon from 'identicon.js';
-import {isAddress, toAddress} from 'lib/utils/tools.addresses';
 import Image from 'next/image';
 import React, {useMemo, useState} from 'react';
 import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
+
+import {cl} from '@lib/utils/helpers';
+import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {ReactElement} from 'react';

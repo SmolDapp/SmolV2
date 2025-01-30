@@ -2,8 +2,8 @@
 import {zeroNormalizedBN} from '@lib/utils/numbers';
 import {defaultInputAddressLike} from '@lib/utils/tools.addresses';
 
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TSendActions, TSendConfiguration, TSendContext} from 'packages/smol/app/(apps)/send/types';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 
 /**************************************************************************************************
  ** newSendVoidInput will return a new void input for the send configuration. It's used to

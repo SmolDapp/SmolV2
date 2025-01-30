@@ -1,14 +1,14 @@
 'use client';
 
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useBalancesCurtain} from '@lib/contexts/useBalancesCurtain';
+import {useTokenList} from '@lib/contexts/WithTokenList';
+import {useMemo} from 'react';
+
 import {IconChevron} from '@lib/icons/IconChevron';
 import {IconWallet} from '@lib/icons/IconWallet';
 import {cl} from '@lib/utils/helpers';
-import {isAddress} from 'lib/utils/tools.addresses';
-import {useMemo} from 'react';
-
-import {useBalancesCurtain} from '@smolContexts/useBalancesCurtain';
-import {useTokenList} from '@smolContexts/WithTokenList';
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
+import {isAddress} from '@lib/utils/tools.addresses';
 
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
 import type {ReactElement} from 'react';
@@ -54,7 +54,7 @@ export function SmolTokenSelectorButton(props: {
 				'bg-neutral-200 hover:bg-neutral-300'
 			)}>
 			<div className={'flex w-full items-center gap-2'}>
-				<div className={'realtive flex size-8 min-w-8 items-center justify-center rounded-full bg-neutral-0'}>
+				<div className={'realtive bg-neutral-0 flex size-8 min-w-8 items-center justify-center rounded-full'}>
 					{props.token && isAddress(props.token.address) ? (
 						<div className={'relative'}>
 							{props.displayNetworkIcon && (

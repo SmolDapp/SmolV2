@@ -1,15 +1,15 @@
 'use client';
 
-import {cl, handleLowAmount} from '@lib/utils/helpers';
-import {formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@lib/utils/numbers';
+import {TextTruncate} from '@lib/common/TextTruncate';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import InputNumber from 'rc-input-number';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useChainId} from 'wagmi';
 
-import {usePrices} from '@smolContexts/WithPrices/WithPrices';
-import {useValidateAmountInput} from '@smolHooks/web3/useValidateAmountInput';
-import {TextTruncate} from 'packages/smol/common/TextTruncate';
+import {cl, handleLowAmount} from '@lib/utils/helpers';
+import {formatAmount, formatCounterValue, percentOf, zeroNormalizedBN} from '@lib/utils/numbers';
 
 import {SmolTokenSelectorButton} from './SmolTokenSelectorButton';
 

@@ -1,16 +1,12 @@
 'use client';
 
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useTokenList} from '@lib/contexts/WithTokenList';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import {
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuSeparator
-} from 'packages/lib/primitives/DropdownMenu';
 import {useCallback, useMemo} from 'react';
 
-import {useTokenList} from '@smolContexts/WithTokenList';
+import {DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator} from '@lib/primitives/DropdownMenu';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
 
 import type {TFilterAllowance} from 'packages/smol/app/(apps)/revoke/types';
 import type {ReactElement} from 'react';

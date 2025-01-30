@@ -1,12 +1,11 @@
 'use client';
 
+import {AddressBookEntryAddress} from '@lib/common/AddressBookEntry';
+import {Avatar} from '@lib/common/Avatar';
+import {useBeraname} from '@lib/hooks/web3/useBeraname';
+import {useClusters} from '@lib/hooks/web3/useClusters';
+import {useENS} from '@lib/hooks/web3/useENS';
 import {useAccount} from 'wagmi';
-
-import {useBeraname} from '@smolHooks/web3/useBeraname';
-import {useClusters} from '@smolHooks/web3/useClusters';
-import {useENS} from '@smolHooks/web3/useENS';
-import {AddressBookEntryAddress} from 'packages/smol/common/AddressBookEntry';
-import {Avatar} from 'packages/smol/common/Avatar';
 
 import {QRCodeElement} from './QRCode';
 

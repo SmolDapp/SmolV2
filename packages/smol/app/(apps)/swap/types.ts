@@ -1,5 +1,5 @@
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 
 /**********************************************************************************************
  ** The TSwapContext type defines the interface for the swap context used throughout the app.

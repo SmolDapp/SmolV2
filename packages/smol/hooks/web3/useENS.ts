@@ -1,6 +1,7 @@
-import {toAddress} from 'lib/utils/tools.addresses';
 import {mainnet} from 'viem/chains';
 import {useAccount, useEnsAvatar, useEnsName} from 'wagmi';
+
+import {toAddress} from '@lib/utils/tools.addresses';
 
 type TENS = {name: string; avatar: string; isLoading: boolean};
 

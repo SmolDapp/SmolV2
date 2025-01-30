@@ -1,15 +1,15 @@
 'use client';
 
-import {IconChevron} from '@lib/icons/IconChevron';
-import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
-import {cl} from '@lib/utils/helpers';
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
 import * as Popover from '@radix-ui/react-popover';
 import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
 import {useCallback, useState} from 'react';
 import {useChainId, useChains, useSwitchChain} from 'wagmi';
 
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
+import {IconChevron} from '@lib/icons/IconChevron';
+import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/primitives/Commands';
+import {cl} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
 

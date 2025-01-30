@@ -1,8 +1,8 @@
+import type {TAmountInputElement} from '@lib/common/SmolAmountInput';
+import type {TTokenAmountInputElement} from '@lib/common/SmolTokenAmountInput';
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
-import type {TAmountInputElement} from 'packages/smol/common/SmolAmountInput';
-import type {TTokenAmountInputElement} from 'packages/smol/common/SmolTokenAmountInput';
 import type {Dispatch} from 'react';
 
 /**********************************************************************************************

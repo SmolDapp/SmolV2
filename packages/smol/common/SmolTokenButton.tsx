@@ -1,14 +1,14 @@
 'use client';
 
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useTokenList} from '@lib/contexts/WithTokenList';
+import {useMemo} from 'react';
+
 import {IconChevron} from '@lib/icons/IconChevron';
 import {IconWallet} from '@lib/icons/IconWallet';
 import {cl} from '@lib/utils/helpers';
 import {formatAmount, toBigInt} from '@lib/utils/numbers';
-import {isAddress, truncateHex} from 'lib/utils/tools.addresses';
-import {useMemo} from 'react';
-
-import {useTokenList} from '@smolContexts/WithTokenList';
-import {ImageWithFallback} from 'packages/smol/common/ImageWithFallback';
+import {isAddress, truncateHex} from '@lib/utils/tools.addresses';
 
 import type {TNormalizedBN} from '@lib/utils/numbers';
 import type {TERC20TokensWithBalance} from '@lib/utils/tools.erc20';
@@ -106,7 +106,7 @@ export function SmolTokenButton(props: {
 							height={32}
 						/>
 					) : (
-						<div className={'flex size-8 items-center justify-center rounded-full bg-neutral-0'}>
+						<div className={'bg-neutral-0 flex size-8 items-center justify-center rounded-full'}>
 							<IconWallet className={'size-4 text-neutral-600'} />
 						</div>
 					)}

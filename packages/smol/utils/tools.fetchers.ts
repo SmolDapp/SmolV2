@@ -41,10 +41,6 @@ export async function fetch<T>({endpoint, schema, config}: TFetchProps): TFetchR
 	}
 }
 
-export async function curveFetcher<T>(url: string): Promise<T> {
-	return axios.get(url).then((res): T => res.data?.data);
-}
-
 export async function baseFetcher<T>(url: string): Promise<T> {
 	return axios.get(url).then((res): T => res.data);
 }

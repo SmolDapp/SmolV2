@@ -1,6 +1,7 @@
+import Link from 'next/link';
+
 import {IconSmolMouse} from '@lib/icons/IconSmolMouse';
 import {Button} from '@lib/primitives/Button';
-import Link from 'next/link';
 
 import type {ReactElement} from 'react';
 

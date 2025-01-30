@@ -1,8 +1,8 @@
 import assert from 'assert';
 
 import {MULTICALL_ABI} from '@lib/utils/abi/multicall3.abi';
+import {assertAddress} from '@lib/utils/tools.addresses';
 import {handleTx} from '@lib/utils/tools.transactions';
-import {assertAddress} from 'lib/utils/tools.addresses';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TTxResponse, TWriteTransaction} from '@lib/utils/tools.transactions';
