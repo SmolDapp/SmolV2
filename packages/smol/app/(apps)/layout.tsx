@@ -1,7 +1,6 @@
 import {SideMenu} from '@lib/common/SideMenu';
 import {SideMenuMobile} from '@lib/common/SideMenu/SideMenuMobile';
 import {WithAddressBook} from '@lib/contexts/useAddressBook';
-
 import {IconAppAddressBook, IconAppDisperse, IconAppRevoke, IconAppSend, IconAppSwap} from '@lib/icons/IconApps';
 import {IconClone} from '@lib/icons/IconClone';
 import IconMultisafe from '@lib/icons/IconMultisafe';

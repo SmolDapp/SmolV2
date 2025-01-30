@@ -1,5 +1,3 @@
-import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
-import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@lib/hooks/web3/useInfiniteContractLogs';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {getBlockNumber, readContracts, serialize} from '@wagmi/core';
 import {useCallback, useEffect, useRef, useState} from 'react';
@@ -7,6 +5,8 @@ import {erc20Abi as abi} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import {parsedApprovalEvent, useInfiniteApprovalLogs} from '@lib/hooks/web3/useInfiniteContractLogs';
 import {toBigInt} from '@lib/utils/numbers';
 import {toAddress} from '@lib/utils/tools.addresses';
 import {decodeAsBigInt} from '@lib/utils/tools.decoder';
