@@ -1,10 +1,10 @@
 'use client';
 
-import {IconClone} from '@lib/icons/IconClone';
-import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import {useRouter} from 'next/navigation';
 import React from 'react';
 
+import {IconClone} from '@lib/icons/IconClone';
+import IconSquarePlus from '@lib/icons/IconSquarePlus';
 import CardWithIcon from 'packages/smol/app/(apps)/multisafe/components/CardWithIcon';
 import {MultisafeContextApp} from 'packages/smol/app/(apps)/multisafe/contexts/useMultisafe';
 

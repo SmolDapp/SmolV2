@@ -1,9 +1,9 @@
-import {EmptyView} from '@lib/common/EmptyView';
-import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
 import Link from 'next/link';
 import {Fragment, useCallback} from 'react';
 import {useAccount} from 'wagmi';
 
+import {EmptyView} from '@lib/common/EmptyView';
+import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
 import IconChevronPlain from '@lib/icons/IconChevronPlain';
 import {IconPlus} from '@lib/icons/IconPlus';
 import {IconSpinner} from '@lib/icons/IconSpinner';

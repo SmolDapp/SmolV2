@@ -1,12 +1,12 @@
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useWallet} from '@lib/contexts/useWallet';
-import {useIsSafe} from '@lib/hooks/web3/useIsSafe';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {useCallback} from 'react';
 import {isAddressEqual, zeroAddress} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useIsSafe} from '@lib/hooks/web3/useIsSafe';
 import {slugify} from '@lib/utils/helpers';
 import {notifySend} from '@lib/utils/notifier';
 import {toBigInt} from '@lib/utils/numbers';

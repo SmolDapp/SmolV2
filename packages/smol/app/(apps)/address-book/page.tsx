@@ -1,10 +1,10 @@
 'use client';
 
-import {AddressBookEntry} from '@lib/common/AddressBookEntry';
-import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {LayoutGroup, motion} from 'framer-motion';
 import {useMemo, useState} from 'react';
 
+import {AddressBookEntry} from '@lib/common/AddressBookEntry';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {IconEmptyAddressBook} from '@lib/icons/IconEmptyAddressBook';
 import {TextInput} from '@lib/primitives/TextInput';
 import {toAddress} from '@lib/utils/tools.addresses';

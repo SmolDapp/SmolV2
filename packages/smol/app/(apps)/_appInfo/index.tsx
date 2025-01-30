@@ -1,9 +1,9 @@
 'use client';
 
-import {InfoCurtain} from '@lib/common/Curtains/InfoCurtain';
 import {usePathname} from 'next/navigation';
 import {useCallback} from 'react';
 
+import {InfoCurtain} from '@lib/common/Curtains/InfoCurtain';
 import {IconQuestionMark} from '@lib/icons/IconQuestionMark';
 import {cl} from '@lib/utils/helpers';
 import {AddressBookAppInfo} from 'packages/smol/app/(apps)/_appInfo/AddressBookAppInfo';

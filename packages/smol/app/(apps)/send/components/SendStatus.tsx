@@ -1,9 +1,9 @@
-import {Warning} from '@lib/common/Warning';
-import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {useState} from 'react';
 import {useChainId, useConfig} from 'wagmi';
 
+import {Warning} from '@lib/common/Warning';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {getIsSmartContract, isEthAddress} from '@lib/utils/tools.addresses';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 import {TriggerAddressBookButton} from 'packages/smol/app/(apps)/send/components/TriggerAddressBookButton';

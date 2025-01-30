@@ -1,10 +1,5 @@
 'use client';
 
-import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
-import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
-import {useValidateAddressInput} from '@lib/hooks/web3/useValidateAddressInput';
-import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {getEnsName} from '@wagmi/core';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
@@ -14,6 +9,11 @@ import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useConfig} from 'wagmi';
 
+import {SmolTokenSelector} from '@lib/common/SmolTokenSelector';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
+import {useValidateAddressInput} from '@lib/hooks/web3/useValidateAddressInput';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {IconFile} from '@lib/icons/IconFile';
 import {IconLoader} from '@lib/icons/IconLoader';
 import {Button} from '@lib/primitives/Button';

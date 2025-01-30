@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import formidable from 'formidable';
+import {formidable} from 'formidable';
 import {Input, Telegram} from 'telegraf';
 
 import type {NextApiRequest, NextApiResponse} from 'next';

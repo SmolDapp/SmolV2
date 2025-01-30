@@ -1,11 +1,11 @@
 'use client';
 
-import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import {usePlausible} from 'next-plausible';
 import React from 'react';
 
+import {CloseCurtainButton} from '@lib/common/Curtains/InfoCurtain';
 import {CurtainContent, CurtainTitle} from '@lib/primitives/Curtain';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';

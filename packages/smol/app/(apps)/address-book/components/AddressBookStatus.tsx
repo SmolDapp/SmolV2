@@ -1,6 +1,7 @@
+import {useMemo} from 'react';
+
 import {Warning} from '@lib/common/Warning';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useMemo} from 'react';
 
 import type {TWarningType} from '@lib/common/Warning';
 import type {TInputAddressLike} from '@lib/utils/tools.addresses';

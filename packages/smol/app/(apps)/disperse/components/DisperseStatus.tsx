@@ -1,9 +1,9 @@
+import {useMemo, useState} from 'react';
+
 import {Warning} from '@lib/common/Warning';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useWallet} from '@lib/contexts/useWallet';
 import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
-import {useMemo, useState} from 'react';
-
 import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 
 import {useDisperse} from '../contexts/useDisperse';

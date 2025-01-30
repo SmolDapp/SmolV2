@@ -1,7 +1,6 @@
 'use client';
 
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
-
 import {SendContextApp} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
 import {Send} from 'packages/smol/app/(apps)/send/send';
 

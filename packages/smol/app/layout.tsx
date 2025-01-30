@@ -1,7 +1,7 @@
-import {config} from '@lib/contexts/WithMom';
 import {headers} from 'next/headers';
 import {cookieToInitialState} from 'wagmi';
 
+import {config} from '@lib/contexts/WithMom';
 import Providers from 'packages/smol/app/Providers';
 
 import '../style.css';

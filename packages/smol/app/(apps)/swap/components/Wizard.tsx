@@ -1,8 +1,8 @@
-import {SuccessModal} from '@lib/common/SuccessModal';
-import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import Link from 'next/link';
 import React, {useCallback, useState} from 'react';
 
+import {SuccessModal} from '@lib/common/SuccessModal';
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
 import {IconAppSwap} from '@lib/icons/IconApps';
 import {Button} from '@lib/primitives/Button';
 import {cl, truncateHexTx} from '@lib/utils/helpers';

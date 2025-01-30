@@ -1,12 +1,12 @@
 'use client';
 
-import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
-import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {usePlausible} from 'next-plausible';
 import React, {Fragment, useMemo, useState} from 'react';
 
+import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {IconBug} from '@lib/icons/IconBug';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconDoc} from '@lib/icons/IconDoc';

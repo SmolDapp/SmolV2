@@ -1,5 +1,11 @@
 'use client';
 
+import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
+import Link from 'next/link';
+import {useMemo, useState} from 'react';
+import {isAddressEqual} from 'viem';
+import {useAccount, useChainId} from 'wagmi';
+
 import {EmptyView} from '@lib/common/EmptyView';
 import {FetchedTokenButton} from '@lib/common/FetchedTokenButton';
 import {SmolTokenButton} from '@lib/common/SmolTokenButton';
@@ -7,12 +13,6 @@ import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
 import {useTokenList} from '@lib/contexts/WithTokenList';
 import {useLoginModal} from '@lib/hooks/web3/useLoginModal';
 import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
-import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
-import Link from 'next/link';
-import {useMemo, useState} from 'react';
-import {isAddressEqual} from 'viem';
-import {useAccount, useChainId} from 'wagmi';
-
 import {IconLoader} from '@lib/icons/IconLoader';
 import {cl} from '@lib/utils/helpers';
 import {isAddress, toAddress} from '@lib/utils/tools.addresses';

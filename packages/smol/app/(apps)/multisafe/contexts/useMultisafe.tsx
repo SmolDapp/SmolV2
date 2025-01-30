@@ -1,9 +1,10 @@
 /* eslint-disable array-bracket-newline */
+import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
+import useSWR from 'swr';
+
 import {defaultInputAddressLike, isZeroAddress} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
 import {baseFetcher} from '@lib/utils/tools.fetchers';
-import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
-import useSWR from 'swr';
 
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 

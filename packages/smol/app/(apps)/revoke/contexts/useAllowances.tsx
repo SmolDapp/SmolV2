@@ -1,7 +1,5 @@
 'use client';
 
-import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
-import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
 import {useDeepCompareMemo} from '@react-hookz/web';
 import {serialize} from '@wagmi/core';
 import {createContext, useCallback, useContext, useEffect, useReducer, useRef, useState} from 'react';
@@ -9,6 +7,8 @@ import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
+import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
+import {useTokensWithBalance} from '@lib/hooks/web3/useTokensWithBalance';
 import {toNormalizedBN} from '@lib/utils/numbers';
 import {isAddress, toAddress} from '@lib/utils/tools.addresses';
 import {createUniqueID} from '@lib/utils/tools.identifiers';

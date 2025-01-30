@@ -1,6 +1,6 @@
-import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {useMemo} from 'react';
 
+import {useAddressBook} from '@lib/contexts/useAddressBook';
 import {isZeroAddress} from '@lib/utils/tools.addresses';
 import {useSendContext} from 'packages/smol/app/(apps)/send/contexts/useSendContext';
 

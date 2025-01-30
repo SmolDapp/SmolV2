@@ -1,7 +1,5 @@
 'use client';
 
-import {useWallet} from '@lib/contexts/useWallet';
-import {useAsyncTriggerWithArgs} from '@lib/hooks/useAsyncTrigger';
 import {
 	estimateGas,
 	getBalance,
@@ -17,6 +15,8 @@ import {toast} from 'react-hot-toast';
 import {erc20Abi, zeroAddress} from 'viem';
 import {serialize, useAccount, useChainId, useConfig} from 'wagmi';
 
+import {useWallet} from '@lib/contexts/useWallet';
+import {useAsyncTriggerWithArgs} from '@lib/hooks/useAsyncTrigger';
 import {NoNaN, toBigInt, toNormalizedBN, zeroNormalizedBN} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {

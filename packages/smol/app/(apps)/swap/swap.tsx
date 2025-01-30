@@ -1,5 +1,12 @@
 'use client';
 
+import {useDeepCompareEffect} from '@react-hookz/web';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {usePlausible} from 'next-plausible';
+import InputNumber from 'rc-input-number';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useChainId, useSwitchChain} from 'wagmi';
+
 import {NetworkInputSelector} from '@lib/common/NetworkSelector/Input';
 import {SmolAddressInput} from '@lib/common/SmolAddressInput';
 import {SmolTokenAmountInput} from '@lib/common/SmolTokenAmountInput';
@@ -8,13 +15,6 @@ import {TextTruncate} from '@lib/common/TextTruncate';
 import {usePrices} from '@lib/contexts/WithPrices/WithPrices';
 import {formatSeconds} from '@lib/hooks/useTimer';
 import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
-import {useDeepCompareEffect} from '@react-hookz/web';
-import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import {usePlausible} from 'next-plausible';
-import InputNumber from 'rc-input-number';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useChainId, useSwitchChain} from 'wagmi';
-
 import {IconChevronBoth} from '@lib/icons/IconChevronBoth';
 import {IconChevronBottom} from '@lib/icons/IconChevronBottom';
 import {IconCircleCheck} from '@lib/icons/IconCircleCheck';

@@ -1,7 +1,5 @@
 'use client';
 
-import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
-import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {getBlockNumber, getBytecode, getTransaction} from '@wagmi/core';
 import axios from 'axios';
 import {useRouter} from 'next/router';
@@ -11,6 +9,8 @@ import {zeroAddress} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useConfig} from 'wagmi';
 
+import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
+import {ReadonlySmolAddressInput} from '@lib/common/SmolAddressInput.readonly';
 import {IconBug} from '@lib/icons/IconBug';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconInfoLight} from '@lib/icons/IconInfo';

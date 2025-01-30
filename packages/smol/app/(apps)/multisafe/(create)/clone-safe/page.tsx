@@ -1,8 +1,5 @@
 'use client';
 
-import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
-import {SmolAddressInput} from '@lib/common/SmolAddressInput';
-import {Warning} from '@lib/common/Warning';
 import {getBlockNumber, getBytecode, getTransaction, serialize} from '@wagmi/core';
 import axios from 'axios';
 import {useRouter} from 'next/router';
@@ -12,6 +9,9 @@ import {zeroAddress} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useConfig} from 'wagmi';
 
+import {SafeDetailsCurtain} from '@lib/common/Curtains/SafeDetailsCurtain';
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {Warning} from '@lib/common/Warning';
 import {IconDoc} from '@lib/icons/IconDoc';
 import {IconInfoLight} from '@lib/icons/IconInfo';
 import {Button} from '@lib/primitives/Button';

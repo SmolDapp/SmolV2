@@ -1,7 +1,7 @@
-import {SmolAddressInput} from '@lib/common/SmolAddressInput';
-import {SmolAmountInput} from '@lib/common/SmolAmountInput';
 import {useRef} from 'react';
 
+import {SmolAddressInput} from '@lib/common/SmolAddressInput';
+import {SmolAmountInput} from '@lib/common/SmolAmountInput';
 import {IconCross} from '@lib/icons/IconCross';
 import {useDisperse} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
 

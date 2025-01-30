@@ -1,11 +1,11 @@
-import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
 import React from 'react';
 import {toast} from 'react-hot-toast';
 import {useChainId, useConfig} from 'wagmi';
 
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useValidateAmountInput} from '@lib/hooks/web3/useValidateAmountInput';
 import {IconImport} from '@lib/icons/IconImport';
 import {Button} from '@lib/primitives/Button';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';

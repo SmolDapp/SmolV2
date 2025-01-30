@@ -1,6 +1,6 @@
-import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 import React from 'react';
 
+import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 import {DisperseContextApp} from 'packages/smol/app/(apps)/disperse/contexts/useDisperse';
 import Disperse from 'packages/smol/app/(apps)/disperse/disperse';
 

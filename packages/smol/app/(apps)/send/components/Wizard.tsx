@@ -1,9 +1,9 @@
-import {ErrorModal} from '@lib/common/ErrorModal';
-import {SuccessModal} from '@lib/common/SuccessModal';
 import {usePlausible} from 'next-plausible';
 import React, {useState} from 'react';
 import {useAccount, useChainId} from 'wagmi';
 
+import {ErrorModal} from '@lib/common/ErrorModal';
+import {SuccessModal} from '@lib/common/SuccessModal';
 import {Button} from '@lib/primitives/Button';
 import {toBigInt} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';

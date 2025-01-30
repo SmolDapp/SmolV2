@@ -1,5 +1,4 @@
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
-
 import {RevokeContextApp} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 import {Revoke} from 'packages/smol/app/(apps)/revoke/revoke';
 

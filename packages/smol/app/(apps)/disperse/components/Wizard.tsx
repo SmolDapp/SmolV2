@@ -1,15 +1,15 @@
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
-import {ErrorModal} from '@lib/common/ErrorModal';
-import {SuccessModal} from '@lib/common/SuccessModal';
-import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useWallet} from '@lib/contexts/useWallet';
-import {useIsSafe} from '@lib/hooks/web3/useIsSafe';
 import {usePlausible} from 'next-plausible';
 import React, {useCallback, useMemo, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {erc20Abi, zeroAddress} from 'viem';
 import {useAccount, useChainId, useConfig, useReadContract} from 'wagmi';
 
+import {ErrorModal} from '@lib/common/ErrorModal';
+import {SuccessModal} from '@lib/common/SuccessModal';
+import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useWallet} from '@lib/contexts/useWallet';
+import {useIsSafe} from '@lib/hooks/web3/useIsSafe';
 import {Button} from '@lib/primitives/Button';
 import {disperseERC20, disperseETH} from '@lib/utils/actions';
 import {slugify} from '@lib/utils/helpers';

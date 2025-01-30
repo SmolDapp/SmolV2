@@ -1,10 +1,10 @@
 'use client';
 
-import {ImageWithFallback} from '@lib/common/ImageWithFallback';
-import {useTokenList} from '@lib/contexts/WithTokenList';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {useCallback, useMemo} from 'react';
 
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useTokenList} from '@lib/contexts/WithTokenList';
 import {DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator} from '@lib/primitives/DropdownMenu';
 import {useAllowances} from 'packages/smol/app/(apps)/revoke/contexts/useAllowances';
 

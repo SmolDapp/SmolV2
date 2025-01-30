@@ -1,15 +1,15 @@
 'use client';
 
 import {SafeProvider} from '@gnosis.pm/safe-apps-react-sdk';
+import PlausibleProvider from 'next-plausible';
+import {Toaster} from 'react-hot-toast';
+
 import {WithFonts} from '@lib/common/WithFonts';
 import {IndexedDB} from '@lib/contexts/useIndexedDB';
 import {WithPopularTokens} from '@lib/contexts/usePopularTokens';
 import {WalletContextApp} from '@lib/contexts/useWallet';
 import {WithMom} from '@lib/contexts/WithMom';
 import {WithPrices} from '@lib/contexts/WithPrices/WithPrices';
-import PlausibleProvider from 'next-plausible';
-import {Toaster} from 'react-hot-toast';
-
 import {IconCheck} from '@lib/icons/IconCheck';
 import {IconCircleCross} from '@lib/icons/IconCircleCross';
 import {networks, supportedNetworks} from '@lib/utils/tools.chains';

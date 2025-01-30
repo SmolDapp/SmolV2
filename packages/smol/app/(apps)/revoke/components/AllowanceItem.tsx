@@ -1,7 +1,5 @@
 'use client';
 
-import {ImageWithFallback} from '@lib/common/ImageWithFallback';
-import {useTokenList} from '@lib/contexts/WithTokenList';
 import {usePlausible} from 'next-plausible';
 import React, {useCallback, useMemo, useState} from 'react';
 import {toast} from 'react-hot-toast';
@@ -9,6 +7,8 @@ import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId, useConfig} from 'wagmi';
 
+import {ImageWithFallback} from '@lib/common/ImageWithFallback';
+import {useTokenList} from '@lib/contexts/WithTokenList';
 import {Button} from '@lib/primitives/Button';
 import {formatAmount, formatTAmount, toBigInt, toNormalizedBN, toNormalizedValue} from '@lib/utils/numbers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
