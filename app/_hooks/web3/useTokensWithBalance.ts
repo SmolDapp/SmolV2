@@ -138,7 +138,7 @@ export function useTokensWithBalance(): {
 	 ** or currentIdentifier changes.
 	 *********************************************************************************************/
 	const listAllTokensWithBalance = useCallback((): TERC20TokensWithBalance[] => {
-		currentIdentifier; // Only used to trigger the useEffect hook
+		acknowledge(currentIdentifier); // Only used to trigger the useEffect hook
 
 		const withBalance = [];
 		for (const eachNetwork of Object.values(allTokens)) {
