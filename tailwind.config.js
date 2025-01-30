@@ -10,7 +10,6 @@ module.exports = {
 		'./common/**/*.{js,ts,jsx,tsx}',
 		'./contexts/**/*.{js,ts,jsx,tsx}',
 		'./hooks/**/*.{js,ts,jsx,tsx}',
-		'./pages/**/*.{js,ts,jsx,tsx}',
 		'./utils/**/*.{js,ts,jsx,tsx}',
 		'./types/**/*.{js,ts,jsx,tsx}',
 		'./primitives/**/*.{js,ts,jsx,tsx}',
