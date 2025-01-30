@@ -10,7 +10,6 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
-		"lib": "workspace:*",
 		"@tanem/react-nprogress": "^5.0.51"
 	}
 }
