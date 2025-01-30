@@ -1,7 +1,6 @@
 'use client';
 
 import * as Popover from '@radix-ui/react-popover';
-import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
 import {useCallback, useState} from 'react';
 import {useChainId, useChains, useSwitchChain} from 'wagmi';
@@ -14,7 +13,6 @@ import {cl} from '@lib/utils/helpers';
 import type {ReactElement} from 'react';
 
 export function NetworkPopoverSelector(): ReactElement {
-	const isMounted = useIsMounted();
 	const chainID = useChainId();
 	const chains = useChains();
 	const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +36,7 @@ export function NetworkPopoverSelector(): ReactElement {
 						'bg-neutral-200 hover:bg-neutral-300 transition-colors '
 					)}>
 					<div className={'flex w-full max-w-full justify-between gap-1 text-left text-xs'}>
-						{isMounted() && currentNetwork?.name ? (
+						{currentNetwork?.name ? (
 							<div className={'flex w-full max-w-full gap-2 truncate'}>
 								<ImageWithFallback
 									width={16}
