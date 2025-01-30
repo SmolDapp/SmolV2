@@ -11,7 +11,7 @@ import {useChainId} from 'wagmi';
 import {AddressBookCurtain} from '@lib/components/Curtains/AddressBookCurtain';
 import {AddressSelectorCurtain} from '@lib/components/Curtains/AddressSelectorCurtain';
 import {useAsyncTrigger} from '@lib/hooks/useAsyncTrigger';
-import {slugify} from '@lib/utils/helpers';
+import {acknowledge, slugify} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isAddress, toAddress, toSafeAddress} from '@lib/utils/tools.addresses';
 import {supportedNetworks} from '@lib/utils/tools.chains';
@@ -76,7 +76,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	});
 
 	useAsyncTrigger(async (): Promise<void> => {
-		entryNonce;
+		acknowledge(entryNonce);
 		const entriesFromDB = await getAll();
 		setCachedEntries(entriesFromDB);
 	}, [getAll, entryNonce]);
@@ -87,12 +87,12 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	 * It can be used to retrieve an entry by its address or by its label.
 	 *************************************************************************/
 	const listEntries = useCallback(async (): Promise<TAddressBookEntry[]> => {
-		entryNonce;
+		acknowledge(entryNonce);
 		return await getAll();
 	}, [getAll, entryNonce]);
 
 	const listCachedEntries = useCallback((): TAddressBookEntry[] => {
-		entryNonce;
+		acknowledge(entryNonce);
 		return cachedEntries;
 	}, [cachedEntries, entryNonce]);
 
@@ -103,7 +103,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	 *************************************************************************/
 	const getEntry = useCallback(
 		async (props: {address?: TAddress; label?: string}): Promise<TAddressBookEntry | undefined> => {
-			entryNonce;
+			acknowledge(entryNonce);
 			if (!isAddress(props.address) && !props.label) {
 				return undefined;
 			}
@@ -118,7 +118,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 					return foundByLabel || undefined;
 				}
 				return undefined;
-			} catch (error) {
+			} catch {
 				return undefined;
 			}
 		},
@@ -126,7 +126,7 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 	);
 	const getCachedEntry = useCallback(
 		(props: {address?: TAddress; label?: string}): TAddressBookEntry | undefined => {
-			entryNonce;
+			acknowledge(entryNonce);
 			if (!isAddress(props.address) && !props.label) {
 				return undefined;
 			}
@@ -163,7 +163,6 @@ export const WithAddressBook = ({children}: {children: React.ReactElement}): Rea
 						...existingEntry,
 						...entry,
 						label,
-
 						chains: mergedChains,
 						tags: mergedTags
 					};

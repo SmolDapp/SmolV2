@@ -6,6 +6,7 @@ import {serialize, useChainId, useChains} from 'wagmi';
 
 import {useWallet} from '@lib/contexts/useWallet';
 import {useTokenList} from '@lib/contexts/WithTokenList';
+import {acknowledge} from '@lib/utils/helpers';
 import {zeroNormalizedBN} from '@lib/utils/numbers';
 import {ethTokenAddress, toAddress} from '@lib/utils/tools.addresses';
 import {createUniqueID} from '@lib/utils/tools.identifiers';
@@ -80,7 +81,7 @@ export function useTokensWithBalance(): {
 	 *********************************************************************************************/
 	const listTokensWithBalance = useCallback(
 		(_chainID?: number): TERC20TokensWithBalance[] => {
-			currentIdentifier; // Only used to trigger the useEffect hook
+			acknowledge(currentIdentifier);
 			if (_chainID === undefined) {
 				_chainID = chainID;
 			}
@@ -110,7 +111,7 @@ export function useTokensWithBalance(): {
 	 *********************************************************************************************/
 	const listTokens = useCallback(
 		(_chainID?: number): TERC20TokensWithBalance[] => {
-			currentIdentifier; // Only used to trigger the useEffect hook
+			acknowledge(currentIdentifier);
 			if (_chainID === undefined) {
 				_chainID = chainID;
 			}

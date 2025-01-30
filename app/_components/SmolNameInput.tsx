@@ -30,7 +30,9 @@ export const SmolNameInput = ({setIsValid, ...rest}: TSmolNameInputProps): React
 	 ** the user to change it by themselves
 	 *********************************************************************************************/
 	useMountEffect(() => {
-		selectedEntry?.label && setInputName(selectedEntry.label);
+		if (selectedEntry?.label) {
+			setInputName(selectedEntry.label);
+		}
 	});
 
 	const getBorderColor = useCallback((): string => {

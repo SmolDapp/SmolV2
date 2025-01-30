@@ -218,7 +218,7 @@ function toChecksumAddress(address?: string | null | undefined): TAddressSmol {
 				return checksummedAddress as TAddressSmol;
 			}
 		}
-	} catch (error) {
+	} catch {
 		// console.error(error);
 	}
 	return zeroAddress as TAddressSmol;
@@ -359,7 +359,7 @@ async function getIsGnosisAddress(chainId: number, address: TAddress): Promise<b
 				return !!data.creator;
 			}
 			return false;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -417,7 +417,7 @@ export async function getIsSmartContract(props: {
 		const isGnosisAddress = bytecode ? await getIsGnosisAddress(chainId, address) : false;
 
 		return isGnosisAddress ? false : Boolean(bytecode);
-	} catch (error) {
+	} catch {
 		return false;
 	}
 }

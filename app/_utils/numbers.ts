@@ -194,7 +194,10 @@ export function formatAmount(
  ************************************************************************************************/
 function eToNumber(num: string): string {
 	let sign = '';
-	(num += '').charAt(0) == '-' && ((num = num.substring(1)), (sign = '-'));
+	if ((num += '').charAt(0) == '-') {
+		sign = '-';
+		num = num.substring(1);
+	}
 	const arr = num.split(/[e]/gi);
 	if (arr.length < 2) {
 		return sign + num;
@@ -405,9 +408,9 @@ function formatLocalAmount(amount: number, decimals: number, symbol: string, opt
 	if (symbol && shouldDisplaySymbol) {
 		const uppercaseSymbol = String(symbol).toLocaleUpperCase();
 		const symbolToFormat = uppercaseSymbol === 'USD' ? 'USD' : 'EUR';
-		(intlOptions.style = uppercaseSymbol === 'PERCENT' ? 'percent' : 'currency'),
-			(intlOptions.currency = symbolToFormat),
-			(intlOptions.currencyDisplay = symbolToFormat === 'EUR' ? 'code' : 'narrowSymbol');
+		intlOptions.style = uppercaseSymbol === 'PERCENT' ? 'percent' : 'currency';
+		intlOptions.currency = symbolToFormat;
+		intlOptions.currencyDisplay = symbolToFormat === 'EUR' ? 'code' : 'narrowSymbol';
 		isPercent = uppercaseSymbol === 'PERCENT';
 	}
 
