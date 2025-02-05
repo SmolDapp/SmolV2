@@ -2,7 +2,7 @@
 
 import assert from 'assert';
 
-import {useRouter} from 'next/router';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex, zeroAddress} from 'viem';
@@ -61,6 +61,7 @@ function SafeOwner(props: {
 
 function Safe(): ReactElement {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const plausible = usePlausible();
 	const {threshold, onUpdateThreshold, owners, onAddOwner, onSetOwners, onUpdateOwner, onRemoveOwner, onClickFAQ} =
 		useMultisafe();
@@ -110,25 +111,29 @@ function Safe(): ReactElement {
 		if (uniqueIdentifier.current) {
 			return;
 		}
-		const {address, owners, threshold, singleton, salt} = router.query;
+		const address = searchParams?.get('address');
 		if (address && !isZeroAddress(address as string)) {
 			setSafeAddress(toAddress(address as string));
 		}
+		const owners = searchParams?.get('owners');
 		if (owners) {
 			onSetOwners((owners as string).split('_').map(toAddress));
 		}
+		const threshold = searchParams?.get('threshold');
 		if (threshold) {
 			onUpdateThreshold(parseInt(threshold as string, 10));
 		}
+		const singleton = searchParams?.get('singleton');
 		if (singleton) {
 			assert(['ssf', 'ddp'].includes(singleton as string));
 			setFactory(singleton as 'ssf' | 'ddp');
 		}
+		const salt = searchParams?.get('salt');
 		if (salt) {
 			setCurrentSeed(toBigInt(salt as string));
 		}
-		uniqueIdentifier.current = createUniqueID(serialize(router.query));
-	}, [onSetOwners, onUpdateThreshold, router.query]);
+		uniqueIdentifier.current = createUniqueID(serialize(searchParams));
+	}, [onSetOwners, onUpdateThreshold, searchParams]);
 
 	/**********************************************************************************************
 	 ** The navigateToDeploy function is used to navigate to the /deploy route with the query
@@ -539,11 +544,6 @@ function Safe(): ReactElement {
 }
 
 export default function MultisafeNewWrapper(): ReactElement {
-	const router = useRouter();
-	if (!router.isReady) {
-		return <Fragment />;
-	}
-
 	return (
 		<MultisafeContextApp>
 			<Safe />

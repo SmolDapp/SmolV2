@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable array-bracket-newline */
 import React, {createContext, useCallback, useContext, useMemo, useState} from 'react';
 import useSWR from 'swr';

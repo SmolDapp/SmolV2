@@ -11,11 +11,10 @@ import {
 	IconAppStream,
 	IconAppSwap
 } from '@lib/components/icons/IconApps';
-import {IconSpinner} from '@lib/components/icons/IconSpinner';
 import IconMultisafe from '@lib/icons/IconMultisafe';
 import {cl} from '@lib/utils/helpers';
 
-import type {ComponentPropsWithoutRef, MouseEvent, ReactElement} from 'react';
+import type {ReactElement} from 'react';
 
 type TCutaway = {
 	title: ReactElement;
@@ -33,58 +32,14 @@ function Cutaway({title, description, link, buttonTitle, icon}: TCutaway): React
 				<div className={'text-sm text-neutral-700'}>{description}</div>
 			</div>
 			<Link href={link}>
-				<Button className={'!h-10 w-full'}>
+				<button
+					data-variant={'filled'}
+					className={cl('button', '!h-10 w-full')}>
 					<span className={'mr-2 text-sm'}>{buttonTitle}</span>
 					{icon}
-				</Button>
+				</button>
 			</Link>
 		</div>
-	);
-}
-
-type TButtonVariant = 'filled' | 'outlined' | 'light' | 'inherit' | string;
-
-type TButton = {
-	variant?: TButtonVariant;
-	shouldStopPropagation?: boolean;
-	isBusy?: boolean;
-	isDisabled?: boolean;
-} & ComponentPropsWithoutRef<'button'>;
-
-type TMouseEvent = MouseEvent<HTMLButtonElement> & MouseEvent<HTMLAnchorElement>;
-
-function Button(props: TButton): ReactElement {
-	const {
-		children,
-		variant = 'filled',
-		shouldStopPropagation = false,
-		isBusy = false,
-		isDisabled = false,
-		...rest
-	} = props;
-
-	return (
-		<button
-			{...(rest as ComponentPropsWithoutRef<'button'>)}
-			data-variant={variant}
-			className={cl('button', rest.className)}
-			aria-busy={isBusy}
-			disabled={isDisabled || (rest as ComponentPropsWithoutRef<'button'>).disabled}
-			onClick={(event: TMouseEvent): void => {
-				if (shouldStopPropagation) {
-					event.stopPropagation();
-				}
-				if (!isBusy && rest.onClick) {
-					rest.onClick(event);
-				}
-			}}>
-			{children}
-			{isBusy ? (
-				<span className={'absolute inset-0 flex items-center justify-center'}>
-					<IconSpinner className={'size-6 animate-spin text-neutral-900'} />
-				</span>
-			) : null}
-		</button>
 	);
 }
 
@@ -113,9 +68,14 @@ export default function Page(): ReactElement {
 					<Link
 						href={'/wallet'}
 						className={'hidden max-w-min whitespace-nowrap'}>
-						<Button className={'!h-14 !px-8 text-base !font-bold leading-6 text-neutral-900 md:!px-12'}>
+						<button
+							data-variant={'filled'}
+							className={cl(
+								'button',
+								'!h-14 !px-8 text-base !font-bold leading-6 text-neutral-900 md:!px-12'
+							)}>
 							{'Launch App'}
-						</Button>
+						</button>
 					</Link>
 				</div>
 				<div className={'mt-6 size-[300px] min-w-[300px] md:mt-0'}>

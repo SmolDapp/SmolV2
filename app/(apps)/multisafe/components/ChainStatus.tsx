@@ -82,7 +82,8 @@ function ChainStatus({
 	const gasCoinID = CHAINS?.[chain.id]?.coingeckoGasCoinID || 'ethereum';
 	const coinPrice = chainCoinPrices?.[gasCoinID]?.usd;
 	const chainID = useChainId();
-	const {address, connector, chain: currentChain} = useAccount();
+	const currentChain = CHAINS[chain.id];
+	const {address, connector} = useAccount();
 	const [isDeployedOnThatChain, setIsDeployedOnThatChain] = useState(false);
 	const [cloneStatus, setCloneStatus] = useState(defaultTxStatus);
 	const [canDeployOnThatChain, setCanDeployOnThatChain] = useState({
@@ -272,7 +273,10 @@ function ChainStatus({
 		 ** arguments as the original transaction.
 		 ******************************************************************************************/
 		if (canDeployOnThatChain.method === 'contract' || canDeployOnThatChain.method === 'contractAlt') {
-			const fee = parseEther((DEFAULT_FEES_USD / coinPrice).toString());
+			let fee = 0n;
+			if (coinPrice) {
+				fee = parseEther((DEFAULT_FEES_USD / coinPrice).toString());
+			}
 			const signletonToUse = singleton || SINGLETON_L2;
 			const argInitializers = generateArgInitializers(
 				owners,
@@ -303,13 +307,15 @@ function ChainStatus({
 			};
 
 			const multicallData = [];
-			if (![5, 1337, 84531].includes(chain.id)) {
+			if (![5, 1337, 84531].includes(chain.id) && fee !== 0n) {
 				multicallData.push(callDataDisperseEth);
 			}
 			multicallData.push(callDataCreateSafe);
 			const allChains = getChains(config);
-			const currentNetwork = allChains[chain.id];
+			const currentNetwork = allChains.find(e => e.id === chain.id);
+			console.log(currentNetwork, getChains(config));
 			if (!currentNetwork?.contracts?.multicall3?.address) {
+				console.warn('no multicall3');
 				return;
 			}
 
@@ -390,7 +396,11 @@ function ChainStatus({
 							className={
 								'font-number w-40 border border-neutral-300 bg-neutral-100 p-1 px-2 text-center text-xxs text-neutral-900'
 							}>
-							<p>{'The Safe was deployed using an un-cloneable legacy method. Soz 😕'}</p>
+							<p>
+								{
+									"The Safe was deployed using an un-cloneable legacy method or you don't have enough funds to clone it. Soz 😕"
+								}
+							</p>
 						</div>
 					</span>
 				</span>
