@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {getEnsAddress} from '@wagmi/core';
 import {LayoutGroup, motion} from 'framer-motion';
 import {usePlausible} from 'next-plausible';
-import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {isAddress} from 'viem';
 import {mainnet} from 'viem/chains';
 import {useConfig} from 'wagmi';
@@ -15,7 +15,6 @@ import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {CloseCurtainButton} from '@lib/components/Curtains/InfoCurtain';
 import {TextInput} from '@lib/components/TextInput';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
-import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {toAddress} from '@lib/utils/tools.addresses';
 
@@ -220,7 +219,6 @@ export function AddressSelectorCurtain(props: {
 	onSelect: TSelectCallback | undefined;
 }): ReactElement {
 	const plausible = usePlausible();
-	const isMounted = useIsMounted();
 	const {listCachedEntries} = useAddressBook();
 	const [searchValue, setSearchValue] = useState('');
 
@@ -269,10 +267,6 @@ export function AddressSelectorCurtain(props: {
 			available.sort((a, b) => a.label.localeCompare(b.label))
 		];
 	}, [filteredEntries]);
-
-	if (!isMounted) {
-		return <Fragment />;
-	}
 
 	return (
 		<Dialog.Root

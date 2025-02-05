@@ -20,7 +20,7 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {defaultInputAddressLike, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from 'app/(apps)/multisafe/constants';
-import {useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
+import {MultisafeContextApp, useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
 import {createUniqueID, decodeArgInitializers} from 'app/(apps)/multisafe/utils';
 
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
@@ -47,7 +47,7 @@ const defaultExistingSafeArgs: TExistingSafeArgs = {
 	salt: 0n
 };
 
-export default function Safe(): ReactElement {
+function Safe(): ReactElement {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -310,5 +310,13 @@ export default function Safe(): ReactElement {
 				</div>
 			)}
 		</div>
+	);
+}
+
+export default function MultisafeWrapper(): ReactElement {
+	return (
+		<MultisafeContextApp>
+			<Safe />
+		</MultisafeContextApp>
 	);
 }

@@ -89,6 +89,10 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 		});
 	}, []);
 
+	const onClickFAQ = useCallback(() => {
+		window.document.getElementById('info-curtain-trigger')?.click();
+	}, []);
+
 	const contextValue = useMemo(
 		(): TMultisafeProps => ({
 			threshold,
@@ -99,9 +103,18 @@ export const MultisafeContextApp = ({children}: {children: React.ReactElement}):
 			onUpdateOwner: onUpdateOwnerByUUID,
 			onRemoveOwner: onRemoveOwnerByUUID,
 			chainCoinPrices: chainCoinPrices || {},
-			onClickFAQ: () => document.getElementById('info-curtain-trigger')?.click()
+			onClickFAQ
 		}),
-		[threshold, owners, onAddOwner, onSetOwners, onUpdateOwnerByUUID, onRemoveOwnerByUUID, chainCoinPrices]
+		[
+			threshold,
+			owners,
+			onAddOwner,
+			onSetOwners,
+			onUpdateOwnerByUUID,
+			onRemoveOwnerByUUID,
+			chainCoinPrices,
+			onClickFAQ
+		]
 	);
 
 	return <MultisafeContext.Provider value={contextValue}>{children}</MultisafeContext.Provider>;

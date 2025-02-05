@@ -1,11 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {usePathname} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import {Fragment} from 'react';
 
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {IconCross} from '@lib/components/icons/IconCross';
-import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 
 import type {ReactElement, ReactNode} from 'react';
@@ -26,11 +24,6 @@ type TCurtainElement = {
 export function InfoCurtain(props: TCurtainElement): ReactElement {
 	const pathname = usePathname();
 	const plausible = usePlausible();
-	const isMounted = useIsMounted();
-
-	if (!isMounted) {
-		return <Fragment />;
-	}
 
 	return (
 		<Dialog.Root modal={false}>

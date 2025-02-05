@@ -1,9 +1,9 @@
 'use client';
 
+import {useIsMounted} from '@react-hookz/web';
 import {useAccount, useBalance, useChainId} from 'wagmi';
 
 import {Counter} from '@lib/components/Counter';
-import {useIsMounted} from '@lib/hooks/useIsMounted';
 
 import type {ReactElement} from 'react';
 
@@ -13,7 +13,7 @@ export function CoinBalance(): ReactElement {
 	const chainID = useChainId();
 	const {data: balance} = useBalance({chainId: chainID || 1, address});
 
-	if (!isMounted) {
+	if (!isMounted()) {
 		return (
 			<div>
 				<small>{'Coin'}</small>

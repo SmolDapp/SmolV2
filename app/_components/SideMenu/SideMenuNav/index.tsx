@@ -1,12 +1,12 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
+import {useIsMounted} from '@react-hookz/web';
 import {motion} from 'framer-motion';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import {Fragment, cloneElement, useCallback, useEffect, useState} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 import {useAccount, useDisconnect} from 'wagmi';
 
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
@@ -101,7 +101,7 @@ function LogOutButton(): ReactElement {
 	const {address} = useAccount();
 	const {disconnectAsync} = useDisconnect();
 
-	if (isZeroAddress(address) || !isMounted) {
+	if (isZeroAddress(address) || !isMounted()) {
 		return <Fragment />;
 	}
 
