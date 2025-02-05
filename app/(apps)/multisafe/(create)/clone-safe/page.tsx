@@ -1,33 +1,31 @@
 'use client';
 
-import {getBlockNumber, getBytecode, getTransaction} from '@wagmi/core';
+import {getBlockNumber, getBytecode, getTransaction, serialize} from '@wagmi/core';
 import axios from 'axios';
-import {useSearchParams} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {zeroAddress} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useConfig} from 'wagmi';
 
 import {Button} from '@lib/components/Button';
 import {SafeDetailsCurtain} from '@lib/components/Curtains/SafeDetailsCurtain';
-import {IconBug} from '@lib/components/icons/IconBug';
 import {IconDoc} from '@lib/components/icons/IconDoc';
 import {IconInfoLight} from '@lib/components/icons/IconInfo';
-import {ReadonlySmolAddressInput} from '@lib/components/SmolAddressInput.readonly';
+import {SmolAddressInput} from '@lib/components/SmolAddressInput';
+import {Warning} from '@lib/components/Warning';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
-import {isZeroAddress, toAddress} from '@lib/utils/tools.addresses';
+import {defaultInputAddressLike, isZeroAddress, toAddress, truncateHex} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
-import ChainStatus from 'app/(apps)/multisafe/components/ChainStatus';
 import {CALL_INIT_SIGNATURE, SAFE_CREATION_TOPIC} from 'app/(apps)/multisafe/constants';
 import {useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
-import {decodeArgInitializers} from 'app/(apps)/multisafe/utils';
+import {createUniqueID, decodeArgInitializers} from 'app/(apps)/multisafe/utils';
 
-import type {TAddress} from '@lib/utils/tools.addresses';
-import type {GetTransactionReturnType} from '@wagmi/core';
-import type {ReactElement} from 'react';
-import type {Hex} from 'viem';
+import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
+import type {ReactElement, RefObject} from 'react';
+import type {GetTransactionReturnType, Hex} from 'viem';
 
 type TExistingSafeArgs = {
 	address: TAddress;
@@ -49,15 +47,17 @@ const defaultExistingSafeArgs: TExistingSafeArgs = {
 	salt: 0n
 };
 
-export function SafeCloneContent({safeAddress}: {safeAddress: TAddress}): ReactElement {
+export default function Safe(): ReactElement {
+	const router = useRouter();
 	const searchParams = useSearchParams();
-	const plausible = usePlausible();
+	const inputRef = useRef<HTMLInputElement>(null);
 	const config = useConfig();
-	const {onClickFAQ} = useMultisafe();
-	const [shouldUseTestnets, setShouldUseTestnets] = useState<boolean>(false);
-	const address = toAddress((safeAddress || '') as string);
-	const [existingSafeArgs, setExistingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
+	const plausible = usePlausible();
 	const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false);
+	const {onClickFAQ} = useMultisafe();
+	const [safe, setSafe] = useState<TInputAddressLike>(defaultInputAddressLike);
+	const [existingSafeArgs, setExistingSafeArgs] = useState<TExistingSafeArgs | undefined>(undefined);
+	const uniqueIdentifier = useRef<string | undefined>(undefined);
 	const supportedChains = useMemo(() => Object.values(CHAINS).filter(e => e.isMultisafeSupported), []);
 
 	/**********************************************************************************************
@@ -145,29 +145,20 @@ export function SafeCloneContent({safeAddress}: {safeAddress: TAddress}): ReactE
 					});
 					return;
 				}
-				try {
-					const tx = await getTransaction(config, {hash, chainId: chainID});
-					const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
-					const {owners, threshold, salt, singleton, paymentReceiver} = decodeArgInitializers(input as Hex);
+				const tx = await getTransaction(config, {hash, chainId: chainID});
+				const input = `0x${tx.input.substring(tx.input.indexOf(CALL_INIT_SIGNATURE))}`;
+				const {owners, threshold, salt, singleton, paymentReceiver} = decodeArgInitializers(input as Hex);
 
-					setExistingSafeArgs({
-						owners,
-						threshold,
-						isLoading: false,
-						address,
-						salt,
-						singleton,
-						tx: tx,
-						paymentReceiver
-					});
-				} catch (error) {
-					console.error(error);
-					setExistingSafeArgs({
-						...defaultExistingSafeArgs,
-						error: 'No safe found at this address',
-						isLoading: false
-					});
-				}
+				setExistingSafeArgs({
+					owners,
+					threshold,
+					isLoading: false,
+					address,
+					salt,
+					singleton,
+					tx: tx,
+					paymentReceiver
+				});
 			} else {
 				setExistingSafeArgs({
 					...defaultExistingSafeArgs,
@@ -195,104 +186,110 @@ export function SafeCloneContent({safeAddress}: {safeAddress: TAddress}): ReactE
 	 ** once we have set them from the query arguments.
 	 *********************************************************************************************/
 	useEffect(() => {
-		retrieveSafe(address);
-	}, [address, retrieveSafe, searchParams]);
+		if (uniqueIdentifier.current) {
+			return;
+		}
+		const address = searchParams?.get('address');
+		if (address && !isZeroAddress(address as string)) {
+			setSafe({
+				address: toAddress(address as string),
+				label: truncateHex(toAddress(address as string), 5),
+				source: 'autoPopulate',
+				isValid: true
+			});
+		}
+		uniqueIdentifier.current = createUniqueID(serialize(searchParams));
+	}, [searchParams]);
+
+	/**********************************************************************************************
+	 ** The navigateToDeploy function is used to navigate to the /deploy route with the query
+	 ** arguments generated from the linkToDeploy URLSearchParams object.
+	 ** One little trick here is that we are first replacing the current URL with the new query
+	 ** arguments in order to update the browser history. Thanks to this, the user can navigate
+	 ** back to this page and the form will be populated with the same values.
+	 *********************************************************************************************/
+	const navigateToDeploy = useCallback(() => {
+		plausible(PLAUSIBLE_EVENTS.PREPARE_CLONE_SAFE, {
+			props: {
+				ownersCount: existingSafeArgs?.owners.length,
+				threshold: existingSafeArgs?.threshold,
+				singleton: existingSafeArgs?.singleton
+			}
+		});
+
+		const URLQueryParam = new URLSearchParams();
+		URLQueryParam.set('address', toAddress(safe.address));
+		router.replace(`/multisafe/clone-safe?${URLQueryParam.toString()}`);
+		router.push(`/multisafe/clone-safe/${toAddress(safe.address)}`);
+	}, [
+		existingSafeArgs?.owners.length,
+		existingSafeArgs?.singleton,
+		existingSafeArgs?.threshold,
+		plausible,
+		router,
+		safe.address
+	]);
 
 	return (
-		<Fragment>
-			<div className={'grid w-full max-w-[600px] gap-6'}>
-				<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
-					<Button
-						className={'!h-8 !text-xs'}
-						variant={'light'}
-						onClick={() => {
-							plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
-							onClickFAQ();
-						}}>
-						<IconDoc className={'mr-2 size-3'} />
-						{'View FAQ'}
-					</Button>
-					<Button
-						className={'!h-8 !text-xs'}
-						variant={shouldUseTestnets ? 'filled' : 'light'}
-						onClick={() => setShouldUseTestnets(!shouldUseTestnets)}>
-						<IconBug className={'mr-2 size-3'} />
-						{'Enable Testnets'}
-					</Button>
+		<div className={'grid w-full max-w-full gap-4 md:max-w-108'}>
+			<div className={'-mt-2 flex flex-wrap gap-2 text-xs'}>
+				<Button
+					className={'!h-8 !text-xs'}
+					variant={'light'}
+					onClick={() => {
+						plausible(PLAUSIBLE_EVENTS.OPEN_MULTISAFE_FAQ_CURTAIN);
+						onClickFAQ();
+					}}>
+					<IconDoc className={'mr-2 size-3'} />
+					{'View FAQ'}
+				</Button>
+			</div>
+			<div>
+				<div className={'mb-2'}>
+					<p className={'text-sm font-medium md:text-base'}>{'Safe Address'}</p>
 				</div>
-
-				<div>
-					<div className={'mb-2'}>
-						<p className={'text-sm font-medium md:text-base'}>{'Safe Address'}</p>
-					</div>
-					<div className={'relative flex items-center'}>
-						<ReadonlySmolAddressInput value={address} />
-						<button
-							className={cl(
-								'hidden md:block mx-2 p-2 text-neutral-600 transition-colors hover:text-neutral-700',
-								!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
-									? 'pointer-events-none invisible'
-									: 'visible'
-							)}
-							onClick={() => setIsInfoOpen(true)}>
-							<IconInfoLight
-								className={'size-4 text-neutral-600 transition-colors hover:text-neutral-700'}
-							/>
-						</button>
-					</div>
-					<div className={'block pl-1 md:hidden'}>
-						<button onClick={() => setIsInfoOpen(true)}>
-							<small>{'See Safe Info'}</small>
-						</button>
-					</div>
-				</div>
-
-				<div>
-					<div className={'mb-2'}>
-						<p className={'text-sm font-medium md:text-base'}>{'Deployments'}</p>
-					</div>
-					<div className={'flex flex-col overflow-hidden'}>
-						<div className={'grid grid-cols-1 gap-2'}>
-							{supportedChains
-								.filter(chain => !chain.testnet)
-								.map(
-									(chain): ReactElement => (
-										<ChainStatus
-											key={chain.id}
-											chain={chain}
-											safeAddress={toAddress(address)}
-											owners={existingSafeArgs?.owners || []}
-											threshold={existingSafeArgs?.threshold || 0}
-											singleton={existingSafeArgs?.singleton}
-											salt={existingSafeArgs?.salt || 0n}
-											paymentReceiver={existingSafeArgs?.paymentReceiver}
-										/>
-									)
-								)}
-						</div>
-						{shouldUseTestnets && (
-							<div className={'mt-6 grid gap-2 border-t border-neutral-100 pt-6'}>
-								{supportedChains
-									.filter(chain => chain.testnet)
-									.map(
-										(chain): ReactElement => (
-											<ChainStatus
-												key={chain.id}
-												chain={chain}
-												safeAddress={toAddress(address)}
-												owners={existingSafeArgs?.owners || []}
-												threshold={existingSafeArgs?.threshold || 0}
-												singleton={existingSafeArgs?.singleton}
-												paymentReceiver={existingSafeArgs?.paymentReceiver}
-												salt={existingSafeArgs?.salt || 0n}
-											/>
-										)
-									)}
-							</div>
+				<div className={'relative flex w-full items-center'}>
+					<SmolAddressInput
+						inputRef={inputRef as RefObject<HTMLInputElement>}
+						value={safe}
+						onSetValue={newValue => {
+							setSafe(newValue as TInputAddressLike);
+							retrieveSafe(toAddress(newValue.address));
+						}}
+					/>
+					<button
+						className={cl(
+							'absolute -right-6 inset-y-0',
+							'hidden md:block text-neutral-600 transition-colors hover:text-neutral-700',
+							!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
+								? 'pointer-events-none invisible'
+								: 'visible'
 						)}
-					</div>
+						onClick={() => setIsInfoOpen(true)}>
+						<IconInfoLight className={'size-4 text-neutral-600 transition-colors hover:text-neutral-700'} />
+					</button>
 				</div>
 			</div>
+			<div className={'flex gap-2'}>
+				<Button
+					onClick={navigateToDeploy}
+					isBusy={existingSafeArgs?.isLoading}
+					isDisabled={!existingSafeArgs || Boolean(existingSafeArgs.error)}
+					className={'group !h-8 w-auto md:min-w-[160px]'}>
+					<p className={'text-sm'}>{'Choose network & deploy'}</p>
+				</Button>
+				<button
+					className={cl(
+						'block md:hidden text-neutral-600 transition-colors hover:text-neutral-700',
+						!existingSafeArgs || Boolean(existingSafeArgs.error) || existingSafeArgs.isLoading
+							? 'pointer-events-none invisible'
+							: 'visible'
+					)}
+					onClick={() => setIsInfoOpen(true)}>
+					<IconInfoLight className={'size-4 text-neutral-600 transition-colors hover:text-neutral-700'} />
+				</button>
+			</div>
+
 			{existingSafeArgs && !existingSafeArgs.error && !existingSafeArgs.isLoading && (
 				<SafeDetailsCurtain
 					isOpen={isInfoOpen}
@@ -303,6 +300,15 @@ export function SafeCloneContent({safeAddress}: {safeAddress: TAddress}): ReactE
 					seed={existingSafeArgs?.salt}
 				/>
 			)}
-		</Fragment>
+
+			{existingSafeArgs?.error && (
+				<div className={'mb-4 grid gap-2'}>
+					<Warning
+						message={existingSafeArgs.error}
+						type={'error'}
+					/>
+				</div>
+			)}
+		</div>
 	);
 }
