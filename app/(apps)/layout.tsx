@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	IconAppAddressBook,
 	IconAppDisperse,
@@ -15,7 +17,7 @@ import {WithAddressBook} from '@lib/contexts/useAddressBook';
 import AppHeading from 'app/(apps)/_appHeading';
 import AppInfo from 'app/(apps)/_appInfo';
 
-import type {ReactElement, ReactNode} from 'react';
+import type {ReactElement} from 'react';
 
 const MENU = [
 	{
@@ -74,21 +76,7 @@ const MENU = [
 	// }
 ];
 
-function AppLayout(props: {children: ReactNode}): ReactElement {
-	return (
-		<div>
-			<div className={'flex w-full justify-end'}>
-				<AppInfo />
-			</div>
-			<section className={'-mt-2 w-full p-4 md:p-8'}>
-				<AppHeading />
-				{props.children}
-			</section>
-		</div>
-	);
-}
-
-export default async function RootLayout(props: {children: ReactElement}): Promise<ReactElement> {
+export default function RootLayout(props: {children: ReactElement}): ReactElement {
 	return (
 		<div className={'grid w-full grid-cols-root'}>
 			<nav
@@ -105,7 +93,15 @@ export default async function RootLayout(props: {children: ReactElement}): Promi
 			<div className={'col-span-full px-4 md:col-main md:px-3 lg:px-4'}>
 				<div className={'relative mb-10 min-h-app w-full overflow-x-hidden rounded-lg bg-neutral-0'}>
 					<WithAddressBook>
-						<AppLayout>{props.children}</AppLayout>
+						<div>
+							<div className={'flex w-full justify-end'}>
+								<AppInfo />
+							</div>
+							<section className={'-mt-2 w-full p-4 md:p-8'}>
+								<AppHeading />
+								{props.children}
+							</section>
+						</div>
 					</WithAddressBook>
 				</div>
 			</div>
