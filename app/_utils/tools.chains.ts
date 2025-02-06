@@ -119,6 +119,31 @@ const localhost = {
 	}
 } as const satisfies Chain;
 
+
+export const berachain = {
+	id: 80094,
+	name: 'Berachain',
+	nativeCurrency: {
+		decimals: 18,
+		name: 'BERA',
+		symbol: 'BERA'
+	},
+	rpcUrls: {
+		default: {
+			http: []
+		},
+		public: {
+			http: []
+		}
+	},
+	contracts: {
+		multicall3: {
+			address: '0xca11bde05977b3631167028862be2a173976ca11',
+			blockCreated: 0
+		}
+	}
+} as const satisfies Chain;
+
 const isDev = process.env.NODE_ENV === 'development' && Boolean(process.env.SHOULD_USE_FORKNET);
 const CHAINS: TSmolChains = {
 	[mainnet.id]: {
@@ -408,6 +433,18 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0xD152f549545093347A162Dce210e7293f1452150'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(filecoin)
+	},
+	[berachain.id]: {
+		...berachain,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: '',
+		safeUIURI: 'https://basdf1234.xyz/',
+		coingeckoGasCoinID: 'bera',
+		llamaChainName: 'bera',
+		disperseAddress: zeroAddress,
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(berachain)
 	}
 };
 

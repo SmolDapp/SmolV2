@@ -137,6 +137,8 @@ async function performCall(
 		callAndResult.push({call, result});
 	}
 
+	console.warn(callAndResult);
+
 	for (const {call, result} of callAndResult) {
 		let element = tokensAsObject[toAddress(call.address)];
 		if (!element) {
