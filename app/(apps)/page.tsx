@@ -28,8 +28,8 @@ function Cutaway({title, description, link, buttonTitle, icon}: TCutaway): React
 	return (
 		<div className={'flex flex-col justify-between rounded-2xl bg-neutral-200 px-6 py-8 md:h-full'}>
 			<div className={'mb-6'}>
-				<div className={'mb-3 text-[18px] font-extrabold leading-[24px] text-neutral-900'}>{title}</div>
-				<div className={'text-sm text-neutral-700'}>{description}</div>
+				<div className={'mb-3 text-[18px] font-semibold leading-[24px] text-neutral-900'}>{title}</div>
+				<div className={'text-sm text-[#ADB1BD]'}>{description}</div>
 			</div>
 			<Link href={link}>
 				<button
@@ -54,12 +54,12 @@ export default function Page(): ReactElement {
 	});
 	return (
 		<div className={'calc(h-screen-74px) flex flex-col justify-between'}>
-			<div className={'mb-16 flex flex-col items-center justify-between gap-10 md:flex-row'}>
-				<div className={'mb-10 w-2/3 md:mb-0'}>
-					<h1 className={'mb-4 w-full font-[Monument] text-[40px] font-extrabold leading-[40px] md:text-4xl'}>
+			<div className={'mb-6 flex flex-col items-center justify-between gap-10 rounded-2xl bg-primary p-6 md:flex-row md:px-20 md:pb-8 md:pt-[72px]'}>
+				<div className={'w-full md:mb-0 md:w-2/3'}>
+					<h1 className={'w-full font-[Monument] text-[22px] font-extrabold leading-[40px] md:mb-4 md:text-[32px]'}>
 						{'MAKING CRYPTO SIMPLER'}
 					</h1>
-					<p className={'mb-10 mt-6 w-11/12 text-lg text-neutral-600'}>
+					<p className={'mt-6 w-full text-sm text-[#060B11] md:mb-10 md:w-11/12 md:text-base'}>
 						{
 							'Smol adds super powers to your wallet, to make your crypto journey faster, simpler and maybe even a little bit sexier.'
 						}
@@ -78,7 +78,7 @@ export default function Page(): ReactElement {
 						</button>
 					</Link>
 				</div>
-				<div className={'mt-6 size-[300px] min-w-[300px] md:mt-0'}>
+				<div className={'-mt-6 hidden size-[240px] min-w-[240px] md:block'}>
 					<RiveComponent />
 				</div>
 			</div>
@@ -89,7 +89,7 @@ export default function Page(): ReactElement {
 				}>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'ONE SAFE,'}
 							<br />
 							{'ALL CHAINS'}
@@ -102,7 +102,7 @@ export default function Page(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'SWAP'}
 							<br />
 							{'AND BRIDGE'}
@@ -115,7 +115,7 @@ export default function Page(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'DID YOU SAY'}
 							<br /> {'"DISPERSE?"'}
 						</span>
@@ -129,7 +129,7 @@ export default function Page(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'CLAIM YOUR'}
 							<br />
 							{'STREAM'}
@@ -142,7 +142,7 @@ export default function Page(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'NATIVE ADDRESS'}
 							<br />
 							{'BOOK'}
@@ -155,7 +155,7 @@ export default function Page(): ReactElement {
 				/>
 				<Cutaway
 					title={
-						<span className={'font-[Monument] font-extrabold'}>
+						<span>
 							{'STAY SAFE,'}
 							<br /> {'REVOKE!'}
 						</span>
