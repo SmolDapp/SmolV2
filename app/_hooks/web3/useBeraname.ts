@@ -32,10 +32,18 @@ export function useBeraname(): TENS {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const fetchENSName = useCallback(async (): Promise<void> => {
+		if (!address) {
+			setIsLoading(false);
+			setBeraname(null);
+			setBeravatar(null);
+			return;
+		}
 		setIsLoading(true);
 		const ensName = await publicBeraClient.getEnsName({address: toAddress(address)});
 		if (!ensName) {
 			setIsLoading(false);
+			setBeraname(null);
+			setBeravatar(null);
 			return;
 		}
 		const ensAvatar = await publicBeraClient.getEnsAvatar({name: ensName});
@@ -45,9 +53,7 @@ export function useBeraname(): TENS {
 	}, [address]);
 
 	useEffect(() => {
-		if (address) {
 			fetchENSName();
-		}
 	}, [fetchENSName, address]);
 
 	return {name: beraname || '', avatar: beravatar || '', isLoading: isLoading};
