@@ -130,10 +130,10 @@ export const berachain = {
 	},
 	rpcUrls: {
 		default: {
-			http: []
+			http: ['https://rpc.berachain.com']
 		},
 		public: {
-			http: []
+			http: ['https://rpc.berachain.com']
 		}
 	},
 	contracts: {
