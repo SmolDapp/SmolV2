@@ -3,11 +3,11 @@
 		"rootDirs": ["."],
 		"baseUrl": ".",
 		"paths": {
-			"@lib/*": ["packages/lib/*"],
-			"@smolDesignSystem/*": ["packages/smol/components/designSystem/*"],
-			"@smolContexts/*": ["packages/smol/contexts/*"],
-			"@smolHooks/*": ["packages/smol/hooks/*"],
-			"@smolLandingDesignSystem/*": ["packages/smol-landing/components/designSystem/*"]
+			"@lib/utils/*": ["app/_utils/*"],
+			"@lib/icons/*": ["app/_components/icons/*"],
+			"@lib/contexts/*": ["app/_contexts/*"],
+			"@lib/hooks/*": ["app/_hooks/*"],
+			"@lib/components/*": ["app/_components/*"]
 		},
 		"types": ["bun-types"],
 		"target": "esnext",
@@ -53,13 +53,10 @@
 		"packages",
 		"public",
 		"public/manifest.json",
-		"stylelint.config.js",
-		"commitlint.config.js",
 
 		"packages/*/postcss.config.js",
 		"packages/*/tailwind.config.js",
 		"packages/*/next.config.js",
-		"packages/*/stylelint.config.js",
 		".eslintrc.js",
 		".next/types/**/*.ts",
 		"jest.config.js",

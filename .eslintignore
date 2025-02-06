@@ -4,4 +4,4 @@ public/workbox*
 ipfs/*
 sw.js
 workbox*
-/packages/smol/public/workbox-*.js
+/public/workbox-*.js
