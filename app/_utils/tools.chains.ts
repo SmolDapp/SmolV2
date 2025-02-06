@@ -442,7 +442,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://safe.berachain.com/home?safe=berachain:',
 		coingeckoGasCoinID: 'berachain-bera',
 		llamaChainName: 'bera',
-		disperseAddress: zeroAddress,
+		disperseAddress: toAddress('0x9c981Fa0FfF6dE9AC193FE4224e499445C814Bc4'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(berachain)
 	}
