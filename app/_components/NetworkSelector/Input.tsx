@@ -1,7 +1,6 @@
 'use client';
 
 import * as Popover from '@radix-ui/react-popover';
-import {useIsMounted} from '@react-hookz/web';
 import {CommandList} from 'cmdk';
 import {usePlausible} from 'next-plausible';
 import {useMemo, useState} from 'react';
@@ -14,6 +13,7 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 
 export function NetworkInputSelector(props: {
 	value: number;

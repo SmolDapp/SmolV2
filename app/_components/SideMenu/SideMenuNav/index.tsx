@@ -1,7 +1,6 @@
 'use client';
 
 import * as Dialog from '@radix-ui/react-dialog';
-import {useIsMounted} from '@react-hookz/web';
 import {motion} from 'framer-motion';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
@@ -17,6 +16,7 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isZeroAddress} from '@lib/utils/tools.addresses';
 
 import type {ReactElement} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 
 export type TSideMenuItem = {
 	href: string;

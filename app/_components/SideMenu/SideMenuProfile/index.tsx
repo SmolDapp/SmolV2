@@ -1,6 +1,5 @@
 'use client';
 
-import {useIsMounted} from '@react-hookz/web';
 import {useAccount} from 'wagmi';
 
 import {NetworkPopoverSelector} from '@lib/components/NetworkSelector/Popover';
@@ -10,6 +9,7 @@ import {ProfileBox} from '@lib/components/SideMenu/SideMenuProfile/ProfileBox';
 import {SkeletonPlaceholder} from '@lib/components/SideMenu/SideMenuProfile/SkeletonPlaceholder';
 
 import type {ReactElement} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 
 export function SideMenuProfile(): ReactElement {
 	const isMounted = useIsMounted();

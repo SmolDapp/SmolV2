@@ -8,6 +8,7 @@ import {
 	avalanche,
 	base,
 	baseSepolia,
+	berachain,
 	blast,
 	bsc,
 	celo,
@@ -115,31 +116,6 @@ const localhost = {
 		multicall3: {
 			address: '0xca11bde05977b3631167028862be2a173976ca11',
 			blockCreated: 14353601
-		}
-	}
-} as const satisfies Chain;
-
-
-export const berachain = {
-	id: 80094,
-	name: 'Berachain',
-	nativeCurrency: {
-		decimals: 18,
-		name: 'BERA',
-		symbol: 'BERA'
-	},
-	rpcUrls: {
-		default: {
-			http: ['https://rpc.berachain.com']
-		},
-		public: {
-			http: ['https://rpc.berachain.com']
-		}
-	},
-	contracts: {
-		multicall3: {
-			address: '0xca11bde05977b3631167028862be2a173976ca11',
-			blockCreated: 0
 		}
 	}
 } as const satisfies Chain;

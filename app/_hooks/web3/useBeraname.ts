@@ -1,25 +1,13 @@
 import {useCallback, useEffect, useState} from 'react';
 import {createPublicClient} from 'viem';
-import {berachainTestnetbArtio} from 'viem/chains';
 import {useAccount} from 'wagmi';
 
 import {withRPC} from '@lib/contexts/WithMom';
 import {toAddress} from '@lib/utils/tools.addresses';
+import {berachain} from 'viem/chains';
 
 type TENS = {name: string; avatar: string; isLoading: boolean};
 
-const berachain = {
-	...berachainTestnetbArtio,
-	contracts: {
-		...berachainTestnetbArtio.contracts,
-		ensRegistry: {
-			address: toAddress('0xB0eef18971290b333450586D33dcA6cE122651D2')
-		},
-		ensUniversalResolver: {
-			address: toAddress('0x41692Ef1EA0C79E6b73077E4A67572D2BDbD7057')
-		}
-	}
-};
 const publicBeraClient = createPublicClient({
 	chain: berachain,
 	transport: withRPC(berachain)
@@ -53,7 +41,7 @@ export function useBeraname(): TENS {
 	}, [address]);
 
 	useEffect(() => {
-			fetchENSName();
+		fetchENSName();
 	}, [fetchENSName, address]);
 
 	return {name: beraname || '', avatar: beravatar || '', isLoading: isLoading};

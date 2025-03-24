@@ -313,7 +313,6 @@ function ChainStatus({
 			multicallData.push(callDataCreateSafe);
 			const allChains = getChains(config);
 			const currentNetwork = allChains.find(e => e.id === chain.id);
-			console.log(currentNetwork, getChains(config));
 			if (!currentNetwork?.contracts?.multicall3?.address) {
 				console.warn('no multicall3');
 				return;

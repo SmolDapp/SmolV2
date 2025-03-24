@@ -1,7 +1,6 @@
 'use client';
 
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
-import {useIsMounted} from '@react-hookz/web';
 import {Fragment, useState} from 'react';
 import {useAccount} from 'wagmi';
 
@@ -18,6 +17,7 @@ import {isAddress} from '@lib/utils/tools.addresses';
 
 import type {TSideMenuItem} from '@lib/components/SideMenu/SideMenuNav';
 import type {ReactElement} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 
 function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {
 	const {address} = useAccount();

@@ -1,3 +1,5 @@
+'use client';
+
 import {IconPlus} from '@lib/components/icons/IconPlus';
 import {cl} from '@lib/utils/helpers';
 

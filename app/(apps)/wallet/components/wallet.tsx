@@ -106,6 +106,7 @@ export function Wallet(): ReactElement {
 		if (filteredTokens.length > 0) {
 			return filteredTokens.map(token => (
 				<Link
+					key={`${token.address}_${token.chainID}`}
 					className={'w-full'}
 					href={`/send?tokens=${token.address}&values=${token.balance.raw}`}>
 					<SmolTokenButton
