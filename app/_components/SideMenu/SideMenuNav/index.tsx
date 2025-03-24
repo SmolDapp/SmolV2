@@ -6,6 +6,7 @@ import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import {Fragment, cloneElement, useCallback, useEffect, useState} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 import {useAccount, useDisconnect} from 'wagmi';
 
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
@@ -16,7 +17,6 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isZeroAddress} from '@lib/utils/tools.addresses';
 
 import type {ReactElement} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 
 export type TSideMenuItem = {
 	href: string;

@@ -2,6 +2,7 @@
 
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import {Fragment, useState} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 import {useAccount} from 'wagmi';
 
 import {IconHamburger} from '@lib/components/icons/IconHamburger';
@@ -17,7 +18,6 @@ import {isAddress} from '@lib/utils/tools.addresses';
 
 import type {TSideMenuItem} from '@lib/components/SideMenu/SideMenuNav';
 import type {ReactElement} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 
 function SideMenuProfileMobile({onOpen}: {onOpen: () => void}): ReactElement {
 	const {address} = useAccount();

@@ -4,6 +4,7 @@ import * as Popover from '@radix-ui/react-popover';
 import {CommandList} from 'cmdk';
 import {usePlausible} from 'next-plausible';
 import {useMemo, useState} from 'react';
+import {useIsMounted} from 'usehooks-ts';
 import {useChainId, useChains} from 'wagmi';
 
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/components/Commands';
@@ -13,7 +14,6 @@ import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
 
 import type {ReactElement} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 
 export function NetworkInputSelector(props: {
 	value: number;

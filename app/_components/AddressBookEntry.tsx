@@ -2,6 +2,7 @@
 
 import React, {useEffect, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
+import {useIsMounted} from 'usehooks-ts';
 import {mainnet} from 'viem/chains';
 import {useChainId, useEnsAvatar, useEnsName} from 'wagmi';
 
@@ -17,7 +18,6 @@ import {toAddress, toSafeAddress, truncateHex} from '@lib/utils/tools.addresses'
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {TAddressBookEntry} from 'app/(apps)/address-book/types';
 import type {MouseEventHandler, ReactElement} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 
 function EntryBookEntryFavorite(props: {
 	isFavorite: boolean;

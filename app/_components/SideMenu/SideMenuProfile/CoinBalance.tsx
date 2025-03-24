@@ -1,11 +1,11 @@
 'use client';
 
+import {useIsMounted} from 'usehooks-ts';
 import {useAccount, useBalance, useChainId} from 'wagmi';
 
 import {Counter} from '@lib/components/Counter';
 
 import type {ReactElement} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 
 export function CoinBalance(): ReactElement {
 	const isMounted = useIsMounted();
