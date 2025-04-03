@@ -1,6 +1,5 @@
 'use client';
 
-import {useIsMounted} from 'usehooks-ts';
 import {useAccount} from 'wagmi';
 
 import {NetworkPopoverSelector} from '@lib/components/NetworkSelector/Popover';
@@ -8,14 +7,15 @@ import {CoinBalance} from '@lib/components/SideMenu/SideMenuProfile/CoinBalance'
 import {ConnectButton} from '@lib/components/SideMenu/SideMenuProfile/ConnectButton';
 import {ProfileBox} from '@lib/components/SideMenu/SideMenuProfile/ProfileBox';
 import {SkeletonPlaceholder} from '@lib/components/SideMenu/SideMenuProfile/SkeletonPlaceholder';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 
 import type {ReactElement} from 'react';
 
 export function SideMenuProfile(): ReactElement {
-	const isMounted = useIsMounted();
+	const isMounted = useIsMounted(true);
 	const {address, isConnected, isConnecting} = useAccount();
 
-	if (!isMounted() || isConnecting) {
+	if (!isMounted || isConnecting) {
 		return <SkeletonPlaceholder />;
 	}
 

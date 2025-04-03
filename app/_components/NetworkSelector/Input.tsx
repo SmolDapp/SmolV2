@@ -4,11 +4,11 @@ import * as Popover from '@radix-ui/react-popover';
 import {CommandList} from 'cmdk';
 import {usePlausible} from 'next-plausible';
 import {useMemo, useState} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 import {useChainId, useChains} from 'wagmi';
 
 import {Command, CommandEmpty, CommandInput, CommandItem} from '@lib/components/Commands';
 import {ImageWithFallback} from '@lib/components/ImageWithFallback';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {supportedNetworks} from '@lib/utils/tools.chains';
@@ -69,7 +69,7 @@ export function NetworkInputSelector(props: {
 							'hover:bg-neutral-100 transition-colors hover:border-neutral-600'
 						)}>
 						<div className={'flex size-10 items-center justify-center'}>
-							{isMounted() && currentNetwork?.name ? (
+							{isMounted && currentNetwork?.name ? (
 								<ImageWithFallback
 									width={40}
 									height={40}

@@ -2,7 +2,6 @@
 
 import React, {useEffect, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
-import {useIsMounted} from 'usehooks-ts';
 import {mainnet} from 'viem/chains';
 import {useChainId, useEnsAvatar, useEnsName} from 'wagmi';
 
@@ -11,6 +10,7 @@ import {IconCopy} from '@lib/components/icons/IconCopy';
 import {IconHeart, IconHeartFilled} from '@lib/components/icons/IconHeart';
 import {TextTruncate} from '@lib/components/TextTruncate';
 import {useAddressBook} from '@lib/contexts/useAddressBook';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {useClusters} from '@lib/hooks/web3/useClusters';
 import {cl} from '@lib/utils/helpers';
 import {toAddress, toSafeAddress, truncateHex} from '@lib/utils/tools.addresses';
@@ -57,7 +57,7 @@ export function AddressBookEntryAddress(props: {
 }): ReactElement {
 	const isMounted = useIsMounted();
 
-	if (!isMounted() || props.isConnecting) {
+	if (!isMounted || props.isConnecting) {
 		return (
 			<div className={'grid w-full max-w-[288px] gap-2'}>
 				<div className={'skeleton-lg h-4 w-full'} />

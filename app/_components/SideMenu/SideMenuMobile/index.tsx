@@ -2,7 +2,6 @@
 
 import {Dialog, DialogPanel, Transition, TransitionChild} from '@headlessui/react';
 import {Fragment, useState} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 import {useAccount} from 'wagmi';
 
 import {IconHamburger} from '@lib/components/icons/IconHamburger';
@@ -13,6 +12,7 @@ import {CoinBalance} from '@lib/components/SideMenu/SideMenuProfile/CoinBalance'
 import {ConnectButton} from '@lib/components/SideMenu/SideMenuProfile/ConnectButton';
 import {ProfileBox} from '@lib/components/SideMenu/SideMenuProfile/ProfileBox';
 import {SkeletonPlaceholder} from '@lib/components/SideMenu/SideMenuProfile/SkeletonPlaceholder';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {cl} from '@lib/utils/helpers';
 import {isAddress} from '@lib/utils/tools.addresses';
 
@@ -61,7 +61,7 @@ export function SideMenuMobile(props: {menu?: TSideMenuItem[]}): ReactElement {
 	const [isOpen, setIsOpen] = useState(false);
 	const isMounted = useIsMounted();
 
-	if (!isMounted()) {
+	if (!isMounted) {
 		return (
 			<div className={'w-full'}>
 				<SkeletonPlaceholder />

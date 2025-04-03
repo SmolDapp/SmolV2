@@ -6,12 +6,12 @@ import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import {Fragment, cloneElement, useCallback, useEffect, useState} from 'react';
-import {useIsMounted} from 'usehooks-ts';
 import {useAccount, useDisconnect} from 'wagmi';
 
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {IconChevron} from '@lib/components/icons/IconChevron';
 import {LinkOrDiv} from '@lib/components/LinkOrDiv';
+import {useIsMounted} from '@lib/hooks/useIsMounted';
 import {cl} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isZeroAddress} from '@lib/utils/tools.addresses';
@@ -101,7 +101,7 @@ function LogOutButton(): ReactElement {
 	const {address} = useAccount();
 	const {disconnectAsync} = useDisconnect();
 
-	if (isZeroAddress(address) || !isMounted()) {
+	if (isZeroAddress(address) || !isMounted) {
 		return <Fragment />;
 	}
 

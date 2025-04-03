@@ -40,7 +40,11 @@ export function useLoginModal(): () => Promise<void> {
 				await connectAsync({connector: ledgerConnector, chainId: chain?.id});
 				return;
 			}
-
+			const safeConnector = connectors.find((c): boolean => c.id.toLowerCase().includes('safe'));
+			if (safeConnector) {
+				await connectAsync({connector: safeConnector, chainId: chain?.id});
+				return;
+			}
 			if (openConnectModal) {
 				openConnectModal();
 			} else {

@@ -375,14 +375,16 @@ export function DisperseWizard(): ReactElement {
 	});
 
 	/**********************************************************************************************
-	 ** handleApprove function is designed to call 2 transactions one by one. First we call
+	 ** handleApproveAndDisperse function is designed to call 2 transactions one by one. First we call
 	 ** approve function then we disperse tokens.
 	 *********************************************************************************************/
-	const handleApprove = useCallback(async () => {
-		await onApproveToken();
-		await refetch();
+	const handleApproveAndDisperse = useCallback(async () => {
+		if (!isSafe) {
+			await onApproveToken();
+			await refetch();
+		}
 		await onDisperseTokens();
-	}, [onApproveToken, onDisperseTokens, refetch]);
+	}, [onApproveToken, onDisperseTokens, refetch, isSafe]);
 
 	/**********************************************************************************************
 	 ** getButtonTitle function is designed to return the title of the button based on the current
@@ -469,7 +471,7 @@ export function DisperseWizard(): ReactElement {
 					if (isApproved) {
 						return onDisperseTokens();
 					}
-					return handleApprove();
+					return handleApproveAndDisperse();
 				}}
 				className={'mt-2 !h-8 w-full max-w-[240px] !text-xs'}>
 				<b>{getButtonTitle()}</b>
