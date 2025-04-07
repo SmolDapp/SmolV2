@@ -41,7 +41,7 @@ export function useLoginModal(): () => Promise<void> {
 				return;
 			}
 			const safeConnector = connectors.find((c): boolean => c.id.toLowerCase().includes('safe'));
-			if (safeConnector) {
+			if (isIframe() && safeConnector) {
 				await connectAsync({connector: safeConnector, chainId: chain?.id});
 				return;
 			}
