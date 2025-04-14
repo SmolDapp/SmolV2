@@ -4,9 +4,12 @@ import {cookieToInitialState} from 'wagmi';
 import {config} from '@lib/contexts/WithMom';
 import Providers from 'app/Providers';
 
+import {metadata} from './metadata';
 import '../style.css';
 
 import type {ReactElement} from 'react';
+
+export {metadata};
 
 export default async function RootLayout(props: {children: ReactElement}): Promise<ReactElement> {
 	const initialState = cookieToInitialState(config, (await headers()).get('cookie'));
