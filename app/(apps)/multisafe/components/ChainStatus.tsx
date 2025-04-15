@@ -118,12 +118,12 @@ function ChainStatus({
 		let prepareWriteAddress = toAddress();
 		let prepareCallAddress = toAddress();
 
-		try {
-			const signletonToUse = singleton || SINGLETON_L2;
-			if (signletonToUse === SINGLETON_L1) {
-				return setCanDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
-			}
+		const signletonToUse = singleton || SINGLETON_L2;
+		if (signletonToUse === SINGLETON_L1) {
+			return setCanDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
+		}
 
+		try {
 			/**************************************************************************************
 			 ** First try to clone with the regular FALLBACK_HANDLER
 			 **************************************************************************************/
@@ -132,6 +132,7 @@ function ChainStatus({
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
 				abi: GNOSIS_SAFE_PROXY_FACTORY,
+				chainId: chain.id,
 				functionName: 'createProxyWithNonce',
 				args: [signletonToUse, `0x${argInitializers}`, salt]
 			});
@@ -139,7 +140,11 @@ function ChainStatus({
 			if (prepareWriteAddress === safeAddress) {
 				return setCanDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contract'});
 			}
+		} catch {
+			// console.warn(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
+		}
 
+		try {
 			/**************************************************************************************
 			 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
 			 **************************************************************************************/
@@ -149,21 +154,23 @@ function ChainStatus({
 				address: getProxyFromSingleton(signletonToUse),
 				abi: GNOSIS_SAFE_PROXY_FACTORY,
 				functionName: 'createProxyWithNonce',
+				chainId: chain.id,
 				args: [signletonToUse, `0x${argInitializersAlt}`, salt]
 			});
 			prepareWriteAddress = toAddress(prepareWriteResultAlt.result);
 			if (prepareWriteAddress === safeAddress) {
 				return setCanDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contractAlt'});
 			}
-		} catch (err) {
-			console.warn(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
+		} catch {
+			// console.error(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
 		}
 
 		try {
 			const directCall = await call(config, {
 				to: toAddress(originalTx?.to),
 				account: address,
-				data: originalTx?.input
+				data: originalTx?.input,
+				chainId: chain.id
 			});
 			if (directCall?.data) {
 				prepareCallAddress = toAddress(`0x${directCall.data.substring(26)}`);
@@ -171,9 +178,10 @@ function ChainStatus({
 					return setCanDeployOnThatChain({canDeploy: true, isLoading: false, method: 'direct'});
 				}
 			}
-		} catch (err) {
-			console.warn(`Couldn't simulate safe direct deploy on ${chain.name} because of ${err}`);
+		} catch {
+			// console.warn(`Couldn't simulate safe direct deploy on ${chain.name} because of ${err}`);
 		}
+		console.warn(`Couldn't simulate safe direct deploy on ${chain.name}`);
 		return setCanDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
 	}, [
 		address,
@@ -186,7 +194,8 @@ function ChainStatus({
 		salt,
 		singleton,
 		threshold,
-		config
+		config,
+		chain.id
 	]);
 
 	useEffect((): void => {
