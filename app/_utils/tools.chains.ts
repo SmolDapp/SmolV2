@@ -414,7 +414,7 @@ const CHAINS: TSmolChains = {
 		...berachain,
 		isLifiSwapSupported: false,
 		isMultisafeSupported: true,
-		safeAPIURI: '',
+		safeAPIURI: 'https://safe-transaction-berachain.safe.global',
 		safeUIURI: 'https://safe.berachain.com/home?safe=berachain:',
 		coingeckoGasCoinID: 'berachain-bera',
 		llamaChainName: 'bera',
