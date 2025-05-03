@@ -108,6 +108,7 @@ module.exports = withPlausibleProxy({
 				42161: process.env.RPC_URI_FOR_42161,
 				42170: process.env.RPC_URI_FOR_42170,
 				56288: process.env.RPC_URI_FOR_56288,
+				57073: process.env.RPC_URI_FOR_57073,
 				81457: process.env.RPC_URI_FOR_81457,
 				111188: process.env.RPC_URI_FOR_111188,
 				80094: process.env.RPC_URI_FOR_80094,
