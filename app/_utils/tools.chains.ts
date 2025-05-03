@@ -17,6 +17,7 @@ import {
 	filecoin,
 	fraxtal,
 	gnosis,
+	ink,
 	linea,
 	mainnet,
 	mantle,
@@ -421,6 +422,24 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0x9c981Fa0FfF6dE9AC193FE4224e499445C814Bc4'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(berachain)
+	},
+	[ink.id]: {
+		...ink,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: '',
+		safeUIURI: 'https://safe.optimism.io/home?safe=ink:',
+		coingeckoGasCoinID: 'ethereum',
+		disperseAddress: toAddress('0xF7D540b9d4b94a24389802Bcf2f6f02013d08142'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(ink),
+		contracts: {
+			...ink.contracts,
+			multicall3: {
+				address: '0xca11bde05977b3631167028862be2a173976ca11',
+				blockCreated: 8485213
+			}
+		}
 	}
 };
 
