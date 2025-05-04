@@ -27,6 +27,7 @@ import {
 	polygonZkEvm,
 	scroll,
 	sepolia,
+	unichain,
 	zksync,
 	zora
 } from 'viem/chains';
@@ -421,6 +422,18 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0x9c981Fa0FfF6dE9AC193FE4224e499445C814Bc4'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(berachain)
+	},
+	[unichain.id]: {
+		...unichain,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: 'https://safe-transaction-unichain.safe.global/',
+		safeUIURI: 'https://app.safe.global/home?safe=uni:',
+		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'ethereum',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(unichain)
 	}
 };
 
