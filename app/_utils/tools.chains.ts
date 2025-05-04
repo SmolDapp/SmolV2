@@ -17,6 +17,7 @@ import {
 	filecoin,
 	fraxtal,
 	gnosis,
+	ink,
 	linea,
 	mainnet,
 	mantle,
@@ -434,6 +435,18 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(unichain)
+	},
+	[ink.id]: {
+		...ink,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: 'https://safe-transaction-ink.safe.global/',
+		safeUIURI: 'https://app.safe.global/home?safe=ink:',
+		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'ethereum',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(ink)
 	}
 };
 
