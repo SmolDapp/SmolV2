@@ -6,7 +6,13 @@ import {toAddress} from '@lib/utils/tools.addresses';
 import {
 	ALTERNATE_FALLBACK_HANDLER,
 	FALLBACK_HANDLER,
+	FALLBACK_HANDLER_1_4_1,
+	PROXY_FACTORY_1_4_1,
+	PROXY_FACTORY_L1,
+	PROXY_FACTORY_L2,
+	PROXY_FACTORY_L2_DDP,
 	SAFE_CREATION_SIGNATURE,
+	SINGLETON_1_4_1,
 	SINGLETON_L1,
 	SINGLETON_L2,
 	SINGLETON_L2_DDP,
@@ -16,12 +22,63 @@ import {
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {Hex} from 'viem';
 
+export function getProxyFromSingleton(singleton: TAddress): TAddress {
+	if (singleton === SINGLETON_L2) {
+		return PROXY_FACTORY_L2;
+	}
+	if (singleton === SINGLETON_L2_DDP) {
+		return PROXY_FACTORY_L2_DDP;
+	}
+	if (singleton === SINGLETON_L1) {
+		return PROXY_FACTORY_L1;
+	}
+	if (singleton === SINGLETON_1_4_1) {
+		return PROXY_FACTORY_1_4_1;
+	}
+	return PROXY_FACTORY_L2;
+}
+
+export function getFallbackHandler(singleton: TAddress, useAlternateFallbackHandler: boolean): TAddress {
+	if (singleton === SINGLETON_1_4_1) {
+		return FALLBACK_HANDLER_1_4_1;
+	}
+	return useAlternateFallbackHandler ? ALTERNATE_FALLBACK_HANDLER : FALLBACK_HANDLER;
+}
+
 export function generateArgInitializers(
 	owners: TAddress[],
 	threshold: number,
 	paymentReceiver: TAddress,
-	shouldUseAlternateFallbackHandler?: boolean
+	fallbackHandler: TAddress,
+	singleton: TAddress
 ): string {
+	if (singleton === SINGLETON_1_4_1) {
+		const safeToL2SetupAddress = toAddress('0xBD89A1CE4DDe368FFAB0eC35506eEcE0b1fFdc54');
+		const safeL2Address = toAddress('0x29fcB43b46531BcA003ddC8FCB67FFE91900C762');
+
+		return (
+			'b63e800d' + //Function signature
+			'100'.padStart(64, '0') + // Version
+			threshold.toString().padStart(64, '0') + // Threshold
+			safeToL2SetupAddress.substring(2).padStart(64, '0') + // SafeToL2Address
+			pad(toHex(0x120 + 0x20 * owners.length))
+				.substring(2)
+				.padStart(64, '0') + // Data length
+			fallbackHandler
+				.substring(2)
+				.padStart(64, '0') +
+			zeroAddress.substring(2).padStart(64, '0') + // paymentToken
+			ZERO.padStart(64, '0') + // payment
+			(paymentReceiver || zeroAddress).substring(2).padStart(64, '0') + // paymentReceiver
+			owners.length.toString().padStart(64, '0') + // owners.length
+			owners.map((owner): string => owner.substring(2).padStart(64, '0')).join('') + // owners
+			'24'.padStart(64, '0') + // Extra data length
+			// Safe optional multi-chain setup using the `SafeToL2Setup` contract
+			'fe51f643' + // Signature for call to safeToL2Setup
+			safeL2Address.substring(2).padStart(64, '0') + // SafeL2Address
+			ZERO.padStart(56, '0') // Data length, 64 - 8 = 56
+		);
+	}
 	return (
 		'b63e800d' + //Function signature
 		'100'.padStart(64, '0') + // Version
@@ -30,7 +87,7 @@ export function generateArgInitializers(
 		pad(toHex(0x120 + 0x20 * owners.length))
 			.substring(2)
 			.padStart(64, '0') + // Data length
-		(shouldUseAlternateFallbackHandler ? ALTERNATE_FALLBACK_HANDLER : FALLBACK_HANDLER)
+		fallbackHandler
 			.substring(2)
 			.padStart(64, '0') +
 		zeroAddress.substring(2).padStart(64, '0') + // paymentToken
@@ -79,6 +136,8 @@ export function decodeArgInitializers(argsHex: Hex): {
 		singleton = SINGLETON_L2_DDP;
 	} else if (argsHex.toLowerCase().includes('d9db270c1b5e3bd161e8c8503c55ceabee709552')) {
 		singleton = SINGLETON_L1;
+	} else if (argsHex.toLowerCase().includes('41675c099f32341bf84bfc5382af534df5c7461a')) {
+		singleton = SINGLETON_1_4_1;
 	}
 
 	return {owners, threshold, salt: fromHex(salt, 'bigint'), singleton, paymentReceiver: probablyPaymentReceiver};

@@ -27,7 +27,7 @@ import {
 	SINGLETON_L2_DDP
 } from 'app/(apps)/multisafe/constants';
 import {MultisafeContextApp, useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
-import {createUniqueID, generateArgInitializers} from 'app/(apps)/multisafe/utils';
+import {createUniqueID, generateArgInitializers, getFallbackHandler} from 'app/(apps)/multisafe/utils';
 
 import type {TAddress, TInputAddressLike} from '@lib/utils/tools.addresses';
 import type {TInputAddressLikeWithUUID} from 'app/(apps)/multisafe/contexts/useMultisafe';
@@ -214,8 +214,15 @@ function Safe(): ReactElement {
 			seed = hexToBigInt(keccak256(concat([toHex('smol'), toHex(Math.random().toString())])));
 		}
 		const ownersAddresses = owners.map(owner => toAddress(owner.address));
-		const argInitializers = generateArgInitializers(ownersAddresses, threshold, zeroAddress);
-		const singletonFactory = hexToBigInt(factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP);
+		const singletonToUse = factory == 'ssf' ? SINGLETON_L2 : SINGLETON_L2_DDP;
+		const singletonFactory = hexToBigInt(singletonToUse);
+		const argInitializers = generateArgInitializers(
+			ownersAddresses,
+			threshold,
+			zeroAddress,
+			getFallbackHandler(singletonToUse, false),
+			singletonToUse
+		);
 		const bytecode = encodePacked(['bytes', 'uint256'], [GNOSIS_SAFE_PROXY_CREATION_CODE, singletonFactory]);
 		const result = await compute({
 			argInitializers,

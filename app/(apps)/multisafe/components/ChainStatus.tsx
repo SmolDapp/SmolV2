@@ -27,33 +27,16 @@ import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {multicall} from 'app/(apps)/multisafe/actions';
 import {
 	DEFAULT_FEES_USD,
-	PROXY_FACTORY_L1,
-	PROXY_FACTORY_L2,
-	PROXY_FACTORY_L2_DDP,
 	SINGLETON_L1,
-	SINGLETON_L2,
-	SINGLETON_L2_DDP
+	SINGLETON_L2
 } from 'app/(apps)/multisafe/constants';
 import {useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
-import {generateArgInitializers} from 'app/(apps)/multisafe/utils';
+import {generateArgInitializers, getFallbackHandler, getProxyFromSingleton} from 'app/(apps)/multisafe/utils';
 
 import type {TAddress} from '@lib/utils/tools.addresses';
 import type {GetTransactionReturnType} from '@wagmi/core';
 import type {ReactElement} from 'react';
 import type {Chain} from 'viem';
-
-function getProxyFromSingleton(singleton: TAddress): TAddress {
-	if (singleton === SINGLETON_L2) {
-		return PROXY_FACTORY_L2;
-	}
-	if (singleton === SINGLETON_L2_DDP) {
-		return PROXY_FACTORY_L2_DDP;
-	}
-	if (singleton === SINGLETON_L1) {
-		return PROXY_FACTORY_L1;
-	}
-	return PROXY_FACTORY_L2;
-}
 
 type TChainStatusArgs = {
 	chain: Chain;
@@ -123,11 +106,35 @@ function ChainStatus({
 			return setCanDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
 		}
 
+		/**************************************************************************************
+		** First try to clone with the regular FALLBACK_HANDLER
+		**************************************************************************************/
+		const argInitializers = generateArgInitializers(
+			owners,
+			threshold,
+			toAddress(paymentReceiver),
+			getFallbackHandler(signletonToUse, false),
+			signletonToUse
+		);
+		console.dir({
+			account: address,
+			address: getProxyFromSingleton(signletonToUse),
+			abi: GNOSIS_SAFE_PROXY_FACTORY,
+			chainId: chain.id,
+			functionName: 'createProxyWithNonce',
+			args: [signletonToUse, `0x${argInitializers}`, salt],
+			prepareWriteAddress,
+			singleton,
+safeAddress
+		});
 		try {
-			/**************************************************************************************
-			 ** First try to clone with the regular FALLBACK_HANDLER
-			 **************************************************************************************/
-			const argInitializers = generateArgInitializers(owners, threshold, toAddress(paymentReceiver));
+			const argInitializers = generateArgInitializers(
+				owners,
+				threshold,
+				toAddress(paymentReceiver),
+				getFallbackHandler(signletonToUse, false),
+				signletonToUse
+			);
 			const prepareWriteResult = await simulateContract(config, {
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -140,15 +147,21 @@ function ChainStatus({
 			if (prepareWriteAddress === safeAddress) {
 				return setCanDeployOnThatChain({canDeploy: true, isLoading: false, method: 'contract'});
 			}
-		} catch {
-			// console.warn(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
+		} catch (err) {
+			console.error(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
 		}
 
+		/**************************************************************************************
+		** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
+		**************************************************************************************/
 		try {
-			/**************************************************************************************
-			 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
-			 **************************************************************************************/
-			const argInitializersAlt = generateArgInitializers(owners, threshold, toAddress(paymentReceiver), true);
+			const argInitializersAlt = generateArgInitializers(
+				owners,
+				threshold,
+				toAddress(paymentReceiver),
+				getFallbackHandler(signletonToUse, true),
+				signletonToUse
+			);
 			const prepareWriteResultAlt = await simulateContract(config, {
 				account: address,
 				address: getProxyFromSingleton(signletonToUse),
@@ -165,6 +178,9 @@ function ChainStatus({
 			// console.error(`Couldn't simulate safe deploy on ${chain.name} because of ${err}`);
 		}
 
+		/**************************************************************************************
+		** Otherwise, fallback to the direct call
+		**************************************************************************************/
 		try {
 			const directCall = await call(config, {
 				to: toAddress(originalTx?.to),
@@ -291,7 +307,8 @@ function ChainStatus({
 				owners,
 				threshold,
 				toAddress(paymentReceiver),
-				canDeployOnThatChain.method === 'contractAlt'
+				getFallbackHandler(signletonToUse, canDeployOnThatChain.method === 'contractAlt'),
+				signletonToUse
 			);
 			const callDataDisperseEth = {
 				target: CHAINS[chain.id].disperseAddress,
