@@ -4,7 +4,6 @@ import {useAccount} from 'wagmi';
 
 import {AddressBookEntryAddress} from '@lib/components/AddressBookEntry';
 import {Avatar} from '@lib/components/Avatar';
-import {useBeraname} from '@lib/hooks/web3/useBeraname';
 import {useClusters} from '@lib/hooks/web3/useClusters';
 import {useENS} from '@lib/hooks/web3/useENS';
 
@@ -14,19 +13,18 @@ import type {ReactElement} from 'react';
 
 export function ProfileBox(): ReactElement {
 	const {name: ensName, avatar: ensAvatar, isLoading: isLoadingENS} = useENS();
-	const {name: beraname, avatar: beranameAvatar, isLoading: isLoadingBeraname} = useBeraname();
 	const {name: clustersName, avatar: clustersAvatar} = useClusters();
 	const {isConnecting, address} = useAccount();
-	const isLoadingAvatar = isLoadingENS || isLoadingBeraname;
+	const isLoadingAvatar = isLoadingENS;
 
 	return (
 		<div className={'flex gap-2'}>
 			<Avatar
 				sizeClassname={'h-10 w-10 min-w-[40px]'}
 				isLoading={isLoadingAvatar || isConnecting}
-				label={ensName || beraname || clustersName || undefined}
+				label={ensName || clustersName || undefined}
 				address={address}
-				src={ensAvatar || beranameAvatar || clustersAvatar}
+				src={ensAvatar || clustersAvatar}
 			/>
 			<AddressBookEntryAddress
 				shouldTruncateAddress

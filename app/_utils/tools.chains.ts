@@ -211,7 +211,7 @@ const CHAINS: TSmolChains = {
 	[zksync.id]: {
 		...zksync,
 		isLifiSwapSupported: true,
-		isMultisafeSupported: false,
+		isMultisafeSupported: true,
 		safeAPIURI: 'https://safe-transaction-zksync.safe.global',
 		safeUIURI: 'https://app.safe.global/home?safe=zksync:',
 		coingeckoGasCoinID: 'ethereum',
