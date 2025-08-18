@@ -25,11 +25,7 @@ import {toAddress, truncateHex} from '@lib/utils/tools.addresses';
 import {CHAINS} from '@lib/utils/tools.chains';
 import {defaultTxStatus} from '@lib/utils/tools.transactions';
 import {multicall} from 'app/(apps)/multisafe/actions';
-import {
-	DEFAULT_FEES_USD,
-	SINGLETON_L1,
-	SINGLETON_L2
-} from 'app/(apps)/multisafe/constants';
+import {DEFAULT_FEES_USD, SINGLETON_L1, SINGLETON_L2} from 'app/(apps)/multisafe/constants';
 import {useMultisafe} from 'app/(apps)/multisafe/contexts/useMultisafe';
 import {generateArgInitializers, getFallbackHandler, getProxyFromSingleton} from 'app/(apps)/multisafe/utils';
 
@@ -102,13 +98,11 @@ function ChainStatus({
 		let prepareCallAddress = toAddress();
 
 		const signletonToUse = singleton || SINGLETON_L2;
+
 		if (signletonToUse === SINGLETON_L1) {
 			return setCanDeployOnThatChain({canDeploy: false, isLoading: false, method: 'none'});
 		}
 
-		/**************************************************************************************
-		** First try to clone with the regular FALLBACK_HANDLER
-		**************************************************************************************/
 		const argInitializers = generateArgInitializers(
 			owners,
 			threshold,
@@ -125,8 +119,12 @@ function ChainStatus({
 			args: [signletonToUse, `0x${argInitializers}`, salt],
 			prepareWriteAddress,
 			singleton,
-safeAddress
+			safeAddress
 		});
+
+		/**************************************************************************************
+		 ** First try to clone with the regular FALLBACK_HANDLER
+		 **************************************************************************************/
 		try {
 			const argInitializers = generateArgInitializers(
 				owners,
@@ -152,8 +150,8 @@ safeAddress
 		}
 
 		/**************************************************************************************
-		** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
-		**************************************************************************************/
+		 ** If not successful, try to clone with the ALTERNATE_FALLBACK_HANDLER
+		 **************************************************************************************/
 		try {
 			const argInitializersAlt = generateArgInitializers(
 				owners,
@@ -179,8 +177,8 @@ safeAddress
 		}
 
 		/**************************************************************************************
-		** Otherwise, fallback to the direct call
-		**************************************************************************************/
+		 ** Otherwise, fallback to the direct call
+		 **************************************************************************************/
 		try {
 			const directCall = await call(config, {
 				to: toAddress(originalTx?.to),
