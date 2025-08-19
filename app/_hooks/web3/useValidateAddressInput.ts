@@ -61,7 +61,7 @@ export function useValidateAddressInput(): {
 
 			return {
 				address: toAddress(input),
-				label: ensName || clusterName || toAddress(input),
+				label: ensName || clusterName?.clusterName || toAddress(input),
 				error: undefined,
 				isValid: true,
 				source: 'typed'
@@ -104,16 +104,17 @@ export function useValidateAddressInput(): {
 			}
 			setIsCheckingValidity(true);
 			const clusters = new Clusters();
-			const clusterAddress = await clusters.getAddress(lowercaseInput);
+			const clusterAddresses = await clusters.getAddresses([lowercaseInput]);
 			if (signal?.aborted) {
 				throw new Error('Aborted!');
 			}
+			const clusterAddress = clusterAddresses[0];
 			setIsCheckingValidity(false);
 
 			if (clusterAddress && clusterAddress?.type === 'evm' && isAddress(clusterAddress.address)) {
 				return {
 					address: toAddress(clusterAddress.address),
-					label: lowercaseInput || clusterAddress.name || toAddress(clusterAddress.address),
+					label: lowercaseInput || clusterAddress.clusterName || toAddress(clusterAddress.address),
 					error: undefined,
 					isValid: true,
 					source: 'typed'

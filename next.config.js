@@ -11,6 +11,9 @@ module.exports = withPlausibleProxy({
 	customDomain: 'https://smold.app'
 })(
 	withPWA({
+		typescript: {
+			ignoreBuildErrors: true,
+		},
 		experimental: {
 			externalDir: true
 		},

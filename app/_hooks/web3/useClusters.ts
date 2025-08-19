@@ -18,7 +18,7 @@ export function useClusters(props?: {address: TAddress}): TClusters {
 			const clusters = new Clusters();
 			const clustersTag = await clusters.getName(props?.address);
 			if (clustersTag) {
-				const [clustersName] = clustersTag.split('/');
+				const [clustersName] = (clustersTag?.clusterName || '').split('/');
 				const profileImage = getImageUrl(clustersName);
 				setClusters({name: `${clustersName}/`, avatar: profileImage});
 				return;
@@ -27,7 +27,7 @@ export function useClusters(props?: {address: TAddress}): TClusters {
 			const clusters = new Clusters();
 			const clustersTag = await clusters.getName(address);
 			if (clustersTag) {
-				const [clustersName] = clustersTag.split('/');
+				const [clustersName] = (clustersTag?.clusterName || '').split('/');
 				const profileImage = getImageUrl(clustersName);
 				setClusters({name: `${clustersName}/`, avatar: profileImage});
 				return;
