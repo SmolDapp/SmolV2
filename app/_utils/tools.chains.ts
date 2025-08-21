@@ -29,6 +29,7 @@ import {
 	polygonZkEvm,
 	scroll,
 	sepolia,
+	sonic,
 	unichain,
 	zksync,
 	zora
@@ -445,7 +446,7 @@ const CHAINS: TSmolChains = {
 		safeUIURI: 'https://app.safe.global/home?safe=ink:',
 		coingeckoGasCoinID: 'ethereum',
 		llamaChainName: 'ethereum',
-		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		disperseAddress: toAddress('0x0000000000000000000000000000000000000000'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(ink)
 	},
@@ -460,6 +461,18 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(flare)
+	},
+	[sonic.id]: {
+		...sonic,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: '',
+		safeUIURI: 'https://app.safe.global/home?safe=sonic:',
+		coingeckoGasCoinID: 'sonic-3',
+		llamaChainName: 'sonic-3',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(sonic)
 	}
 };
 
