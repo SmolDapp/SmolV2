@@ -19,6 +19,7 @@ import {
 	fraxtal,
 	gnosis,
 	ink,
+	katana,
 	linea,
 	mainnet,
 	mantle,
@@ -32,8 +33,7 @@ import {
 	sonic,
 	unichain,
 	zksync,
-	zora,
-	katana
+	zora
 } from 'viem/chains';
 
 import {toAddress} from '@lib/utils/tools.addresses';
