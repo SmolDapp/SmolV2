@@ -32,7 +32,8 @@ import {
 	sonic,
 	unichain,
 	zksync,
-	zora
+	zora,
+	katana
 } from 'viem/chains';
 
 import {toAddress} from '@lib/utils/tools.addresses';
@@ -473,6 +474,18 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(sonic)
+	},
+	[katana.id]: {
+		...katana,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: '',
+		safeUIURI: 'https://app.safe.global/home?safe=katana:',
+		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'ethereum',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(katana)
 	}
 };
 
