@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useEnsAvatar, useEnsName} from 'wagmi';

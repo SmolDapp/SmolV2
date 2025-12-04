@@ -1,7 +1,7 @@
 'use client';
 
 import {usePlausible} from 'next-plausible';
-import React, {useCallback, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {isAddressEqual} from 'viem';

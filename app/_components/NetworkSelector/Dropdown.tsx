@@ -1,7 +1,7 @@
 'use client';
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import React, {useState} from 'react';
+import {useState} from 'react';
 
 import {DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuSeparator} from '@lib/components/DropdownMenu';
 import {IconChevronBottom} from '@lib/components/icons/IconChevronBottom';

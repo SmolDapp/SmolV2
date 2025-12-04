@@ -1,6 +1,6 @@
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
-import React, {useCallback} from 'react';
+import {useCallback} from 'react';
 
 import {Button} from '@lib/components/Button';
 import {IconImport} from '@lib/components/icons/IconImport';

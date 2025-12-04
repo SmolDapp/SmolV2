@@ -4,7 +4,7 @@ import assert from 'assert';
 
 import {useMountEffect} from '@react-hookz/web';
 import {usePlausible} from 'next-plausible';
-import React, {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
+import {createContext, useCallback, useContext, useMemo, useReducer, useState} from 'react';
 import {useIndexedDBStore} from 'use-indexeddb';
 import {useChainId} from 'wagmi';
 

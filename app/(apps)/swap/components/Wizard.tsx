@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, {useCallback, useState} from 'react';
+import {useCallback, useState} from 'react';
 
 import {Button} from '@lib/components/Button';
 import {IconAppSwap} from '@lib/components/icons/IconApps';

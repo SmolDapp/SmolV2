@@ -1,6 +1,5 @@
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
-import React from 'react';
 import {toast} from 'react-hot-toast';
 import {useChainId, useConfig} from 'wagmi';
 

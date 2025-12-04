@@ -4,7 +4,7 @@ import {getEnsName} from '@wagmi/core';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
 import Papa from 'papaparse';
-import React, {memo, useCallback, useEffect, useState} from 'react';
+import {memo, useCallback, useEffect, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {mainnet} from 'viem/chains';
 import {useChainId, useConfig} from 'wagmi';

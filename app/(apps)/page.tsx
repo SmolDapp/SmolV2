@@ -2,8 +2,6 @@
 
 import {Alignment, Fit, Layout, useRive} from '@rive-app/react-canvas';
 import Link from 'next/link';
-import React from 'react';
-
 import {
 	IconAppAddressBook,
 	IconAppDisperse,

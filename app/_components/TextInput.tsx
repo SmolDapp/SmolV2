@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {InputHTMLAttributes, ReactElement, RefObject} from 'react';
 
 export function TextInput(

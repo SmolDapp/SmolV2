@@ -1,7 +1,7 @@
 'use client';
 
 import {useSearchParams} from 'next/navigation';
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState} from 'react';
 import {useChainId} from 'wagmi';
 
 import {useBalances} from '@lib/contexts/useBalances.multichains';

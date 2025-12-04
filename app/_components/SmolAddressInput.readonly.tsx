@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
 import {mainnet} from 'viem/chains';
 import {useEnsName} from 'wagmi';
 

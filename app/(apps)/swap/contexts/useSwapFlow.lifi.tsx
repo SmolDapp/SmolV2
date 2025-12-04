@@ -10,7 +10,7 @@ import {
 } from '@wagmi/core';
 import {useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {erc20Abi, zeroAddress} from 'viem';
 import {serialize, useAccount, useChainId, useConfig} from 'wagmi';

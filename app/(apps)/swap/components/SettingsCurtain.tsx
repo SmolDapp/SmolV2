@@ -3,8 +3,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import {usePlausible} from 'next-plausible';
-import React from 'react';
-
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {CloseCurtainButton} from '@lib/components/Curtains/InfoCurtain';
 import {cl} from '@lib/utils/helpers';

@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react';
+import {forwardRef} from 'react';
 
 import {IconSpinner} from '@lib/components/icons/IconSpinner';
 import {cl} from '@lib/utils/helpers';

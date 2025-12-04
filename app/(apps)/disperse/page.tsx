@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {BalancesCurtainContextApp} from '@lib/contexts/useBalancesCurtain';
 import {DisperseContextApp} from 'app/(apps)/disperse/contexts/useDisperse';
 import Disperse from 'app/(apps)/disperse/disperse';

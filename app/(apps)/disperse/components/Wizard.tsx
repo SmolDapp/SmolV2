@@ -1,6 +1,6 @@
 import {useSafeAppsSDK} from '@gnosis.pm/safe-apps-react-sdk';
 import {usePlausible} from 'next-plausible';
-import React, {useCallback, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {erc20Abi, zeroAddress} from 'viem';
 import {useAccount, useChainId, useConfig, useReadContract} from 'wagmi';

@@ -1,8 +1,6 @@
 'use client';
 
 import {usePlausible} from 'next-plausible';
-import React from 'react';
-
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {useSwapFlow} from 'app/(apps)/swap/contexts/useSwapFlow.lifi';
 

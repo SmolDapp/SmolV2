@@ -4,7 +4,7 @@ import assert from 'assert';
 
 import {useRouter, useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {concat, encodePacked, getContractAddress, hexToBigInt, keccak256, toHex, zeroAddress} from 'viem';
 import {serialize} from 'wagmi';
 

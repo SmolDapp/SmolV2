@@ -2,7 +2,7 @@
 
 import {useAsyncAbortable} from '@react-hookz/web';
 import {getEnsAddress} from '@wagmi/core';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useOnClickOutside} from 'usehooks-ts';
 import {mainnet} from 'viem/chains';
 import {useChainId, useConfig} from 'wagmi';

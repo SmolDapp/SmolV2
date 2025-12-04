@@ -1,7 +1,7 @@
 'use client';
 
 import {CheckboxItem, Content, Portal, Separator} from '@radix-ui/react-dropdown-menu';
-import React, {forwardRef} from 'react';
+import {forwardRef} from 'react';
 
 import {cl} from '@lib/utils/helpers';
 

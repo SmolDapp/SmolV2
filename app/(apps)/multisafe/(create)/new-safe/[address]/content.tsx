@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {Fragment, useMemo, useState} from 'react';
+import {Fragment, useMemo, useState} from 'react';
 
 import {Button} from '@lib/components/Button';
 import {SafeDetailsCurtain} from '@lib/components/Curtains/SafeDetailsCurtain';

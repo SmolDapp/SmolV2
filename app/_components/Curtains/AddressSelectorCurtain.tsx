@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {getEnsAddress} from '@wagmi/core';
 import {LayoutGroup, motion} from 'framer-motion';
 import {usePlausible} from 'next-plausible';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {isAddress} from 'viem';
 import {mainnet} from 'viem/chains';
 import {useConfig} from 'wagmi';

@@ -2,8 +2,6 @@
 
 import {Rubik, Source_Code_Pro} from 'next/font/google';
 import localFont from 'next/font/local';
-import React from 'react';
-
 import type {ReactElement, ReactNode} from 'react';
 
 const rubik = Rubik({

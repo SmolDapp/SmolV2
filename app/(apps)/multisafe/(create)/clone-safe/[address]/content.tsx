@@ -4,7 +4,7 @@ import {getBlockNumber, getBytecode, getTransaction} from '@wagmi/core';
 import axios from 'axios';
 import {useSearchParams} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
+import {Fragment, useCallback, useEffect, useMemo, useState} from 'react';
 import {zeroAddress} from 'viem';
 import {getLogs} from 'viem/actions';
 import {useConfig} from 'wagmi';

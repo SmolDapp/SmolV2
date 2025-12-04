@@ -1,8 +1,6 @@
 'use client';
 
 import {useRouter} from 'next/navigation';
-import React from 'react';
-
 import {IconClone} from '@lib/components/icons/IconClone';
 import IconSquarePlus from '@lib/components/icons/IconSquarePlus';
 import CardWithIcon from 'app/(apps)/multisafe/components/CardWithIcon';

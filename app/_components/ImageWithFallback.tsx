@@ -2,7 +2,7 @@
 
 import {useUpdateEffect} from '@react-hookz/web';
 import Image from 'next/image';
-import React, {useState} from 'react';
+import {useState} from 'react';
 
 import type {ImageProps} from 'next/image';
 import type {CSSProperties, ReactElement} from 'react';

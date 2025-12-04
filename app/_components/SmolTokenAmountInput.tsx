@@ -2,7 +2,7 @@
 
 import {useDeepCompareEffect, useUpdateEffect} from '@react-hookz/web';
 import InputNumber from 'rc-input-number';
-import React, {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useChainId} from 'wagmi';
 
 import {SmolTokenSelectorButton} from '@lib/components/SmolTokenSelectorButton';

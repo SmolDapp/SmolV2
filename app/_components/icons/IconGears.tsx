@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {ReactElement} from 'react';
 
 export function IconGears(props: React.SVGProps<SVGSVGElement>): ReactElement {

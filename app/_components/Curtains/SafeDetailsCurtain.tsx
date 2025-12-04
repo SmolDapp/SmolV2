@@ -1,6 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import React from 'react';
-
 import {AddressEntry} from '@lib/components/AddressBookEntry';
 import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {CloseCurtainButton} from '@lib/components/Curtains/InfoCurtain';

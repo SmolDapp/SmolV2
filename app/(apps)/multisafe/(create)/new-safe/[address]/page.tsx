@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {toAddress} from '@lib/utils/tools.addresses';
 import {SafeCreateContent} from 'app/(apps)/multisafe/(create)/new-safe/[address]/content';
 import {MultisafeContextApp} from 'app/(apps)/multisafe/contexts/useMultisafe';

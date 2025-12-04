@@ -4,7 +4,7 @@ import {useAccountModal} from '@rainbow-me/rainbowkit';
 import {useUpdateEffect} from '@react-hookz/web';
 import Identicon from 'identicon.js';
 import Image from 'next/image';
-import React, {useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {mainnet} from 'viem/chains';
 import {useEnsAvatar, useEnsName} from 'wagmi';
 

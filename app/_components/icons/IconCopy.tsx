@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {ReactElement} from 'react';
 
 export function IconCopy(props: React.SVGProps<SVGSVGElement>): ReactElement {

@@ -1,5 +1,5 @@
 import {usePlausible} from 'next-plausible';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {useAccount, useChainId} from 'wagmi';
 
 import {Button} from '@lib/components/Button';

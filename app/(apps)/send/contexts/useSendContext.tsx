@@ -1,7 +1,7 @@
 'use client';
 
 import {useSearchParams} from 'next/navigation';
-import React, {createContext, useContext, useEffect, useMemo, useReducer} from 'react';
+import {createContext, useContext, useEffect, useMemo, useReducer} from 'react';
 
 import {isAddress} from '@lib/utils/tools.addresses';
 

@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {usePlausible} from 'next-plausible';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useChainId} from 'wagmi';
 
 import {AvatarWrapper} from '@lib/components/Avatar';

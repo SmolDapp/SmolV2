@@ -1,4 +1,4 @@
-import React, {createContext, useEffect} from 'react';
+import {createContext, useEffect} from 'react';
 import setupIndexedDB from 'use-indexeddb';
 
 import type {IndexedDBConfig} from 'use-indexeddb/dist/interfaces';

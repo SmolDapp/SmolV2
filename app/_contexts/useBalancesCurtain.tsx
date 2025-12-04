@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {useDeepCompareEffect, useDeepCompareMemo} from '@react-hookz/web';
 import {LayoutGroup, motion} from 'framer-motion';
 import {usePlausible} from 'next-plausible';
-import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import useSWR from 'swr';
 import {isAddressEqual} from 'viem';
 import {useAccount, useChainId} from 'wagmi';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type {ReactElement} from 'react';
 
 function IconCheck(props: React.SVGProps<SVGSVGElement>): ReactElement {
