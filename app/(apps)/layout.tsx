@@ -1,12 +1,6 @@
 'use client';
 
-import {
-	IconAppAddressBook,
-	IconAppDisperse,
-	IconAppRevoke,
-	IconAppSend,
-	IconAppSwap
-} from '@lib/components/icons/IconApps';
+import {IconAppAddressBook, IconAppDisperse, IconAppSend} from '@lib/components/icons/IconApps';
 import {IconClone} from '@lib/components/icons/IconClone';
 import IconMultisafe from '@lib/components/icons/IconMultisafe';
 import IconSquarePlus from '@lib/components/icons/IconSquarePlus';
@@ -26,30 +20,19 @@ const MENU = [
 		icon: <IconWallet />
 	},
 	{
-		href: '/send',
+		href: 'https://migrate.smold.app/',
 		label: 'Send',
 		icon: <IconAppSend />
 	},
 	{
-		href: '/disperse',
+		href: 'https://disperse.smold.app/',
 		label: 'Disperse',
 		icon: <IconAppDisperse />
 	},
 	{
-		href: '/swap',
-		label: 'Swap/Bridge',
-		icon: <IconAppSwap />
-	},
-
-	{
 		href: '/address-book',
 		label: 'Address Book',
 		icon: <IconAppAddressBook />
-	},
-	{
-		href: '/revoke',
-		label: 'Revoke',
-		icon: <IconAppRevoke />
 	},
 	{
 		href: '/multisafe',
