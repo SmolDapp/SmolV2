@@ -34,6 +34,14 @@ type TNavItemProps = {
 	isDisabled?: boolean;
 	onClick?: () => void;
 };
+
+function getExternalCursorClassName(href: string): string {
+	if (href.startsWith('http')) {
+		return 'cursor-alias';
+	}
+	return '';
+}
+
 function NavItem({
 	label,
 	href,
@@ -53,6 +61,7 @@ function NavItem({
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
 						'group',
+						getExternalCursorClassName(href),
 						isSelected ? 'bg-neutral-300' : isDisabled ? '' : 'hover:bg-neutral-300',
 						isDisabled ? 'cursor-not-allowed' : ''
 					)}>
