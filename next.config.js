@@ -65,12 +65,25 @@ module.exports = withPlausibleProxy({
 				},
 				{
 					source: '/',
-					has: [
-						{type: 'host', value: 'nftmigratooor.smold.app'},
-						{type: 'host', value: 'migratooor.com'},
-						{type: 'host', value: 'migrate.smold.app'},
-						{type: 'host', value: 'migratooor.smold.app'}
-					],
+					has: [{type: 'host', value: 'nftmigratooor.smold.app'}],
+					destination: '/send',
+					permanent: true
+				},
+				{
+					source: '/',
+					has: [{type: 'host', value: 'migratooor.com'}],
+					destination: '/send',
+					permanent: true
+				},
+				{
+					source: '/',
+					has: [{type: 'host', value: 'migrate.smold.app'}],
+					destination: '/send',
+					permanent: true
+				},
+				{
+					source: '/',
+					has: [{type: 'host', value: 'migratooor.smold.app'}],
 					destination: '/send',
 					permanent: true
 				},
