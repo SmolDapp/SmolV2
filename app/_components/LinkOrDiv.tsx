@@ -9,10 +9,11 @@ type TProps = {
 	passHref?: boolean;
 	className?: string;
 	target?: string;
+	rel?: string;
 	onClick?: () => void;
 };
 
-export function LinkOrDiv({href, isDisabled, children, passHref, onClick, ...rest}: TProps): ReactElement {
+export function LinkOrDiv({href, isDisabled, children, passHref, onClick, target, rel, ...rest}: TProps): ReactElement {
 	if (isDisabled) {
 		return (
 			<button
@@ -40,6 +41,8 @@ export function LinkOrDiv({href, isDisabled, children, passHref, onClick, ...res
 			href={href}
 			passHref={passHref}
 			onClick={onClick}
+			target={target}
+			rel={rel}
 			{...rest}>
 			{children}
 		</Link>
