@@ -100,3 +100,14 @@ export function acknowledge(..._args: unknown[]): void {
 	// linting errors.
 	// Also should help fixing Warning: Cannot update a component while rendering a different component error.
 }
+
+export function isExternalLink(href: string): boolean {
+	return href.startsWith('http');
+}
+
+export function getExternalLinkProps(href: string): {target?: string; rel?: string} {
+	if (isExternalLink(href)) {
+		return {target: '_blank', rel: 'noopener noreferrer'};
+	}
+	return {};
+}

@@ -12,7 +12,7 @@ import {CurtainContent, CurtainTitle} from '@lib/components/Curtain';
 import {IconChevron} from '@lib/components/icons/IconChevron';
 import {LinkOrDiv} from '@lib/components/LinkOrDiv';
 import {useIsMounted} from '@lib/hooks/useIsMounted';
-import {cl} from '@lib/utils/helpers';
+import {cl, getExternalLinkProps, isExternalLink} from '@lib/utils/helpers';
 import {PLAUSIBLE_EVENTS} from '@lib/utils/plausible';
 import {isZeroAddress} from '@lib/utils/tools.addresses';
 
@@ -36,7 +36,7 @@ type TNavItemProps = {
 };
 
 function getExternalCursorClassName(href: string): string {
-	if (href.startsWith('http')) {
+	if (isExternalLink(href)) {
 		return 'cursor-alias';
 	}
 	return '';
@@ -54,9 +54,10 @@ function NavItem({
 	return (
 		<motion.li className={'relative z-10 px-4 md:px-2 lg:px-4'}>
 			<LinkOrDiv
-				href={hasSubmenu ? href : href}
+				href={href}
 				isDisabled={isDisabled}
-				onClick={onClick}>
+				onClick={onClick}
+				{...getExternalLinkProps(href)}>
 				<div
 					className={cl(
 						'flex items-center gap-2 justify-between rounded-3xl px-4 py-2 transition-colors w-full',
