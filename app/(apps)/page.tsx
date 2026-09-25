@@ -10,7 +10,7 @@ import {
 	IconAppSwap
 } from '@lib/components/icons/IconApps';
 import IconMultisafe from '@lib/icons/IconMultisafe';
-import {cl} from '@lib/utils/helpers';
+import {cl, getExternalLinkProps} from '@lib/utils/helpers';
 
 import type {ReactElement} from 'react';
 
@@ -29,7 +29,9 @@ function Cutaway({title, description, link, buttonTitle, icon}: TCutaway): React
 				<div className={'mb-3 text-[18px] font-semibold leading-[24px] text-neutral-900'}>{title}</div>
 				<div className={'text-sm text-[#ADB1BD]'}>{description}</div>
 			</div>
-			<Link href={link}>
+			<Link
+				href={link}
+				{...getExternalLinkProps(link)}>
 				<button
 					data-variant={'filled'}
 					className={cl('button', '!h-10 w-full')}>
@@ -121,7 +123,7 @@ export default function Page(): ReactElement {
 					description={
 						'Beloved by projects and individuals, send tokens to multiple addresses at the same time with disperse'
 					}
-					link={'/disperse'}
+					link={'https://disperse.smold.app/'}
 					buttonTitle={'Disperse tokens'}
 					icon={<IconAppDisperse className={'size-4'} />}
 				/>
