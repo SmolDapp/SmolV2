@@ -4,6 +4,7 @@
 import {zeroAddress} from 'viem';
 import {
 	arbitrum,
+	arc,
 	aurora,
 	avalanche,
 	base,
@@ -28,6 +29,7 @@ import {
 	optimism,
 	polygon,
 	polygonZkEvm,
+	robinhood,
 	scroll,
 	sepolia,
 	sonic,
@@ -486,6 +488,30 @@ const CHAINS: TSmolChains = {
 		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
 		yearnRouterAddress: undefined,
 		rpcUrls: assignRPCUrls(katana)
+	},
+	[arc.id]: {
+		...arc,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: 'https://api.safe.global/tx-service/arc',
+		safeUIURI: 'https://app.safe.global/home?safe=arc:',
+		coingeckoGasCoinID: 'usd-coin',
+		llamaChainName: 'arc',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(arc)
+	},
+	[robinhood.id]: {
+		...robinhood,
+		isLifiSwapSupported: false,
+		isMultisafeSupported: true,
+		safeAPIURI: 'https://api.safe.global/tx-service/robinhood',
+		safeUIURI: 'https://app.safe.global/home?safe=robinhood:',
+		coingeckoGasCoinID: 'ethereum',
+		llamaChainName: 'robinhood',
+		disperseAddress: toAddress('0xd15fE25eD0Dba12fE05e7029C88b10C25e8880E3'),
+		yearnRouterAddress: undefined,
+		rpcUrls: assignRPCUrls(robinhood)
 	}
 };
 
